@@ -14,10 +14,10 @@ classdef functionF
     methods
 
         function setNum(obj,expr)
-            obj.num = expr
+            obj.num = expr;
         end     
         function setDen(obj,expr)
-            obj.den = expr
+            obj.den = expr;
         end     
         
         function obj = functionF0(n)
@@ -26,7 +26,7 @@ classdef functionF
                 return 
             end     
             if isinteger (n)
-                obj.setVars(n)
+                obj.setVars(n);
             end
         end
 
@@ -37,7 +37,7 @@ classdef functionF
               obj.den=1;
             elseif nargin == 1
               obj.num=num;  
-              obj.den=1  
+              obj.den=1;  
             elseif nargin == 2
               obj.num=num;
               obj.den=den;
@@ -68,6 +68,30 @@ classdef functionF
             f = obj1.f - obj2.f;
         end
 
-        
+        function res = eq(obj1,obj2)
+            res = false;
+            if (obj1.f==obj2.f)
+                res = true;
+            end 
+        end
+        function f = removeDenominator (obj,x,y)
+            %f = obj.num;
+            %num = f.num
+            cy = [];
+            cx = coeffs(obj.num,x);
+            for i = 1:size(cx,1)
+                g  = cx(i);
+                cy = [cy,coeffs(cx(i),y)];
+                
+            end
+            cz=[];
+            for i = 1:size(cy,2)
+              cz = [cz,1/cy(i)];
+            end
+            if (size(cz)>0)
+                mult= lcm(cz);
+            end
+            f = obj.f*mult;
+        end
     end
 end

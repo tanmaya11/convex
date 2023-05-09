@@ -48,7 +48,7 @@ classdef domain
             obj.nE = obj.nE+1;
             obj.E(obj.nE,1) =  obj.nVertices;
             obj.E(obj.nE,2) =  1;
-            obj.mE(obj.nE) = m;
+            obj.mE(obj.nE) = m
             obj.cE(obj.nE) = yIntercept (obj,1,m);
             l(1)=1;
             l(obj.nVertices) = 1;
