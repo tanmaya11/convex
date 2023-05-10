@@ -1,16 +1,20 @@
 classdef domain
   properties
+    % vertex information  
     nVertices {mustBeInteger}
     vx;
     vy;
-    nE=0;
-    E;
-    mE;
-    cE;
+
+    % edge information
+    nE=0; % number of convex edges
+    E;    % index set 
+    mE; % slope
+    cE; % y intercept
+    
+    % remaining vertices
     nV=0;
-    V;
-    polygon;
-    parabola; 
+    V;    % index set
+
   end 
 
   methods
@@ -21,6 +25,7 @@ classdef domain
             obj.nVertices = size(v,1) ;
             [obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
           end
+          obj = getEdges (obj);
       end
 
       function vertex = getVertex(obj,i)
@@ -30,7 +35,7 @@ classdef domain
       function obj = getEdges (obj)
           for i = 1:obj.nVertices-1
               l(i) = 0;
-          end    
+          end
           for i = 1:obj.nVertices-1
             m = obj.slope (i,i+1);
             if (m > 0 & m < inf)
@@ -43,17 +48,19 @@ classdef domain
                 l(i+1)=1;
             end
           end 
+          
           m = obj.slope (obj.nVertices,1);
           if (m > 0 & m < inf)
             obj.nE = obj.nE+1;
             obj.E(obj.nE,1) =  obj.nVertices;
             obj.E(obj.nE,2) =  1;
-            obj.mE(obj.nE) = m
+            obj.mE(obj.nE) = m;
             obj.cE(obj.nE) = yIntercept (obj,1,m);
             l(1)=1;
             l(obj.nVertices) = 1;
           end
 
+          
           for i = 1:obj.nVertices
               if (l(i) == 1) 
                   continue

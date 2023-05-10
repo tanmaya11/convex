@@ -15,25 +15,54 @@ classdef plq
         end
 
         function obj = maxEnvelope (obj,x,y)
-            disp('chcek')
+            disp('check')
+            envdT = []
+            envfT = []
             for i = 1:size(obj.envd,2)
               obj.envd(i) = removeDenominator (obj.envd(i),x,y);
             end 
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
                     if (obj.envd(i) == obj.envd(j))
-                        i
-                        j
+                      envdT = [envdT,obj.envd(i)]
+                      envfT = [envfT,max(obj,i,j,x,y)]
                     end
                 end
             end
         end
+
+        function f = max(obj,i,j,x,y)
+            for i = 1:obj.d.nVertices
+                if (subs(obj.envd(i).f,[x,y],[obj.d.vx(i),obj.d.vy(i)]))    % change this to vertexindomain
+                    f0 = obj.envf(i)-obj.envf(j)
+                end
+            end
+            f = functionF
+        end
+
+        function convexEnvelope(obj)
+            for i = 1:size(obj.f,2)
+              vars = obj.f(i).getVars;
+              if (size(vars,2)==2)
+                  x = vars(1);
+                  y = vars(2);
+              else
+                  disp("not bivariate in 'plq.m'")
+                  return
+              end
+              obj = convexEnvelope1 (obj,1,x,y)
+            end
+            return
+            
+        end
+
         function obj = convexEnvelope1 (obj,i1,x,y)
             a=sym('a');
             b=sym('b');
             obj.d(i1).V    
             
             [etaV, etaE, etaR] =  getEtaFunctions (obj,i1,x,y,a,b)
+            return
             % put a check that eta are only polynomials 
 
              % (vix, vjx) is the pair :  1 for edge else 0 
