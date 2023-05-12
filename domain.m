@@ -4,7 +4,7 @@ classdef domain
     nVertices {mustBeInteger}
     vx;
     vy;
-
+    ineqs=functionF;
     % edge information
     nE=0; % number of convex edges
     E;    % index set 
@@ -20,14 +20,24 @@ classdef domain
   methods
 
       
-      function obj = domain(v)
+      function obj = domain(v, x,y)
           if nargin > 0
             obj.nVertices = size(v,1) ;
             [obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
           end
+          %obj.nVertices
+          %obj.vx
+          %obj.vy
           obj = getEdges (obj);
+          %obj.E
+          %obj.mE
+          %obj.V
+          obj = getAllEdges (obj, x, y);
+          for i = 1:obj.nVertices
+              obj.ineqs(i).print;
+          end
       end
-
+      
       function vertex = getVertex(obj,i)
           vertex = [obj.vx(i), obj.vy(i)];
       end
@@ -71,6 +81,29 @@ classdef domain
           
       end
 
+      function obj = getAllEdges (obj, x, y)
+        cx = mean(obj.vx);
+        cy =  mean(obj.vy);
+        for i = 1:obj.nVertices
+          if (i == obj.nVertices) 
+            m = obj.slope (i,1);
+          else
+            m = obj.slope (i,i+1);
+          end
+          if (m == inf)
+            obj.ineqs(i) = functionF(x  - obj.vx(i));
+          else
+            obj.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));
+          end
+          if obj.ineqs(i).subsVarsPartial([x,y],[cx,cy]) > 0
+              %obj.ineqs(i) = -obj.ineqs(i)
+              obj.ineqs(i) = obj.ineqs(i).unaryminus;
+          end
+        end
+           
+         
+      end
+      
       function m = slope (obj,i,j)
           m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
       end

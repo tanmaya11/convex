@@ -76,6 +76,10 @@ classdef functionF
         function f = minus(obj1,obj2)
             f = functionF(obj1.f - obj2.f);
         end
+        
+        function f = unaryminus(obj)
+            f = functionF(-obj.f);
+        end
 
         function res = eq(obj1,obj2)
             res = false;
@@ -142,6 +146,65 @@ classdef functionF
                 end
             end
         end
+
+        % temp code - needs to be fixed
+        function max_func = pointwise_max(objf, objg, vx, vy, ineqs, ineqs2)
+          % POINTWISE_MAX computes the pointwise maximum of two convex functions f and g
+          % and returns a function handle to the resulting maximum function.
+
+
+          
+          % Define a function handle to the maximum function
+          f = objf.f;
+          g = objg.f;
+          
+          vars = objf.vars;
+          max_func = @(vars) max(f(vars), g(vars));
+          minx = min(vx);
+          maxx = max(vx)
+          miny = min(vy);
+          maxy = max(vy)
+          n = 0;
+          step = 10;
+          Z = [];
+          tol = 1.0d-6;
+          for i = step*minx:step*maxx
+              for j = step*miny:step*maxy
+                  xi = i/step;
+                  xj = j/step;
+                  l = true;
+                  for k = 1:size(ineqs,2)
+                      %ineqs(k)
+                      l = l&(double(subs(ineqs(k).f,vars,[xi,xj]))<=0);
+                  end
+                  for k = 1:size(ineqs2,2)
+                      %ineqs2(k)
+                      l = l&(double(subs(ineqs2(k).f,vars,[xi,xj]))<0);
+                  end
+                  if (l)
+                    n = n+1;
+                    lf(n) = double(subs(f,vars,[xi,xj])) >= double(subs(g,vars,[xi,xj]));
+                    le(n) = abs(double(subs(f,vars,[xi,xj])) - double(subs(g,vars,[xi,xj]))) <= tol;
+                    %Z(n) = max(subs(f,vars,[xi,xj]),subs(g,vars,[xi,xj]));
+                    %D(n,1)=xi;
+                    %D(n,2)=xj;
+                  end 
+              end
+          end
+          if (all(lf) == 0)
+              max_func = objg;
+          else
+              max_func = objf;
+          end
+          
+             
+
+
+
+
+
+
+       end
         
     end
 
