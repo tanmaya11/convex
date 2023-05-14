@@ -241,6 +241,90 @@ classdef plq_1piece
         
         end
 
+        function [envfs, envds] = solveQuadLinear1 (obj, m, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix, envfs, envds)
+          disp("one quad")
+          z = sym('z');
+          av = z - m*b;
+          eq = etah-etaw;
+          eq = eq.subsVarsPartial([a],[av]);
+          bv = eq.solve(b);
+          nc = 0;
+          for j=1:size(etaV,2)
+            if (lV(j))
+              continue;
+            end
+            etak = etaV(j)
+            nc = nc+1;
+            c(nc) = etah - etak;  % <= 0   easier for substitution
+            c(nc) = c(nc).subsVarsPartial([a],[av]);
+            c(nc) = c(nc).subsVarsPartial([b],[bv]);
+            c(nc).print
+          end
+          for j=1:size(etaE,1)
+            if (lE(j))
+              continue;
+            end
+            for k = 1:size(etaE,2)
+              etak = etaE(j,k)
+              nc = nc+1;
+              c(nc) = etah - etak;  % <= 0   easier for substitution
+              c(nc) = c(nc).subsVarsPartial([a],[av]);
+              c(nc) = c(nc).subsVarsPartial([b],[bv]);
+              c(nc).print
+            end
+          end
+                    
+          obj0 = etah + functionF(a*x+b*y);
+          obj0 = obj0.subsVarsPartial([a],[av]);
+          obj0 = obj0.subsVarsPartial([b],[bv]);
+          deg = polynomialDegree(obj0.f,z);
+          objfacts = coeffs(obj0.f,z);
+          if (deg+1 == size(objfacts,2))
+            psi0 = objfacts(1);
+            psi1 = objfacts(2)/2;
+            psi2 = -objfacts(3);
+          elseif (deg == size(objfacts,2))
+            psi0=0;
+            psi1 = objfacts(1)/2;
+            psi2 = -objfacts(2);
+          else
+            psi0=0;
+            psi1=0;
+            psi2 = -objfacts(1);
+          end
+
+
+
+% Do regions properly
+
+
+          if positivePsi (obj,-psi2,x,y)==1
+            disp("-psi2 +ve")
+            psi1
+            psi2
+            psi1/ps2
+            f0 = simplify(psi1/psi2)
+            r0 = simplify(psi1 - etaR(ix,3).f*psi2);
+            envfs = [envfs, f0];
+            envds = [envds, r0];
+            f0 = etaR(ix,3).f;
+            r0 = -simplify(psi1 - etaR(ix,3).f*psi2);
+            envfs = [envfs, f0];
+            envds = [envds, r0];
+          else
+            f0 = simplify(psi1^2/psi2+psi0);
+            r0 = -simplify(etaR(ix,3).f*psi2-psi1);
+            envfs = [envfs, f0];
+            envds = [envds, r0];
+            f0 = -etaR(ix,3).f^2*psi2 +2*etaR(ix,3).f*psi1+psi0;
+            r0 = simplify(etaR(ix,3).f*psi2-psi1);
+            envfs = [envfs, f0];
+            envds = [envds, r0];
+          end
+        end
+           
+        
+
         function [envfs, envds] = solve (obj, ix,jx,vix, vjx, ixd, jxd, etaV, etaE, etaR, a, b, x, y)
             envfs = [];
 
@@ -287,84 +371,95 @@ classdef plq_1piece
                     end
                 end 
                 
+
                 if (degreeh==2 & degreew==1)
-                    disp("one quad")
-                    z = sym('z');
-                    av = z - mh*b;
-                    eq = etah-etaw;
-                    eq = eq.subsVarsPartial([a],[av]);
-                    bv = eq.solve(b)
-                    nc = 0;
-                    for j=1:size(etaV,2)
-                        if (lV(j))
-                            continue;
-                        end
-                        %if ((etaV(j) == etah)  )
-                        %    continue;
-                        %end
-                        %if ( (etaV(j) == etaw) )
-                        %    continue;
-                        %end
-                        etak = etaV(j)
-                        nc = nc+1;
-                        c(nc) = etah - etak;  % <= 0   easier for substitution
-                        c(nc) = c(nc).subsVarsPartial([a],[av]);
-                        c(nc) = c(nc).subsVarsPartial([b],[bv]);
-                        c(nc).print
-                    end
-                    obj0 = etah + functionF(a*x+b*y);
-                    obj0 = obj0.subsVarsPartial([a],[av]);
-                    obj0 = obj0.subsVarsPartial([b],[bv]);
-                    obj0.print
-                    deg = polynomialDegree(obj0.f,z)
-                    objfacts = coeffs(obj0.f,z)
-                    size(objfacts,2)
-                    if (deg+1 == size(objfacts,2))
-                        psi0 = objfacts(1);
-                        psi1 = objfacts(2)/2;
-                        psi2 = -objfacts(3);
-                    elseif (deg == size(objfacts,2))
-                        psi0=0;
-                        psi1 = objfacts(1)/2;
-                        psi2 = -objfacts(2);
-                    else
-                        psi0=0;
-                        psi1=0;
-                        psi2 = -objfacts(1);
-                    end
-                    psi1
-                    psi2
-                    positivePsi (obj,-psi2,x,y)
-                    if positivePsi (obj,-psi2,x,y)==1
-                        disp("-psi2 +ve")
-                        psi1
-                        psi2
-                        psi1/ps2
-                       f0 = simplify(psi1/psi2)
-                       r0 = simplify(psi1 - etaR(ix(i),3).f*psi2);
+                    [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds)
+                    %disp("one quad")
+                    %z = sym('z');
+                    %av = z - mh*b;
+                    %eq = etah-etaw;
+                    %eq = eq.subsVarsPartial([a],[av]);
+                    %bv = eq.solve(b);
+                    %nc = 0;
+                    %for j=1:size(etaV,2)
+                    %    if (lV(j))
+                    %        continue;
+                    %    end
+                    %    etak = etaV(j)
+                    %    nc = nc+1;
+                    %    c(nc) = etah - etak;  % <= 0   easier for substitution
+                    %    c(nc) = c(nc).subsVarsPartial([a],[av]);
+                    %    c(nc) = c(nc).subsVarsPartial([b],[bv]);
+                    %    c(nc).print
+                    %end
+                    %for j=1:size(etaE,1)
+                    %    if (lE(j))
+                    %        continue;
+                    %    end
+                    %    for k = 1:size(etaE,2)
+                    %      etak = etaE(j,k)
+                    %      nc = nc+1;
+                    %      c(nc) = etah - etak;  % <= 0   easier for substitution
+                    %      c(nc) = c(nc).subsVarsPartial([a],[av]);
+                    %      c(nc) = c(nc).subsVarsPartial([b],[bv]);
+                    %      c(nc).print
+                    %    end
+                    %end
+                    
+                    %obj0 = etah + functionF(a*x+b*y);
+                    %obj0 = obj0.subsVarsPartial([a],[av]);
+                    %obj0 = obj0.subsVarsPartial([b],[bv]);
+                    %deg = polynomialDegree(obj0.f,z);
+                    %objfacts = coeffs(obj0.f,z);
+                    %if (deg+1 == size(objfacts,2))
+                    %    psi0 = objfacts(1);
+                    %    psi1 = objfacts(2)/2;
+                    %    psi2 = -objfacts(3);
+                    %elseif (deg == size(objfacts,2))
+                    %    psi0=0;
+                    %    psi1 = objfacts(1)/2;
+                    %    psi2 = -objfacts(2);
+                    %else
+                    %    psi0=0;
+                    %    psi1=0;
+                    %    psi2 = -objfacts(1);
+                    %end
+
+
+
+% Do regions properly
+
+
+                    %if positivePsi (obj,-psi2,x,y)==1
+                    %    disp("-psi2 +ve")
+                    %    psi1
+                    %    psi2
+                    %    psi1/ps2
+                    %   f0 = simplify(psi1/psi2)
+                    %   r0 = simplify(psi1 - etaR(ix(i),3).f*psi2);
                        
-                       envfs = [envfs, f0];
-                       envds = [envds, r0];
+                    %   envfs = [envfs, f0];
+                    %   envds = [envds, r0];
                        
-                       f0 = etaR(ix(i),3).f;
-                       r0 = -simplify(psi1 - etaR(ix(i),3).f*psi2);
+                    %   f0 = etaR(ix(i),3).f;
+                    %   r0 = -simplify(psi1 - etaR(ix(i),3).f*psi2);
                        
-                       envfs = [envfs, f0];
-                       envds = [envds, r0];
+                    %   envfs = [envfs, f0];
+                    %   envds = [envds, r0];
                        
                        %disp('+ to be implemented')
-                    else
-                       f0 = simplify(psi1^2/psi2+psi0);
-                       r0 = -simplify(etaR(ix(i),3).f*psi2-psi1);
+                    %else
+                    %   f0 = simplify(psi1^2/psi2+psi0);
+                    %   r0 = -simplify(etaR(ix(i),3).f*psi2-psi1);
                        
-                       envfs = [envfs, f0];
-                       envds = [envds, r0];
-                       f0 = -etaR(ix(i),3).f^2*psi2 +2*etaR(ix(i),3).f*psi1+psi0;
-                       r0 = simplify(etaR(ix(i),3).f*psi2-psi1);
-                       envfs = [envfs, f0];
-                       envds = [envds, r0];
+                    %   envfs = [envfs, f0];
+                    %   envds = [envds, r0];
+                    %   f0 = -etaR(ix(i),3).f^2*psi2 +2*etaR(ix(i),3).f*psi1+psi0;
+                    %   r0 = simplify(etaR(ix(i),3).f*psi2-psi1);
+                    %   envfs = [envfs, f0];
+                    %   envds = [envds, r0];
                             
-                    end
+                    %end
                   end
                 
                             
