@@ -53,7 +53,7 @@ function bivariate_eg3
     disp('Domain')
     p.envd(i).print
   end
-
+return
   p = p.maxEnvelope;
   for i=1:size(p.envf,2) 
     disp('Function')  

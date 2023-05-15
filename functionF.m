@@ -60,6 +60,19 @@ classdef functionF
             f = functionF(f0);            
         end    
 
+        function d = double (obj)
+            c = obj.f.coeffs();
+            if (size(c) == 0)
+                d = 0;
+                return
+            end
+            if (size(c) ~= 1)
+                disp("Error in double in functionF");
+                return
+            end
+            d = c(1);
+        end
+
         function f = dfdx (obj,x)
             f = functionF(diff(obj.f,x));
         end    
@@ -76,7 +89,8 @@ classdef functionF
         function f = minus(obj1,obj2)
             f = functionF(obj1.f - obj2.f);
         end
-        
+
+
         function f = unaryminus(obj)
             f = functionF(-obj.f);
         end

@@ -17,6 +17,7 @@ function bivariate_eg1
     disp('Domain')
     p.envd(i).print
   end
+  return
 disp("b4")
   p = p.maxEnvelope;
   disp("Max")
