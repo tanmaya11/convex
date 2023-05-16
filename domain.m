@@ -33,9 +33,6 @@ classdef domain
           %obj.mE
           %obj.V
           obj = getAllEdges (obj, x, y);
-          for i = 1:obj.nVertices
-              obj.ineqs(i).print;
-          end
       end
       
       function vertex = getVertex(obj,i)

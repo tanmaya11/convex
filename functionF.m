@@ -138,7 +138,7 @@ classdef functionF
             %num = f.num
             cy = [];
             cx = coeffs(obj.num,x);
-            for i = 1:size(cx,1)
+            for i = 1:size(cx,2)
                 g  = cx(i);
                 cy = [cy,coeffs(cx(i),y)];
                 
@@ -150,7 +150,7 @@ classdef functionF
             if (size(cz)>0)
                 mult= lcm(cz);
             end
-            f = obj.f*mult;
+            f = obj.f* abs(mult);
         end
         function printL (l)
             disp("Printing list")
@@ -175,9 +175,9 @@ classdef functionF
           vars = objf.vars;
           max_func = @(vars) max(f(vars), g(vars));
           minx = min(vx);
-          maxx = max(vx)
+          maxx = max(vx);
           miny = min(vy);
-          maxy = max(vy)
+          maxy = max(vy);
           n = 0;
           step = 10;
           Z = [];
