@@ -31,8 +31,10 @@ classdef domain
           obj = getEdges (obj);
           %obj.E
           %obj.mE
+          %obj.cE
           %obj.V
           obj = getAllEdges (obj, x, y);
+          %obj.ineqs.printL;
       end
       
       function vertex = getVertex(obj,i)
@@ -45,7 +47,7 @@ classdef domain
           end
           for i = 1:obj.nVertices-1
             m = obj.slope (i,i+1);
-            if (m > 0 & m < inf)
+             if (m > 0 & m < inf)
                 obj.nE = obj.nE+1;
                 obj.E(obj.nE,1) =  i;
                 obj.E(obj.nE,2) =  i+1;
@@ -58,6 +60,7 @@ classdef domain
           
           m = obj.slope (obj.nVertices,1);
           if (m > 0 & m < inf)
+                
             obj.nE = obj.nE+1;
             obj.E(obj.nE,1) =  obj.nVertices;
             obj.E(obj.nE,2) =  1;
@@ -87,7 +90,7 @@ classdef domain
           else
             m = obj.slope (i,i+1);
           end
-          if (m == inf)
+          if (m == inf | m == -inf)
             obj.ineqs(i) = functionF(x  - obj.vx(i));
           else
             obj.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));

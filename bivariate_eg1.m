@@ -59,7 +59,7 @@ function bivariate_eg1
   %          V: [2 3]
   
   p=p.convexEnvelope;
-
+  disp("out")
   %getEtaFunctions
   %Printing list
   %etaV
@@ -136,10 +136,9 @@ function bivariate_eg1
   %ub Inf
   % lb 1 2
   % ub Inf Inf
+  %mlb = 2
+  %mub=Inf
   % b = lb
-  % x + y - 1
-  % y - 1
-
   % x + 2*y - 2
   % y - 1
 
@@ -155,6 +154,8 @@ function bivariate_eg1
   %f: b - 2
   %lb =     1.5000      -Inf
   %ub =     Inf     2
+  %mlb = 1.5
+  %mub = 2
   %x/2 + (3*y)/2 - 1
   %x + 2*y - 2
   % x + y - 2, 2 - y - x
@@ -170,8 +171,8 @@ function bivariate_eg1
   % etak = f: 2 - b - 2*a
   % c = f: 2*a + b - (a + b)^2/4 - 2
   % -(z - 4)^2/8
-  % lb = 4
-  % ub = 4
+  % check this
+ 
   % obj0 = f: a*x + b*y - (a + b)^2/4
   % obj0 = f: (x*z^2)/8 - z^2/4 + y*(- z^2/8 + z)
   % objfacts = [y, x/8 - y/8 - 1/4]
@@ -180,10 +181,8 @@ function bivariate_eg1
   % psi2 = y/8 - x/8 + 1/4
   % f0 = (2*y^2)/(y - x + 2)
   % f0 = x/2 + (3*y)/2 - 1
-  % f0 = (2*y^2)/(y - x + 2)
-  % f0 = 2*x + 2*y - 4
+  
  
-  %removeDenominator (obj,x,y)
   
   disp("envelope")
   size(p.envf)
@@ -194,7 +193,11 @@ function bivariate_eg1
     p.envd(i).print
 
   end
+  return
   %
+  %f = functionF(x-1);
+  %g = functionF(x-2);
+  %isSubset(f,g)
   %return
 disp("b4")
   p = p.maxEnvelope;

@@ -211,14 +211,22 @@ classdef functionF
               max_func = objf;
           end
           
+        end
+        function l = isZero(obj)
+            l = (obj.f==0);
+        end
              
+% not working 
+            function l = isSubset (obj1, obj2)
+                obj1.f <= 0
+                obj2.f <= 0
+                (obj1.f<=0) <= (obj2.f<=0)
+              l = isAlways((obj1.f<=0) <= (obj2.f<=0))
+            end
 
+            
+        
 
-
-
-
-
-       end
         
     end
 
