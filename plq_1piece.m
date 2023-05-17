@@ -165,9 +165,13 @@ classdef plq_1piece
            
         end
 
-        function [nb,lb, ub] = getBound1 (obj,c,b,nb,lb,ub)
+        function [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub)
             
           c1 =  c.solve(b)
+          linfeasible = isempty(c1);
+          if (linfeasible) 
+                      return;
+          end
           s = coeffs(c.f,b)
           if (size(c1,1) > 1)
               if(s(end) > 0)
@@ -190,7 +194,7 @@ classdef plq_1piece
           
         end
 
-        function [nb, lb, ub] = getBoundsLinear (obj, etaR,ixd, a,b,av, nb, lb, ub)
+            function [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaR,ixd, a,b,av, nb, lb, ub)
             disp('ixd')
             ixd
             if ixd == 1
@@ -212,14 +216,17 @@ classdef plq_1piece
                 c(i).print
               c(i) = c(i).subsVarsPartial([a],[av]);
               c(i).print
-              [nb,lb, ub] = getBound1 (obj,c(i),b,nb,lb,ub);
-            
+              [nb,lb, ub] = getBound1 (obj,linfeasible, c(i),b,nb,lb,ub);
+              if (linfeasible) 
+                      return;
+                  end
             end
         end
     
         function [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRix, ixd, etaRjx, jxd, x, y, a, b, envfs, envds) 
             f0 = etah-etaw;
             a
+            linfeasible = false;
             av = f0.solve(a)
             if (isempty(av))
                 lSol = false;
@@ -233,10 +240,16 @@ classdef plq_1piece
             lb = [];
             ub = [];
             if (ixd > 0)
-               [nb, lb, ub] = getBoundsLinear (obj, etaRix,ixd, a,b,av, nb, lb, ub);
+               [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaRix,ixd, a,b,av, nb, lb, ub);
+               if (linfeasible) 
+                      return;
+                  end
             end
             if (jxd > 0)
-              [nb, lb, ub] = getBoundsLinear (obj, etaRjx,jxd, a,b,av, nb, lb, ub);
+              [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaRjx,jxd, a,b,av, nb, lb, ub);
+              if (linfeasible)  
+                      return;
+                  end
             end
             lb
             ub
@@ -247,8 +260,10 @@ classdef plq_1piece
                etak = etaV(j);
                c = etah - etak ; % <= 0   easier for substitution
                c = c.subsVarsPartial([a],[av]);
-               [nb,lb, ub] = getBound1 (obj,c,b,nb,lb,ub);
-               
+               [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub);
+               if (linfeasible) 
+                      return;
+                  end
             end
             disp('V')
             for j=1:size(etaE,1)
@@ -262,8 +277,10 @@ classdef plq_1piece
                   if (isZero(c)) 
                       continue
                   end
-                  [nb,lb, ub] = getBound1 (obj,c,b,nb,lb,ub);
-               
+                  [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub);
+                  if (linfeasible) 
+                      return;
+                  end
                 end
             end
             disp('E')
