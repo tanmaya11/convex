@@ -63,12 +63,15 @@ function bivariate_eg2
   %vjx =      0     0     1     1     1     1     1     1     1     1     1
   %ixd =     2     3     1     1     1     2     2     2     3     3     3
   %jxd =     0     0     1     2     3     1     2     3     1     2     3
+  disp("Envelope")
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
   end
+
+  return
 
   p = p.maxEnvelope;
   for i=1:size(p.envf,2) 

@@ -57,7 +57,8 @@ classdef functionF
         
         function f = subsVarsPartial (obj,vars,varVals)
             f0 = simplify(subs(obj.f, vars, varVals));
-            f = functionF(f0);            
+            f = functionF(f0);
+            
         end    
 
         function d = double (obj)

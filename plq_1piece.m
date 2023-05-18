@@ -167,12 +167,12 @@ classdef plq_1piece
 
         function [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub)
             
-          c1 =  c.solve(b)
+          c1 =  c.solve(b);
           linfeasible = isempty(c1);
           if (linfeasible) 
                       return;
           end
-          s = coeffs(c.f,b)
+          s = coeffs(c.f,b);
           if (size(c1,1) > 1)
               if(s(end) > 0)
               nb = nb+1;
@@ -195,12 +195,8 @@ classdef plq_1piece
         end
 
             function [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaR,ixd, a,b,av, nb, lb, ub)
-            disp('ixd')
-            ixd
             if ixd == 1
               nc = 1  ;
-              etaR(1)
-              etaR(2)
               c(1) = etaR(1)-etaR(2);
             elseif ixd == 2
                 nc = 2;
@@ -212,10 +208,7 @@ classdef plq_1piece
               c(1) = etaR(3)-etaR(1);
             end
             for i = 1:nc
-                av
-                c(i).print
               c(i) = c(i).subsVarsPartial([a],[av]);
-              c(i).print
               [nb,lb, ub] = getBound1 (obj,linfeasible, c(i),b,nb,lb,ub);
               if (linfeasible) 
                       return;
@@ -225,16 +218,15 @@ classdef plq_1piece
     
         function [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRix, ixd, etaRjx, jxd, x, y, a, b, envfs, envds) 
             f0 = etah-etaw;
-            a
             linfeasible = false;
-            av = f0.solve(a)
+            av = f0.solve(a);
             if (isempty(av))
                 lSol = false;
                 return;
             end
             lSol = true;
             obj0 = obj0.subsVarsPartial([a],[av]);
-            objfacts = coeffs(obj0.f,b)
+            objfacts = coeffs(obj0.f,b);
             
             nb = 0 ;
             lb = [];
@@ -251,8 +243,6 @@ classdef plq_1piece
                       return;
                   end
             end
-            lb
-            ub
             for j=1:size(etaV,2)
                if (lV(j)) 
                  continue;
@@ -265,15 +255,15 @@ classdef plq_1piece
                       return;
                   end
             end
-            disp('V')
+            
             for j=1:size(etaE,1)
                if (lE(j))
                  continue;
                end
                for k = 1:size(etaE,2) 
                   etak = etaE(j,k);
-                  c = etah - etak  % <= 0   easier for substitution
-                  c = c.subsVarsPartial([a],[av])
+                  c = etah - etak;  % <= 0   easier for substitution
+                  c = c.subsVarsPartial([a],[av]);
                   if (isZero(c)) 
                       continue
                   end
@@ -283,10 +273,9 @@ classdef plq_1piece
                   end
                 end
             end
-            disp('E')
             
-            mlb = max(lb)
-            mub = min(ub)
+            mlb = max(lb);
+            mub = min(ub);
             
             %for i = 1:size(lb,2)
             if (mlb > mub)
@@ -321,14 +310,18 @@ classdef plq_1piece
         function [envfs, envds] = solveQuadLinear1 (obj, m, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix, envfs, envds)
           disp("one quad")
           z = sym('z');
-          av = z - m*b
-          eq = etah-etaw
+          av = z - m*b;
+          eq = etah-etaw;
           eq = eq.subsVarsPartial([a],[av]);
-          bv = eq.solve(b)
+          bv = eq.solve(b);
 
-          nb = 1
-          lb(nb) = etaR(ix,2).f
-          ub(nb) = etaR(ix,3).f
+          if (isempty(bv))
+              disp ("Fix this")
+              return
+          end
+          nb = 1;
+          lb(nb) = etaR(ix,2).f;
+          ub(nb) = etaR(ix,3).f;
 
             
 
@@ -337,12 +330,13 @@ classdef plq_1piece
             if (lV(j))
               continue;
             end
-            etak = etaV(j)
-            c = etah - etak  % <= 0   easier for substitution
+            etak = etaV(j);
+            c = etah - etak;  % <= 0   easier for substitution
             c = c.subsVarsPartial([a],[av]);
             c = c.subsVarsPartial([b],[bv]);
-            c.print
-            disp('here')
+            
+            %c.print
+            
             z0 = c.solve(z);
             % check this part
             % as z is always satisfied
@@ -355,12 +349,12 @@ classdef plq_1piece
               continue;
             end
             for k = 1:size(etaE,2)
-              etak = etaE(j,k)
+              etak = etaE(j,k);
               %nc = nc+1;
               c = etah - etak;  % <= 0   easier for substitution
               c = c.subsVarsPartial([a],[av]);
               c = c.subsVarsPartial([b],[bv]);
-              c.print
+              %c.print
               z0 = c.solve(z);
               nb = nb+1;
               lb(nb) = z0(1);
@@ -368,13 +362,13 @@ classdef plq_1piece
             end
           end
                    
-          lb
-          ub
-          obj0 = etah + functionF(a*x+b*y)
+          %lb
+          %ub
+          obj0 = etah + functionF(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
-          obj0 = obj0.subsVarsPartial([b],[bv])
-          deg = polynomialDegree(obj0.f,z)
-          objfacts = coeffs(obj0.f,z)
+          obj0 = obj0.subsVarsPartial([b],[bv]);
+          deg = polynomialDegree(obj0.f,z);
+          objfacts = coeffs(obj0.f,z);
           if (deg+1 == size(objfacts,2))
             psi0 = objfacts(1);
             psi1 = objfacts(2)/2;
@@ -389,9 +383,9 @@ classdef plq_1piece
             psi2 = -objfacts(1);
           end
 
-          psi0
-          psi1
-          psi2
+          %psi0
+          %psi1
+          %psi2
 
 
 
@@ -403,23 +397,21 @@ classdef plq_1piece
             f1 = etaR(ix,3).f;
             
             r0 = simplify(psi1 - etaR(ix,3).f*psi2);
-            envfs = [envfs, f0];
+            envfs = [envfs, functionF(f0)];
             envds = [envds, r0];
             r0 = -simplify(psi1 - etaR(ix,3).f*psi2);
-            envfs = [envfs, f1];
+            envfs = [envfs, functionF(f1)];
             envds = [envds, r0];
           else
             
             for i = 1:nb
               f0 = simplify(psi1^2/psi2+psi0);
-              f0
               r0 = -simplify(ub(i)*psi2-psi1);
-              envfs = [envfs, f0];
+              envfs = [envfs, functionF(f0)];
               envds = [envds, r0];
               f0 = -ub(i)^2*psi2 +2*ub(i)*psi1+psi0; 
-              f0
               r0 = simplify(ub(i)*psi2-psi1);
-              envfs = [envfs, f0];
+              envfs = [envfs, functionF(f0)];
               envds = [envds, r0];
             end
 
@@ -590,11 +582,12 @@ classdef plq_1piece
                     else
                         etaRj = etaR(jx(i),:);
                     end
-                    etaRi.printL
-                    etaRj.printL
-                    ixd(i)
-                    jxd(i)
-
+                    %etaRi.printL
+                    %etaRj.printL
+                    %ixd(i)
+                    %jxd(i)
+                    %disp('Out')
+                    %envfs
                     [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, a, b, envfs, envds) ;
                     % fix if ix or jx doesnt exist
                     
@@ -614,21 +607,21 @@ classdef plq_1piece
 
                 if (degreeh==2 & degreew==1)
                     disp("quad-lin")
-                    continue;
-                    [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds)
+               %     continue;
+                    [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
                 end
                 
                 if (degreeh==1 & degreew==2)
                     disp("lin-quad")
                     
-                    continue
+              %      continue
                     [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds)
                 end
                             
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
                     
-                    continue
+              %      continue
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)

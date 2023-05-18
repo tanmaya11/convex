@@ -59,7 +59,7 @@ function bivariate_eg1
   %          V: [2 3]
   
   p=p.convexEnvelope;
-  disp("out")
+  %disp("out")
   %getEtaFunctions
   %Printing list
   %etaV
