@@ -3,6 +3,8 @@ classdef plq_1piece
         f;
         d;
         envf=functionF.empty();
+
+        % fix envd to be intersection of ineqs
         envd=functionF.empty();
     end
 
@@ -125,7 +127,7 @@ classdef plq_1piece
             disp("feasiblePairs") 
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             disp("solve")
-            [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
+            [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y)
             
             
             for i = 1:size(envfs,2)
@@ -316,6 +318,10 @@ classdef plq_1piece
           bv = eq.solve(b);
 
           if (isempty(bv))
+              %eq
+              %obj0 = etah + functionF(a*x+b*y)
+              %obj0 = obj0.subsVarsPartial([a],[av])
+          
               disp ("Fix this")
               return
           end
@@ -334,15 +340,16 @@ classdef plq_1piece
             c = etah - etak;  % <= 0   easier for substitution
             c = c.subsVarsPartial([a],[av]);
             c = c.subsVarsPartial([b],[bv]);
-            
-            %c.print
-            
+            if isNegativeSqr(c,z)
+              disp ('negative sqr')
+              continue
+            end
             z0 = c.solve(z);
             % check this part
             % as z is always satisfied
-            %nb = nb+1;
-            %lb(nb) = z0(1);
-            %ub(nb) = z0(2);
+            nb = nb+1;
+            lb(nb) = min(z0);
+            ub(nb) = max(z0);
           end
           for j=1:size(etaE,1)
             if (lE(j))
@@ -351,14 +358,34 @@ classdef plq_1piece
             for k = 1:size(etaE,2)
               etak = etaE(j,k);
               %nc = nc+1;
-              c = etah - etak;  % <= 0   easier for substitution
+              c = etah - etak;  % <= 0   easier for substitution""
               c = c.subsVarsPartial([a],[av]);
               c = c.subsVarsPartial([b],[bv]);
               %c.print
-              z0 = c.solve(z);
-              nb = nb+1;
-              lb(nb) = z0(1);
-              ub(nb) = z0(2);
+              if isNegativeSqr(c,z)
+                  disp ('negative sqr')
+                  continue
+                  
+              end 
+              cz = coeffs(c.f,z);
+              z1 = roots(cz);
+              %z0 = c.solve(z)
+              %disp('size')
+              %size(z0)
+              nz = 0;
+              for iz = 1:size(z1)
+                  if (~isreal(z1(iz)))
+                      continue
+                  end
+                  nz = nz + 1;
+                  z0(nz) = z1(iz);
+              end
+              if nz > 0
+                nb = nb+1;
+                lb(nb) = min(z0);
+                ub(nb) = max(z0);
+              end
+              
             end
           end
                    
@@ -368,14 +395,29 @@ classdef plq_1piece
           obj0 = obj0.subsVarsPartial([a],[av]);
           obj0 = obj0.subsVarsPartial([b],[bv]);
           deg = polynomialDegree(obj0.f,z);
+          if (deg ~= 2) 
+              disp("check degree of polynomial in z in quad-lin")
+              return
+          end
           objfacts = coeffs(obj0.f,z);
+          
+          z0 = simplify(obj0.f - objfacts(end)*z^2);
           if (deg+1 == size(objfacts,2))
             psi0 = objfacts(1);
             psi1 = objfacts(2)/2;
             psi2 = -objfacts(3);
           elseif (deg == size(objfacts,2))
-            psi0=0;
-            psi1 = objfacts(1)/2;
+            z0 = simplify(obj0.f - objfacts(end)*z^2);
+            %polynomialDegree(z0,z)
+            if polynomialDegree(z0,z) == 1
+              psi0=0;
+              psi1 = objfacts(1)/2;
+            else
+              psi0=objfacts(1);
+              psi1 =0;
+
+            end
+
             psi2 = -objfacts(2);
           else
             psi0=0;
@@ -386,9 +428,14 @@ classdef plq_1piece
           %psi0
           %psi1
           %psi2
+          lb
+          ub
 
-
-
+          mlb = max(lb);
+          mub = min(ub);
+            
+            %for i = 1:size(lb,2)
+            
           if positivePsi (obj,-psi2,x,y)==1
             disp("-psi2 +ve")
             psi1
@@ -403,18 +450,29 @@ classdef plq_1piece
             envfs = [envfs, functionF(f1)];
             envds = [envds, r0];
           else
-            
-            for i = 1:nb
-              f0 = simplify(psi1^2/psi2+psi0);
-              r0 = -simplify(ub(i)*psi2-psi1);
-              envfs = [envfs, functionF(f0)];
-              envds = [envds, r0];
-              f0 = -ub(i)^2*psi2 +2*ub(i)*psi1+psi0; 
-              r0 = simplify(ub(i)*psi2-psi1);
-              envfs = [envfs, functionF(f0)];
-              envds = [envds, r0];
-            end
+          
+            if (mlb > mub)
+                disp('infeasible')
+            else
+          
 
+            %for i = 1:nb
+              f0 = simplify(psi1^2/psi2+psi0);
+              r0 = -simplify(mub*psi2-psi1);
+              r1 = simplify(mlb*psi2-psi1);
+              % put in r1
+              envfs = [envfs, functionF(f0)];
+              envds = [envds, r0];
+              envfs = [envfs, functionF(f0)];
+              envds = [envds, r1];
+              
+              
+              f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
+              r0 = simplify(mub*psi2-psi1);
+              envfs = [envfs, functionF(f0)];
+              envds = [envds, r0];
+            %end
+            end
             
             %
             %envfs = [envfs, f0];
@@ -436,9 +494,9 @@ classdef plq_1piece
           nb = 1;
           
           c = etaR(ix,1) - etaR(ix,2);
-          c = c.subsVarsPartial([a],[av]);
-          coef = coeffs(c.f);
-          if (coef > 0)
+          c = c.subsVarsPartial([a],[av])
+          coef = coeffs(c.f)
+          if (coef(end) > 0)
             lb(nb) = c.solve(b);
             c = etaR(ix,1) - etaR(ix,3);
             c = c.subsVarsPartial([a],[av]);
@@ -456,7 +514,7 @@ classdef plq_1piece
           c = etaR(jx,1) - etaR(jx,2);
           c = c.subsVarsPartial([a],[av]);
           coef = coeffs(c.f);
-          if (coef > 0)
+          if (coef(end) > 0)
             lb(nb) = c.solve(b);
             c = etaR(jx,1) - etaR(jx,3);
             c = c.subsVarsPartial([a],[av]);
@@ -487,12 +545,17 @@ classdef plq_1piece
             disp('here')
             z0 = c.solve(b);
             nb = nb+1;
-            lb(nb) = z0(1);
-            ub(nb) = z0(2);
+            if z0(1) < z0(2)
+              lb(nb) = z0(1);
+              ub(nb) = z0(2);
+            else
+              ub(nb) = z0(1);
+              lb(nb) = z0(2);
+            end
           end
           lb
           ub
-          return
+          %return
           for j=1:size(etaE,1)
             if (lE(j))
               continue;
@@ -505,29 +568,39 @@ classdef plq_1piece
               c.print
               z0 = c.solve(b);
               nb = nb+1;
+              if z0(1) < z0(2)
               lb(nb) = z0(1);
               ub(nb) = z0(2);
+            else
+              ub(nb) = z0(1);
+              lb(nb) = z0(2);
+              end
             end
           end
-           
+          lb
+          ub
+          mlb = max(lb)
+          mub = min(ub)
+          if mlb < mub
           psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x
           psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x
-          psi2=(alpha1+mh)^2/(4*mh);
-          for i = 1: nb
+          psi2=(alpha1+mh)^2/(4*mh)
+          %for i = 1: nb
               f0 = simplify(psi1^2/psi2+psi0);
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               envfs = [envfs, f0];
               envds = [envds, f0];
-              f0 = simplify(-lb(i)^2*psi2 + 2*lb(i)*psi1 + psi0);
-              r0 = simplify(psi1-lb(i)*psi2);
+              f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
+              r0 = simplify(psi1-mlb*psi2);
               envfs = [envfs, f0];
               envds = [envds, r0];
-              f0 = simplify(-ub(i)^2*psi2 + 2*ub(i)*psi1 + psi0);
-              r0 = simplify(ub(i)*psi2-psi1);
+              f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
+              r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, f0];
               envds = [envds, r0];
               
+          %end
           end
         end
 
@@ -571,6 +644,7 @@ classdef plq_1piece
               %continue
                 if (degreeh==1 & degreew==1)
                     disp("lin-lin")
+                    continue
                     obj0 = etah + functionF(a*x+b*y);
                     if ixd(i) == 0
                         etaRi=functionF;
@@ -607,21 +681,21 @@ classdef plq_1piece
 
                 if (degreeh==2 & degreew==1)
                     disp("quad-lin")
-               %     continue;
+                    continue;
                     [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
                 end
                 
                 if (degreeh==1 & degreew==2)
                     disp("lin-quad")
                     
-              %      continue
-                    [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds)
+                   continue
+                    [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, jx(i), envfs, envds)
                 end
                             
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
                     
-              %      continue
+                 %   continue
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)
@@ -631,7 +705,8 @@ classdef plq_1piece
                        [envfs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envds)
                     else
                        disp("mh /= mw")
-                       av = (qw*mh-qh*mw+sqrt(mh*mw)*(mh-mw)*b+qh-qw)/(mh-mw)
+                       av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
+                       
                        alpha = coeffs(av,b)
                        size(alpha)
                        if (size(alpha) == 2)
@@ -658,7 +733,9 @@ classdef plq_1piece
                        [envfs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envds)
                     end
                 end
-
+                if (i == 7) 
+                    %return
+                end
                     
             end 
            
@@ -754,25 +831,26 @@ classdef plq_1piece
                 etaE(i,2) = etaT.subsVarsPartial([x],[xp]); 
                 
                 
-
+                %obj.f
                 f1 = obj.f.subsVarsPartial([y],[edgey]);
+                %f1.f
                 df1 = f1.dfdx(x);
-
+                %df1
                 
                 etaR(i,1) = functionF(a+obj.d.mE(i)*b);
-                df1 = functionF(a+obj.d.mE(i)*b);
+                %df1 = functionF(a+obj.d.mE(i)*b)
 
-                b1 = df1.subsVarsPartial ([a,b],[xv1,yv1]);
-                b2 = df1.subsVarsPartial ([a,b],[xv2,yv2]);
+                b1 = df1.subsVarsPartial ([x,y],[xv1,yv1])
+                b2 = df1.subsVarsPartial ([x,y],[xv2,yv2])
                 if (double(b1.f) < double(b2.f))
                   etaR(i,2) = b1;  %subs(df1,[x,y],[xv1,yv1]);
                   etaR(i,3) = b2; %subs(df1,[x,y],[xv2,yv2]);
                 else
                   etaR(i,3) = b1;  %subs(df1,[x,y],[xv1,yv1]);
                   etaR(i,2) = b2; %subs(df1,[x,y],[xv2,yv2]);
-                  t = etaE(i,1);
-                  etaE(i,1) = etaE(i,3);
-                  etaE(i,3) = t;
+                  %t = etaE(i,1);
+                  %etaE(i,1) = etaE(i,3);
+                  %etaE(i,3) = t;
                 end
             end
 

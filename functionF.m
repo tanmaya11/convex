@@ -216,6 +216,24 @@ classdef functionF
         function l = isZero(obj)
             l = (obj.f==0);
         end
+
+        function l = isNegativeSqr(obj,z)
+            l = false;
+            z0 = simplify(obj.f);
+            c = coeffs(obj.f);
+            if c(end) > 0
+                return
+            end
+            z1 = obj.solve(z);
+            s = z1(1);
+            for i = 2:size(z1,2)
+                if (s ~= z1(i)) 
+                    return;
+                end
+               
+            end
+             l = true;
+        end
              
 % not working 
             function l = isSubset (obj1, obj2)
