@@ -134,9 +134,23 @@ classdef functionF
         
         
         
-        function f = removeDenominator (obj,x,y)
+        function f = removeDenominator2 (obj)
             %f = obj.num;
             %num = f.num
+            obj.vars
+            cx = coeffs(obj.num,obj.vars);
+            cz=[];
+            for i = 1:size(cx,2)
+              cz = [cz,1/cx(i)];
+            end
+            mult = 1;
+            if (size(cz)>0)
+                mult= lcm(cz);
+            end
+            f = obj.f* abs(mult);
+            return
+            x = obj.vars(1);
+            y = obj.vars(2);
             cy = [];
             cx = coeffs(obj.num,x);
             for i = 1:size(cx,2)

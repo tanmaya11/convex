@@ -5,7 +5,9 @@ classdef domain
     nVertices {mustBeInteger}
     vx;
     vy;
-    ineqs=functionF;
+    
+    % ineq representation
+    polygon=region;
     % edge information
     nE=0; % number of convex edges
     E;    % index set 
@@ -35,7 +37,7 @@ classdef domain
           %obj.cE
           %obj.V
           obj = getAllEdges (obj, x, y);
-          %obj.ineqs.printL;
+          obj.polygon.print;
       end
       
       function vertex = getVertex(obj,i)
@@ -92,13 +94,13 @@ classdef domain
             m = obj.slope (i,i+1);
           end
           if (m == inf | m == -inf)
-            obj.ineqs(i) = functionF(x  - obj.vx(i));
+            obj.polygon.ineqs(i) = functionF(x  - obj.vx(i));
           else
-            obj.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));
+            obj.polygon.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));
           end
-          if obj.ineqs(i).subsVarsPartial([x,y],[cx,cy]) > 0
+          if obj.polygon.ineqs(i).subsVarsPartial([x,y],[cx,cy]) > 0
               %obj.ineqs(i) = -obj.ineqs(i)
-              obj.ineqs(i) = obj.ineqs(i).unaryminus;
+              obj.polygon.ineqs(i) = obj.polygon.ineqs(i).unaryminus;
           end
         end
            

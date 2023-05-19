@@ -5,7 +5,8 @@ classdef plq_1piece
         envf=functionF.empty();
 
         % fix envd to be intersection of ineqs
-        envd=functionF.empty();
+        % envd=functionF.empty();
+        envd = region;
     end
 
     methods
@@ -126,17 +127,27 @@ classdef plq_1piece
              % (vix, vjx) is the pair :  1 for edge else 0 
             disp("feasiblePairs") 
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
+            %ix=[2]
+            %jx=[1]
+            %vix=[1]
+            %vjx=[0]
+            %ixd=[2]
+            %jxd=[0]
+            %return
             disp("solve")
             [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y)
             
             
             for i = 1:size(envfs,2)
                 obj.envf = [obj.envf, envfs(i)];
-                obj.envd = [obj.envd, functionF(envds(i))];
+                %obj.envd = [obj.envd, functionF(envds(i))];
             end
-            for i = 1:size(obj.envd,2)
-              obj.envd(i) = removeDenominator (obj.envd(i),x,y);
-            end 
+            obj.envd = region(envds);
+            obj.envd.print
+            obj.envd.removeDenominator
+            %for i = 1:size(obj.envd,2)
+            %  obj.envd(i) = removeDenominator (obj.envd(i),x,y);
+            %end 
 
             % put code for max 
         end 
@@ -312,17 +323,24 @@ classdef plq_1piece
         function [envfs, envds] = solveQuadLinear1 (obj, m, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix, envfs, envds)
           disp("one quad")
           z = sym('z');
-          av = z - m*b;
-          eq = etah-etaw;
-          eq = eq.subsVarsPartial([a],[av]);
-          bv = eq.solve(b);
+          %av = z - m*b;
+          %z = a+m*b;
+          %lSolve = true;
+          av = solve(z-a-m*b,a);
+          eq = etah-etaw
+          eq = eq.subsVarsPartial([a],[av])
+          bv = eq.solve(b)
 
           if (isempty(bv))
-              %eq
-              %obj0 = etah + functionF(a*x+b*y)
-              %obj0 = obj0.subsVarsPartial([a],[av])
+              eq
+              zv = solve(eq,z)
+              
+              obj0 = etah + functionF(a*x+b*y)
+              obj0 = obj0.subsVarsPartial([a],[av])
+              obj0 = obj0.subsVarsPartial([z],[zv])
           
               disp ("Fix this")
+           %   lSolve = false;
               return
           end
           nb = 1;
@@ -344,13 +362,17 @@ classdef plq_1piece
               disp ('negative sqr')
               continue
             end
-            z0 = c.solve(z);
+            z0 = c.solve(z)
             % check this part
             % as z is always satisfied
-            nb = nb+1;
-            lb(nb) = min(z0);
-            ub(nb) = max(z0);
+            if isreal(z0(1))
+              nb = nb+1;
+              lb(nb) = min(z0);
+              ub(nb) = max(z0);
+            end
           end
+          lb
+          ub
           for j=1:size(etaE,1)
             if (lE(j))
               continue;
@@ -393,15 +415,14 @@ classdef plq_1piece
           %ub
           obj0 = etah + functionF(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
-          obj0 = obj0.subsVarsPartial([b],[bv]);
+          obj0 = obj0.subsVarsPartial([b],[bv])
           deg = polynomialDegree(obj0.f,z);
           if (deg ~= 2) 
               disp("check degree of polynomial in z in quad-lin")
               return
           end
-          objfacts = coeffs(obj0.f,z);
+          objfacts = coeffs(obj0.f,z)
           
-          z0 = simplify(obj0.f - objfacts(end)*z^2);
           if (deg+1 == size(objfacts,2))
             psi0 = objfacts(1);
             psi1 = objfacts(2)/2;
@@ -425,9 +446,9 @@ classdef plq_1piece
             psi2 = -objfacts(1);
           end
 
-          %psi0
-          %psi1
-          %psi2
+          psi0
+          psi1
+          psi2
           lb
           ub
 
@@ -451,13 +472,17 @@ classdef plq_1piece
             envds = [envds, r0];
           else
           
-            if (mlb > mub)
+            
+            for i = 1:size(lb,2)
+                mlb = lb(i)
+                mub = ub(i)
+            if (mlb >= mub)
                 disp('infeasible')
             else
           
 
             %for i = 1:nb
-              f0 = simplify(psi1^2/psi2+psi0);
+              f0 = simplify(psi1^2/psi2+psi0)
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
               % put in r1
@@ -471,7 +496,13 @@ classdef plq_1piece
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, functionF(f0)];
               envds = [envds, r0];
-            %end
+
+
+              f0 = -mlb^2*psi2 +2*mub*psi1+psi0 ;
+              r0 = simplify(-mlb*psi2+psi1);
+              envfs = [envfs, functionF(f0)];
+              envds = [envds, r0];
+            end
             end
             
             %
@@ -577,14 +608,14 @@ classdef plq_1piece
               end
             end
           end
-          lb
-          ub
-          mlb = max(lb)
-          mub = min(ub)
+          lb;
+          ub;
+          mlb = max(lb);
+          mub = min(ub);
           if mlb < mub
-          psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x
-          psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x
-          psi2=(alpha1+mh)^2/(4*mh)
+          psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x;
+          psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x;
+          psi2=(alpha1+mh)^2/(4*mh);
           %for i = 1: nb
               f0 = simplify(psi1^2/psi2+psi0);
               %fix this
@@ -681,21 +712,27 @@ classdef plq_1piece
 
                 if (degreeh==2 & degreew==1)
                     disp("quad-lin")
-                    continue;
+                  %  continue;
                     [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
+            %        lSolve
+            %        if ~lSolve
+            %            disp("b a flipped")
+            %            [envfs, envds, lSolve] = solveQuadLinear1 (obj, mh, a, b, b, a, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
+            %        end
+            % flipping a,b gives same answer
                 end
                 
                 if (degreeh==1 & degreew==2)
                     disp("lin-quad")
                     
-                   continue
+                %   continue
                     [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, jx(i), envfs, envds)
                 end
                             
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
                     
-                 %   continue
+                    continue
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)
@@ -733,8 +770,8 @@ classdef plq_1piece
                        [envfs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envds)
                     end
                 end
-                if (i == 7) 
-                    %return
+                if (i == 5) 
+                    return
                 end
                     
             end 
@@ -763,6 +800,11 @@ classdef plq_1piece
                 for j = 1:size(obj.d.V,2)
                     vertex = [obj.d.getVertex(obj.d.V(j))];
                     s = etaR(i,1).subsVarsPartial ([a,b],vertex);
+                    i
+                    j
+                    s
+                    etaR(i,2)
+                    etaR(i,3)
                     
                     if (s <= etaR(i,2))
                       n = n + 1;

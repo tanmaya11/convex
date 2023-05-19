@@ -6,6 +6,7 @@ function bivariate_eg2
   f=functionF(x*y);
 
   d=domain([-5,5;1,3;-1,0;-5,-4],x,y);
+  %return
   % nVertices =   4
   %d.vx
   %  -5
@@ -50,8 +51,8 @@ function bivariate_eg2
 
   %etaR
   %a + (3*b)/2
-  %-1
-  %11/2
+  %-3/2
+  %9/2
   %a + b
   %-9
   %-1

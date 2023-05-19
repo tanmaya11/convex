@@ -190,9 +190,10 @@ function bivariate_eg1
     disp('Function')  
     p.envf(i).print
     disp('Domain')
-    p.envd(i).print
+    
 
   end
+  p.envd.print
   return
   %
   %f = functionF(x-1);
