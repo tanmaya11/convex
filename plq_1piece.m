@@ -6,7 +6,7 @@ classdef plq_1piece
 
         % fix envd to be intersection of ineqs
         % envd=functionF.empty();
-        envd = region;
+        envd = region.empty();
     end
 
     methods
@@ -135,20 +135,14 @@ classdef plq_1piece
             %jxd=[0]
             %return
             disp("solve")
-            [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y)
-            
+            [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             
             for i = 1:size(envfs,2)
                 obj.envf = [obj.envf, envfs(i)];
-                %obj.envd = [obj.envd, functionF(envds(i))];
+                obj.envd = [obj.envd, envds(i).removeDenominator];
+                
             end
-            obj.envd = region(envds);
-            obj.envd.print
-            obj.envd.removeDenominator
-            %for i = 1:size(obj.envd,2)
-            %  obj.envd(i) = removeDenominator (obj.envd(i),x,y);
-            %end 
-
+             
             % put code for max 
         end 
 
@@ -296,19 +290,19 @@ classdef plq_1piece
             else
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
-                envds = [envds, objfacts(2) ];
+                envds = [envds, region(objfacts(2)) ];
               elseif (mlb == -inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
-                envds = [envds, -objfacts(2) ];
+                envds = [envds, region(-objfacts(2)) ];
               elseif (mlb == mub)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
-                envds = [envds, objfacts(2) ];
+                envds = [envds, region(objfacts(2)) ];
                 
               else
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
-                envds = [envds, objfacts(2) ];
+                envds = [envds, region(objfacts(2)) ];
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
-                envds = [envds, -objfacts(2) ];
+                envds = [envds, region(-objfacts(2)) ];
               end
               
             %end
@@ -466,10 +460,10 @@ classdef plq_1piece
             
             r0 = simplify(psi1 - etaR(ix,3).f*psi2);
             envfs = [envfs, functionF(f0)];
-            envds = [envds, r0];
+            envds = [envds, region(r0)];
             r0 = -simplify(psi1 - etaR(ix,3).f*psi2);
             envfs = [envfs, functionF(f1)];
-            envds = [envds, r0];
+            envds = [envds, region(r0)];
           else
           
             
@@ -486,22 +480,29 @@ classdef plq_1piece
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
               % put in r1
+              disp("in quad-lin")
+              f0
+              r0
+              size(envds)
               envfs = [envfs, functionF(f0)];
-              envds = [envds, r0];
+              envds = [envds, region(r0)];
+              size(envds)
+              envds(1).print
               envfs = [envfs, functionF(f0)];
-              envds = [envds, r1];
+              envds = [envds, region(r1)];
               
               
               f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, functionF(f0)];
-              envds = [envds, r0];
+              envds = [envds, region(r0)];
 
 
               f0 = -mlb^2*psi2 +2*mub*psi1+psi0 ;
               r0 = simplify(-mlb*psi2+psi1);
               envfs = [envfs, functionF(f0)];
-              envds = [envds, r0];
+              envds = [envds, region(r0)];
+              size(envds)
             end
             end
             
@@ -621,15 +622,16 @@ classdef plq_1piece
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               envfs = [envfs, f0];
-              envds = [envds, f0];
+              % check this
+              envds = [envds, region(f0)];
               f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
               r0 = simplify(psi1-mlb*psi2);
               envfs = [envfs, f0];
-              envds = [envds, r0];
+              envds = [envds, region(r0)];
               f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, f0];
-              envds = [envds, r0];
+              envds = [envds, region(r0)];
               
           %end
           end
@@ -675,7 +677,7 @@ classdef plq_1piece
               %continue
                 if (degreeh==1 & degreew==1)
                     disp("lin-lin")
-                    continue
+                    %continue
                     obj0 = etah + functionF(a*x+b*y);
                     if ixd(i) == 0
                         etaRi=functionF;
@@ -732,7 +734,7 @@ classdef plq_1piece
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
                     
-                    continue
+                   % continue
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)
@@ -771,7 +773,7 @@ classdef plq_1piece
                     end
                 end
                 if (i == 5) 
-                    return
+                  %  return
                 end
                     
             end 
@@ -800,11 +802,12 @@ classdef plq_1piece
                 for j = 1:size(obj.d.V,2)
                     vertex = [obj.d.getVertex(obj.d.V(j))];
                     s = etaR(i,1).subsVarsPartial ([a,b],vertex);
-                    i
-                    j
-                    s
-                    etaR(i,2)
-                    etaR(i,3)
+             %       i
+              %      j
+               %     s
+                %    vertex
+                 %   etaR(i,2)
+                 %   etaR(i,3)
                     
                     if (s <= etaR(i,2))
                       n = n + 1;

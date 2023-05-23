@@ -186,14 +186,17 @@ function bivariate_eg1
   
   disp("envelope")
   size(p.envf)
+  size(p.envd)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
     disp('Domain')
-    
+    p.envd(i).print
 
   end
-  p.envd.print
+  %p.envd.print
+
+  
   return
   %
   %f = functionF(x-1);

@@ -19,7 +19,7 @@ classdef region
              obj.ineqs.printL;
          end
 
-         function obj2 = removeDenominator(obj)
+         function obj = removeDenominator(obj)
            for i = 1:size(obj.ineqs,2)
               obj.ineqs(i) = obj.ineqs(i).removeDenominator2;
            end 

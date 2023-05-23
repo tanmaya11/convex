@@ -70,8 +70,9 @@ function bivariate_eg2
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
-  end
 
+  end
+    
   return
 
   p = p.maxEnvelope;
