@@ -185,8 +185,6 @@ function bivariate_eg1
  
   
   disp("envelope")
-  size(p.envf)
-  size(p.envd)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
@@ -197,13 +195,12 @@ function bivariate_eg1
   %p.envd.print
 
   
-  return
+%  return
   %
   %f = functionF(x-1);
   %g = functionF(x-2);
   %isSubset(f,g)
-  %return
-disp("b4")
+ % return
   p = p.maxEnvelope;
   disp("Max")
   for i=1:size(p.envf,2) 
@@ -211,8 +208,18 @@ disp("b4")
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
-  end
 
+  end
+  %return
+
+  p = p.maxEnvelopeIntersect;
+  disp("MaxIntersect")
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    p.envd(i).print
+  end
 
 end
 

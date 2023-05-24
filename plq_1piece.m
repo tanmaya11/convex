@@ -3,9 +3,6 @@ classdef plq_1piece
         f;
         d;
         envf=functionF.empty();
-
-        % fix envd to be intersection of ineqs
-        % envd=functionF.empty();
         envd = region.empty();
     end
 
@@ -31,11 +28,10 @@ classdef plq_1piece
                 for j = i+1:size(obj.envd,2)
                     if (obj.envd(i) == obj.envd(j))
                       envdT = [envdT,obj.envd(i)];
-                      envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, obj.d.ineqs, [obj.envd(j)])]     ;
+                      envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, obj.envd(j).ineqs)]     ;
                       l(i) = 0;
                       l(j) = 0;
-                      disp("in1")
-                    
+                      
                     end
                 end
               
@@ -43,7 +39,6 @@ classdef plq_1piece
             end
             for i = 1:size(obj.envd,2)
               if (l(i) == 1)
-                    disp("in2")
                     envdT = [envdT,obj.envd(i)];
                     envfT = [envfT, obj.envf(i)];     
               end
@@ -53,33 +48,53 @@ classdef plq_1piece
             obj.envd = envdT;
             return
 
-            % to be implemented
-            envfT=[]
-            ndTs = []
-            envdTs=[]
-            n = 0
+        end
+
+
+        % diff to be added
+        function obj = maxEnvelopeIntersect (obj)
+            envdT = [];
+            envfT = [];
+            for i = 1:size(obj.envd,2)
+                l(i)=1;
+            end
+            %return
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
-                    z0 = solve (obj.envd(i).f<=0,obj.envd(j).f<0);
-                    if isempty (z0.x) | isempty (z0.y) 
-                        obj.envd(i).print
-                        obj.envd(j).print
-                        disp('no intersection')
-                    else
-                        isSubset = isAlways((obj.envd(i).f<=0) <= (obj.envd(j).f<0))
-                        isSubset = isAlways((obj.envd(j).f<=0) <= (obj.envd(i).f<0))
-                        obj.envd(i).print
-                        obj.envd(j).print
-                        disp(' intersection')
-                        solve (obj.envd(i).f<=0,obj.envd(j).f<0)
-                        n = n + 1
-                        envfT(n) = pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, obj.d.ineqs, [obj.envd(j)])
-                       
+                    %if (obj.envd(i) == obj.envd(j))
+                    d = intersection(obj.envd(i),obj.envd(j));
+                    if isempty(d)
+                        continue;
                     end
+                    %obj.envd(i).print
+                    %obj.envd(j).print
+                    %d.print
+                    envdT = [envdT,d];
+                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d.ineqs)]     ;
+                    l(i) = 0;
+                    l(j) = 0;
+                      
+                    %end
                 end
+              
+              
             end
+            for i = 1:size(obj.envd,2)
+              if (l(i) == 1)
+                    envdT = [envdT,obj.envd(i)];
+                    envfT = [envfT, obj.envf(i)];     
+              end
+            end
+            %return
             
+            %envfT
+            obj.envf = envfT;
+            obj.envd = envdT;
+            return
+
         end
+
+
 
 
         function f = max(obj,i,j,x,y)
@@ -138,11 +153,19 @@ classdef plq_1piece
             [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             
             for i = 1:size(envfs,2)
-                obj.envf = [obj.envf, envfs(i)];
-                obj.envd = [obj.envd, envds(i).removeDenominator];
-                
+
+                r = obj.d.polygon + envds(i).removeDenominator;
+                r = unique(r);
+                if (r.isFeasible)
+                  obj.envf = [obj.envf, envfs(i)];
+                  obj.envd = [obj.envd, r.removeDenominator];
+                  
+                end
             end
-             
+            %obj.envd(1).print
+            %obj.envd(2).print
+            %d = intersection(obj.envd(1),obj.envd(2))
+            %d.print
             % put code for max 
         end 
 
@@ -440,11 +463,11 @@ classdef plq_1piece
             psi2 = -objfacts(1);
           end
 
-          psi0
-          psi1
-          psi2
-          lb
-          ub
+          %psi0
+          %psi1
+          %psi2
+          %lb
+          %ub
 
           mlb = max(lb);
           mub = min(ub);
@@ -485,11 +508,10 @@ classdef plq_1piece
               r0
               size(envds)
               envfs = [envfs, functionF(f0)];
-              envds = [envds, region(r0)];
-              size(envds)
+              envds = [envds, region([r0,r1])];
               envds(1).print
-              envfs = [envfs, functionF(f0)];
-              envds = [envds, region(r1)];
+              %envfs = [envfs, functionF(f0)];
+              %envds = [envds, region(r1)];
               
               
               f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
@@ -502,7 +524,7 @@ classdef plq_1piece
               r0 = simplify(-mlb*psi2+psi1);
               envfs = [envfs, functionF(f0)];
               envds = [envds, region(r0)];
-              size(envds)
+              %size(envds)
             end
             end
             
@@ -575,7 +597,8 @@ classdef plq_1piece
             c = c.subsVarsPartial([a],[av]);
             c.print
             disp('here')
-            z0 = c.solve(b);
+            z0 = c.solve(b)
+            if isreal(z0(1))
             nb = nb+1;
             if z0(1) < z0(2)
               lb(nb) = z0(1);
@@ -583,6 +606,7 @@ classdef plq_1piece
             else
               ub(nb) = z0(1);
               lb(nb) = z0(2);
+            end
             end
           end
           lb
@@ -613,11 +637,16 @@ classdef plq_1piece
           ub;
           mlb = max(lb);
           mub = min(ub);
-          if mlb < mub
+          %if mlb < mub
           psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x;
           psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x;
           psi2=(alpha1+mh)^2/(4*mh);
-          %for i = 1: nb
+          for i = 1: nb
+              mlb = lb(i);
+              mub = ub(i);
+              if mlb > mub
+                  disp('infeasible')
+              else
               f0 = simplify(psi1^2/psi2+psi0);
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
@@ -632,9 +661,9 @@ classdef plq_1piece
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, f0];
               envds = [envds, region(r0)];
-              
-          %end
+              end
           end
+          %end
         end
 
 

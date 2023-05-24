@@ -103,13 +103,12 @@ classdef functionF
             end 
         end
         
-        function res = le(obj1,obj2)
+         function res = le(obj1,obj2)
             res = false;
             if (obj1.f<=obj2.f)
                 res = true;
             end 
         end
-        
         function res = ge(obj1,obj2)
             res = false;
             if (obj1.f>=obj2.f)
@@ -137,7 +136,7 @@ classdef functionF
         function f = removeDenominator2 (obj)
             %f = obj.num;
             %num = f.num
-            obj.vars
+            %obj.vars
             cx = coeffs(obj.num,obj.vars);
             cz=[];
             for i = 1:size(cx,2)
@@ -149,6 +148,7 @@ classdef functionF
             end
             f = obj.f* abs(mult);
             return
+
             x = obj.vars(1);
             y = obj.vars(2);
             cy = [];
@@ -177,7 +177,8 @@ classdef functionF
         end
 
         % temp code - needs to be fixed
-        function max_func = pointwise_max(objf, objg, vx, vy, ineqs, ineqs2)
+        %function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
+        function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
           % POINTWISE_MAX computes the pointwise maximum of two convex functions f and g
           % and returns a function handle to the resulting maximum function.
 
@@ -203,23 +204,27 @@ classdef functionF
                   xj = j/step;
                   l = true;
                   for k = 1:size(ineqs,2)
-                      %ineqs(k)
-                      l = l&(double(subs(ineqs(k).f,vars,[xi,xj]))<=0);
+                      l = l&(double(subs(ineqs(k).f,vars,[xi,xj]))<0);
                   end
-                  for k = 1:size(ineqs2,2)
-                      %ineqs2(k)
-                      l = l&(double(subs(ineqs2(k).f,vars,[xi,xj]))<0);
-                  end
+                  %for k = 1:size(ineqs2,2)
+                  %    %ineqs2(k)
+                  %    l = l&(double(subs(ineqs2(k).f,vars,[xi,xj]))<0);
+                  %end
                   if (l)
                     n = n+1;
                     lf(n) = double(subs(f,vars,[xi,xj])) >= double(subs(g,vars,[xi,xj]));
-                    le(n) = abs(double(subs(f,vars,[xi,xj])) - double(subs(g,vars,[xi,xj]))) <= tol;
+                    %lf(n) = abs(double(subs(g,vars,[xi,xj])) - double(subs(f,vars,[xi,xj]))) <= tol;
+                    
+                    %le(n) = abs(double(subs(f,vars,[xi,xj])) - double(subs(g,vars,[xi,xj]))) <= tol;
                     %Z(n) = max(subs(f,vars,[xi,xj]),subs(g,vars,[xi,xj]));
                     %D(n,1)=xi;
                     %D(n,2)=xj;
                   end 
               end
           end
+          %lf
+          %objf
+          %objg
           if (all(lf) == 0)
               max_func = objg;
           else
