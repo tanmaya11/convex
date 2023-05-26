@@ -213,18 +213,13 @@ classdef functionF
                   if (l)
                     n = n+1;
                     lf(n) = double(subs(f,vars,[xi,xj])) >= double(subs(g,vars,[xi,xj]));
-                    %lf(n) = abs(double(subs(g,vars,[xi,xj])) - double(subs(f,vars,[xi,xj]))) <= tol;
-                    
-                    %le(n) = abs(double(subs(f,vars,[xi,xj])) - double(subs(g,vars,[xi,xj]))) <= tol;
-                    %Z(n) = max(subs(f,vars,[xi,xj]),subs(g,vars,[xi,xj]));
-                    %D(n,1)=xi;
-                    %D(n,2)=xj;
                   end 
               end
           end
+          
+          % put code for further division
           %lf
-          %objf
-          %objg
+          %all(lf)
           if (all(lf) == 0)
               max_func = objg;
           else

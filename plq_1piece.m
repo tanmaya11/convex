@@ -27,6 +27,7 @@ classdef plq_1piece
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
                     if (obj.envd(i) == obj.envd(j))
+                        
                       envdT = [envdT,obj.envd(i)];
                       envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, obj.envd(j).ineqs)]     ;
                       l(i) = 0;
@@ -66,6 +67,8 @@ classdef plq_1piece
                     if isempty(d)
                         continue;
                     end
+                    i
+                    j
                     %obj.envd(i).print
                     %obj.envd(j).print
                     %d.print
@@ -73,7 +76,18 @@ classdef plq_1piece
                     envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d.ineqs)]     ;
                     l(i) = 0;
                     l(j) = 0;
-                      
+                    
+
+                    %setDifference = simplify(setA & ~setB);
+                    %d1 = obj.envd(i) - d
+                    %envdT = [envdT,d1];
+                    %envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
+                    
+                    %d1 = obj.envd(j) - d
+                    %envdT = [envdT,d1];
+                    %envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
+                    
+
                     %end
                 end
               
@@ -773,7 +787,9 @@ classdef plq_1piece
                        [envfs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envds)
                     else
                        disp("mh /= mw")
-                       av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
+                       c0 = (qw*mh-qh*mw+sqrt(mh*mw))/(mh-mw)
+                       %av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
+                       av = c0 * ((mh-mw)*b+qh-qw)
                        
                        alpha = coeffs(av,b)
                        size(alpha)
@@ -830,7 +846,9 @@ classdef plq_1piece
             for i = 1:size(etaR,1)
                 for j = 1:size(obj.d.V,2)
                     vertex = [obj.d.getVertex(obj.d.V(j))];
-                    s = etaR(i,1).subsVarsPartial ([a,b],vertex);
+                    %s = etaR(i,1).subsVarsPartial ([a,b],vertex);
+                    % s = df(x) = 2mx + q
+                    s = functionF(2*obj.d.mE(i) + obj.d.cE(i)); 
              %       i
               %      j
                %     s
