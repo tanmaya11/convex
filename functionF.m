@@ -188,12 +188,20 @@ classdef functionF
           f = objf.f;
           g = objg.f;
           
-          vars = objf.vars;
+          varsf = objf.vars;  % Error when ony one variable
+          varsg = objg.vars;
+          if (size(varsf,2) < size(varsg,2))
+              vars = varsg;
+          else
+              vars = varsf;
+          end
           max_func = @(vars) max(f(vars), g(vars));
           minx = min(vx);
           maxx = max(vx);
           miny = min(vy);
           maxy = max(vy);
+          
+          
           n = 0;
           step = 10;
           Z = [];
@@ -216,7 +224,7 @@ classdef functionF
                   end 
               end
           end
-          
+                  
           % put code for further division
           %lf
           %all(lf)

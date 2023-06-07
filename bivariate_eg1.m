@@ -190,20 +190,42 @@ function bivariate_eg1
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
-
+    %p.envd(i) = removeSuperSet(p.envd(i),[x,y]);
+    %p.envd(i).print
+    %return
   end
   %p.envd.print
 
   
-%  return
+  
   %
   %f = functionF(x-1);
   %g = functionF(x-2);
   %isSubset(f,g)
   
   p = p.maxEnvelope;
-  size(p.envf)
+  
   disp("Max")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  return
+  li = p.entireRegion ();
+  if li > 0
+    p = p.removeNMax (li);
+  end
+  
+  disp("Max2")
+  size(p.envf)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
@@ -211,8 +233,9 @@ function bivariate_eg1
     p.envd(i).print
 
   end
-
-  p = p.maxEnvelopeIntersect;
+  
+  %return
+  p = p.maxEnvelopeIntersect([x,y]);
   size(p.envf)
   
   disp("MaxIntersect")
@@ -221,6 +244,7 @@ function bivariate_eg1
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
+    
   end
   return
 

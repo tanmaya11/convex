@@ -15,6 +15,16 @@ classdef plq_1piece
             end 
         end
 
+        % li returns region no if entire region else 0
+        function li = entireRegion (obj)
+            li = 0;
+            for i=1:size(obj.envd,2)
+              if (obj.envd(i) == obj.d.polygon)
+                  li = i;
+                  return
+              end
+            end
+        end
 
         % fix for multiple intersections
         % remove outside polytope ineqs
@@ -51,9 +61,26 @@ classdef plq_1piece
 
         end
 
+        function obj = removeNMax (obj, li)
+            d = []
+            for i = 1:size(obj.envd,2)
+                if (i == li) 
+                    continue;
+                end
+                p = pointwise_max(obj.envf(i), obj.envf(li), obj.d.vx, obj.d.vy, obj.envd(i).ineqs);
+                if (p == obj.envf(li))
+                    d = [d,i]
+                end
+            end
+            if size(d) == 0
+                d = [d,li]
+            end
+            obj.envf(d) = [];
+            obj.envd(d) = [];
+        end
 
         % diff to be added
-        function obj = maxEnvelopeIntersect (obj)
+        function obj = maxEnvelopeIntersect (obj, vars)
             envdT = [];
             envfT = [];
             for i = 1:size(obj.envd,2)
@@ -64,11 +91,13 @@ classdef plq_1piece
                 for j = i+1:size(obj.envd,2)
                     %if (obj.envd(i) == obj.envd(j))
                     d = intersection(obj.envd(i),obj.envd(j));
+                    d0 = d.simplify (vars,obj.envd(i));
+                    disp("intersection")
+                    d.print
+                    d0.print
                     if isempty(d)
                         continue;
                     end
-                    i
-                    j
                     %obj.envd(i).print
                     %obj.envd(j).print
                     %d.print
@@ -76,16 +105,19 @@ classdef plq_1piece
                     envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d.ineqs)]     ;
                     l(i) = 0;
                     l(j) = 0;
-                    
+                    %continue
 
-                    %setDifference = simplify(setA & ~setB);
-                    %d1 = obj.envd(i) - d
-                    %envdT = [envdT,d1];
-                    %envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
+                    %setDifference = simplify(obj.envd(i) & ~d)
+                    obj.envd(i).print
+                    d.print
+                    d1 = obj.envd(i) - d
+                    d1.print
+                    envdT = [envdT,d1];
+                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
                     
-                    %d1 = obj.envd(j) - d
-                    %envdT = [envdT,d1];
-                    %envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
+                    d1 = simplify(obj.envd(j) - d)
+                    envdT = [envdT,d1];
+                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d1.ineqs)]     ;
                     
 
                     %end
@@ -155,7 +187,8 @@ classdef plq_1piece
 
              % (vix, vjx) is the pair :  1 for edge else 0 
             disp("feasiblePairs") 
-            [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
+            [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b)
+            %return
             %ix=[2]
             %jx=[1]
             %vix=[1]
@@ -837,44 +870,53 @@ classdef plq_1piece
             l = 1;
         end
 
+
+        %currently edited to take all pairs - to be fixed
         %feasible pairs
         % (ix,jx) feasible pair
         % (vix,vjx) 0 : from V, 1 : from E
         % ixd,jxd : if from E - gives region no - 1,2,3
         function [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj, etaR,a,b)
             n = 0;
+            x1 = sym('x1')
+            y1 = sym('y1')
             for i = 1:size(etaR,1)
+                vj1 = obj.d.E(i,1)  
+                vertex = [obj.d.getVertex(vj1)]
+                vjx1 = vertex(1)
+                vj2 = obj.d.E(i,2)  
+                vertex = [obj.d.getVertex(vj2)]
+                vjx2 = vertex(1)
+                if (vertex(1) < vjx1)
+                    vjx2 = vjx1
+                    vjx1 = vertex(1)
+                end
+                eq1 = y1 - obj.d.mE(i)*x1 - obj.d.cE(i)
                 for j = 1:size(obj.d.V,2)
                     vertex = [obj.d.getVertex(obj.d.V(j))];
+
+                    c = vertex(2) + vertex(1) * (1/obj.d.mE(i))
+                    eq2 = y1 + (1/obj.d.mE(i))*x1 - c
+                    proj = solve(eq1==0,eq2==0)
+                    s = proj.x1
+                    subs(eq1,proj)
+                    subs(eq2,proj)
                     %s = etaR(i,1).subsVarsPartial ([a,b],vertex);
                     % s = df(x) = 2mx + q
-                    s = functionF(2*obj.d.mE(i) + obj.d.cE(i)); 
-             %       i
-              %      j
-               %     s
+                    %s = functionF(2*obj.d.mE(i)*vertex(1) + obj.d.cE(i));
+         
+                    %s = vertex(1)
+                    %obj.d.mE(i)
+                    %obj.d.cE(i)
+                    %i
+                    %j
+                    %s
                 %    vertex
-                 %   etaR(i,2)
-                 %   etaR(i,3)
+                    %etaR(i,2)
+                    %etaR(i,3)
                     
-                    if (s <= etaR(i,2))
-                      n = n + 1;
-                      ix(n) = i;
-                      jx(n) = j;
-                      vix(n) = 1;
-                      vjx(n) = 0;
-                      ixd(n) = 1;
-                      jxd(n) = 0;
-                    end
-                    if (s >= etaR(i,3))
-                      n = n + 1;
-                      ix(n) = i;
-                      jx(n) = j;
-                      vix(n) = 1;
-                      vjx(n) = 0;
-                      ixd(n) = 3;
-                      jxd(n) = 0;
-                    end
-                    if ((etaR(i,2)<=s)&(s<=etaR(i,3)))
+                    %if ((etaR(i,2)<=s)&(s<=etaR(i,3)))
+                    %if ((vjx1<=s)&(s<=vjx2))
                       n = n + 1;
                       ix(n) = i;
                       jx(n) = j;
@@ -882,7 +924,25 @@ classdef plq_1piece
                       vjx(n) = 0;
                       ixd(n) = 2;
                       jxd(n) = 0;
-                    end
+                    %end  
+                    %if (s <= vjx2)
+                      n = n + 1;
+                      ix(n) = i;
+                      jx(n) = j;
+                      vix(n) = 1;
+                      vjx(n) = 0;
+                      ixd(n) = 1;
+                      jxd(n) = 0;
+                    %end  
+                    %if (s >= vjx1)
+                      n = n + 1;
+                      ix(n) = i;
+                      jx(n) = j;
+                      vix(n) = 1;
+                      vjx(n) = 0;
+                      ixd(n) = 3;
+                      jxd(n) = 0;
+                    %end
                     
                 end
             end
@@ -932,8 +992,8 @@ classdef plq_1piece
                 etaR(i,1) = functionF(a+obj.d.mE(i)*b);
                 %df1 = functionF(a+obj.d.mE(i)*b)
 
-                b1 = df1.subsVarsPartial ([x,y],[xv1,yv1])
-                b2 = df1.subsVarsPartial ([x,y],[xv2,yv2])
+                b1 = df1.subsVarsPartial ([x,y],[xv1,yv1]);
+                b2 = df1.subsVarsPartial ([x,y],[xv2,yv2]);
                 if (double(b1.f) < double(b2.f))
                   etaR(i,2) = b1;  %subs(df1,[x,y],[xv1,yv1]);
                   etaR(i,3) = b2; %subs(df1,[x,y],[xv2,yv2]);
