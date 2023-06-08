@@ -59,7 +59,6 @@ function bivariate_eg1
   %          V: [2 3]
   
   p=p.convexEnvelope;
-  %disp("out")
   %getEtaFunctions
   %Printing list
   %etaV
@@ -77,6 +76,9 @@ function bivariate_eg1
   %2
 
   %feasible pairs
+  % currently running to get all pairs 
+  % to be changed to be valid only in Sr (correct region)
+
   %ix = 1     1     1
   %jx = 1     2     2
   %vix = 1     1     1

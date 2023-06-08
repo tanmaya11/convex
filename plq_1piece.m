@@ -265,6 +265,7 @@ classdef plq_1piece
             end
         end
 
+        % returns etah, slope and y intercept of edge
         function [etah, m, yintercept] = edgeInfoInSolve(obj, etaE, etaR, ix, ixd) %, nc, c)
            etah = etaE(ix,ixd);
            if size(obj.d.mE,2) == 1
@@ -748,20 +749,18 @@ classdef plq_1piece
         end
 
 
+        % solves all subproblems
         function [envfs, envds] = solve (obj, ix,jx,vix, vjx, ixd, jxd, etaV, etaE, etaR, a, b, x, y)
-            envfs = [];
-
-            envds = [];
-            %disp("solve")
-            
-            for i=1:size(ix,2)
-              %i
-              for j = 1:size(etaV,2)
-                lV(j) = false;
-              end
-              for j = 1:size(etaE,1)
-                lE(j) = false;
-              end
+          envfs = [];
+          envds = [];
+          for i=1:size(ix,2)
+             i
+             for j = 1:size(etaV,2)
+               lV(j) = false;
+             end
+             for j = 1:size(etaE,1)
+               lE(j) = false;
+             end
             
                 
               %nc = 0;
@@ -782,8 +781,7 @@ classdef plq_1piece
               end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
-              %continue
-                if (degreeh==1 & degreew==1)
+              if (degreeh==1 & degreew==1)
                     disp("lin-lin")
                     %continue
                     obj0 = etah + functionF(a*x+b*y);
@@ -973,6 +971,23 @@ classdef plq_1piece
                       end
                 end
             end
+            %return
+            % vertex vertex cases
+            size(obj.d.V,2)
+            for i = 1:size(obj.d.V,2)
+              for j = i+1:size(obj.d.V,2)
+                 n = n + 1;
+                 ix(n) = i;
+                 jx(n) = j;
+                 vix(n) = 0;
+                 vjx(n) = 0;
+                 ixd(n) = 0;
+                 jxd(n) = 0;
+                    
+              end
+            end
+            
+
         end 
         
         function [etaV, etaE, etaR] = getEtaFunctions (obj,x,y,a,b)
