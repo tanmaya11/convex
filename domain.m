@@ -37,7 +37,7 @@ classdef domain
           %obj.cE
           %obj.V
           obj = getAllEdges (obj, x, y);
-          obj.polygon.print;
+          %obj.polygon.print;
       end
       
       function vertex = getVertex(obj,i)

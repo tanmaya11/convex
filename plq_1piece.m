@@ -187,6 +187,7 @@ classdef plq_1piece
         end
 
         function obj = convexEnvelope(obj)
+            disp("in convexEnvelope")
             for i = 1:size(obj.f,2)
               vars = obj.f(i).getVars;
               if (size(vars,2)==2)
@@ -220,7 +221,7 @@ classdef plq_1piece
 
              % (vix, vjx) is the pair :  1 for edge else 0 
             disp("feasiblePairs") 
-            [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b)
+            [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             %return
             %ix=[2]
             %jx=[1]
@@ -231,6 +232,7 @@ classdef plq_1piece
             %return
             disp("solve")
             [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
+            disp("solve done")
             
             for i = 1:size(envfs,2)
 
@@ -418,23 +420,22 @@ classdef plq_1piece
         
         
         function [envfs, envds] = solveQuadLinear1 (obj, m, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix, envfs, envds)
-          disp("one quad")
+          %disp("one quad")
           z = sym('z');
           %av = z - m*b;
           %z = a+m*b;
           %lSolve = true;
           av = solve(z-a-m*b,a);
-          eq = etah-etaw
-          eq = eq.subsVarsPartial([a],[av])
-          bv = eq.solve(b)
+          eq = etah-etaw;
+          eq = eq.subsVarsPartial([a],[av]);
+          bv = eq.solve(b);
 
           if (isempty(bv))
-              eq
-              zv = solve(eq,z)
+              zv = solve(eq,z);
               
-              obj0 = etah + functionF(a*x+b*y)
-              obj0 = obj0.subsVarsPartial([a],[av])
-              obj0 = obj0.subsVarsPartial([z],[zv])
+              obj0 = etah + functionF(a*x+b*y);
+              obj0 = obj0.subsVarsPartial([a],[av]);
+              obj0 = obj0.subsVarsPartial([z],[zv]);
           
               disp ("Fix this")
            %   lSolve = false;
@@ -459,17 +460,22 @@ classdef plq_1piece
               disp ('negative sqr')
               continue
             end
-            z0 = c.solve(z)
+            z0 = c.solve(z);
             % check this part
             % as z is always satisfied
             if isreal(z0(1))
               nb = nb+1;
               lb(nb) = min(z0);
+              if (lb(nb)  < lb(1))
+                  return
+              end
               ub(nb) = max(z0);
+              if (ub(nb)  > ub(1))
+                  return
+              end
+              
             end
           end
-          lb
-          ub
           for j=1:size(etaE,1)
             if (lE(j))
               continue;
@@ -512,13 +518,13 @@ classdef plq_1piece
           %ub
           obj0 = etah + functionF(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
-          obj0 = obj0.subsVarsPartial([b],[bv])
+          obj0 = obj0.subsVarsPartial([b],[bv]);
           deg = polynomialDegree(obj0.f,z);
           if (deg ~= 2) 
               disp("check degree of polynomial in z in quad-lin")
               return
           end
-          objfacts = coeffs(obj0.f,z)
+          objfacts = coeffs(obj0.f,z);
           
           if (deg+1 == size(objfacts,2))
             psi0 = objfacts(1);
@@ -571,25 +577,20 @@ classdef plq_1piece
           
             
             for i = 1:size(lb,2)
-                mlb = lb(i)
-                mub = ub(i)
+                mlb = lb(i);
+                mub = ub(i);
             if (mlb >= mub)
                 disp('infeasible')
             else
           
 
             %for i = 1:nb
-              f0 = simplify(psi1^2/psi2+psi0)
+              f0 = simplify(psi1^2/psi2+psi0);
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
               % put in r1
-              disp("in quad-lin")
-              f0
-              r0
-              size(envds)
               envfs = [envfs, functionF(f0)];
               envds = [envds, region([r0,r1])];
-              envds(1).print
               %envfs = [envfs, functionF(f0)];
               %envds = [envds, region(r1)];
               
@@ -751,10 +752,10 @@ classdef plq_1piece
             envfs = [];
 
             envds = [];
-            disp("solve")
+            %disp("solve")
             
             for i=1:size(ix,2)
-              i
+              %i
               for j = 1:size(etaV,2)
                 lV(j) = false;
               end
@@ -779,8 +780,6 @@ classdef plq_1piece
                   etaw = etaV(jx(i));
                   lV(jx(i)) = true;
               end
-              etah
-              etaw
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
               %continue
@@ -798,12 +797,6 @@ classdef plq_1piece
                     else
                         etaRj = etaR(jx(i),:);
                     end
-                    %etaRi.printL
-                    %etaRj.printL
-                    %ixd(i)
-                    %jxd(i)
-                    %disp('Out')
-                    %envfs
                     [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, a, b, envfs, envds) ;
                     % fix if ix or jx doesnt exist
                     
@@ -812,38 +805,24 @@ classdef plq_1piece
                         [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, b, a, envfs, envds) ;
                     end
 
-                    %disp("envfs0")
-                    %for i = 1: size(envfs,2)
-                    %    envfs(i).print
-                    %end
-
+                    
                     
                 end 
                 
 
                 if (degreeh==2 & degreew==1)
                     disp("quad-lin")
-                  %  continue;
                     [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
-            %        lSolve
-            %        if ~lSolve
-            %            disp("b a flipped")
-            %            [envfs, envds, lSolve] = solveQuadLinear1 (obj, mh, a, b, b, a, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
-            %        end
             % flipping a,b gives same answer
                 end
                 
                 if (degreeh==1 & degreew==2)
                     disp("lin-quad")
-                    
-                %   continue
                     [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, jx(i), envfs, envds)
                 end
                             
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
-                    
-                   % continue
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)
@@ -911,29 +890,29 @@ classdef plq_1piece
         % ixd,jxd : if from E - gives region no - 1,2,3
         function [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj, etaR,a,b)
             n = 0;
-            x1 = sym('x1')
-            y1 = sym('y1')
+            x1 = sym('x1');
+            y1 = sym('y1');
             for i = 1:size(etaR,1)
-                vj1 = obj.d.E(i,1)  
-                vertex = [obj.d.getVertex(vj1)]
-                vjx1 = vertex(1)
-                vj2 = obj.d.E(i,2)  
-                vertex = [obj.d.getVertex(vj2)]
-                vjx2 = vertex(1)
+                vj1 = obj.d.E(i,1);  
+                vertex = [obj.d.getVertex(vj1)];
+                vjx1 = vertex(1);
+                vj2 = obj.d.E(i,2);  
+                vertex = [obj.d.getVertex(vj2)];
+                vjx2 = vertex(1);
                 if (vertex(1) < vjx1)
-                    vjx2 = vjx1
-                    vjx1 = vertex(1)
+                    vjx2 = vjx1;
+                    vjx1 = vertex(1);
                 end
-                eq1 = y1 - obj.d.mE(i)*x1 - obj.d.cE(i)
+                eq1 = y1 - obj.d.mE(i)*x1 - obj.d.cE(i);
                 for j = 1:size(obj.d.V,2)
                     vertex = [obj.d.getVertex(obj.d.V(j))];
 
-                    c = vertex(2) + vertex(1) * (1/obj.d.mE(i))
-                    eq2 = y1 + (1/obj.d.mE(i))*x1 - c
-                    proj = solve(eq1==0,eq2==0)
-                    s = proj.x1
-                    subs(eq1,proj)
-                    subs(eq2,proj)
+                    c = vertex(2) + vertex(1) * (1/obj.d.mE(i));
+                    eq2 = y1 + (1/obj.d.mE(i))*x1 - c;
+                    proj = solve(eq1==0,eq2==0);
+                    s = proj.x1;
+                    subs(eq1,proj);
+                    subs(eq2,proj);
                     %s = etaR(i,1).subsVarsPartial ([a,b],vertex);
                     % s = df(x) = 2mx + q
                     %s = functionF(2*obj.d.mE(i)*vertex(1) + obj.d.cE(i));

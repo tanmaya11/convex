@@ -196,7 +196,7 @@ function bivariate_eg1
   end
   %p.envd.print
 
-  
+  return
   
   %
   %f = functionF(x-1);
