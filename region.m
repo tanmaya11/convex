@@ -33,9 +33,29 @@ classdef region
               l = [l,obj1.ineqs(i).f];
             end
             %n = size(obj1.ineqs,2);
+            l2 = [];
             for i = 1:size(obj2.ineqs,2)
-              l = [l,-obj2.ineqs(i).f];
-            end 
+              ladd = true;  
+              for j = 1:size(obj1.ineqs,2)
+                if (obj2.ineqs(i) == obj1.ineqs(j))
+                    ladd = false;
+                    break;
+                    
+                end
+
+                
+              end
+              if ladd
+                  l2 = [l2,obj2.ineqs(i).f];
+              end
+            end
+            if (size(l2,2) ~= 0)
+              mult = (-1) ^ size(l2,2);
+              for i = 1: size(l2,2)
+                mult = mult * l2(i);
+              end
+              l = [l,mult];
+            end
             f = region(l);
          end
          
@@ -166,9 +186,10 @@ classdef region
            n = 0;
            %intersectingPts = []
            %intersectingEdges = []
+           
            for i = 1:size(obj.ineqs,2)
              for j = i+1:size(obj.ineqs,2)
-                 s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars)
+                 s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars);
                  if isempty(s.x)
                      continue;
                  end
@@ -181,41 +202,33 @@ classdef region
                          end
                      end
                      if pointExists
-                       intersectingEdges{k} = [intersectingEdges{k},[i,j]]
+                       intersectingEdges{k} = [intersectingEdges{k},[i,j]];
                        
                      else
                        n = n + 1;
                        intersectingPts{n} = [s.x,s.y];
-                       intersectingEdges{n} = [i,j]
+                       intersectingEdges{n} = [i,j];
                      end
-                 %if obj.ptFeasible (vars,[s.x,s.y])
-                 %    continue;
-                 %end
-                 %rem = [rem,i];
-                 %rem = [rem,j];
                  end
                  
              end 
            end 
            for i = 1:size(intersectingEdges,2)
-               lp(i) = false
+               lp(i) = false;
            end
            for i = 1:size(obj.ineqs,2)
-               ls(i) = false
+               ls(i) = false;
                
            end
            for i = 1:size(intersectingEdges,2)
-               disp('pts')
-               intersectingPts{i}
                if obj.ptFeasible (vars,intersectingPts{i})
                  continue;
                end
-               lp(i) = true
+               lp(i) = true;
                for j = 1:  size(intersectingEdges{i},2) 
-                   ls(intersectingEdges{i}(j)) = true
+                   ls(intersectingEdges{i}(j)) = true;
                end
            end
-           ls      
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue
@@ -223,11 +236,11 @@ classdef region
               
               if size(intersectingEdges{i},2) == 2 
                  for j = 1:  size(intersectingEdges{i},2) 
-                   ls(intersectingEdges{i}(j)) = false
+                   ls(intersectingEdges{i}(j)) = false;
                  end
               end
            end
-           ls
+           
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue
@@ -243,10 +256,10 @@ classdef region
               end
               intersectingEdges{i} = edges;
            end
-
+           
            % mark singletons and filter 
            for i = 1:size(obj.ineqs,2)
-               ls(i) = true
+               ls(i) = true;
                
            end
            
@@ -259,19 +272,19 @@ classdef region
               end
               lp(i)=true;
               for j = 1:  size(intersectingEdges{i},2)
-                ls(intersectingEdges{i}(j)) = false  
+                ls(intersectingEdges{i}(j)) = false  ;
               end
               intersectingEdges{i} = edges;
            end
-           ls
+           
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
-                  continue
+                  continue;
               end
-              lM = false
+              lM = false;
               for j = 1:  size(intersectingEdges{i},2)
                 if mod(j,2)==0
-                  continue
+                  continue;
                 end
                 if ls(intersectingEdges{i}(j)) & ls(intersectingEdges{i}(j+1))
                     lM=true;
@@ -284,14 +297,13 @@ classdef region
            end
            
            % put code for lP false        
-
+           
            for i = 1:size(ls,2)
                
               if (ls(i))
                 rem = [rem,i];
               end
            end
-           rem
            obj.ineqs(rem) = [];
          end
 
@@ -313,7 +325,7 @@ classdef region
                  
              end 
            end 
-           rem
+           
            obj.ineqs(rem) = [];
          end
 

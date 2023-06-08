@@ -218,7 +218,7 @@ function bivariate_eg1
 
     
   end
-  return
+  %return
   li = p.entireRegion ();
   if li > 0
     p = p.removeNMax (li);
@@ -246,6 +246,39 @@ function bivariate_eg1
     p.envd(i).print
     
   end
+
+  p = p.unique();
+  
+  disp("Unique after intersect")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    %p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  
+  p = p.maxEnvelope;
+  
+  disp("Max after unique")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  
   return
 
 end
