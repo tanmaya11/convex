@@ -265,8 +265,10 @@ classdef functionF
               l = isAlways((obj1.f<=0) <= (obj2.f<=0))
             end
 
-            
-        
+            % fix this
+            function d = degreeNum(obj)
+                d = polynomialDegree(obj.num);
+            end
 
         
     end

@@ -278,6 +278,8 @@ classdef plq_1piece
            
         end
 
+        %change name
+        % gives bound of linear inequality c <= 0
         function [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub)
             
           c1 =  c.solve(b);
@@ -307,7 +309,8 @@ classdef plq_1piece
           
         end
 
-            function [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaR,ixd, a,b,av, nb, lb, ub)
+        % get bounds depending on region
+        function [nb, lb, ub] = getBoundsLinear (obj, linfeasible, etaR,ixd, a,b,av, nb, lb, ub)
             if ixd == 1
               nc = 1  ;
               c(1) = etaR(1)-etaR(2);
@@ -315,7 +318,6 @@ classdef plq_1piece
                 nc = 2;
               c(1) = etaR(2)-etaR(1);
               c(2) = etaR(1)-etaR(3);
-              
             elseif ixd == 3
                 nc = 1;
               c(1) = etaR(3)-etaR(1);
@@ -324,20 +326,26 @@ classdef plq_1piece
               c(i) = c(i).subsVarsPartial([a],[av]);
               [nb,lb, ub] = getBound1 (obj,linfeasible, c(i),b,nb,lb,ub);
               if (linfeasible) 
-                      return;
-                  end
+                return;
+              end
             end
+            
         end
     
         function [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRix, ixd, etaRjx, jxd, x, y, a, b, envfs, envds) 
             f0 = etah-etaw;
+            % if a gets eliminated we exit this routine and try again
+            % exchanging a and b
             linfeasible = false;
             av = f0.solve(a);
+            % Get a in terms of b 
             if (isempty(av))
                 lSol = false;
                 return;
             end
             lSol = true;
+            
+            %substitute a in objective and get coefficients of b
             obj0 = obj0.subsVarsPartial([a],[av]);
             objfacts = coeffs(obj0.f,b);
             
@@ -356,6 +364,7 @@ classdef plq_1piece
                       return;
                   end
             end
+            nb0 = nb;
             for j=1:size(etaV,2)
                if (lV(j)) 
                  continue;
@@ -363,10 +372,10 @@ classdef plq_1piece
                etak = etaV(j);
                c = etah - etak ; % <= 0   easier for substitution
                c = c.subsVarsPartial([a],[av]);
-               [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub);
+                 [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub);
                if (linfeasible) 
-                      return;
-                  end
+                 return;
+               end
             end
             
             for j=1:size(etaE,1)
@@ -381,6 +390,8 @@ classdef plq_1piece
                       continue
                   end
                   [nb,lb, ub] = getBound1 (obj,linfeasible, c,b,nb,lb,ub);
+                 
+               
                   if (linfeasible) 
                       return;
                   end
@@ -390,28 +401,54 @@ classdef plq_1piece
             mlb = max(lb);
             mub = min(ub);
             
-            %for i = 1:size(lb,2)
-            if (mlb > mub)
+            nb1 = nb0; 
+            for i = nb0+1:nb
+                wB = false;
+                for j = 1:nb0
+                    if (lb(i) < lb(j))
+                        wB = true;
+                        break;
+                    end
+                    if (ub(i) > ub(j))
+                        wB = true;
+                        break;
+                    end
+                end
+                if wB
+                    continue;
+                end
+                nb1 = nb1+1;
+                lb(nb1) = lb(i);
+                ub(nb1) = ub(i);
+            end
+            nb = nb1;
+            
+            for i = 1:nb
+              mlb = lb(i);
+              mub = ub(i);
+            
+                if (mlb > mub)
                 disp('infeasible')
             else
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
+
                 envds = [envds, region(objfacts(2)) ];
               elseif (mlb == -inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envds = [envds, region(-objfacts(2)) ];
-              elseif (mlb == mub)
-                envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
-                envds = [envds, region(objfacts(2)) ];
+              %elseif (mlb == mub)
+              %  envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
+              %  envds = [envds, region(objfacts(2)) ];
                 
-              else
+              elseif (mlb ~= mub)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envds = [envds, region(objfacts(2)) ];
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envds = [envds, region(-objfacts(2)) ];
               end
               
-            %end
+            end
             end
                     
             return
@@ -783,7 +820,8 @@ classdef plq_1piece
               degreew = polynomialDegree(etaw.f);
               if (degreeh==1 & degreew==1)
                     disp("lin-lin")
-                    %continue
+                    %objective function set here as we can exchange a and b
+                    %if required
                     obj0 = etah + functionF(a*x+b*y);
                     if ixd(i) == 0
                         etaRi=functionF;
@@ -971,7 +1009,7 @@ classdef plq_1piece
                       end
                 end
             end
-            %return
+            return
             % vertex vertex cases
             size(obj.d.V,2)
             for i = 1:size(obj.d.V,2)
