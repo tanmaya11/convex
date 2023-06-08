@@ -333,6 +333,7 @@ classdef plq_1piece
         end
     
         function [envfs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRix, ixd, etaRjx, jxd, x, y, a, b, envfs, envds) 
+            %if (etah == etaw) wont work
             f0 = etah-etaw;
             % if a gets eliminated we exit this routine and try again
             % exchanging a and b
@@ -816,6 +817,9 @@ classdef plq_1piece
                   etaw = etaV(jx(i));
                   lV(jx(i)) = true;
               end
+              if (etah == etaw)
+                  continue;
+              end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
               if (degreeh==1 & degreew==1)
@@ -848,17 +852,21 @@ classdef plq_1piece
 
                 if (degreeh==2 & degreew==1)
                     disp("quad-lin")
+                    continue;
                     [envfs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaR, etaV, lV, etaE, lE, ix(i), envfs, envds);
             % flipping a,b gives same answer
                 end
                 
                 if (degreeh==1 & degreew==2)
                     disp("lin-quad")
+                    continue;
+                    
                     [envfs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaR, etaV, lV, etaE, lE, jx(i), envfs, envds)
                 end
                             
                 if (degreeh==2 & degreew==2)
                     disp("quad-quad")
+                    continue;
                     obj0 = etah + functionF(a*x+b*y);
                     disp("h1")
                     if (mh == mw)
