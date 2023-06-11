@@ -178,7 +178,7 @@ classdef functionF
 
         % temp code - needs to be fixed
         %function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
-        function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
+        function max_func = pointwise_max(objf, objg, vx, vy, ineqs, vars)
           % POINTWISE_MAX computes the pointwise maximum of two convex functions f and g
           % and returns a function handle to the resulting maximum function.
 
@@ -188,13 +188,13 @@ classdef functionF
           f = objf.f;
           g = objg.f;
           
-          varsf = objf.vars;  % Error when ony one variable
-          varsg = objg.vars;
-          if (size(varsf,2) < size(varsg,2))
-              vars = varsg;
-          else
-              vars = varsf;
-          end
+          %varsf = objf.vars;  % Error when ony one variable
+          %varsg = objg.vars;
+          %if (size(varsf,2) < size(varsg,2))
+          %    vars = varsg;
+          %else
+          %    vars = varsf;
+          %end
           max_func = @(vars) max(f(vars), g(vars));
           minx = min(vx);
           maxx = max(vx);
@@ -203,7 +203,7 @@ classdef functionF
           
           
           n = 0;
-          step = 10;
+          step = 5;
           Z = [];
           tol = 1.0d-6;
           for i = step*minx:step*maxx
@@ -212,6 +212,9 @@ classdef functionF
                   xj = j/step;
                   l = true;
                   for k = 1:size(ineqs,2)
+                      %ineqs(k).f
+                      %vars
+                      %subs(ineqs(k).f,vars,[xi,xj])
                       l = l&(double(subs(ineqs(k).f,vars,[xi,xj]))<0);
                   end
                   %for k = 1:size(ineqs2,2)
@@ -221,6 +224,11 @@ classdef functionF
                   if (l)
                     n = n+1;
                     lf(n) = double(subs(f,vars,[xi,xj])) >= double(subs(g,vars,[xi,xj]));
+                    %if ~lf(n)
+                    %    [xi,xj]
+                    %    subs(f,vars,[xi,xj])
+                    %    subs(g,vars,[xi,xj])
+                    %end
                   end 
               end
           end

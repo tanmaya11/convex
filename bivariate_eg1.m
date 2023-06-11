@@ -198,14 +198,14 @@ function bivariate_eg1
   end
   %p.envd.print
 
-  return
+  %return
   
   %
   %f = functionF(x-1);
   %g = functionF(x-2);
   %isSubset(f,g)
   
-  p = p.maxEnvelope;
+  p = p.maxEnvelope([x,y]);
   
   disp("Max")
   size(p.envf)
@@ -223,7 +223,7 @@ function bivariate_eg1
   %return
   li = p.entireRegion ();
   if li > 0
-    p = p.removeNMax (li);
+    p = p.removeNMax (li,[x,y]);
   end
   
   disp("Max2")
@@ -236,7 +236,6 @@ function bivariate_eg1
 
   end
   
-  %return
   p = p.maxEnvelopeIntersect([x,y]);
   size(p.envf)
   
@@ -248,7 +247,7 @@ function bivariate_eg1
     p.envd(i).print
     
   end
-
+  
   p = p.unique();
   
   disp("Unique after intersect")
@@ -265,7 +264,9 @@ function bivariate_eg1
     
   end
   
-  p = p.maxEnvelope;
+  return
+  
+  p = p.maxEnvelope([x,y]);
   
   disp("Max after unique")
   size(p.envf)

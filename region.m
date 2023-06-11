@@ -349,8 +349,11 @@ classdef region
          function l = isFeasible(obj)
              l = false;
              for i = 1:size(obj.ineqs,2)
+                 %obj.ineqs(i).print
                for j = i+1:size(obj.ineqs,2)
+                   %obj.ineqs(j).print
                  if ( obj.ineqs(i) == unaryminus(obj.ineqs(j)))
+                 %if ( obj.ineqs(i) == -obj.ineqs(j))
                      %disp('negative')
                      %obj.ineqs(i).f
                      %obj.ineqs(j).f

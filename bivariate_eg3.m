@@ -25,6 +25,7 @@ function bivariate_eg3
   
  
   p=p.convexEnvelope;
+  %return
   %etaV
   %4-2a-2b
 
@@ -33,8 +34,8 @@ function bivariate_eg3
   % 0    -(2*a + b)^2/8           2 - b - 2*a
  
   %etaR
-  %a + 2*b  0  5
-  %a + b/2  0  5/2
+  %a + 2*b  0  4
+  %a + b/2  0  5/2  % update this
 
   %feasible pairs
   % (ix,jx) feasible pair
@@ -119,22 +120,90 @@ function bivariate_eg3
   %lb = [0, -5]
   %ub = [5, 0]
 
-
+  size(p.envf,2)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
   end
-return
+  return
+  p = p.maxEnvelope([x,y]);
+  
+  disp("Max")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  return
+  li = p.entireRegion ();
+  if li > 0
+    p = p.removeNMax (li);
+  end
+  
+  disp("Max2")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    p.envd(i).print
+
+  end
+  
+  p = p.maxEnvelopeIntersect([x,y]);
+  size(p.envf)
+  
+  disp("MaxIntersect")
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    p.envd(i).print
+    
+  end
+  
+  p = p.unique();
+  
+  disp("Unique after intersect")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    %p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  
+  return
+  
   p = p.maxEnvelope;
+  
+  disp("Max after unique")
+  size(p.envf)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
     disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
     p.envd(i).print
-  end
 
+    
+  end
 
 end
 

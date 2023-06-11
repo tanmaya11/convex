@@ -51,7 +51,7 @@ function bivariate_eg2
 
   %etaR
   %a + (3*b)/2
-  %-3/2
+  %-1
   %9/2
   %a + b
   %-9
@@ -64,7 +64,9 @@ function bivariate_eg2
   %vjx =      0     0     1     1     1     1     1     1     1     1     1
   %ixd =     2     3     1     1     1     2     2     2     3     3     3
   %jxd =     0     0     1     2     3     1     2     3     1     2     3
+  %return
   disp("Envelope")
+  size(p.envf,2)
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
@@ -73,16 +75,59 @@ function bivariate_eg2
 
   end
     
-  return
-
-  p = p.maxEnvelope;
+  %return
+  disp('max')
+  p = p.maxEnvelope ([x,y]);
   for i=1:size(p.envf,2) 
     disp('Function')  
     p.envf(i).print
     disp('Domain')
     p.envd(i).print
   end
+ % return
+li = p.entireRegion ();
+  if li > 0
+    p = p.removeNMax (li,[x,y]);
+  end
+  
+  disp("Max2")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    p.envd(i).print
 
+  end
+  
+  p = p.maxEnvelopeIntersect([x,y]);
+  size(p.envf)
+  
+  disp("MaxIntersect")
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    p.envd(i).print
+    
+  end
+  
+  p = p.unique();
+  
+  disp("Unique after intersect")
+  size(p.envf)
+  for i=1:size(p.envf,2) 
+    disp('Function')  
+    p.envf(i).print
+    disp('Domain')
+    %p.envd(i).print
+    %p.envd(i) = p.envd(i).simplify2 ([x,y],p.d.polygon);
+    %p.envd(i) = p.envd(i).simplify ([x,y],p.d.polygon);
+    p.envd(i).print
+
+    
+  end
+  
 
 end
 
