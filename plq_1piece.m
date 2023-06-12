@@ -6,16 +6,38 @@ classdef plq_1piece
         envd = region.empty();
     end
 
-    methods
-        function obj = plq_1piece(d,f)
+    methods % creation & print
+         function obj = plq_1piece(d,f)
             % put checks for type of f and d
             if nargin > 0
               obj.f = f;
               obj.d = d;
             end 
-        end
+         end
 
-        % li returns region no if entire region else 0
+         function print(obj)
+         
+           disp("Domain")
+           obj.d.print
+           fprintf("\n")
+           disp("Function")
+           obj.f.print
+           fprintf("\n\n\n")
+              
+           disp("Convex Envelope")
+           size(obj.envf)
+           for j=1:size(obj.envf,2) 
+             disp('Function')  
+             obj.envf(j).print
+             disp('Domain')
+             obj.envd(j).print
+           end
+         end
+
+    end
+
+    methods % utility
+         % li returns region no if entire region else 0
         function li = entireRegion (obj)
             li = 0;
             for i=1:size(obj.envd,2)
@@ -41,146 +63,24 @@ classdef plq_1piece
              obj.envf(rem) = [];
         end
 
-        % fix for multiple intersections
-        % remove outside polytope ineqs
-        function obj = maxEnvelope (obj, vars)
-            envdT = [];
-            envfT = [];
-            for i = 1:size(obj.envd,2)
-                l(i)=1;
-            end
-            for i = 1:size(obj.envd,2)
-                for j = i+1:size(obj.envd,2)
-                    if (obj.envd(i) == obj.envd(j))
-                      %obj.envd(i).print  
-                      envdT = [envdT,obj.envd(i)];
-                      envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, obj.envd(j).ineqs, vars)]     ;
-                      l(i) = 0;
-                      l(j) = 0;
+        function getIntersections (obj)
+            for i=1:size(obj.envd,2)
+                for j=i+1:size(obj.envd,2)
+                    if isempty(solve(obj.envd(i).f <0, obj.envd(j).f <0))
+                        continue
                     end
-                end
-            end
-            for i = 1:size(obj.envd,2)
-              if (l(i) == 1)
-                    envdT = [envdT,obj.envd(i)];
-                    envfT = [envfT, obj.envf(i)];     
-              end
-            end
-            %envfT
-            obj.envf = envfT;
-            obj.envd = envdT;
-            return
-
-        end
-
-        function obj = removeNMax (obj, li, vars)
-            d = [];
-            for i = 1:size(obj.envd,2)
-                if (i == li) 
-                    continue;
-                end
-                p = pointwise_max(obj.envf(i), obj.envf(li), obj.d.vx, obj.d.vy, obj.envd(i).ineqs, vars);
-                if (p == obj.envf(li))
-                    d = [d,i];
-                end
-            end
-            if size(d) == 0
-                d = [d,li];
-            end
-            obj.envf(d) = [];
-            obj.envd(d) = [];
-        end
-
-        % diff to be added
-        function obj = maxEnvelopeIntersect (obj, vars)
-            envdT = [];
-            envfT = [];
-            for i = 1:size(obj.envd,2)
-                l(i)=1;
-            end
-            %return
-            for i = 1:size(obj.envd,2)
-                for j = i+1:size(obj.envd,2)
-                    %if (obj.envd(i) == obj.envd(j))
-                    d = intersection(obj.envd(i),obj.envd(j));
-                    if isempty(d)
-                        continue;
-                    end
-                    
-                    %d0 = d.simplify (vars,obj.envd(i));
-                    d0 = d.simplify (vars,obj.d.polygon);
-                    disp("intersection")
-                    obj.d.polygon.print
-                    d.print
-                    d0.print
-                    if isempty(d0)
-                        continue;
-                    end
-                    %obj.envd(i).print
-                    %obj.envd(j).print
-                    %d.print
-                    envdT = [envdT,d0];
-                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.vx, obj.d.vy, d0.ineqs, vars)]     ;
-                    l(i) = 0;
-                    l(j) = 0;
-                    
-
-                    %setDifference = simplify(obj.envd(i) & ~d)
+                    i
+                    j
                     obj.envd(i).print
-                    d0.print
-                    d1 = obj.envd(i) - d0
-                    d1.print
-                    d1 = d1.simplify (vars,obj.d.polygon);
-                    d1.print
-                    %continue
-                    envdT = [envdT,d1];
-                    envfT = [envfT, obj.envf(i)]     ;
-                    
-                    
                     obj.envd(j).print
-                    d0.print
-                    d1 = obj.envd(j) - d0
-                    d1.print
-                    d1 = d1.simplify (vars,obj.d.polygon);
-                    d1.print
-                    %d1 = simplify(obj.envd(j) - d0)
-                    envdT = [envdT,d1];
-                    envfT = [envfT, obj.envf(j)]     ;
-                    
-
-                    %end
                 end
-              
-              
             end
-            for i = 1:size(obj.envd,2)
-              if (l(i) == 1)
-                    envdT = [envdT,obj.envd(i)];
-                    envfT = [envfT, obj.envf(i)];     
-              end
-            end
-            %return
-            
-            %envfT
-            obj.envf = envfT;
-            obj.envd = envdT;
-            return
-
         end
 
 
+    end
 
-
-        function f = max(obj,i,j,x,y)
-            for i = 1:obj.d.nVertices
-                if (subs(obj.envd(i).f,[x,y],[obj.d.vx(i),obj.d.vy(i)]))    % change this to vertexindomain
-                    f0 = obj.envf(i)-obj.envf(j)
-                    
-                end
-            end
-            f = functionF
-        end
-
+    methods % convex
         function obj = convexEnvelope(obj)
             disp("in convexEnvelope")
             for i = 1:size(obj.f,2)
@@ -261,21 +161,7 @@ classdef plq_1piece
             % put code for max 
         end 
 
-        function getIntersections (obj)
-            for i=1:size(obj.envd,2)
-                for j=i+1:size(obj.envd,2)
-                    if isempty(solve(obj.envd(i).f <0, obj.envd(j).f <0))
-                        continue
-                    end
-                    i
-                    j
-                    obj.envd(i).print
-                    obj.envd(j).print
-                end
-            end
-        end
-
-        % returns etah, slope and y intercept of edge
+         % returns etah, slope and y intercept of edge
         function [etah, m, yintercept] = edgeInfoInSolve(obj, etaE, etaR, ix, ixd) %, nc, c)
            etah = etaE(ix,ixd);
            if size(obj.d.mE,2) == 1
@@ -1033,8 +919,8 @@ classdef plq_1piece
 
         function l=positivePsi (obj,p,x,y)
             l = 0;
-            for i = 1: obj.d.nVertices
-               if (subs(p,[x,y],[obj.d.vx(i),obj.d.vy(i)]) < 0)
+            for i = 1: obj.d.polygon.nv
+               if (subs(p,[x,y],[obj.d.polygon.vx(i),obj.d.polygon.vy(i)]) < 0)
                    return
                end
             end
@@ -1042,7 +928,7 @@ classdef plq_1piece
         end
 
 
-        %currently edited to take all pairs - to be fixed
+                %currently edited to take all pairs - to be fixed
         %feasible pairs
         % (ix,jx) feasible pair
         % (vix,vjx) 0 : from V, 1 : from E
@@ -1156,12 +1042,12 @@ classdef plq_1piece
             
             % Eta for Edges
             for i = 1:obj.d.nE
-                xv1 = obj.d.vx(obj.d.E(i,1));
-                yv1 = obj.d.vy(obj.d.E(i,1));
+                xv1 = obj.d.polygon.vx(obj.d.E(i,1));
+                yv1 = obj.d.polygon.vy(obj.d.E(i,1));
                 etaE(i,1) = eta.subsVarsPartial([x,y],[xv1,yv1]);
             
-                xv2 = obj.d.vx(obj.d.E(i,2));
-                yv2 = obj.d.vy(obj.d.E(i,2));
+                xv2 = obj.d.polygon.vx(obj.d.E(i,2));
+                yv2 = obj.d.polygon.vy(obj.d.E(i,2));
                 etaE(i,3) = eta.subsVarsPartial([x,y],[xv2,yv2]);
             
                 edgey = obj.d.mE(i) * x + obj.d.cE(i);
@@ -1196,11 +1082,162 @@ classdef plq_1piece
 
             % Eta for Vertices
             for i = 1:obj.d.nV
-                xv = obj.d.vx(obj.d.V(i));
-                yv = obj.d.vy(obj.d.V(i));
+                xv = obj.d.polygon.vx(obj.d.V(i));
+                yv = obj.d.polygon.vy(obj.d.V(i));
                 etaV(i) = eta.subsVarsPartial([x,y],[xv,yv]);
             end
             
         end
+
     end
+
+    methods % conjugate
+
+        
+    end
+
+    methods % max
+        % fix for multiple intersections
+        % remove outside polytope ineqs
+        function obj = maxEnvelope (obj, vars)
+            envdT = [];
+            envfT = [];
+            for i = 1:size(obj.envd,2)
+                l(i)=1;
+            end
+            for i = 1:size(obj.envd,2)
+                for j = i+1:size(obj.envd,2)
+                    if (obj.envd(i) == obj.envd(j))
+                      %obj.envd(i).print  
+                      envdT = [envdT,obj.envd(i)];
+                      envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars)]     ;
+                      l(i) = 0;
+                      l(j) = 0;
+                    end
+                end
+            end
+            for i = 1:size(obj.envd,2)
+              if (l(i) == 1)
+                    envdT = [envdT,obj.envd(i)];
+                    envfT = [envfT, obj.envf(i)];     
+              end
+            end
+            %envfT
+            obj.envf = envfT;
+            obj.envd = envdT;
+            return
+
+        end
+
+        function obj = removeNMax (obj, li, vars)
+            d = [];
+            for i = 1:size(obj.envd,2)
+                if (i == li) 
+                    continue;
+                end
+                p = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
+                if (p == obj.envf(li))
+                    d = [d,i];
+                end
+            end
+            if size(d) == 0
+                d = [d,li];
+            end
+            obj.envf(d) = [];
+            obj.envd(d) = [];
+        end
+
+        % diff to be added
+        function obj = maxEnvelopeIntersect (obj, vars)
+            envdT = [];
+            envfT = [];
+            for i = 1:size(obj.envd,2)
+                l(i)=1;
+            end
+            %return
+            for i = 1:size(obj.envd,2)
+                for j = i+1:size(obj.envd,2)
+                    %if (obj.envd(i) == obj.envd(j))
+                    d = intersection(obj.envd(i),obj.envd(j));
+                    if isempty(d)
+                        continue;
+                    end
+                    
+                    %d0 = d.simplify (vars,obj.envd(i));
+                    d0 = d.simplify (vars,obj.d.polygon);
+                    disp("intersection")
+                    obj.d.polygon.print
+                    d.print
+                    d0.print
+                    if isempty(d0)
+                        continue;
+                    end
+                    %obj.envd(i).print
+                    %obj.envd(j).print
+                    %d.print
+                    envdT = [envdT,d0];
+                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, d0.ineqs, vars)]     ;
+                    l(i) = 0;
+                    l(j) = 0;
+                    
+
+                    %setDifference = simplify(obj.envd(i) & ~d)
+                    obj.envd(i).print
+                    d0.print
+                    d1 = obj.envd(i) - d0
+                    d1.print
+                    d1 = d1.simplify (vars,obj.d.polygon);
+                    d1.print
+                    %continue
+                    envdT = [envdT,d1];
+                    envfT = [envfT, obj.envf(i)]     ;
+                    
+                    
+                    obj.envd(j).print
+                    d0.print
+                    d1 = obj.envd(j) - d0
+                    d1.print
+                    d1 = d1.simplify (vars,obj.d.polygon);
+                    d1.print
+                    %d1 = simplify(obj.envd(j) - d0)
+                    envdT = [envdT,d1];
+                    envfT = [envfT, obj.envf(j)]     ;
+                    
+
+                    %end
+                end
+              
+              
+            end
+            for i = 1:size(obj.envd,2)
+              if (l(i) == 1)
+                    envdT = [envdT,obj.envd(i)];
+                    envfT = [envfT, obj.envf(i)];     
+              end
+            end
+            %return
+            
+            %envfT
+            obj.envf = envfT;
+            obj.envd = envdT;
+            return
+
+        end
+
+
+
+
+        function f = max(obj,i,j,x,y)
+            for i = 1:obj.d.polygon.nv
+                if (subs(obj.envd(i).f,[x,y],[obj.d.polygon.vx(i),obj.d.polygon.vy(i)]))    % change this to vertexindomain
+                    f0 = obj.envf(i)-obj.envf(j)
+                    
+                end
+            end
+            f = functionF
+        end
+
+    
+    end
+
 end

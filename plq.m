@@ -15,25 +15,8 @@ classdef plq
       function print(obj)
           for i = 1:obj.nPieces
               disp(["Piece ", num2str(i)])
-              disp("Domain")
-              obj.pieces(i).d.print
-              fprintf("\n")
-              disp("Function")
-              obj.pieces(i).f.print
-              fprintf("\n\n\n")
-              
-              disp("Convex Envelope")
-              size(obj.pieces(i).envf)
-              for j=1:size(obj.pieces(i).envf,2) 
-                disp('Function')  
-                obj.pieces(i).envf(j).print
-                disp('Domain')
-                obj.pieces(i).envd(j).print
-              end
-
-    
+              obj.pieces(i).print;
             end
-          
       end
 
       function obj = convexEnvelope(obj)

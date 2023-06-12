@@ -181,10 +181,17 @@ classdef region
          end
 
          function print(obj)
+             disp(["nVertices = ", num2str(obj.nv)]);
+             fprintf("vx =  ")
+             fprintf("%d  ", obj.vx);
+             fprintf("\n")
+             fprintf("vy =  ")
+             fprintf("%d  ", obj.vy);
+             fprintf("\n\n")
              obj.ineqs.printL;
-             disp(["Vertices = ", num2str(obj.nv)]);
-             disp(obj.vx)
-             disp(obj.vy)
+             %disp(["Vertices = ", num2str(obj.nv)]);
+             %disp(obj.vx)
+             %disp(obj.vy)
          end
 
          function obj = simplify (obj, vars, obj2)
@@ -418,7 +425,7 @@ classdef region
                    continue;
                end
                if (obj.ptFeasible(vars, [s.x,s.y]))
-                   disp('here')
+                   
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = s.x;
                    obj.vy(obj.nv) = s.y;

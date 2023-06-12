@@ -2,9 +2,9 @@
 classdef domain
   properties
     % vertex information  
-    nVertices {mustBeInteger}
-    vx;
-    vy;
+    %nVertices {mustBeInteger}
+    %vx;
+    %vy;
     
     % ineq representation
     polygon=region;
@@ -25,10 +25,11 @@ classdef domain
       
       function obj = domain(v, x,y)
           if nargin > 0
-            obj.nVertices = size(v,1) ;
-            [obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
+            %obj.nVertices = size(v,1) ;
+            %[obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
 
-            %obj.polygon.nv=
+            obj.polygon.nv=size(v,1) ;
+            [obj.polygon.vx,obj.polygon.vy] = poly2cw(v(:,1),v(:,2));
           end
           %obj.nVertices
           %obj.vx
@@ -43,14 +44,14 @@ classdef domain
       end
       
       function vertex = getVertex(obj,i)
-          vertex = [obj.vx(i), obj.vy(i)];
+          vertex = [obj.polygon.vx(i), obj.polygon.vy(i)];
       end
 
       function obj = getEdges (obj)
-          for i = 1:obj.nVertices-1
+          for i = 1:obj.polygon.nv-1
               l(i) = 0;
           end
-          for i = 1:obj.nVertices-1
+          for i = 1:obj.polygon.nv-1
             m = obj.slope (i,i+1);
              if (m > 0 & m < inf)
                 obj.nE = obj.nE+1;
@@ -63,20 +64,20 @@ classdef domain
             end
           end 
           
-          m = obj.slope (obj.nVertices,1);
+          m = obj.slope (obj.polygon.nv,1);
           if (m > 0 & m < inf)
                 
             obj.nE = obj.nE+1;
-            obj.E(obj.nE,1) =  obj.nVertices;
+            obj.E(obj.nE,1) =  obj.polygon.nv ;
             obj.E(obj.nE,2) =  1;
             obj.mE(obj.nE) = m;
             obj.cE(obj.nE) = yIntercept (obj,1,m);
             l(1)=1;
-            l(obj.nVertices) = 1;
+            l(obj.polygon.nv) = 1;
           end
 
           
-          for i = 1:obj.nVertices
+          for i = 1:obj.polygon.nv
               if (l(i) == 1) 
                   continue
               end    
@@ -87,16 +88,16 @@ classdef domain
       end
 
       function obj = getAllEdges (obj, x, y)
-        cx = mean(obj.vx);
-        cy =  mean(obj.vy);
-        for i = 1:obj.nVertices
-          if (i == obj.nVertices) 
+        cx = mean(obj.polygon.vx);
+        cy =  mean(obj.polygon.vy);
+        for i = 1:obj.polygon.nv
+          if (i == obj.polygon.nv) 
             m = obj.slope (i,1);
           else
             m = obj.slope (i,i+1);
           end
           if (m == inf | m == -inf)
-            obj.polygon.ineqs(i) = functionF(x  - obj.vx(i));
+            obj.polygon.ineqs(i) = functionF(x  - obj.polygon.vx(i));
           else
             obj.polygon.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));
           end
@@ -110,21 +111,21 @@ classdef domain
       end
       
       function m = slope (obj,i,j)
-          m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
+          m = (obj.polygon.vy(i)-obj.polygon.vy(j))/(obj.polygon.vx(i)-obj.polygon.vx(j));
       end
       
       function c = yIntercept (obj,i,m)
-          c = obj.vy(i)-m*obj.vx(i);   
+          c = obj.polygon.vy(i)-m*obj.polygon.vx(i);   
       end
 
       function print(obj)
-        disp(["nVertices = ", num2str(obj.nVertices)]);
-        fprintf("vx =  ")
-        fprintf("%d  ", obj.vx);
-        fprintf("\n")
-        fprintf("vy =  ")
-        fprintf("%d  ", obj.vy);
-        fprintf("\n")
+        %disp(["nVertices = ", num2str(obj.polygon.nv)]);
+        %fprintf("vx =  ")
+        %fprintf("%d  ", obj.polygon.vx);
+        %fprintf("\n")
+        %fprintf("vy =  ")
+        %fprintf("%d  ", obj.polygon.vy);
+        %fprintf("\n")
         fprintf("Polygon Ineqs <= 0 \n")
         obj.polygon.print
         disp(["Number of Convex edges = ", num2str(obj.nE)])
