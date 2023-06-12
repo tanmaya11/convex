@@ -168,7 +168,7 @@ classdef functionF
             f = obj.f* abs(mult);
         end
         function printL (l)
-            disp("Printing list")
+            
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).print;

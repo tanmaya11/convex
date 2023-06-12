@@ -2,6 +2,9 @@ classdef region
     % ineqs always stored as <= 0
     properties
         ineqs=functionF;
+        nv;
+        vx;
+        vy;
     end
 
      methods
@@ -179,6 +182,9 @@ classdef region
 
          function print(obj)
              obj.ineqs.printL;
+             disp(["Vertices = ", num2str(obj.nv)]);
+             disp(obj.vx)
+             disp(obj.vy)
          end
 
          function obj = simplify (obj, vars, obj2)
@@ -400,7 +406,30 @@ classdef region
 
          end
     
-     end
+     
 
+     % wont work for degree > 2
+     function obj = getVertices(obj,vars)
+       obj.nv=0;
+       for i = 1:size(obj.ineqs,2)  
+           for j = i+1:size(obj.ineqs,2)  
+               s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars);
+               if isempty(s)
+                   continue;
+               end
+               if (obj.ptFeasible(vars, [s.x,s.y]))
+                   disp('here')
+                   obj.nv=obj.nv+1;
+                   obj.vx(obj.nv) = s.x;
+                   obj.vy(obj.nv) = s.y;
+               end
+               
+           end
+           
+       end
+       [obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
+       
+     end
+     end
      
 end

@@ -193,6 +193,18 @@ classdef plq_1piece
                   return
               end
               obj = convexEnvelope1 (obj,x,y);
+              obj = obj.maxEnvelope([x,y]);
+              li = obj.entireRegion ();
+              if li > 0
+                obj = obj.removeNMax (li,[x,y]);
+              end
+              obj = obj.maxEnvelopeIntersect([x,y]);
+              obj = obj.unique();
+              disp("b4 vertices")
+              size(obj.envd,2)
+              for j=1:size(obj.envd,2)
+                obj.envd(j) = obj.envd(j).getVertices(vars);
+              end
             end
             return
             
@@ -225,9 +237,9 @@ classdef plq_1piece
             %ixd=[2]
             %jxd=[0]
             %return
-            disp("solve")
+            %disp("solve")
             [envfs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            disp("solve done")
+            %disp("solve done")
             
             for i = 1:size(envfs,2)
 
@@ -477,9 +489,9 @@ classdef plq_1piece
           %z = a+m*b;
           %lSolve = true;
           av = solve(z-a-m*b,a);
-          eq = etah-etaw
-          eq = eq.subsVarsPartial([a],[av])
-          bv = eq.solve(b)
+          eq = etah-etaw;
+          eq = eq.subsVarsPartial([a],[av]);
+          bv = eq.solve(b);
           linfeasible = false;
 
           if (isempty(bv))
@@ -526,8 +538,8 @@ classdef plq_1piece
 
             end  
           nb0 = nb;
-          lb
-          ub
+          %lb
+          %ub
 
           % solve these to get bounds
           for j=1:size(etaV,2)
@@ -539,7 +551,7 @@ classdef plq_1piece
             c = c.subsVarsPartial([a],[av]);
             c = c.subsVarsPartial([b],[bv]);
             if isNegativeSqr(c,z)
-              disp ('negative sqr')
+              %disp ('negative sqr')
               continue
             end
             z0 = c.solve(z);
@@ -597,8 +609,8 @@ classdef plq_1piece
               
             end
           end
-          lb
-          ub
+          %lb
+          %ub
           nb1 = nb0; 
             for i = nb0+1:nb
                 wB = false;
@@ -625,15 +637,15 @@ classdef plq_1piece
            
           %lb
           %ub
-          obj0 = etah + functionF(a*x+b*y)
-          obj0 = obj0.subsVarsPartial([a],[av])
-          obj0 = obj0.subsVarsPartial([b],[bv])
+          obj0 = etah + functionF(a*x+b*y);
+          obj0 = obj0.subsVarsPartial([a],[av]);
+          obj0 = obj0.subsVarsPartial([b],[bv]);
           deg = polynomialDegree(obj0.f,z);
           if (deg ~= 2) 
               disp("check degree of polynomial in z in quad-lin")
               return
           end
-          objfacts = coeffs(obj0.f,z)
+          objfacts = coeffs(obj0.f,z);
           
           if (deg+1 == size(objfacts,2))
             psi0 = objfacts(1);
@@ -710,14 +722,14 @@ classdef plq_1piece
               %envds = [envds, region(r1)];
               
               
-              f0 = -mub^2*psi2 +2*mub*psi1+psi0 
-              r0 = simplify(mub*psi2-psi1)
+              f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
+              r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, functionF(f0)];
               envds = [envds, region(r0)];
 
 
-              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0
-              r0 = simplify(-mlb*psi2+psi1)
+              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0;
+              r0 = simplify(-mlb*psi2+psi1);
               envfs = [envfs, functionF(f0)];
               envds = [envds, region(r0)];
               %size(envds)

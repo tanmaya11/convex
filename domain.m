@@ -27,6 +27,8 @@ classdef domain
           if nargin > 0
             obj.nVertices = size(v,1) ;
             [obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
+
+            %obj.polygon.nv=
           end
           %obj.nVertices
           %obj.vx
@@ -114,6 +116,32 @@ classdef domain
       function c = yIntercept (obj,i,m)
           c = obj.vy(i)-m*obj.vx(i);   
       end
+
+      function print(obj)
+        disp(["nVertices = ", num2str(obj.nVertices)]);
+        fprintf("vx =  ")
+        fprintf("%d  ", obj.vx);
+        fprintf("\n")
+        fprintf("vy =  ")
+        fprintf("%d  ", obj.vy);
+        fprintf("\n")
+        fprintf("Polygon Ineqs <= 0 \n")
+        obj.polygon.print
+        disp(["Number of Convex edges = ", num2str(obj.nE)])
+        disp("Edges joining vertex numbers")
+        disp(obj.E)
+        fprintf("Slopes =  ")
+        fprintf("%d  ", obj.mE);
+        fprintf("\n")
+        fprintf("y-intercepts =  ")
+        fprintf("%d  ", obj.cE);
+        fprintf("\n")
+        disp(["Remaining vertices = ", num2str(obj.nV)])
+        disp("Vertex number")
+        disp(obj.V)
+      end
+        
+      
       
   end
 end
