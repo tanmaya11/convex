@@ -28,5 +28,22 @@ classdef plq
           end
       end
        
+      function obj = conjugate(obj)
+          for i = 1:obj.nPieces
+              obj.pieces(i)=obj.pieces(i).conjugate;
+              if i == 1
+                  return
+              end
+          end
+      end
+
+      function obj = maximum(obj)
+          for i = 1:obj.nPieces
+              obj.pieces(i)=obj.pieces(i).maxOfConjugate;
+              if i == 1
+                  return
+              end
+          end
+      end
   end
 end

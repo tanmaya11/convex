@@ -12,9 +12,8 @@ classdef functionF
         f = sym('f') ;
     end
 
-    methods
-
-        
+    
+    methods  % init + display
         function obj = functionF(num, den)
             if nargin == 0
               obj.num=0;
@@ -39,8 +38,57 @@ classdef functionF
         end   
         
         function print(obj)
-            disp(obj.f);
+            fprintf(char(simplify(obj.f)));
+            fprintf("\n")
         end
+        
+        function printIneq(obj)
+            fprintf(char(obj.f));
+            fprintf(" <= 0 \n")
+        end
+
+        function printL (l)
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).print;
+                end
+            end
+        end
+
+        function printLIneq (l)
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).printIneq;
+                end
+            end
+        end
+
+    
+    end
+    
+    methods % operations
+        function f = plus(obj1,obj2)
+            f = functionF(obj1.num*obj2.den + obj2.num*obj1.den, obj1.den*obj2.den);
+        end
+        function f = minus(obj1,obj2)
+            f = functionF(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
+        end
+        function f = unaryminus(obj)
+            f = functionF(-obj.num,obj.den);
+        end
+    end
+
+    methods % derivatives
+         function f = dfdx (obj,x)
+            f = functionF(diff(obj.f,x));
+        end    
+
+    end
+    
+    methods
+
         
         
         function vars = getVars(obj)
@@ -74,28 +122,12 @@ classdef functionF
             d = c(1);
         end
 
-        function f = dfdx (obj,x)
-            f = functionF(diff(obj.f,x));
-        end    
-
+       
         function f = solve (obj,x)
             f = solve(obj.f,x);
         end    
         
-        function f = plus(obj1,obj2)
-            f = functionF(obj1.f + obj2.f);
-        end
-
-
-        function f = minus(obj1,obj2)
-            f = functionF(obj1.f - obj2.f);
-        end
-
-
-        function f = unaryminus(obj)
-            f = functionF(-obj.f);
-        end
-
+    
         function res = eq(obj1,obj2)
             res = false;
             if (obj1.f==obj2.f)
@@ -167,15 +199,6 @@ classdef functionF
             end
             f = obj.f* abs(mult);
         end
-        function printL (l)
-            
-            for i = 1: size(l,1)
-                for j = 1: size(l,2)
-                    l(i,j).print;
-                end
-            end
-        end
-
         % temp code - needs to be fixed
         %function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
         function max_func = pointwise_max(objf, objg, vx, vy, ineqs, vars)
@@ -264,7 +287,12 @@ classdef functionF
             end
              l = true;
         end
-             
+        
+
+        function l = isPolynomial(obj)
+            obj.vars
+            l = isPolynomial(obj.f, obj.vars);
+        end
 % not working 
             function l = isSubset (obj1, obj2)
                 obj1.f <= 0
@@ -275,10 +303,27 @@ classdef functionF
 
             % fix this
             function d = degreeNum(obj)
+                
                 d = polynomialDegree(obj.num);
             end
 
-        
+            
+
+    end 
+
+    methods  % conjugate
+        function obj = conjugateRational(obj)
+            
+        end
+
+        function obj = conjugate(obj)
+            if polynomialDegree(obj.getDen) > 0
+                obj = conjugateRational(obj)
+            else
+                %obj = conjugateR(obj)
+            end
+            
+        end
     end
 
 end

@@ -12,7 +12,12 @@ function plq_eg
 
 
   PS = plq(p);
-  PS = PS.convexEnvelope();
+  convex_PS = PS.convexEnvelope();
   
-  PS.print
+  convex_PS.print
+  return
+  conjugate_PS = convex_PS.conjugate();
+  max_PS = conjugate_PS.maximum();
+  
+  
 end

@@ -188,7 +188,7 @@ classdef region
              fprintf("vy =  ")
              fprintf("%d  ", obj.vy);
              fprintf("\n\n")
-             obj.ineqs.printL;
+             obj.ineqs.printLIneq;
              %disp(["Vertices = ", num2str(obj.nv)]);
              %disp(obj.vx)
              %disp(obj.vy)
@@ -436,6 +436,9 @@ classdef region
        end
        [obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
        
+     end
+
+     function obj = conjugate(obj)
      end
      end
      
