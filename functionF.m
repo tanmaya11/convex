@@ -82,8 +82,17 @@ classdef functionF
 
     methods % derivatives
          function f = dfdx (obj,x)
-            f = functionF(diff(obj.f,x));
-        end    
+            
+            f = functionF(simplify(diff(obj.f,x)));
+         end 
+
+         function f = limit (obj, vars, pt)
+             f0 = obj.f;
+             for i=1:size(vars,2)
+               f0 = limit(f0,vars(i),pt(i));
+             end
+             f = functionF(f0);
+         end
 
     end
     
@@ -95,13 +104,64 @@ classdef functionF
             vars = obj.vars;
         end
 
-        function f = subsF (obj,x,y,xv,yv)
-            x = xv;
-            y = yv;
-            f = subs(obj.f);
+        function c = getLinearCoeffs (obj,vars)
+           cvars = obj.getVars;
+           if (isempty(cvars))
+               c(1) = 0;
+               c(2) = 0;
+               c(3) = 0;
+               return;
+           end
+           if size(cvars,2) == size(vars,2)
+              ct = coeffs(obj.f,vars(1));
+              c(1) = ct(2) ;
+              ct = coeffs(ct(1),vars(2));
+              if (size(ct,2) == 2)
+                c(3) = ct(1);
+              else
+                  c(3) = 0;
+              end
+              ct = coeffs(obj.f,vars(2));
+              c(2) = ct(2);
+           elseif size(cvars,2) == 1
+              if (cvars(1) == vars(1))
+                ct = coeffs(obj.f,vars(1));
+                if (size(ct,2) == 2)
+                  c(2) = ct(1);
+                  c(3) = ct(2);
+                  c(1) = 0;
+                else
+                  c(2) = 0;
+                  c(3) = 0;
+                  c(1) = ct(1);
+                end
+               else
+                ct = coeffs(obj.f,vars(2));
+                if (size(ct,2) == 2)
+                  c(2) = ct(1);
+                  c(3) = 0;
+                  c(1) = ct(2);
+                else
+                  c(2) = ct(1);
+                  c(3) = 0;
+                  c(1) = 0;
+                end
+               
+              end
+           end
+
+        end
+
+        function f = subsF (obj,vars,vals)
+            %x = xv;
+            %y = yv;
+            f = functionF(subs(obj.f, vars, vals));
         end    
 
            
+        function l = isZero(obj)
+            l = isAlways(obj.f==0);
+        end
         
         function f = subsVarsPartial (obj,vars,varVals)
             f0 = simplify(subs(obj.f, vars, varVals));
@@ -266,9 +326,9 @@ classdef functionF
           end
           
         end
-        function l = isZero(obj)
-            l = (obj.f==0);
-        end
+        %function l = isZero(obj)
+        %    l = (obj.f==0);
+        %end
 
         function l = isNegativeSqr(obj,z)
             l = false;

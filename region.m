@@ -95,6 +95,14 @@ classdef region
             %obj.ineqs
          end
 
+         function m = slope (obj,i,j)
+          m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
+         end
+
+          function c = yIntercept (obj,i,m)
+          c = obj.vy(i)-m*obj.vx(i);   
+          end
+
          function set = ithSet (obj, logical_indices)
            set = true;
            if all(logical_indices == false)
@@ -434,7 +442,7 @@ classdef region
            end
            
        end
-       [obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
+       %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
        
      end
 

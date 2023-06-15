@@ -100,7 +100,7 @@ classdef plq_1piece
               obj = convexEnvelope1 (obj,x,y);
               
               obj = obj.maxEnvelope([x,y]);
-              return
+              %return
               li = obj.entireRegion ();
               if li > 0
                 obj = obj.removeNMax (li,[x,y]);
@@ -249,7 +249,7 @@ classdef plq_1piece
             % if a gets eliminated we exit this routine and try again
             % exchanging a and b
             linfeasible = false;
-            av = f0.solve(a)
+            av = f0.solve(a);
             % Get a in terms of b 
             if (isempty(av))
                 lSol = false;
@@ -1130,15 +1130,270 @@ classdef plq_1piece
     methods % conjugate
         function obj = conjugate (obj)
           for i=1:size(obj.envf,1)
-              conjf = obj.envf(i).conjugate;
-              conjd = obj.envd(i).conjugate;
+              conjf = obj.conjugateFunction(i);
+              %conjd = obj.envd(i).conjugate;
           end
         end
 
+        function conjf = conjugateFunction (obj,i)
+            vars = obj.f.getVars
+            if obj.envExpr(i).type == 1
+
+              t = sym('t');
+              s1 = sym('s1');
+              s2 = sym('s2');
+              
+              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars);
+             
+              cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars);
+              
+              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);
+              
+              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
+              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
+
+              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );
+              crs = subs(vs1,t, vt);    
+
+
+              
+                
+              
+
+
+
+              
+            end
+            
+            NCV = obj.getNormalConeVertex(i, s1, s2)
+            NCE = obj.getNormalConeEdge(i, s1, s2)
+
+            dualVars = [s1,s2];
         
+            subdV = obj.getSubdiffVertex (i, NCV, dualVars)
+            
+        end
+
+        function subdV = getSubdiffVertex (obj, i, NCV, dualVars)
+            subdV = sym(zeros(obj.envd(i).nv,2));
+            vars = obj.f.getVars
+            drx1 = obj.envf(i).dfdx(vars(1));
+            drx2 = obj.envf(i).dfdx(vars(2)) ;
+
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
+            for j = 1:obj.envd(i).nv
+              if ~ldrx1(j)
+                  continue;
+              end
+              if ~ldrx2(j)
+                  continue;
+              end
+              
+              f = functionF(NCV(j,1));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(2) == 0)
+                subdV(j,1) = NCV(j,1)-limdrx1(j);
+              elseif (coef(2) < 0)
+                m = double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
+              end 
+
+              f = functionF(NCV(j,1));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(2) == 0)
+                subdV(j,2) = NCV(j,2)-limdrx1(j);
+              elseif (coef(2) < 0)
+                m = double(diff(NCV(j,2),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -double(diff(NCV(j,2),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+              end 
+
+              
+
+              
+             
+            end
+
+        end
+
+        
+        function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
+            vars2 = [vars(2),vars(1)];
+            for j = 1: obj.envd(i).nv
+                l1 = drx1.limit(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]);
+                l2 = drx1.limit(vars,[obj.envd(i).vy(j),obj.envd(i).vx(j)]);
+                if (l1 == l2)
+                    ldrx1(j) = true;
+                    limdrx1(j) = double(l1.f);
+                else
+                    ldrx1(j) = false;
+                end
+            end
+        end 
+            
+        
+        function NC = getNormalConeVertex(obj, i, s1, s2)
+            
+            NC = sym(zeros(obj.envd(i).nv,2));
+            vars = obj.f.getVars;
+            meanx = sum(obj.envd(i).vx)/obj.envd(i).nv;
+            meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
+            
+             for j = 1: obj.envd(i).nv-1
+                slope = obj.envd(i).slope(j,j+1);
+                pslope = -1/slope;
+                if pslope ~= inf
+                    q = obj.envd(i).yIntercept (j,pslope);
+                    eq = s2 - pslope*s1 - q;
+                else
+                    eq = s1 - obj.envd(i).vx(j);
+                end
+                if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                NC(j,1) = eq;
+                if pslope ~= inf
+                    q = obj.envd(i).yIntercept (j+1,pslope);
+                    eq = s2 - pslope*s1 - q;
+                else
+                    eq = s1 - obj.envd(i).vx(j+1);
+                end
+                if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                
+                NC(j+1,2) = eq;
+                 
+             end
+             j = obj.envd(i).nv;
+             slope = obj.envd(i).slope(j,1);
+             pslope = -1/slope;
+             if pslope ~= inf
+               q = obj.envd(i).yIntercept (j,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.envd(i).vx(j);
+             end
+             if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                
+             NC(j,1) = eq;
+             if pslope ~= inf
+               q = obj.envd(i).yIntercept (1,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.envd(i).vx(1);
+             end
+             if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                
+             NC(1,2) = eq;
+                
+        end
+
+    
+    function NC = getNormalConeEdge(obj, i, s1, s2)
+            
+            NC = sym(zeros(obj.envd(i).nv,2));
+            vars = obj.f.getVars;
+            meanx = sum(obj.envd(i).vx)/obj.envd(i).nv;
+            meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
+            
+             for j = 1: obj.envd(i).nv-1
+                slope = obj.envd(i).slope(j,j+1);
+                q = obj.envd(i).yIntercept (j,slope);
+                % get edge no
+                edge = vars(2)-slope*vars(1)-q;
+                if subs(edge,vars,[meanx,meany]) > 0
+                    edge = -edge;
+                end
+                
+                for k = 1: obj.envd(i).nv
+                    if (obj.envd(i).ineqs(k).f == edge)
+                        break;
+                    end
+                end
+                
+                
+                %%
+                pslope = -1/slope;
+                if pslope ~= inf
+                    q = obj.envd(i).yIntercept (j,pslope);
+                    eq = s2 - pslope*s1 - q;
+                else
+                    eq = s1 - obj.envd(i).vx(j);
+                end
+                if subs(eq,[s1,s2],[meanx,meany]) > 0
+                    eq = -eq;
+                end
+                NC(k,1) = eq;
+                if pslope ~= inf
+                    q = obj.envd(i).yIntercept (j+1,pslope);
+                    eq = s2 - pslope*s1 - q;
+                else
+                    eq = s1 - obj.envd(i).vx(j+1);
+                end
+                if subs(eq,[s1,s2],[meanx,meany]) > 0
+                    eq = -eq;
+                end
+                
+                NC(k,2) = eq;
+                 
+             end
+             j = obj.envd(i).nv;
+             
+             slope = obj.envd(i).slope(j,1);
+             edge = vars(2)-slope*vars(1)-q;
+                if subs(edge,vars,[meanx,meany]) > 0
+                    edge = -edge;
+                end
+                
+                for k = 1: obj.envd(i).nv
+                    if (obj.envd(i).ineqs(k).f == edge)
+                        break;
+                    end
+                end
+                
+                   
+             pslope = -1/slope;
+             if pslope ~= inf
+               q = obj.envd(i).yIntercept (j,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.envd(i).vx(j);
+             end
+             if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                
+             NC(k,1) = eq;
+             if pslope ~= inf
+               q = obj.envd(i).yIntercept (1,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.envd(i).vx(1);
+             end
+             if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    eq = -eq;
+                end
+                
+             NC(k,2) = eq;
+                
+        end
 
     end
-
     methods % max
 
 

@@ -1,5 +1,6 @@
 classdef convexExpr
     properties
+        type;
         expr = functionF.empty();
         psi0=sym('psi0');
         psi1=sym('psi1');
@@ -12,22 +13,23 @@ classdef convexExpr
 
     methods
         function obj = convexExpr(type, s0, s1, s2)
+            obj.type=type;
             if nargin == 1
-              obj.vpsi0=0;  
-              obj.vpsi1=0;
-              obj.vpsi2=1;
+                obj.vpsi0=functionF(0);  
+              obj.vpsi1=functionF(0);
+              obj.vpsi2=functionF(1);
             elseif nargin == 2
-              obj.vpsi0=s0;  
-              obj.vpsi1=0;
-              obj.vpsi2=1;
+              obj.vpsi0=functionF(s0);  
+              obj.vpsi1=functionF(0);
+              obj.vpsi2=functionF(1);
             elseif nargin == 3
-              obj.vpsi0=s0;  
-              obj.vpsi1=s1;
-              obj.vpsi2=1;
+              obj.vpsi0=functionF(s0);  
+              obj.vpsi1=functionF(s1);
+              obj.vpsi2=functionF(1);
             else
-              obj.vpsi0=s0;  
-              obj.vpsi1=s1;
-              obj.vpsi2=s2;
+              obj.vpsi0=functionF(s0);  
+              obj.vpsi1=functionF(s1);
+              obj.vpsi2=functionF(s2);
             end
             d = sym('d');
             if type == 1

@@ -112,10 +112,13 @@ classdef domain
       
       function m = slope (obj,i,j)
           m = (obj.polygon.vy(i)-obj.polygon.vy(j))/(obj.polygon.vx(i)-obj.polygon.vx(j));
+          % change to
+          %m = obj.polygon.slope(i,j);
       end
       
       function c = yIntercept (obj,i,m)
           c = obj.polygon.vy(i)-m*obj.polygon.vx(i);   
+          % change to c = obj.yIntercept (i,m)
       end
 
       function print(obj)
