@@ -419,9 +419,7 @@ classdef region
              obj = region.empty;
          end
 
-         end
-    
-     
+     end
 
      % wont work for degree > 2
      function obj = getVertices(obj,vars)

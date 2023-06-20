@@ -104,6 +104,7 @@ classdef functionF
             vars = obj.vars;
         end
 
+        % [x, y, const]
         function c = getLinearCoeffs (obj,vars)
            cvars = obj.getVars;
            if (isempty(cvars))

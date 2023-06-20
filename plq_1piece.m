@@ -1143,16 +1143,21 @@ classdef plq_1piece
               s1 = sym('s1');
               s2 = sym('s2');
               
-              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars);
+              %disp("psi2")
+              %obj.envExpr(i).vpsi2
+              % [x, y, const]
+              %psi2 = psi2(1)*x1+psi22*x2+psi20
+              % hence use index 3 for psi20 terms
+              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars)
              
               cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars);
               
               cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);
               
-              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
-              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
+              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1))
+              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2))
 
-              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );
+              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t )
               crs = subs(vs1,t, vt)    
 
 
@@ -1176,9 +1181,77 @@ classdef plq_1piece
             subdV = getSubDiffVertexSp(obj, i, NCV, subdV, undV, crs)
 
             expr = obj.conjugateExprVertices (i, dualVars, undV)
+            expr = obj.conjugateExprEdges (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
+            obj.envd(i).nv
+            %expr = obj.conjugateExprEdges (i, dualVars, edgeNo, unR)
         end
 
-        
+        function expr = conjugateExprEdges0 (obj, i, dualVars, edgeNo, unR  )
+            vars = obj.f.getVars;
+            alpha = sym('alpha')
+            s1 = dualVars(1);
+            s2 = dualVars(2);
+
+            drx1 = obj.envf(i).dfdx(vars(1));
+            drx2 = obj.envf(i).dfdx(vars(2)) ;
+
+
+
+            eq1 = simplify(s1 - drx1.f )
+            eq2 = simplify(s2 - drx2.f )
+
+            eq3 = eliminate ([eq1==0,eq2==0], vars(1))
+            vy = solve(eq3==0,vars(2))
+             for j = 1:obj.envd(i).nv
+                if (~unR(j))
+                    continue
+                end
+                no = edgeNo(j);
+                vy = solve(obj.envd(i).ineqs(no).f==0,vars(2))
+                if isempty(vy)
+                else
+                    subs(eq1,vars(2),vy)
+                    subs(eq2,vars(2),vy)
+                end
+                vx = subs(vx, var(2),vy)
+                eq4 = s1*vx + s2*vy - obj.envf(i).subsF(vars,[vx,vy])
+                return
+             end
+
+        end
+
+        function expr = conjugateExprEdges (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
+            vars = obj.f.getVars;
+            s1 = dualVars(1);
+            s2 = dualVars(2);
+            for j = 1:obj.envd(i).nv
+                no = edgeNo(j);
+                obj.envd(i).ineqs(no)
+                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
+                m = -mq(1)/mq(2)
+                q = -mq(3)/mq(2)
+                if psi2(1) + m*psi2(2) == 0
+                
+                  t0 = (-psi0(1)-m*psi0(2))/(2*(psi1(1)+m*psi1(2)))
+                  t1 = 1/(2*(psi1(1)+m*psi1(2)))
+                  t2 = m/(2*(psi1(1)+m*psi1(2)))
+                  gamma10 = t1*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2))
+                  gamma01 = t2*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2))
+                  gamma00 = (t0*(psi2(3)+q*psi2(2))-psi1(3)-q*(psi1(2)))/(psi1(1)+m*psi1(2))
+                  zeta11 = -(psi1(1)*gamma10+m*psi1(2)*gamma10)^2/(psi2(3)+q*psi2(2)) + gamma10;
+                  zeta12 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(1)*gamma10+m*psi1(2)*gamma10))/(psi2(3)+q*psi2(2)) + gamma01 + m *gamma10
+                  zeta22 = -(psi1(1)*gamma01+m*psi1(2)*gamma01)^2/(psi2(3)+q*psi2(2)) + gamma01 *m
+                  zeta10 = -2*(psi1(1)*gamma01+m*psi1(2)*gamma10)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00))/(psi2(3)+q*psi2(2)) - m*psi0(2)*gamma10 + gamma00 - psi0(1)*gamma10
+                  zeta01 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00)))/((psi2(3)+q*psi2(2))) - m*psi0(2)*gamma01 - psi0(1)*gamma01 + m*gamma00+q
+                  zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00)^2)/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00)
+                  expr(obj.envd(i).nv+1) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00)
+                 else
+                %  delta1 = -2*(psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*(psi0(1)*psi2(1) + psi1(1)^2 + m*(psi1(2)^2*m + psi0(1)*psi2(2) + psi0(2)*psi2(1) + 2*psi1(1)*psi1(2) + psi0(2)*psi2(2)*m))  
+                %  si1 = 2*(psi2(1) + m*psi2(2)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s1 + 2*m*(m*psi2(2) + psi2(1)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m* psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s2 + delta1
+                  %expr(2*obj.envd(i).nv+1) = (si1 / (zeta00 * sqrt_si1_2)) + si0
+                end
+            end
+        end
 
         function expr = conjugateExprVertices (obj, i, dualVars, unV )
             vars = obj.f.getVars;
