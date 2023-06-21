@@ -47,12 +47,22 @@ classdef functionF
             fprintf(" <= 0 \n")
         end
 
-        function printL (l)
+        function printL (l, first, last)
+
+            if nargin == 1
             
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).print;
                 end
+            end
+            else
+                for i = 1: size(l,1)
+                for j = first: last
+                    l(i,j).print;
+                end
+            end
+            
             end
         end
 

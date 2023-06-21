@@ -19,9 +19,10 @@ function plq_eg
   PS = plq(p);
   convex_PS = PS.convexEnvelope();
   
-  convex_PS.print
+  %convex_PS.print
   
   conjugate_PS = convex_PS.conjugate();
+  conjugate_PS.print
   return
   max_PS = conjugate_PS.maximum();
   

@@ -16,6 +16,8 @@ classdef plq
           for i = 1:obj.nPieces
               disp(["Piece ", num2str(i)])
               obj.pieces(i).print;
+              %disp("extra")
+              %obj.pieces(i).conjf.printL
             end
       end
 
@@ -31,6 +33,7 @@ classdef plq
       function obj = conjugate(obj)
           for i = 1:obj.nPieces
               obj.pieces(i)=obj.pieces(i).conjugate;
+              obj.pieces(i).conjf.printL
               if i == 1
                   return
               end
