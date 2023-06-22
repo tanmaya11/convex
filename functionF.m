@@ -38,6 +38,7 @@ classdef functionF
         end   
         
         function print(obj)
+            
             fprintf(char(simplify(obj.f)));
             fprintf("\n")
         end
@@ -272,7 +273,7 @@ classdef functionF
         end
         % temp code - needs to be fixed
         %function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
-        function max_func = pointwise_max(objf, objg, vx, vy, ineqs, vars)
+        function [index, max_func] = pointwise_max(objf, objg, vx, vy, ineqs, vars)
           % POINTWISE_MAX computes the pointwise maximum of two convex functions f and g
           % and returns a function handle to the resulting maximum function.
 
@@ -332,8 +333,10 @@ classdef functionF
           %all(lf)
           if (all(lf) == 0)
               max_func = objg;
+              index=2;
           else
               max_func = objf;
+              index=1;
           end
           
         end

@@ -19,8 +19,8 @@ function plq_eg
   PS = plq(p);
   convex_PS = PS.convexEnvelope();
   
-  %convex_PS.print
-  
+  convex_PS.print
+ % return
   conjugate_PS = convex_PS.conjugate();
   conjugate_PS.print
   return

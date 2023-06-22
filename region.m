@@ -2,19 +2,43 @@ classdef region
     % ineqs always stored as <= 0
     properties
         ineqs=functionF;
+        not;
+        % not impies not of union of ineqs
+
+        % else its intersection of ineqs
+
         nv;
         vx;
         vy;
     end
 
      methods
-         function obj = region(fs)
+         function obj = region(fs, not)
             % put checks for type of f and d
-            if nargin > 0
-              for i = 1:size(fs,2)
+            %disp("region")
+            %disp(nargin)
+            if nargin == 1
+              m = size(fs,1);
+              n = size(fs,2);
+              for i = 1:m
+                  for j = 1:n
 
-                  obj.ineqs(i) = functionF(fs(i));
+                    obj.ineqs(i,j) = functionF(fs(i,j));
+                  end
               end
+              not = false;
+              
+            elseif nargin == 2
+              m = size(fs,1);
+              n = size(fs,2);
+              for i = 1:m
+                  for j = 1:n
+
+                    obj.ineqs(i,j) = functionF(fs(i,j));
+                  end
+              end
+              obj.not = not;
+              
             end 
          end
 
@@ -196,7 +220,13 @@ classdef region
              fprintf("vy =  ")
              fprintf("%d  ", obj.vy);
              fprintf("\n\n")
-             obj.ineqs.printLIneq;
+             if obj.not
+               disp("Not of union of following ineqs")
+               obj.ineqs.printLIneq;
+             else
+               disp("Intersection of following ineqs")
+               obj.ineqs.printLIneq;
+             end
              %disp(["Vertices = ", num2str(obj.nv)]);
              %disp(obj.vx)
              %disp(obj.vy)

@@ -39,11 +39,13 @@ classdef plq_1piece
              obj.envd(j).print
              %disp("Conjugate Expr")
              %obj.conjf.printL(obj.conjfia(j),obj.conjfia(j+1)-1)
+             if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                disp("Conjugate Expr")
                obj.conjf(k).print
                disp('Conjugate Domain')
                obj.conjd(k).print
+             end
              end
            end
            %disp("Conjugate Expr")
@@ -112,14 +114,20 @@ classdef plq_1piece
                   return
               end
               obj = convexEnvelope1 (obj,x,y);
-              
-              obj = obj.maxEnvelope([x,y]);
               %return
+
+              obj = obj.maxEnvelope([x,y]);
               li = obj.entireRegion ();
               if li > 0
                 obj = obj.removeNMax (li,[x,y]);
               end
+              
               obj = obj.maxEnvelopeIntersect([x,y]);
+              
+              
+              obj = obj.maxEnvelope([x,y]);
+              
+              
               obj = obj.unique();
               disp("b4 vertices")
               size(obj.envd,2)
@@ -280,6 +288,7 @@ classdef plq_1piece
             objfacts = coeffs(obj0.f,b);
             eta0 = objfacts(1);
             eta1 = objfacts(2);
+            % obj = b * eta1 + eta0
             %return
             nb = 0 ;
             lb = [];
@@ -359,43 +368,36 @@ classdef plq_1piece
             mlb = max(lb);
             mub = min(ub);
             %size(envfs)
+
+            % soln
+            % max (lb * eta1 + eta0, ub * eta1 + eta0)
+            % if eta1 >= 0   :  ub * eta1 + eta0
+            % if eta1 <= 0   :  lb * eta1 + eta0   
+
+            % skipping inf and -inf cases
+
             if (mlb > mub)
                 disp('infeasible')
             else
               if (mub == inf)
-               %   disp('case1')
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
                 envds = [envds, region(objfacts(2)) ];
               elseif (mlb == -inf)
-              %    disp('case2')
-             %     obj0
-             %     obj0.subsVarsPartial([b],[mub])
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-
                 envds = [envds, region(-objfacts(2)) ];
-              %elseif (mlb == mub)
-              %  envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
-              %  envds = [envds, region(objfacts(2)) ];
-                
               elseif (mlb ~= mub)
-              %    disp('case3')
-
-              % take max here and only 1 entry
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-
                 envds = [envds, region(objfacts(2)) ];
+              
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-
                 envds = [envds, region(-objfacts(2)) ];
               end
               
             end
-            %end
-            %size(envfs)        
             return
             
         end
@@ -650,15 +652,17 @@ classdef plq_1piece
               f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, functionF(f0)];
-              envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
               
               envds = [envds, region(r0)];
 
 
-              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0;
+              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0
               r0 = simplify(-mlb*psi2+psi1);
               envfs = [envfs, functionF(f0)];
-              envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
               
               envds = [envds, region(r0)];
               %size(envds)
@@ -1147,11 +1151,11 @@ classdef plq_1piece
             %size(obj.envf)
             %obj.conjf = sym(zeros(size(obj.envf,2),2*obj.envd(1).nv))
             obj.conjfia(1) = 1;  
-          for i=1:size(obj.envf,2)
-              if i > 1
-                  obj.conjfia(i+1) = size(obj.conjf,2)+1
-                  continue
-              end
+            for i=1:size(obj.envf,2)
+              %if i > 1
+              %    obj.conjfia(i+1) = size(obj.conjf,2)+1
+              %    continue
+              %end
               obj = obj.conjugateFunction(i);
               obj.conjfia(i+1) = size(obj.conjf,2)+1
               %conjd = obj.envd(i).conjugate;
@@ -1161,74 +1165,110 @@ classdef plq_1piece
 
         function obj = conjugateFunction (obj,i)
             vars = obj.f.getVars;
+            s1 = sym('s1');
+            s2 = sym('s2');
+            dualVars = [s1,s2];
+            disp("in conjugateFunction")
+            obj.envExpr(i).type
             if obj.envExpr(i).type == 1
 
               t = sym('t');
-              s1 = sym('s1');
-              s2 = sym('s2');
               
               % [x, y, const]
               %psi2 = psi2(1)*x1+psi22*x2+psi20
               % hence use index 3 for psi20 terms
-              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars)
+              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars);
               cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars);
               cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);
               
-              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1))
-              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2))
+              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
+              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
-              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t )
-              crs = subs(vs1,t, vt)    
+              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );
+              crs = subs(vs1,t, vt)    ;
 
+              NCV = obj.getNormalConeVertex(i, s1, s2);
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+  
+            
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              [subdE, unR] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars);
+              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
+
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
+              expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
+
+            
+            elseif obj.envExpr(i).type == 3   
+                disp("here")
+                obj.envExpr(i).vpsi0
+                obj.envExpr(i).vpsi1
+              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);  
+              vs1 = cpsi0(1);
+              vs2 = cpsi0(2);
+
+
+              %subdE = getSubDiffEdgeT3 (obj, i, edgeNo, dualVars)
+
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
+
+              % on edge sub differential is a ray so skipped for now
+
+              for j = 1:obj.envd(i).nv
+                unR(j) = false;
+              end
+              % corollary 4.15
+              % corollary 4.20
+              % corollary 4.26 - vertex
             end
             
-            NCV = obj.getNormalConeVertex(i, s1, s2)
-            [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
-
-            dualVars = [s1,s2];
-        
-            [subdV,undV] = obj.getSubdiffVertex (i, NCV, dualVars)
-            [subdE, unR] = obj.getSubDiffEdge(i, NCE, edgeNo, undV, crs)
-            %subdE = obj.getSubDiffEdgeSp(i, NCE, subdE, edgeNo, unR, crs, dualVars)
-            subdV = getSubDiffVertexSp(obj, i, NCV, subdV, undV, crs)
-
-            expr = obj.conjugateExprVertices (i, dualVars, undV)
-            expr = obj.conjugateExprEdges (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
-
-            nr = 0;
-            i
-            disp('size')
             
-            %obj.conjf(i) = []
             for j = 1:obj.envd(i).nv
-                nr = nr+1;
-                %conjf(nr) = expr(j);
-                %conjd(nr) = region(subdV(j,:));
                 obj.conjf = [obj.conjf,expr(j)]
-                obj.conjd = [obj.conjd, region(subdV(j,:))]
+                if undV(j)
+                  obj.conjd = [obj.conjd, region(subdV(j,:),true)]
+                else
+                  obj.conjd = [obj.conjd, region(subdV(j,:))]
+                end
             end
             for j = 1:obj.envd(i).nv
                 if (~unR(j))
                     continue
                 end
-                
-                nr = nr+1;
-                %conjf(nr) = expr(obj.envd(i).nv+j);
                 obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
                 obj.conjd = [obj.conjd, region(subdE(j,:))]
-                %obj.conjf(i) = [obj.conjf(i),expr(obj.envd(i).nv+j)] 
-                %conjd(nr) = region(subdE(j,:));
-                %obj.conjd(i,nr) = subdV(j,:)
             end
 
-            %conjd
-            %obj.conjf(i) = conjf
-            %obj.conjd(i) = conjd
-            %obj.conjf.printL;
+        end
+
+        %% T3 %%
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function subd = getSubDiffEdgeT3 (obj, i, edgeNo, dualVars)
+            s1 = dualVars(1);
+            s2 = dualVars(2);
+            c1 = obj.envf(i).dfdx(vars(1));
+            c2 = obj.envf(i).dfdx(vars(2)) ;
+
+            for j = 1:obj.envd(i).nv
+                no = edgeNo(j);
+                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
+                m = -mq(1)/mq(2);
+                subd(j,1) = s1 + m*s2 - (c1+m*c2)
+                subd(j,2) = -s2 
+            end
         end
 
         
-        function expr = conjugateExprEdges (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+
+        %% T1 %%
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        function expr = conjugateExprEdgesT1 (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
             vars = obj.f.getVars;
             s1 = dualVars(1);
             s2 = dualVars(2);
@@ -1261,7 +1301,7 @@ classdef plq_1piece
             end
         end
 
-        function expr = conjugateExprVertices (obj, i, dualVars, unV )
+        function expr = conjugateExprVerticesT1 (obj, i, dualVars, unV )
             vars = obj.f.getVars;
             subdE = sym(zeros(obj.envd(i).nv));
             for j = 1:obj.envd(i).nv
@@ -1273,7 +1313,10 @@ classdef plq_1piece
                 
             end
         end        
-        function subdV = getSubDiffVertexSp(obj, i, NC, subdV, undV, crs)
+
+
+        % Storing flag for not
+        function subdV = getSubDiffVertexSpT1(obj, i, NC, subdV, undV, crs)
           for j = 1:obj.envd(i).nv
               if (~undV(j))
                   continue
@@ -1287,13 +1330,17 @@ classdef plq_1piece
                 ep = 1;
               end
               
-              subdV(j,1) = -NC(em,1);
-              subdV(j,2) = -NC(ep,2);
-              subdV(j,3) = -crs;  
+              %subdV(j,1) = -subdV(em,1);
+              %subdV(j,2) = -subdV(ep,2);
+              %subdV(j,3) = -crs;  
+              %Storing flag for not
+              subdV(j,1) = subdV(em,1);
+              subdV(j,2) = subdV(ep,2);
+              subdV(j,3) = crs;  
           end    
         end
 
-        function subdE = getSubDiffEdgeSp(obj, i, NCE, subdE, edgeNo, unR, crs,dualvars)
+        function subdE = getSubDiffEdgeSpT1(obj, i, NCE, subdE, edgeNo, unR, crs,dualvars)
             vars = obj.f.getVars;
             for j = 1:obj.envd(i).nv
                 if unR(edgeNo(j))
@@ -1323,7 +1370,7 @@ classdef plq_1piece
             end
         end
 
-        function [subdE, unR] = getSubDiffEdge(obj, i, NCE, edgeNo, unDV, crs)
+        function [subdE, unR] = getSubDiffEdgeT1(obj, i, NCE, edgeNo, unDV, crs, dualvars)
             subdE = sym(zeros(obj.envd(i).nv,4));
             unR = zeros(obj.envd(i).nv,1);
             for j = 1:obj.envd(i).nv-1
@@ -1335,9 +1382,19 @@ classdef plq_1piece
                 if unDV(j+1)
                     continue
                 end
+              
+
                 subdE(j,1) = NCE(j,1);
                 subdE(j,2) = NCE(j,2);
-                subdE(j,3) = crs;
+
+                mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
+                mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
+                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+                  subdE(j,3) = crs;
+                else
+                  subdE(j,3) = -crs;
+                end
+                %subdE(j,3) = crs;
             end    
             j = obj.envd(i).nv;
             if unDV(obj.envd(i).nv)
@@ -1350,18 +1407,25 @@ classdef plq_1piece
             unR(j) = true;
             subdE(j,1) = NCE(j,1);
             subdE(j,2) = NCE(j,2);
-            subdE(j,3) = crs;
+            mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
+                mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
+                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+                  subdE(j,3) = crs;
+                else
+                  subdE(j,3) = -crs;
+                end
+                
         end
 
-        function [subdV,undV] = getSubdiffVertex (obj, i, NCV, dualVars)
+        function [subdV,undV] = getSubdiffVertexT1 (obj, i, NCV, dualVars)
             subdV = sym(zeros(obj.envd(i).nv,3));
             undV = zeros(obj.envd(i).nv,1);
             vars = obj.f.getVars;
             drx1 = obj.envf(i).dfdx(vars(1));
             drx2 = obj.envf(i).dfdx(vars(2)) ;
 
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
                   undV(j)=true;
@@ -1410,6 +1474,8 @@ classdef plq_1piece
 
         end
 
+
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
             vars2 = [vars(2),vars(1)];
@@ -1430,12 +1496,16 @@ classdef plq_1piece
             
             NC = sym(zeros(obj.envd(i).nv,2));
             vars = obj.f.getVars;
+            obj.envd(i).vx
             meanx = sum(obj.envd(i).vx)/obj.envd(i).nv;
             meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
             
              for j = 1: obj.envd(i).nv-1
-                slope = obj.envd(i).slope(j,j+1);
-                pslope = -1/slope;
+                slope = obj.envd(i).slope(j,j+1)
+                pslope = -1/slope
+                if pslope == -inf
+                    pslope = inf
+                end
                 if pslope ~= inf
                     q = obj.envd(i).yIntercept (j,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -1600,8 +1670,13 @@ classdef plq_1piece
                     if (obj.envd(i) == obj.envd(j))
                       %obj.envd(i).print  
                       envdT = [envdT,obj.envd(i)];
-                      envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars)]     ;
-                      enveT = [enveT,obj.envExpr(i)];
+                      [index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars)
+                      envfT = [envfT, f]     ;
+                      if index == 1
+                        enveT = [enveT,obj.envExpr(i)];
+                      else
+                        enveT = [enveT,obj.envExpr(j)];
+                      end
                       l(i) = 0;
                       l(j) = 0;
                     end
@@ -1628,7 +1703,7 @@ classdef plq_1piece
                 if (i == li) 
                     continue;
                 end
-                p = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
+                [ind,p] = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
                 if (p == obj.envf(li))
                     d = [d,i];
                 end
@@ -1638,12 +1713,14 @@ classdef plq_1piece
             end
             obj.envf(d) = [];
             obj.envd(d) = [];
+            obj.envExpr(d) = [];
         end
 
         % diff to be added
         function obj = maxEnvelopeIntersect (obj, vars)
             envdT = [];
             envfT = [];
+            enveT = [];
             for i = 1:size(obj.envd,2)
                 l(i)=1;
             end
@@ -1669,33 +1746,39 @@ classdef plq_1piece
                     %obj.envd(j).print
                     %d.print
                     envdT = [envdT,d0];
-                    envfT = [envfT, pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, d0.ineqs, vars)]     ;
-                    l(i) = 0;
+                    [index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars)
+                      envfT = [envfT, f]     ;
+                      if index == 1
+                        enveT = [enveT,obj.envExpr(i)];
+                      else
+                        enveT = [enveT,obj.envExpr(j)];
+                      end
+                      l(i) = 0;
                     l(j) = 0;
                     
 
                     %setDifference = simplify(obj.envd(i) & ~d)
-                    obj.envd(i).print
-                    d0.print
-                    d1 = obj.envd(i) - d0
-                    d1.print
+                    %obj.envd(i).print
+                    %d0.print
+                    d1 = obj.envd(i) - d0;
+                    %d1.print
                     d1 = d1.simplify (vars,obj.d.polygon);
-                    d1.print
+                    %d1.print
                     %continue
                     envdT = [envdT,d1];
                     envfT = [envfT, obj.envf(i)]     ;
+                    enveT = [enveT,obj.envExpr(i)];
                     
-                    
-                    obj.envd(j).print
-                    d0.print
-                    d1 = obj.envd(j) - d0
-                    d1.print
+                    %obj.envd(j).print
+                    %d0.print
+                    d1 = obj.envd(j) - d0;
+                    %d1.print
                     d1 = d1.simplify (vars,obj.d.polygon);
-                    d1.print
+                    %d1.print
                     %d1 = simplify(obj.envd(j) - d0)
                     envdT = [envdT,d1];
                     envfT = [envfT, obj.envf(j)]     ;
-                    
+                    enveT = [enveT,obj.envExpr(j)];
 
                     %end
                 end
@@ -1705,7 +1788,8 @@ classdef plq_1piece
             for i = 1:size(obj.envd,2)
               if (l(i) == 1)
                     envdT = [envdT,obj.envd(i)];
-                    envfT = [envfT, obj.envf(i)];     
+                    envfT = [envfT, obj.envf(i)];  
+                    enveT = [enveT,obj.envExpr(i)];
               end
             end
             %return
@@ -1713,6 +1797,7 @@ classdef plq_1piece
             %envfT
             obj.envf = envfT;
             obj.envd = envdT;
+            obj.envExpr = enveT;
             return
 
         end

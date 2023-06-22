@@ -31,7 +31,7 @@ classdef convexExpr
             %  disp("Error in convexExpr")
             %end
             d = sym('d');
-            % combine type 2 and 3
+            
             if type == 1
                 obj.expr = obj.psi1^2 /obj.psi2 + obj.psi0;
                 obj.vpsi0=functionF(s0);  
@@ -68,6 +68,10 @@ classdef convexExpr
             disp("psi2") 
             
             obj.vpsi2
+
+            disp("zeta") 
+            
+            obj.zeta
 
         end
     end

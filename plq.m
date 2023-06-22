@@ -13,9 +13,18 @@ classdef plq
       end
 
       function print(obj)
+          disp("")
+          disp("")
+          disp("")
+          disp("")
+          disp("")
           for i = 1:obj.nPieces
+if i > 1
+                  return
+              end
               disp(["Piece ", num2str(i)])
               obj.pieces(i).print;
+              
               %disp("extra")
               %obj.pieces(i).conjf.printL
             end
