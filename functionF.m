@@ -139,9 +139,9 @@ classdef functionF
               if (cvars(1) == vars(1))
                 ct = coeffs(obj.f,vars(1));
                 if (size(ct,2) == 2)
-                  c(2) = ct(1);
-                  c(3) = ct(2);
-                  c(1) = 0;
+                  c(3) = ct(1);
+                  c(1) = ct(2);
+                  c(2) = 0;
                 else
                   c(2) = 0;
                   c(3) = 0;
@@ -150,9 +150,9 @@ classdef functionF
                else
                 ct = coeffs(obj.f,vars(2));
                 if (size(ct,2) == 2)
-                  c(2) = ct(1);
-                  c(3) = 0;
-                  c(1) = ct(2);
+                  c(3) = ct(1);
+                  c(1) = 0;
+                  c(2) = ct(2);
                 else
                   c(2) = ct(1);
                   c(3) = 0;
@@ -173,6 +173,7 @@ classdef functionF
            
         function l = isZero(obj)
             l = isAlways(obj.f==0);
+           
         end
         
         function f = subsVarsPartial (obj,vars,varVals)
@@ -382,6 +383,15 @@ classdef functionF
             end
 
             
+    %        function fs = filterZero(obj)
+    %            fs = [];
+    %            for i = 1:size(obj,2)
+    %                if isZero(obj.f)
+    %                    continue
+    %                end
+    %                fs = [fs,obj(i)]
+    %            end
+    %        end
 
     end 
 

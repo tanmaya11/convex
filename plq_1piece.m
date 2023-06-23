@@ -379,6 +379,7 @@ classdef plq_1piece
             if (mlb > mub)
                 disp('infeasible')
             else
+               
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
@@ -1187,13 +1188,16 @@ classdef plq_1piece
               vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );
               crs = subs(vs1,t, vt)    ;
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
-              [subdE, unR] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars);
-              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              crs
+              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars)
+              disp('post')
+              crs
+              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs)
 
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
               expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
@@ -1370,7 +1374,7 @@ classdef plq_1piece
             end
         end
 
-        function [subdE, unR] = getSubDiffEdgeT1(obj, i, NCE, edgeNo, unDV, crs, dualvars)
+        function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, NCE, edgeNo, unDV, crs, dualvars)
             subdE = sym(zeros(obj.envd(i).nv,4));
             unR = zeros(obj.envd(i).nv,1);
             for j = 1:obj.envd(i).nv-1
@@ -1389,12 +1393,10 @@ classdef plq_1piece
 
                 mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
-                  subdE(j,3) = crs;
-                else
-                  subdE(j,3) = -crs;
+                if subs(crs,dualvars,[mdPtx,mdPty]) > 0
+                  crs = -crs;
                 end
-                %subdE(j,3) = crs;
+                subdE(j,3) = crs;
             end    
             j = obj.envd(i).nv;
             if unDV(obj.envd(i).nv)
@@ -1409,12 +1411,10 @@ classdef plq_1piece
             subdE(j,2) = NCE(j,2);
             mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
-                  subdE(j,3) = crs;
-                else
-                  subdE(j,3) = -crs;
+                if subs(crs,dualvars,[mdPtx,mdPty]) > 0
+                  crs = -crs;
                 end
-                
+                subdE(j,3) = crs;
         end
 
         function [subdV,undV] = getSubdiffVertexT1 (obj, i, NCV, dualVars)
@@ -1424,8 +1424,8 @@ classdef plq_1piece
             drx1 = obj.envf(i).dfdx(vars(1));
             drx2 = obj.envf(i).dfdx(vars(2)) ;
 
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
                   undV(j)=true;
@@ -1437,10 +1437,12 @@ classdef plq_1piece
               end
               undV(j)=false;
               
+             
               f = functionF(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
               if (coef(2) == 0)
-                subdV(j,1) = NCV(j,1)-limdrx1(j);
+                subdV(j,1) = dualVars(1)-limdrx1(j);
+                subdV(j,1) = coef(1)*subdV(j,1) ;
               elseif (coef(2) < 0)
                 m = double(diff(NCV(j,1),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
@@ -1452,10 +1454,11 @@ classdef plq_1piece
               end 
 
               
-              f = functionF(NCV(j,1));
+              f = functionF(NCV(j,2));
               coef = f.getLinearCoeffs (dualVars);
               if (coef(2) == 0)
-                subdV(j,2) = NCV(j,2)-limdrx1(j);
+                subdV(j,2) = dualVars(1)-limdrx1(j);
+                subdV(j,2) = coef(1)*subdV(j,2) ;
               elseif (coef(2) < 0)
                 m = double(diff(NCV(j,2),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
@@ -1501,10 +1504,10 @@ classdef plq_1piece
             meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
             
              for j = 1: obj.envd(i).nv-1
-                slope = obj.envd(i).slope(j,j+1)
-                pslope = -1/slope
+                slope = obj.envd(i).slope(j,j+1);
+                pslope = -1/slope;
                 if pslope == -inf
-                    pslope = inf
+                    pslope = inf;
                 end
                 if pslope ~= inf
                     q = obj.envd(i).yIntercept (j,pslope);

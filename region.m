@@ -17,6 +17,9 @@ classdef region
             % put checks for type of f and d
             %disp("region")
             %disp(nargin)
+
+            %fs = fs.filterzero()
+            
             if nargin == 1
               m = size(fs,1);
               n = size(fs,2);
