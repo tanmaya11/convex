@@ -92,6 +92,7 @@ classdef functionF
     end
 
     methods % derivatives
+
          function f = dfdx (obj,x)
             
             f = functionF(simplify(diff(obj.f,x)));
@@ -105,6 +106,28 @@ classdef functionF
              f = functionF(f0);
          end
 
+    end
+
+    methods % inquiry
+
+        function l = isPolynomial(obj)
+            obj.vars
+            l = isPolynomial(obj.f, obj.vars);
+        end
+        % will work only for poly
+
+        function l = isLinear(obj)
+          if ~obj.isPolynomial
+              % stop
+              disp("Not a polynomial")
+              return
+          end
+          if (obj.degreeNum == 1)
+              l = true;
+          else
+              l = false;
+          end
+        end
     end
     
     methods
@@ -364,10 +387,7 @@ classdef functionF
         end
         
 
-        function l = isPolynomial(obj)
-            obj.vars
-            l = isPolynomial(obj.f, obj.vars);
-        end
+        
 % not working 
             function l = isSubset (obj1, obj2)
                 obj1.f <= 0

@@ -1477,7 +1477,7 @@ classdef plq_1piece
 
         end
 
-
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)

@@ -22,7 +22,9 @@ function plq_eg
   convex_PS.print
  % return
   conjugate_PS = convex_PS.conjugate();
-  conjugate_PS.print
+ % conjugate_PS.print
+disp ("Check intersection")
+  conjugate_PS.intersectionConjugateDomain;
   return
   max_PS = conjugate_PS.maximum();
   

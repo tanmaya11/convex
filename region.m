@@ -454,6 +454,38 @@ classdef region
 
      end
 
+     function obj = intersection2(obj1, obj2)
+         % split into linear and quad first
+         if obj1.not
+             disp ("implement not in intersection2")
+         end
+         if obj2.not
+             disp ("implement not in intersection2")
+         end
+         
+         obj = [obj1,obj2];
+         nl = 0;
+         nq = 0;
+         for j = 1:size(obj)
+           for i = 1:size(obj(j).ineqs,2)
+             if obj(j).ineqs(i).isLinear
+                nl = nl+1; 
+                l(nl) = obj(j).ineqs(i);
+             else
+                nq = nq+1; 
+                q(nq) = obj(j).ineqs(i);
+             end
+            
+           end 
+         end
+         disp("Linear")
+         l
+         disp("Quadratic")
+         q
+         
+     end
+     
+
      % wont work for degree > 2
      function obj = getVertices(obj,vars)
        obj.nv=0;
