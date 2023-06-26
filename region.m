@@ -2,6 +2,7 @@ classdef region
     % ineqs always stored as <= 0
     properties
         ineqs=functionF;
+        lineqs;
         not;
         % not impies not of union of ineqs
 
@@ -21,28 +22,24 @@ classdef region
             %fs = fs.filterzero()
             
             if nargin == 1
-              m = size(fs,1);
-              n = size(fs,2);
-              for i = 1:m
-                  for j = 1:n
-
-                    obj.ineqs(i,j) = functionF(fs(i,j));
-                  end
-              end
               not = false;
-              
             elseif nargin == 2
-              m = size(fs,1);
-              n = size(fs,2);
-              for i = 1:m
-                  for j = 1:n
-
-                    obj.ineqs(i,j) = functionF(fs(i,j));
-                  end
-              end
               obj.not = not;
+            end
+            m = size(fs,1);
+            n = size(fs,2);
+            nineq = 0;
+            for i = 1:m
+              for j = 1:n
+                f = functionF(fs(i,j));  
+                if (~f.isZero)
+                  nineq = nineq + 1;  
+                  obj.ineqs(nineq) = f;
+                end  
+              end
+            end
               
-            end 
+             
          end
 
          function f = plus(obj1,obj2)
@@ -454,8 +451,13 @@ classdef region
 
      end
 
-     function obj = intersection2(obj1, obj2)
+     function [linter, obj] = intersection2(obj1, obj2)
          % split into linear and quad first
+         disp("Intersection2")
+
+         
+         linter = true;
+
          if obj1.not
              disp ("implement not in intersection2")
          end
@@ -466,8 +468,14 @@ classdef region
          obj = [obj1,obj2];
          nl = 0;
          nq = 0;
-         for j = 1:size(obj)
-           for i = 1:size(obj(j).ineqs,2)
+         vars = [];
+         for j = 1:size(obj,2)
+             
+             for i = 1:size(obj(j).ineqs,2)
+                vars1 = obj(j).ineqs(i).getVars;
+             if size(vars1,2) > size(vars,2)
+                 vars = vars1;
+             end
              if obj(j).ineqs(i).isLinear
                 nl = nl+1; 
                 l(nl) = obj(j).ineqs(i);
@@ -478,14 +486,53 @@ classdef region
             
            end 
          end
-         disp("Linear")
-         l
+      
+         if nl > 0
+             l = l(1:nl).removeParallel(vars);
+             [notF,l] = l.removeSum;
+         %[nl,l] = l(1:nl).removeParallel ()
+             if notF
+                 linter = false  ;
+                 disp("Not feasible")
+           
+                 return
+             end
+             disp("Linear")
+             l.printL
+          
+         end
+         if nq > 0
          disp("Quadratic")
-         q
+         
+             q
+         end
          
      end
      
+     function obj = intersection3(obj1, obj2)
+         % split into linear and quad first
+         disp("Intersection3")
 
+         obj1.ineqs.printL
+         obj2.ineqs.printL
+
+
+
+         if obj1.not
+             disp ("implement not in intersection2")
+             obj = obj1; % place holder
+             return
+         end
+         if obj2.not
+             disp ("implement not in intersection2")
+             obj = obj1; % place holder
+             return
+         end
+         
+         obj = intersection2(obj1, obj2);
+         
+     end
+     
      % wont work for degree > 2
      function obj = getVertices(obj,vars)
        obj.nv=0;

@@ -63,8 +63,10 @@ if i > 1
                  
                      
                      if(k1 <= k2)
-                       disp('Conjugate Domain 1')
+                       disp('Conjugate Domain Intersection')
                        disp([k1,k2])
+                       r = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
+                       %return
                        %obj.pieces(i1).conjd(k1).print
                        %disp('Conjugate Domain 2')
               

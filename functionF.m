@@ -111,16 +111,18 @@ classdef functionF
     methods % inquiry
 
         function l = isPolynomial(obj)
-            obj.vars
-            l = isPolynomial(obj.f, obj.vars);
+            v = [];
+            v = [v,obj.vars]
+            class(obj.f)
+            class(obj.num)
+            l = ispolynomial(obj.num)
+            l = ispolynomial(obj.f, v);
         end
         % will work only for poly
 
         function l = isLinear(obj)
-          if ~obj.isPolynomial
-              % stop
-              disp("Not a polynomial")
-              return
+          if (double (obj.den) ~= 1)
+              disp('Not polynomial in linear')
           end
           if (obj.degreeNum == 1)
               l = true;
@@ -428,6 +430,95 @@ classdef functionF
             end
             
         end
+    end
+
+    methods % ineqs
+        function obj = removeParallel(obj, vars)
+            rm = [];
+           
+            for i = 1:size(obj,2)
+              c1 = obj(i).getLinearCoeffs (vars);
+              slope1 = c1(1)/c1(2);
+              for j = i+1:size(obj,2)
+                c2 = obj(j).getLinearCoeffs (vars);
+                slope2 = c2(1)/c2(2);
+                if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
+                    if (c1(2) == 0)
+                        if (c1(3)/c1(1) >= c2(3)/c2(1))
+                            rm = [rm,j];
+                        else
+                            rm = [rm,i];
+                        end
+                    else
+                        if (c1(3)/c1(2) >= c2(3)/c2(2))
+                            rm = [rm,j];
+                        else
+                            rm = [rm,i];
+                        end
+                    end
+                end
+              end
+              
+            end
+           
+            obj(rm) = [];
+        end
+
+        function l = antiParallelFeasible(obj,vars)
+            for i = 1:size(obj,2)
+              c1 = obj(i).getLinearCoeffs (vars);
+              slope1 = c1(1)/c1(2);
+              if slope1 == -inf
+                  slope1 = inf;
+              end
+              for j = i+1:size(obj,2)
+                c2 = obj(j).getLinearCoeffs (vars);
+                slope2 = c2(1)/c2(2);
+                if slope2 == -inf
+                  slope2 = inf;
+                end
+              
+                if (slope1 == slope2 & sign(c1(1)) ~= sign(c2(1)))
+                        if (c1(3)/c1(1) + c2(3)/c2(1) > 0)
+                            l = false;
+                            return
+                        end
+                    
+                end
+              end
+              
+            end
+            l = true;
+        
+        end
+
+        function [l,obj] = removeSum(obj)
+            rm = [];
+            l = false;
+            for i = 1:size(obj,2)
+              o1 = obj(i);
+              for j = i+1:size(obj,2)
+                o2 = obj(j) + o1;
+                o2 = simplify(o2.f <= 0);
+                if o2 == symfalse
+                   l = true;
+                  return
+                end
+                  
+                for k = 1:size(obj,2)
+                  o = simplify(obj(k).f<=0);
+                  if (o2 == o)
+                      rm = [rm,k];
+                  end
+                end
+              
+              end
+              
+            end
+            %rm 
+            obj(rm) = [];
+        end
+
     end
 
 end
