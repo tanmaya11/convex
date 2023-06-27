@@ -22,16 +22,19 @@ classdef region
             %fs = fs.filterzero()
             
             if nargin == 1
-              not = false;
+              obj.not = false;
             elseif nargin == 2
               obj.not = not;
+            else
+              obj.not = false;
+              return
             end
             m = size(fs,1);
             n = size(fs,2);
             nineq = 0;
             for i = 1:m
               for j = 1:n
-                f = functionF(fs(i,j));  
+                f = functionF(fs(i,j));        
                 if (~f.isZero)
                   nineq = nineq + 1;  
                   obj.ineqs(nineq) = f;
@@ -232,19 +235,29 @@ classdef region
              %disp(obj.vy)
          end
 
+         % removes redundant ineq by finding points of intersection
          function obj = simplify (obj, vars, obj2)
            rem = [];
            n = 0;
+           x = sym('x');
+           y = sym('y');
            %intersectingPts = []
            %intersectingEdges = []
            
            for i = 1:size(obj.ineqs,2)
+             f1 = subs(obj.ineqs(i).f, vars,[x,y]);  
              for j = i+1:size(obj.ineqs,2)
-                 s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars);
+                 f2 = subs(obj.ineqs(j).f, vars,[x,y]);  
+                 s = solve ([f1==0,f2==0],[x,y]);
                  if isempty(s.x)
                      continue;
                  end
-                 if obj2.ptFeasible (vars,[s.x,s.y])
+                 l =true;
+                 if nargin > 2
+                     l = obj2.ptFeasible (vars,[s.x,s.y]);
+                 end
+                 %if obj2.ptFeasible (vars,[s.x,s.y])
+                 if l
                      pointExists = false;
                      for k = 1:n
                          if (intersectingPts(k) == [s.x,s.y])
@@ -263,7 +276,7 @@ classdef region
                  end
                  
              end 
-           end 
+           end
            for i = 1:size(intersectingEdges,2)
                lp(i) = false;
            end
@@ -307,7 +320,6 @@ classdef region
               end
               intersectingEdges{i} = edges;
            end
-           
            % mark singletons and filter 
            for i = 1:size(obj.ineqs,2)
                ls(i) = true;
@@ -327,7 +339,6 @@ classdef region
               end
               intersectingEdges{i} = edges;
            end
-           
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue;
@@ -343,17 +354,19 @@ classdef region
                 end
               end
               if lM
-                  lP(i)=true;
+                  lp(i)=true;
               end
            end
            
            % put code for lP false        
-           
+           %all(lp)
+           if  all(lp)==true
            for i = 1:size(ls,2)
                
               if (ls(i))
                 rem = [rem,i];
               end
+           end
            end
            obj.ineqs(rem) = [];
          end
@@ -488,7 +501,15 @@ classdef region
          end
       
          if nl > 0
-             l = l(1:nl).removeParallel(vars);
+             
+             [notF,l] = l(1:nl).removeParallel(vars);
+             if notF
+                 linter = false  ;
+                 disp("Not feasible")
+           
+                 return
+             end
+             
              [notF,l] = l.removeSum;
          %[nl,l] = l(1:nl).removeParallel ()
              if notF
@@ -497,9 +518,21 @@ classdef region
            
                  return
              end
+             
+             l2 =[];
+             for i = 1:size(l,2)
+                 l2 = [l2,l(i).f];
+             end
+             lR = region(l2);
+             lR = lR.simplify (vars);
+             size(lR.ineqs)
+             if size(lR.ineqs,2) == 0
+                 disp("Infeasible")
+                 return
+             end
              disp("Linear")
-             l.printL
-          
+             lR.print
+             
          end
          if nq > 0
          disp("Quadratic")
