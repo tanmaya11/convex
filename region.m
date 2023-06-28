@@ -478,14 +478,14 @@ classdef region
 
      end
 
-     function [linter, obj] = intersection2(obj1, obj2)
+     function [linter, objR] = intersection2(obj1, obj2)
          % split into linear and quad first
          disp("Intersection2")
 
          
          linter = true;
-
          
+         objR = obj1;
          obj = [obj1,obj2];
          nl = 0;
          nq = 0;
@@ -517,7 +517,6 @@ classdef region
              %disp('removeParallel')
              %l.printL
              [notF,l] = l.removeSum;
-         %[nl,l] = l(1:nl).removeParallel ()
              if notF
                  linter = false  ;
                  disp("Not feasible")
@@ -531,11 +530,10 @@ classdef region
                  l2 = [l2,l(i).f];
              end
              lR = region(l2, obj1.vars);
-             %disp('b4 simplify')
-             %lR.print
              lR = lR.simplify (vars);
              
              if size(lR.ineqs,2) == 0
+                 linter = false  ;
                  disp("Infeasible")
                  return
              end
@@ -543,22 +541,38 @@ classdef region
              lR.print
              
          end
+         nl
+         nq
          if nq > 0
          disp("Quadratic")
          
              q
+             q2 =[];
+             for i = 1:size(q,2)
+                 q2 = [q2,q(i).f];
+             end
+             
+             qR = region(q2,obj1.vars);
+             disp("lR")
+             lR.print
+             disp("qR")
+             qR.print
+             objR = lR + qR;
+         else    
+             objR = lR;
          end
          
+         linter = isFeasible(objR);
      end
      
-     function obj = intersection3(obj1, obj2)
+     function [linter,obj] = intersection3(obj1, obj2)
          % split into linear and quad first
          disp("Intersection3")
 
          obj1.ineqs.printL
          obj2.ineqs.printL
 
-
+         n = 0;
          if obj1.not & obj2.not 
          elseif obj1.not
          %    disp ("obj1 not in intersection2")
@@ -568,7 +582,13 @@ classdef region
          %       objn1.print
          %       disp('obj2')
          %       obj2.print
-                obj(i) = intersection2(objn1, obj2);
+               [linter, inter] = intersection2(objn1, obj2);
+               if linter
+                 n = n + 1  
+                 obj(n) = inter;
+               else
+                   obj = region();
+               end  
                 
             end
             
@@ -578,7 +598,14 @@ classdef region
              obj = obj1; % place holder
              return
          else
-             obj(1) = intersection2(obj1, obj2);
+             [linter, inter] = intersection2(obj1, obj2);
+               
+             %obj(1) = intersection2(obj1, obj2);
+             if linter
+               n = n + 1  
+               obj(n) = inter
+             end  
+               
          end
          
      end

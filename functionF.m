@@ -197,7 +197,16 @@ classdef functionF
 
            
         function l = isZero(obj)
-            l = isAlways(obj.f==0);
+            %disp("isZero")
+            %obj.vars
+            %obj.f
+            if size(coeffs(obj.num,obj.vars)) > 0
+                l = false;
+            else
+                l = true;
+            end
+            
+            %l = isAlways(obj.f==0);
            
         end
         
