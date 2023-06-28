@@ -65,9 +65,21 @@ if i > 1
                      if(k1 <= k2)
                        disp('Conjugate Domain Intersection')
                        disp([k1,k2])
-                       r = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
-                       disp("Conjugate Intersection")
-                       size(r)
+                       [l,r] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
+                       if l
+                         disp("Conjugate Intersection")
+                         size(r)
+                         % fill vertices of r
+
+                         f1 = obj.pieces(i1).conjf(k1)
+                         f2 = obj.pieces(i1).conjf(k2)
+                         % evaluate on vertices of domain
+                         % if all vertices have same max f
+                            % check pointwise if one function is max
+                            % get intersection of functions in domain   
+                         
+
+                       end
                        %return
                        %obj.pieces(i1).conjd(k1).print
                        %disp('Conjugate Domain 2')

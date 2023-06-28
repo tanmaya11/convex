@@ -510,7 +510,7 @@ classdef region
              [notF,l] = l(1:nl).removeParallel(vars);
              if notF
                  linter = false  ;
-                 disp("Not feasible")
+                 disp("Not feasible 1")
            
                  return
              end
@@ -519,7 +519,7 @@ classdef region
              [notF,l] = l.removeSum;
              if notF
                  linter = false  ;
-                 disp("Not feasible")
+                 disp("Not feasible 2")
            
                  return
              end
@@ -571,9 +571,12 @@ classdef region
 
          obj1.ineqs.printL
          obj2.ineqs.printL
-
+         linter = false;
          n = 0;
          if obj1.not & obj2.not 
+             disp ("implement not in intersection2")
+             obj = obj1; % place holder
+             return
          elseif obj1.not
          %    disp ("obj1 not in intersection2")
             for i = 1:size(obj1.ineqs,2)
@@ -602,8 +605,10 @@ classdef region
                
              %obj(1) = intersection2(obj1, obj2);
              if linter
-               n = n + 1  
-               obj(n) = inter
+               n = n + 1  ;
+               obj(n) = inter;
+             else
+               obj(1) = obj1;     
              end  
                
          end
