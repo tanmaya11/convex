@@ -266,7 +266,7 @@ classdef functionF
         function f = removeDenominator2 (obj)
             %f = obj.num;
             %num = f.num
-            %obj.vars
+           
             cx = coeffs(obj.num,obj.vars);
             cz=[];
             for i = 1:size(cx,2)
@@ -447,7 +447,7 @@ classdef functionF
                 slope2 = c2(1)/c2(2);
                 if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
                     if (c1(2) == 0)
-                        if (c1(3)/c1(1) >= c2(3)/c2(1))
+                        if ((c1(3)/c1(1) >= c2(3)/c2(1)) & c1(1)>0)
                             rm = [rm,j];
                         else
                             rm = [rm,i];

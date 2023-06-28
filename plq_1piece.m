@@ -174,6 +174,8 @@ classdef plq_1piece
 
                 %r = obj.d.polygon + envds(i).removeDenominator;
                 %r = unique(r);
+                disp("check.....")
+                envds(i).print
                 r  = obj.d.polygon + envds(i);
                 r = r.removeDenominator;
                 r = unique(r);
@@ -383,21 +385,22 @@ classdef plq_1piece
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(objfacts(2)) ];
+                envds = [envds, region(objfacts(2), [x,y]) ];
               elseif (mlb == -inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-objfacts(2)) ];
+                envds = [envds, region(-objfacts(2), [x,y]) ];
               elseif (mlb ~= mub)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(objfacts(2)) ];
+                envds = [envds, region(objfacts(2), [x,y]) ];
               
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-objfacts(2)) ];
+                envds = [envds, region(-objfacts(2), [x,y]) ];
               end
-              
+              %disp("in linear")
+              %envds(end).print
             end
             return
             
@@ -615,10 +618,10 @@ classdef plq_1piece
             
             r0 = simplify(psi1 - etaR(ix,3).f*psi2);
             envfs = [envfs, functionF(f0)];
-            envds = [envds, region(r0)];
+            envds = [envds, region(r0,[x,y])];
             r0 = -simplify(psi1 - etaR(ix,3).f*psi2);
             envfs = [envfs, functionF(f1)];
-            envds = [envds, region(r0)];
+            envds = [envds, region(r0, [x,y])];
           else
           
           mlb = min(lb);
@@ -645,7 +648,7 @@ classdef plq_1piece
               %envfs = [envfs, functionF(f0)];
               envfs = [envfs, f0];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
-              envds = [envds, region([r0,r1])];
+              envds = [envds, region([r0,r1], [x,y])];
               %envfs = [envfs, functionF(f0)];
               %envds = [envds, region(r1)];
               
@@ -656,7 +659,7 @@ classdef plq_1piece
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
               
-              envds = [envds, region(r0)];
+              envds = [envds, region(r0, [x,y])];
 
 
               f0 = -mlb^2*psi2 +2*mlb*psi1+psi0
@@ -665,7 +668,7 @@ classdef plq_1piece
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
               
-              envds = [envds, region(r0)];
+              envds = [envds, region(r0, [x,y])];
               %size(envds)
             %end
             end
@@ -797,15 +800,15 @@ classdef plq_1piece
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               envfs = [envfs, f0];
               % check this
-              envds = [envds, region(f0)];
+              envds = [envds, region(f0, [x,y])];
               f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
               r0 = simplify(psi1-mlb*psi2);
               envfs = [envfs, f0];
-              envds = [envds, region(r0)];
+              envds = [envds, region(r0, [x,y])];
               f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, f0];
-              envds = [envds, region(r0)];
+              envds = [envds, region(r0, [x,y])];
               end
           %end
           %end
@@ -880,13 +883,13 @@ classdef plq_1piece
                         [envfs, envxs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, b, a, envfs, envxs, envds) ;
                     end
 
-                    %for i = 1:size(envfs,2)
+                    for i = 1:size(envfs,2)
                     %    disp('envfs')
                     %    envfs(i).print
-                    %    disp('envds')
+                        disp('envds')
                         
-                    %    envds(i).print
-                    %end
+                        envds(i).print
+                    end
                     
                 end 
                 
@@ -1232,9 +1235,9 @@ classdef plq_1piece
             for j = 1:obj.envd(i).nv
                 obj.conjf = [obj.conjf,expr(j)]
                 if undV(j)
-                  obj.conjd = [obj.conjd, region(subdV(j,:),true)]
+                  obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)]
                 else
-                  obj.conjd = [obj.conjd, region(subdV(j,:))]
+                  obj.conjd = [obj.conjd, region(subdV(j,:), dualVars)]
                 end
             end
             for j = 1:obj.envd(i).nv
@@ -1242,7 +1245,7 @@ classdef plq_1piece
                     continue
                 end
                 obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
-                obj.conjd = [obj.conjd, region(subdE(j,:))]
+                obj.conjd = [obj.conjd, region(subdE(j,:), dualVars)]
             end
 
         end

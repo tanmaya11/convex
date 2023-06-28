@@ -30,6 +30,7 @@ classdef domain
 
             obj.polygon.nv=size(v,1) ;
             [obj.polygon.vx,obj.polygon.vy] = poly2cw(v(:,1),v(:,2));
+            obj.polygon.vars = [x,y];
           end
           %obj.nVertices
           %obj.vx

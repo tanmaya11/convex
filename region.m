@@ -11,19 +11,20 @@ classdef region
         nv;
         vx;
         vy;
+        vars;
     end
 
      methods
-         function obj = region(fs, not)
+         function obj = region(fs, vars, not)
             % put checks for type of f and d
             %disp("region")
             %disp(nargin)
 
             %fs = fs.filterzero()
-            
-            if nargin == 1
+         
+            if nargin == 2
               obj.not = false;
-            elseif nargin == 2
+            elseif nargin == 3
               obj.not = not;
             else
               obj.not = false;
@@ -41,11 +42,15 @@ classdef region
                 end  
               end
             end
-              
+            obj.vars = vars;  
              
          end
 
+         % add code for not
          function f = plus(obj1,obj2)
+             if obj1.not | obj2.not
+                 disp("Implement not in plus")
+             end
             l = []; 
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -54,10 +59,13 @@ classdef region
             for i = 1:size(obj2.ineqs,2)
               l = [l,obj2.ineqs(i).f];
             end 
-            f = region(l);
+            f = region(l,obj1.vars);
          end
 
          function f = minus(obj1,obj2)
+             if obj1.not | obj2.not
+                 disp("Implement not in minus")
+             end
             l = []; 
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -86,7 +94,7 @@ classdef region
               end
               l = [l,mult];
             end
-            f = region(l);
+            f = region(l,obj1.vars);
          end
          
          
@@ -216,6 +224,8 @@ classdef region
          end
 
          function print(obj)
+             disp("Variables")
+             obj.vars
              disp(["nVertices = ", num2str(obj.nv)]);
              fprintf("vx =  ")
              fprintf("%d  ", obj.vx);
@@ -405,6 +415,7 @@ classdef region
 
          function obj = removeDenominator(obj)
            for i = 1:size(obj.ineqs,2)
+              
               obj.ineqs(i) = obj.ineqs(i).removeDenominator2;
            end 
 
@@ -447,6 +458,9 @@ classdef region
 
          % stupid way of doing this
      function obj = intersection(obj1, obj2)
+         if obj1.not | obj2.not
+                 disp("Implement not in intersection")
+             end
          l = [];
            for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -454,7 +468,7 @@ classdef region
          for i = 1:size(obj2.ineqs,2)
               l = [l,obj2.ineqs(i).f];
          end 
-         obj = region(l);
+         obj = region(l, obj1.vars);
          if (isFeasible(obj))
              disp('feasible')
              obj = obj.unique;
@@ -471,24 +485,14 @@ classdef region
          
          linter = true;
 
-         if obj1.not
-             disp ("implement not in intersection2")
-         end
-         if obj2.not
-             disp ("implement not in intersection2")
-         end
          
          obj = [obj1,obj2];
          nl = 0;
          nq = 0;
-         vars = [];
+         vars = obj1.vars;
+         
          for j = 1:size(obj,2)
-             
-             for i = 1:size(obj(j).ineqs,2)
-                vars1 = obj(j).ineqs(i).getVars;
-             if size(vars1,2) > size(vars,2)
-                 vars = vars1;
-             end
+           for i = 1:size(obj(j).ineqs,2)  
              if obj(j).ineqs(i).isLinear
                 nl = nl+1; 
                 l(nl) = obj(j).ineqs(i);
@@ -496,8 +500,9 @@ classdef region
                 nq = nq+1; 
                 q(nq) = obj(j).ineqs(i);
              end
+           end
             
-           end 
+            
          end
       
          if nl > 0
@@ -509,7 +514,8 @@ classdef region
            
                  return
              end
-             
+             %disp('removeParallel')
+             %l.printL
              [notF,l] = l.removeSum;
          %[nl,l] = l(1:nl).removeParallel ()
              if notF
@@ -518,14 +524,17 @@ classdef region
            
                  return
              end
-             
+             %disp('removeSum')
+             %l.printL
              l2 =[];
              for i = 1:size(l,2)
                  l2 = [l2,l(i).f];
              end
-             lR = region(l2);
+             lR = region(l2, obj1.vars);
+             %disp('b4 simplify')
+             %lR.print
              lR = lR.simplify (vars);
-             size(lR.ineqs)
+             
              if size(lR.ineqs,2) == 0
                  disp("Infeasible")
                  return
@@ -550,19 +559,27 @@ classdef region
          obj2.ineqs.printL
 
 
-
-         if obj1.not
+         if obj1.not & obj2.not 
+         elseif obj1.not
+         %    disp ("obj1 not in intersection2")
+            for i = 1:size(obj1.ineqs,2)
+                objn1 = region([-obj1.ineqs(i).f], obj1.vars);
+         %       disp('objn1')
+         %       objn1.print
+         %       disp('obj2')
+         %       obj2.print
+                obj(i) = intersection2(objn1, obj2);
+                
+            end
+            
+             return
+         elseif obj2.not
              disp ("implement not in intersection2")
              obj = obj1; % place holder
              return
+         else
+             obj(1) = intersection2(obj1, obj2);
          end
-         if obj2.not
-             disp ("implement not in intersection2")
-             obj = obj1; % place holder
-             return
-         end
-         
-         obj = intersection2(obj1, obj2);
          
      end
      
