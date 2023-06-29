@@ -406,9 +406,13 @@ classdef region
          function l = ptFeasible(obj, vars, point)
            l = true;
            for i = 1:size(obj.ineqs,2)
-               if subs ([obj.ineqs(i).f],vars,point) > 0
+               %subs ([obj.ineqs(i).f],vars,point)
+               for j = 1:size(point,1)
+                   
+               if subs ([obj.ineqs(i).f],vars,double(point(j,:))) > 0
                    l = false;
                    return
+               end
                end
            end  
          end
@@ -616,19 +620,31 @@ classdef region
      end
      
      % wont work for degree > 2
-     function obj = getVertices(obj,vars)
+     function obj = getVertices(obj)
        obj.nv=0;
+       t1 = sym('t1');
+       t2 = sym('t2');
+       varsTemp = [t1,t2];
        for i = 1:size(obj.ineqs,2)  
+           f1 = obj.ineqs(i);
+           f1 = f1.subsF (obj.vars,varsTemp);
            for j = i+1:size(obj.ineqs,2)  
-               s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars);
+               f2 = obj.ineqs(j);
+               f2 = f2.subsF (obj.vars,varsTemp);
+               s = solve ([f1.f==0,f2.f==0],varsTemp);
                if isempty(s)
                    continue;
+               elseif isempty(s.t1)
+                   continue;
+               elseif isempty(s.t2)
+                   continue;
+               
                end
-               if (obj.ptFeasible(vars, [s.x,s.y]))
+               if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
                    
                    obj.nv=obj.nv+1;
-                   obj.vx(obj.nv) = s.x;
-                   obj.vy(obj.nv) = s.y;
+                   obj.vx(obj.nv) = s.t1;
+                   obj.vy(obj.nv) = s.t2;
                end
                
            end
@@ -639,6 +655,29 @@ classdef region
      end
 
      function obj = conjugate(obj)
+     end
+
+     function [l,less, fIneq] = funcIneq (obj, f)
+         % fix sign
+         less = true;
+       if ~f.isLinear
+         fIneq = 0;
+         l = false;
+         return
+       end
+       c0 = f.getLinearCoeffs (obj.vars)
+       for i =1:size(obj.ineqs,2)
+           if ~obj.ineqs(i).isLinear
+               cycle
+           end
+           c1 = obj.ineqs(i).getLinearCoeffs (obj.vars)
+
+           if (c1(1)/c0(1) == c1(2)/c0(2))
+               fIneq = -double(c1(3))+double(c0(3));
+               l = true;
+               return
+           end
+       end
      end
      end
      

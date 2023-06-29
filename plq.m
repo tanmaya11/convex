@@ -49,7 +49,9 @@ if i > 1
           end
       end
 
-      function intersectionConjugateDomain (obj)
+      function [f,r] = intersectionConjugateDomain (obj)
+        n = 0;
+        
         for i1 = 1:obj.nPieces
           for j1 = 1:size(obj.pieces(i1).conjfia,2)-1
              for k1 = obj.pieces(i1).conjfia(j1):obj.pieces(i1).conjfia(j1+1)-1
@@ -65,18 +67,27 @@ if i > 1
                      if(k1 <= k2)
                        disp('Conjugate Domain Intersection')
                        disp([k1,k2])
-                       [l,r] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
+                       [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
                        if l
                          disp("Conjugate Intersection")
-                         size(r)
                          % fill vertices of r
+                         %obj.pieces(i1).conjd(k1).print
+                         %obj.pieces(i2).conjd(k2).print
+                         %r1.print
+                         f1 = obj.pieces(i1).conjf(k1);
+                         f2 = obj.pieces(i1).conjf(k2);
+                         for ir = 1:size(r1,2)
+                           n = n + 1
+                           r(n) = r1(ir);
+                           r(n) = r(n).getVertices();
+                           %r(n).print
 
-                         f1 = obj.pieces(i1).conjf(k1)
-                         f2 = obj.pieces(i1).conjf(k2)
-                         % evaluate on vertices of domain
-                         % if all vertices have same max f
-                            % check pointwise if one function is max
-                            % get intersection of functions in domain   
+                           f(n,1) = f1;
+                           f(n,2) = f2;
+                           %return
+                         end
+                         %return
+                         
                          
 
                        end
@@ -101,12 +112,68 @@ if i > 1
           
         end
 
-      function obj = maximum(obj)
-          for i = 1:obj.nPieces
-              obj.pieces(i)=obj.pieces(i).maxOfConjugate;
-              if i == 1
-                  return
+      function [maxf,maxd] = maximum(obj, f, r2)
+          p1 = 0; 
+          p2 = 0;
+          % 1 - eq constant
+          % 2 - linear ineq const
+          n = 0;
+          for i = 1:1 %size(r2,2)
+              r2(i).print
+              f1 = f(i,1)
+              f2 = f(i,2)
+              
+              if f1.isConst
+                  p1 = 1;
               end
+              if f2.isConst
+                  p2 = 1;
+              end
+              
+              % 2. check f with ineq for obvious results
+
+              if p1 == 0
+                  [l,less,fIneq1] = r2(i).funcIneq (f1)
+                  if l
+                      p1 = 2;
+                  end
+              end
+              if p2 == 0
+                  [l,less,fIneq1] = r2(i).funcIneq (f2)
+                  if l
+                      p2 = 2;
+                  end
+              end
+
+              if (p1 == 1 & p2 == 1)
+                  n = n + 1;
+                  if (double(f1.f) < double(f2.f))
+                    maxf(n) = f2
+                    maxd(n) = r2(i)
+                  else
+                    maxf(n) = f1
+                    maxd(n) = r2(i)
+                  end
+                  return
+              elseif (p1 == 1 & p2 == 2)
+                  n = n + 1;
+                  if (double(f1.f) < fIneq1)
+                    maxf(n) = f2
+                    maxd(n) = r2(i)
+                  else
+                    maxf(n) = f1
+                    maxd(n) = r2(i)
+                  end
+                  return
+              
+              end
+
+
+              % if all vertices have same max f
+                            % check pointwise if one function is max
+                            % get intersection of functions in domain   
+                            
+                         
           end
       end
   end

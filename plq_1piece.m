@@ -132,7 +132,7 @@ classdef plq_1piece
               disp("b4 vertices")
               size(obj.envd,2)
               for j=1:size(obj.envd,2)
-                obj.envd(j) = obj.envd(j).getVertices(vars);
+                obj.envd(j) = obj.envd(j).getVertices();
               end
             %end
             return

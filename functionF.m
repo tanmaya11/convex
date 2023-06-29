@@ -111,24 +111,26 @@ classdef functionF
     methods % inquiry
 
         function l = isPolynomial(obj)
-            v = [];
-            v = [v,obj.vars]
-            class(obj.f)
-            class(obj.num)
-            l = ispolynomial(obj.num)
-            l = ispolynomial(obj.f, v);
+            l = obj.degreeDen == 0;
         end
-        % will work only for poly
-
+        
         function l = isLinear(obj)
-          if (double (obj.den) ~= 1)
-              disp('Not polynomial in linear')
+         
+          if (obj.degreeDen ~= 0)
+              l = false;
+              return;
           end
           if (obj.degreeNum == 1)
               l = true;
           else
               l = false;
           end
+        end
+
+        function l = isConst(obj)
+            cn = coeffs(obj.num,obj.vars);
+            cd = coeffs(obj.den,obj.vars);
+            l = all(cn(2:end)==0) & all(cd(2:end)==0);
         end
     end
     
@@ -407,11 +409,22 @@ classdef functionF
               l = isAlways((obj1.f<=0) <= (obj2.f<=0))
             end
 
-            % fix this
             function d = degreeNum(obj)
-                
-                d = polynomialDegree(obj.num);
+                if isequal(class(obj.num),'double')
+                    d = 0;
+                else
+                  d = polynomialDegree(obj.num);
+                end
             end
+
+            function d = degreeDen(obj)
+                if isequal(class(obj.den),'double')
+                    d = 0;
+                else
+                  d = polynomialDegree(obj.den);
+                end
+            end
+
 
             
     %        function fs = filterZero(obj)
