@@ -71,12 +71,13 @@ if i > 1
                        if l
                          disp("Conjugate Intersection")
                          % fill vertices of r
-                         %obj.pieces(i1).conjd(k1).print
-                         %obj.pieces(i2).conjd(k2).print
-                         %r1.print
-                         f1 = obj.pieces(i1).conjf(k1);
-                         f2 = obj.pieces(i1).conjf(k2);
+                         obj.pieces(i1).conjd(k1).print
+                         obj.pieces(i2).conjd(k2).print
+                         f1 = obj.pieces(i1).conjf(k1)
+                         f2 = obj.pieces(i1).conjf(k2)
                          for ir = 1:size(r1,2)
+                             disp('r1')
+                             r1(ir).print
                            n = n + 1
                            r(n) = r1(ir);
                            r(n) = r(n).getVertices();
@@ -113,12 +114,14 @@ if i > 1
         end
 
       function [maxf,maxd] = maximum(obj, f, r2)
-          p1 = 0; 
-          p2 = 0;
           % 1 - eq constant
           % 2 - linear ineq const
           n = 0;
-          for i = 1:1 %size(r2,2)
+          for i = 1:2 %size(r2,2)
+              p1 = 0; 
+              p2 = 0;
+          
+              disp(["i", num2str(i)])
               r2(i).print
               f1 = f(i,1)
               f2 = f(i,2)
@@ -127,6 +130,7 @@ if i > 1
                   p1 = 1;
               end
               if f2.isConst
+                  
                   p2 = 1;
               end
               
@@ -144,7 +148,9 @@ if i > 1
                       p2 = 2;
                   end
               end
-
+              disp(["p1", num2str(p1)])
+              disp(["p2", num2str(p2)])
+              
               if (p1 == 1 & p2 == 1)
                   n = n + 1;
                   if (double(f1.f) < double(f2.f))
@@ -164,8 +170,7 @@ if i > 1
                     maxf(n) = f1
                     maxd(n) = r2(i)
                   end
-                  return
-              
+                  
               end
 
 

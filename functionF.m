@@ -128,6 +128,11 @@ classdef functionF
         end
 
         function l = isConst(obj)
+            v = obj.getVars;
+            if size(v,2) > 0
+                l = false;
+                return
+            end
             cn = coeffs(obj.num,obj.vars);
             cd = coeffs(obj.den,obj.vars);
             l = all(cn(2:end)==0) & all(cd(2:end)==0);

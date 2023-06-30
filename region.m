@@ -233,6 +233,8 @@ classdef region
              fprintf("vy =  ")
              fprintf("%d  ", obj.vy);
              fprintf("\n\n")
+             disp("not")
+             obj.not
              if obj.not
                disp("Not of union of following ineqs")
                obj.ineqs.printLIneq;
@@ -565,14 +567,15 @@ classdef region
          else    
              objR = lR;
          end
-         
+         disp("Not in intersection2")
+         objR.not
          linter = isFeasible(objR);
      end
      
      function [linter,obj] = intersection3(obj1, obj2)
          % split into linear and quad first
          disp("Intersection3")
-
+         obj = region.empty();
          obj1.ineqs.printL
          obj2.ineqs.printL
          linter = false;
@@ -582,24 +585,24 @@ classdef region
              obj = obj1; % place holder
              return
          elseif obj1.not
-         %    disp ("obj1 not in intersection2")
             for i = 1:size(obj1.ineqs,2)
                 objn1 = region([-obj1.ineqs(i).f], obj1.vars);
-         %       disp('objn1')
-         %       objn1.print
-         %       disp('obj2')
-         %       obj2.print
-               [linter, inter] = intersection2(objn1, obj2);
+                disp('objn1')
+                objn1.print
+               [linter, inter] = intersection2(objn1, obj2)
+               inter.print
                if linter
                  n = n + 1  
                  obj(n) = inter;
-               else
-                   obj = region();
-               end  
+                 obj(n).print
+               end 
+               %obj(n).not
                 
             end
-            
-             return
+            if n > 0
+                linter = true
+            end
+            return
          elseif obj2.not
              disp ("implement not in intersection2")
              obj = obj1; % place holder
@@ -671,9 +674,20 @@ classdef region
                cycle
            end
            c1 = obj.ineqs(i).getLinearCoeffs (obj.vars)
-
-           if (c1(1)/c0(1) == c1(2)/c0(2))
-               fIneq = -double(c1(3))+double(c0(3));
+           if sign(c1(1)) ~= sign(c0(1))
+               less = false;
+               c1 = -c1;
+           end
+           if (c1(1) ~= c0(1))
+               c1 = (c0(1)/c1(1)) * c1;
+           end
+           if (c1(2) == 0 & c0(2) == 0)
+               fIneq = -c1(3);
+               l = true;
+               
+               return
+           elseif (c1(1)/c0(1) == c1(2)/c0(2))
+               fIneq = -double(c1(3)/c1(2))+double(c0(3)/c0(2));
                l = true;
                return
            end

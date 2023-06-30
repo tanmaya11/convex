@@ -26,8 +26,14 @@ function plq_eg
   conjugate_PS.print
 disp ("Check intersection")
   [f2, r2] = conjugate_PS.intersectionConjugateDomain;
+  r2(3).print
   %return
+  disp("Start maximum")
   [maxf,maxd] = conjugate_PS.maximum(f2,r2);
+
+  for i = 1:size(maxf,2)
+      maxf(i).print
+  end
   
   
 end
