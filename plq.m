@@ -67,18 +67,19 @@ if i > 1
                      if(k1 <= k2)
                        disp('Conjugate Domain Intersection')
                        disp([k1,k2])
-                       [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2));
+                       [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2))
                        if l
-                         disp("Conjugate Intersection")
+              %           disp("Conjugate Intersection")
                          % fill vertices of r
-                         obj.pieces(i1).conjd(k1).print
-                         obj.pieces(i2).conjd(k2).print
-                         f1 = obj.pieces(i1).conjf(k1)
-                         f2 = obj.pieces(i1).conjf(k2)
+                         %obj.pieces(i1).conjd(k1).print
+                         %obj.pieces(i2).conjd(k2).print
+                         f1 = obj.pieces(i1).conjf(k1);
+                         f2 = obj.pieces(i1).conjf(k2);
+                         size(r1,2)
                          for ir = 1:size(r1,2)
-                             disp('r1')
-                             r1(ir).print
-                           n = n + 1
+                             %disp('r1')
+                             %r1(ir).print
+                           n = n + 1;
                            r(n) = r1(ir);
                            r(n) = r(n).getVertices();
                            %r(n).print
@@ -89,7 +90,9 @@ if i > 1
                          end
                          %return
                          
-                         
+                       %if k1 == 2 & k2 == 5
+                       %    return
+                       %end
 
                        end
                        %return
@@ -117,7 +120,7 @@ if i > 1
           % 1 - eq constant
           % 2 - linear ineq const
           n = 0;
-          for i = 1:2 %size(r2,2)
+          for i = 1:5 %size(r2,2)
               p1 = 0; 
               p2 = 0;
           
@@ -137,15 +140,23 @@ if i > 1
               % 2. check f with ineq for obvious results
 
               if p1 == 0
-                  [l,less,fIneq1] = r2(i).funcIneq (f1)
-                  if l
+                  [l1,less,fIneq1, nf] = r2(i).funcIneq (f1)
+                  if l1 
+                  if nf
+                      p1 = 3;
+                  else    
                       p1 = 2;
+                  end
                   end
               end
               if p2 == 0
-                  [l,less,fIneq1] = r2(i).funcIneq (f2)
-                  if l
-                      p2 = 2;
+                  [l2,less,fIneq1, nf] = r2(i).funcIneq (f2)
+                  if l2
+                      if nf
+                          p2 = 3;
+                      else
+                        p2 = 2;
+                      end
                   end
               end
               disp(["p1", num2str(p1)])
@@ -170,7 +181,41 @@ if i > 1
                     maxf(n) = f1
                     maxd(n) = r2(i)
                   end
+              elseif (p1 == 2 & p2 == 3)
+                  fv1 = fIneq1;
+                  fv2 = r2(i).funcVertices (f2);
+                  lg = true;
+                  for i = 1:size(fv2,2)
+                      if (fv2(i) < fv1)
+                          lg = false;
+                          break
+                      end 
+                  end
+                  lg = true;
+                  if l1 & lg
+                      n = n + 1;
+                      disp('f2')
+                      maxf(n) = f2;
+                      maxd(n) = r2(i);
+                  end
+                  for i = 1:size(fv2,2)
+                      if (fv2(i) > fv1)
+                          lg = false;
+                          break
+                      end 
+                  end
                   
+                  if ~l1 & lg
+                      n = n + 1;
+                      maxf(n) = f1;
+                      maxd(n) = r2(i);
+                  end
+                  
+% add +- infinity to vertices of unbounded regions
+
+
+                  % Evaluate f2 at vertices
+                  % If all max or min resolve
               end
 
 

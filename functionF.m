@@ -486,19 +486,19 @@ classdef functionF
                             rm = [rm,i];
                         end
                     end
-                    l = false
+                    l = false;
                 elseif (slope1 == slope2 )
                     if c1(2) ~= 0
                     if c1(2) > 0
-                        l = c1(3)/c1(2) > - c2(3)/c2(2)
+                        l = c1(3)/c1(2) > - c2(3)/c2(2);
                     else
-                        l = c2(3)/c2(2) > - c1(3)/c1(2)
+                        l = c2(3)/c2(2) > - c1(3)/c1(2);
                     end
                     else 
                     if c1(1) > 0
-                        l = c1(3)/c1(1) > - c2(3)/c2(1)
+                        l = c1(3)/c1(1) > - c2(3)/c2(1);
                     else
-                        l = c2(3)/c2(1) > - c1(3)/c1(1)
+                        l = c2(3)/c2(1) > - c1(3)/c1(1);
                     end
                     
                     end

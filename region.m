@@ -248,6 +248,7 @@ classdef region
          end
 
          % removes redundant ineq by finding points of intersection
+         % check this code again
          function obj = simplify (obj, vars, obj2)
            rem = [];
            n = 0;
@@ -257,14 +258,16 @@ classdef region
            %intersectingEdges = []
            
            for i = 1:size(obj.ineqs,2)
-             f1 = subs(obj.ineqs(i).f, vars,[x,y]);  
+             f1 = subs(obj.ineqs(i).f, vars,[x,y])
              for j = i+1:size(obj.ineqs,2)
-                 f2 = subs(obj.ineqs(j).f, vars,[x,y]);  
+                 f2 = subs(obj.ineqs(j).f, vars,[x,y])  
                  s = solve ([f1==0,f2==0],[x,y]);
+                 disp('s.x')
+                 s.x
                  if isempty(s.x)
                      continue;
                  end
-                 l =true;
+                 l =true
                  if nargin > 2
                      l = obj2.ptFeasible (vars,[s.x,s.y]);
                  end
@@ -281,7 +284,7 @@ classdef region
                        intersectingEdges{k} = [intersectingEdges{k},[i,j]];
                        
                      else
-                       n = n + 1;
+                       n = n + 1
                        intersectingPts{n} = [s.x,s.y];
                        intersectingEdges{n} = [i,j];
                      end
@@ -296,6 +299,12 @@ classdef region
                ls(i) = false;
                
            end
+
+           %n
+           %intersectingPts{n}
+           %intersectingEdges{n}
+
+           % if intersecting point is not in feasible region mark it true
            for i = 1:size(intersectingEdges,2)
                if obj.ptFeasible (vars,intersectingPts{i})
                  continue;
@@ -305,6 +314,11 @@ classdef region
                    ls(intersectingEdges{i}(j)) = true;
                end
            end
+           %lp
+           %ls
+
+           % if valid point created by intersection of only 2 edges - mark
+           % false
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue
@@ -316,7 +330,11 @@ classdef region
                  end
               end
            end
+           %disp('lp2')
+           %lp
+           %ls
            
+           % remove edges where point is to be removed
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue
@@ -330,27 +348,38 @@ classdef region
                     edges = [edges,[intersectingEdges{i}(j),intersectingEdges{i}(j+1)]];
                   end
               end
-              intersectingEdges{i} = edges;
+              intersectingEdges{i} = edges
            end
            % mark singletons and filter 
            for i = 1:size(obj.ineqs,2)
                ls(i) = true;
                
            end
+           %disp('lp3')
+           %lp
+           %ls
            
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue
               end
-              if size(intersectingEdges{i},2) ~= 2
-                  continue
-              end
-              lp(i)=true;
-              for j = 1:  size(intersectingEdges{i},2)
-                ls(intersectingEdges{i}(j)) = false  ;
-              end
+              %if size(intersectingEdges{i},2) == 2
+                lp(i)=true;
+                for j = 1:  size(intersectingEdges{i},2)
+                  ls(intersectingEdges{i}(j)) = false  ;
+                end
+              %else
+              %  lp(i)=true;
+              %  for j = 1:  2
+              %    ls(intersectingEdges{i}(j)) = false  ;
+              %  end  
+              %end 
               intersectingEdges{i} = edges;
            end
+           %disp('lp4')
+           %lp
+           %ls
+           
            for i = 1:size(intersectingEdges,2)
               if (lp(i))
                   continue;
@@ -369,9 +398,13 @@ classdef region
                   lp(i)=true;
               end
            end
+           %disp('lp5')
+           %lp
+           %ls
            
            % put code for lP false        
            %all(lp)
+           %lp
            if  all(lp)==true
            for i = 1:size(ls,2)
                
@@ -380,6 +413,7 @@ classdef region
               end
            end
            end
+           %rem
            obj.ineqs(rem) = [];
          end
 
@@ -410,7 +444,9 @@ classdef region
            for i = 1:size(obj.ineqs,2)
                %subs ([obj.ineqs(i).f],vars,point)
                for j = 1:size(point,1)
-                   
+                 %obj.ineqs(i).f
+                 %double(point(j,:))
+                 %subs ([obj.ineqs(i).f],vars,double(point(j,:)))
                if subs ([obj.ineqs(i).f],vars,double(point(j,:))) > 0
                    l = false;
                    return
@@ -486,7 +522,7 @@ classdef region
 
      function [linter, objR] = intersection2(obj1, obj2)
          % split into linear and quad first
-         disp("Intersection2")
+         %disp("Intersection2")
 
          
          linter = true;
@@ -536,52 +572,53 @@ classdef region
                  l2 = [l2,l(i).f];
              end
              lR = region(l2, obj1.vars);
+             %size(lR.ineqs,2)
              lR = lR.simplify (vars);
              
              if size(lR.ineqs,2) == 0
                  linter = false  ;
-                 disp("Infeasible")
+                 disp("Infeasible 3")
                  return
              end
-             disp("Linear")
-             lR.print
+             %disp("Linear")
+             %lR.print
              
          end
-         nl
-         nq
+         %nl
+         %nq
          if nq > 0
-         disp("Quadratic")
+         %disp("Quadratic")
          
-             q
+          %   q
              q2 =[];
              for i = 1:size(q,2)
                  q2 = [q2,q(i).f];
              end
              
              qR = region(q2,obj1.vars);
-             disp("lR")
-             lR.print
-             disp("qR")
-             qR.print
+           %  disp("lR")
+           %  lR.print
+           %  disp("qR")
+           %  qR.print
              objR = lR + qR;
          else    
              objR = lR;
          end
-         disp("Not in intersection2")
-         objR.not
+         %disp("Not in intersection2")
+         %objR.not
          linter = isFeasible(objR);
      end
      
      function [linter,obj] = intersection3(obj1, obj2)
          % split into linear and quad first
-         disp("Intersection3")
+         %disp("Intersection3")
          obj = region.empty();
-         obj1.ineqs.printL
-         obj2.ineqs.printL
+         %obj1.ineqs.printL
+         %obj2.ineqs.printL
          linter = false;
          n = 0;
          if obj1.not & obj2.not 
-             disp ("implement not in intersection2")
+             %disp ("implement not in intersection2")
              obj = obj1; % place holder
              return
          elseif obj1.not
@@ -592,19 +629,19 @@ classdef region
                [linter, inter] = intersection2(objn1, obj2)
                inter.print
                if linter
-                 n = n + 1  
+                 n = n + 1  ;
                  obj(n) = inter;
-                 obj(n).print
+              %   obj(n).print
                end 
                %obj(n).not
                 
             end
             if n > 0
-                linter = true
+                linter = true;
             end
             return
          elseif obj2.not
-             disp ("implement not in intersection2")
+             %disp ("implement not in intersection2")
              obj = obj1; % place holder
              return
          else
@@ -654,24 +691,55 @@ classdef region
            
        end
        %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
-       
+
+       % putting intmax for inf to avoid Nans 
+       % intmax + intmax = intmax
+       %disp('ptFeasile')
+       %obj.print
+       if obj.ptFeasible(obj.vars, [intmax,intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = intmax;
+          obj.vy(obj.nv) = intmax;
+          %disp("++")
+       end
+       if obj.ptFeasible(obj.vars, [intmax,-intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = intmax;
+          obj.vy(obj.nv) = -intmax;
+          %disp("+-")
+       end
+       if obj.ptFeasible(obj.vars, [-intmax,intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = -intmax;
+          obj.vy(obj.nv) = intmax;
+          %disp("-+")
+       end
+       if obj.ptFeasible(obj.vars, [-intmax,-intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = -intmax;
+          obj.vy(obj.nv) = -intmax;
+          %disp("--")
+       end
      end
 
      function obj = conjugate(obj)
      end
 
-     function [l,less, fIneq] = funcIneq (obj, f)
+     % If function is linear - check with lin ineqs 
+                             % if coef are same try to resolve  
+     function [l,less, fIneq, nf] = funcIneq (obj, f)
          % fix sign
          less = true;
        if ~f.isLinear
          fIneq = 0;
          l = false;
+         nf = true
          return
        end
        c0 = f.getLinearCoeffs (obj.vars)
        for i =1:size(obj.ineqs,2)
            if ~obj.ineqs(i).isLinear
-               cycle
+               continue;
            end
            c1 = obj.ineqs(i).getLinearCoeffs (obj.vars)
            if sign(c1(1)) ~= sign(c0(1))
@@ -684,15 +752,28 @@ classdef region
            if (c1(2) == 0 & c0(2) == 0)
                fIneq = -c1(3);
                l = true;
-               
+               nf = false
                return
            elseif (c1(1)/c0(1) == c1(2)/c0(2))
                fIneq = -double(c1(3)/c1(2))+double(c0(3)/c0(2));
                l = true;
+               nf = false
                return
            end
        end
+       fIneq = 0;
+       l = true;
+       nf = true
+         
+     end
+     
+     % return function values at vertices
+     function fv = funcVertices (obj, f)
+         for i =1:obj.nv
+             fv(i) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
+         end
      end
      end
+
      
 end

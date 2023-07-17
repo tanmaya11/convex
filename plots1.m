@@ -3,7 +3,7 @@ syms x y
 z = 2*y^2/(y+2-x);
 
 %z = 2*y+x-2;
-%z = x*y;
+z = x*y;
 %ezsurf(x,y,z,[0 2 0 2]);
 ezsurf(x,y,z,[-5 1 0 5]);
 %z = x^2+y^2+2*x*y-4*x;
