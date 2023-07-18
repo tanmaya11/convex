@@ -36,6 +36,7 @@ function plq_eg
   for i = 1:size(maxf,2)
       disp(i)
       maxf(i).print
+     % maxd(i).print
   end
   
   

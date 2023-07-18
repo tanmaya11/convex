@@ -65,8 +65,8 @@ if i > 1
                  
                      
                      if(k1 <= k2)
-                %       disp('Conjugate Domain Intersection')
-                %       disp([k1,k2])
+                   %    disp('Conjugate Domain Intersection')
+                   %    disp([k1,k2])
                        if (k1 == 2 )
                          [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), false);
                        else
@@ -86,7 +86,8 @@ if i > 1
                            n = n + 1;
                            r(n) = r1(ir);
                            r(n) = r(n).getVertices();
-                           %r(n).print
+                    %       disp(n)
+                    %       r(n).print
 
                            f(n,1) = f1;
                            f(n,2) = f2;
@@ -128,53 +129,61 @@ if i > 1
 
           % not used quadratic ineq - check that
           n = 0;
-          for i = 1:7 %size(r2,2)
+          for i = 1:size(r2,2)
 
               % do this if functions are linear
              disp(["i", num2str(i)])
              %r2(i).print
              f1 = f(i,1);
              f2 = f(i,2);
-             if f1.isConst & f2.isConst  
-              %   disp('cc')
-               if f1.f < f2.f
-                 n = n + 1;
-                 maxf(n) = f2;
-                 maxd(n) = r2(i);
-                 continue
-               else
-                 n = n + 1;
-                 maxf(n) = f1;
-                 maxd(n) = r2(i);
-                 continue
-               end
-             elseif f1.isConst & f2.isLinear
-                % disp('cl')
-               [l, fmax] = r2(i).maxArray (f1, f2) ;
+              [l, fmax] = r2(i).maxArray (f1, f2) ;
                if l
                  n = n + 1;
                  maxf(n) = fmax;
                  maxd(n) = r2(i);
                  continue
                end  
+
+
+
+             if f1.isConst & f2.isConst  
+                 disp('cc')
+              
+             elseif f1.isConst & f2.isLinear
+                disp('cl')
+               
+             elseif f1.isLinear & f2.isConst
+                disp('lc')
                
 
              elseif f1.isLinear() & f2.isLinear() 
-                % disp('ll')
-               % evaluate at boundary  if one is max on boundary we r done
-               [l, fmax] = r2(i).maxArray (f1, f2) ;
-               if l
-                 n = n + 1;
-                 maxf(n) = fmax;
-                 maxd(n) = r2(i);
-                 continue
-               end  
+                disp('ll')
                
                % Find intersection point
                %[vx,vy] = solveF (f1, f2);
+             elseif f1.isConst & f2.isQuad   
+
+                 disp('cq')
+               
+               
+             elseif f1.isQuad & f2.isConst
+                 disp('qc')
+               
+               
+             elseif f1.isLinear & f2.isQuad   
+                 disp('lq')
+               
+               
+             elseif f1.isQuad & f2.isLinear
+                 disp('ql')
+               
+               
+             elseif f1.isQuad & f2.isQuad
+             disp('qq')  
+               
              end 
 
-
+             disp('reached here')
 
 %               p1 = 0; 
 %               p2 = 0;

@@ -114,6 +114,21 @@ classdef functionF
             l = obj.degreeDen == 0;
         end
         
+        function l = isQuad(obj)
+         
+          if (obj.degreeDen ~= 0)
+              l = false;
+              return;
+          end
+          if (obj.degreeNum == 2)
+              l = true;
+          else
+              l = false;
+          end
+        end
+
+        
+        
         function l = isLinear(obj)
          
           if (obj.degreeDen ~= 0)
