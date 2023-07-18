@@ -277,7 +277,14 @@ classdef functionF
             end 
         end
         
-        
+        function [vx,vy] = solveF (f2)
+            f1x = subs(obj.f, obj.vars,[x,y]);
+            f2x = subs(f2.f, obj.vars,[x,y]);
+            s = solve ([f1==0,f2==0],[x,y]);
+            vx = s.x;
+            vy = s.y;
+        end
+            
         
         function f = removeDenominator2 (obj)
             %f = obj.num;
@@ -404,7 +411,6 @@ classdef functionF
              l = true;
         end
         
-
         
 % not working 
             function l = isSubset (obj1, obj2)
@@ -506,7 +512,7 @@ classdef functionF
               end
               
             end
-           
+            
             obj(rm) = [];
         end
 
@@ -538,7 +544,7 @@ classdef functionF
         
         end
 
-        function [l,obj] = removeSum(obj)
+        function [l,obj] = removeSum(obj, lprint)
             rm = [];
             l = false;
             for i = 1:size(obj,2)
@@ -546,14 +552,22 @@ classdef functionF
               for j = i+1:size(obj,2)
                 o2 = obj(j) + o1;
                 % removing = 0 also although only >0 are invalid
+                if lprint
+                    disp("o2 b4")
+                    o2
+                end
+                
                 o2 = simplify(o2.f < 0);
                 if o2 == symfalse
                    l = true;
                   return
                 end
-                  
+                if lprint
+                    disp("o2")
+                    o2
+                end
                 for k = 1:size(obj,2)
-                  o = simplify(obj(k).f<=0);
+                  o = simplify(obj(k).f<0);
                   if (o2 == o)
                       rm = [rm,k];
                   end
@@ -562,7 +576,9 @@ classdef functionF
               end
               
             end
-            %rm 
+            if lprint
+            rm 
+            end
             obj(rm) = [];
         end
 

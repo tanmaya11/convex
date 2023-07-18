@@ -247,6 +247,26 @@ classdef region
              %disp(obj.vy)
          end
 
+         % max over a region
+         function [l, fmax] = maxArray (obj, f1, f2) 
+          fv1 = obj.funcVertices (f1);
+          fv2 = obj.funcVertices (f2);
+          for i = 1:size(fv1,2)
+              sv1(i) = fv1(i).f;
+              sv2(i) = fv2(i).f;
+          end
+          l = true;
+          if all(sv1 <= sv2)
+              fmax = f2;
+          elseif all(sv2 <= sv1)
+              fmax = f1;
+          else
+              l = false;
+              fmax = 0;
+          end
+        end
+        
+
          % removes redundant ineq by finding points of intersection
          % check this code again
          function obj = simplify (obj, vars, obj2)
@@ -258,16 +278,16 @@ classdef region
            %intersectingEdges = []
            
            for i = 1:size(obj.ineqs,2)
-             f1 = subs(obj.ineqs(i).f, vars,[x,y])
+             f1 = subs(obj.ineqs(i).f, vars,[x,y]);
              for j = i+1:size(obj.ineqs,2)
-                 f2 = subs(obj.ineqs(j).f, vars,[x,y])  
+                 f2 = subs(obj.ineqs(j).f, vars,[x,y])  ;
                  s = solve ([f1==0,f2==0],[x,y]);
-                 disp('s.x')
-                 s.x
+                 %disp('s.x')
+                 %s.x
                  if isempty(s.x)
                      continue;
                  end
-                 l =true
+                 l =true;
                  if nargin > 2
                      l = obj2.ptFeasible (vars,[s.x,s.y]);
                  end
@@ -284,7 +304,7 @@ classdef region
                        intersectingEdges{k} = [intersectingEdges{k},[i,j]];
                        
                      else
-                       n = n + 1
+                       n = n + 1;
                        intersectingPts{n} = [s.x,s.y];
                        intersectingEdges{n} = [i,j];
                      end
@@ -348,7 +368,7 @@ classdef region
                     edges = [edges,[intersectingEdges{i}(j),intersectingEdges{i}(j+1)]];
                   end
               end
-              intersectingEdges{i} = edges
+              intersectingEdges{i} = edges;
            end
            % mark singletons and filter 
            for i = 1:size(obj.ineqs,2)
@@ -512,7 +532,7 @@ classdef region
          end 
          obj = region(l, obj1.vars);
          if (isFeasible(obj))
-             disp('feasible')
+             %disp('feasible')
              obj = obj.unique;
          else
              obj = region.empty;
@@ -520,7 +540,7 @@ classdef region
 
      end
 
-     function [linter, objR] = intersection2(obj1, obj2)
+     function [linter, objR] = intersection2(obj1, obj2, lprint)
          % split into linear and quad first
          %disp("Intersection2")
 
@@ -546,27 +566,37 @@ classdef region
             
             
          end
-      
+      if lprint
+          disp('nl nq')
+          nl
+          nq
+      end
+
          if nl > 0
              
              [notF,l] = l(1:nl).removeParallel(vars);
              if notF
                  linter = false  ;
-                 disp("Not feasible 1")
+                 %disp("Not feasible 1")
            
                  return
              end
-             %disp('removeParallel')
-             %l.printL
-             [notF,l] = l.removeSum;
+             
+             if lprint
+             disp('removeParallel')
+                 l.printL
+             end
+             [notF,l] = l.removeSum(lprint);
              if notF
                  linter = false  ;
-                 disp("Not feasible 2")
+                 %disp("Not feasible 2")
            
                  return
              end
-             %disp('removeSum')
-             %l.printL
+             if lprint
+             disp('removeSum')
+             l.printL
+             end
              l2 =[];
              for i = 1:size(l,2)
                  l2 = [l2,l(i).f];
@@ -577,7 +607,7 @@ classdef region
              
              if size(lR.ineqs,2) == 0
                  linter = false  ;
-                 disp("Infeasible 3")
+                % disp("Infeasible 3")
                  return
              end
              %disp("Linear")
@@ -609,7 +639,7 @@ classdef region
          linter = isFeasible(objR);
      end
      
-     function [linter,obj] = intersection3(obj1, obj2)
+     function [linter,obj] = intersection3(obj1, obj2, lprint)
          % split into linear and quad first
          %disp("Intersection3")
          obj = region.empty();
@@ -624,10 +654,10 @@ classdef region
          elseif obj1.not
             for i = 1:size(obj1.ineqs,2)
                 objn1 = region([-obj1.ineqs(i).f], obj1.vars);
-                disp('objn1')
-                objn1.print
-               [linter, inter] = intersection2(objn1, obj2)
-               inter.print
+                %disp('objn1')
+                %objn1.print
+               [linter, inter] = intersection2(objn1, obj2, lprint);
+               %inter.print
                if linter
                  n = n + 1  ;
                  obj(n) = inter;
@@ -645,7 +675,7 @@ classdef region
              obj = obj1; % place holder
              return
          else
-             [linter, inter] = intersection2(obj1, obj2);
+             [linter, inter] = intersection2(obj1, obj2,lprint);
                
              %obj(1) = intersection2(obj1, obj2);
              if linter
@@ -696,6 +726,7 @@ classdef region
        % intmax + intmax = intmax
        %disp('ptFeasile')
        %obj.print
+       n = obj.nv;
        if obj.ptFeasible(obj.vars, [intmax,intmax])
           obj.nv=obj.nv+1;
           obj.vx(obj.nv) = intmax;
@@ -719,6 +750,29 @@ classdef region
           obj.vx(obj.nv) = -intmax;
           obj.vy(obj.nv) = -intmax;
           %disp("--")
+       end
+       for i = 1:n
+           if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = obj.vx(i);
+             obj.vy(obj.nv) = intmax;
+           end
+           if obj.ptFeasible(obj.vars, [obj.vx(i),-intmax])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = obj.vx(i);
+             obj.vy(obj.nv) = -intmax;
+           end
+           if obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = intmax;
+             obj.vy(obj.nv) = obj.vy(i);
+           end
+           if obj.ptFeasible(obj.vars, [-intmax,obj.vy(i)])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = -intmax;
+             obj.vy(obj.nv) = obj.vy(i);
+           end
+           
        end
      end
 
