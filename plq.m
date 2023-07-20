@@ -148,7 +148,7 @@ if i > 1
 
              if f1.isConst & f2.isConst  
                  disp('cc')
-              
+                 disp ('should never come here')
              elseif f1.isConst & f2.isLinear
                 disp('cl')
                

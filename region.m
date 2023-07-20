@@ -242,9 +242,9 @@ classdef region
                disp("Intersection of following ineqs")
                obj.ineqs.printLIneq;
              end
-             %disp(["Vertices = ", num2str(obj.nv)]);
-             %disp(obj.vx)
-             %disp(obj.vy)
+         %    disp(["Vertices = ", num2str(obj.nv)]);
+         %    disp(obj.vx)
+         %    disp(obj.vy)
          end
 
          % max over a region
@@ -654,27 +654,27 @@ classdef region
          elseif obj1.not
             for i = 1:size(obj1.ineqs,2)
                 objn1 = region([-obj1.ineqs(i).f], obj1.vars);
-                %disp('objn1')
-                %objn1.print
+         %       %disp('objn1')
+         %       %objn1.print
                [linter, inter] = intersection2(objn1, obj2, lprint);
-               %inter.print
+         %      %inter.print
                if linter
                  n = n + 1  ;
                  obj(n) = inter;
               %   obj(n).print
                end 
-               %obj(n).not
+         %      %obj(n).not
                 
             end
-            if n > 0
-                linter = true;
-            end
-            return
-         elseif obj2.not
-             %disp ("implement not in intersection2")
-             obj = obj1; % place holder
+             if n > 0
+                 linter = true;
+             end
              return
-         else
+          elseif obj2.not
+              %disp ("implement not in intersection2")
+              obj = obj1; % place holder
+              return
+          else
              [linter, inter] = intersection2(obj1, obj2,lprint);
                
              %obj(1) = intersection2(obj1, obj2);
@@ -685,7 +685,7 @@ classdef region
                obj(1) = obj1;     
              end  
                
-         end
+          end
          
      end
      

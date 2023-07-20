@@ -1173,7 +1173,7 @@ classdef plq_1piece
             %disp("in conjugateFunction")
             %obj.envExpr(i).type
             if obj.envExpr(i).type == 1
-
+              disp('type 1')
               t = sym('t');
               
               % [x, y, const]
@@ -1186,8 +1186,8 @@ classdef plq_1piece
               vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
-              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );
-              crs = subs(vs1,t, vt)    ;
+              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );    %  cpsi2(2)*vs1 - cpsi2(1)*vs2  cancels t^2 term - then solve for t 
+              crs = subs(vs1,t, vt)    ;                       % crs = 0  equation of parabola 
 
               NCV = obj.getNormalConeVertex(i, s1, s2);
               [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
@@ -1196,6 +1196,9 @@ classdef plq_1piece
               [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars);
+              
+            %  subdE
+            %  edgeNo
               %disp('post')
               %crs
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
@@ -1205,10 +1208,11 @@ classdef plq_1piece
 
             
             elseif obj.envExpr(i).type == 3   
-                %disp("here")
-                %obj.envExpr(i).vpsi0
-                %obj.envExpr(i).vpsi1
-              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);  
+%                disp("here")
+ %               i
+  %              obj.envExpr(i).vpsi0
+   %             obj.envExpr(i).vpsi1
+              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
 
@@ -1231,10 +1235,24 @@ classdef plq_1piece
             
             
             for j = 1:obj.envd(i).nv
-                obj.conjf = [obj.conjf,expr(j)];
+                %obj.conjf = [obj.conjf,expr(j)];
                 if undV(j)
-                  obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
+                  disp('negate')
+                  j
+                  for k = 1: size (subdE,2)
+                    ts = -subdE(edgeNo(j),k);
+                    if isAlways(ts == 0)
+                        continue;
+                    end
+                    obj.conjf = [obj.conjf,expr(j)];
+                    obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
+                  
+                  end    
+                  %obj.conjf = [obj.conjf,expr(j)];
+                  %obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
+                  %obj.conjd = [obj.conjd, region(-subdV(j,:), dualVars)];
                 else
+                  obj.conjf = [obj.conjf,expr(j)];  
                   obj.conjd = [obj.conjd, region(subdV(j,:), dualVars)];
                 end
             end
@@ -1339,9 +1357,10 @@ classdef plq_1piece
               %subdV(j,2) = -subdV(ep,2);
               %subdV(j,3) = -crs;  
               %Storing flag for not
+              
               subdV(j,1) = subdV(em,1);
               subdV(j,2) = subdV(ep,2);
-              subdV(j,3) = crs;  
+              %subdV(j,3) = crs;  
           end    
         end
 
@@ -1394,7 +1413,7 @@ classdef plq_1piece
 
                 mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) > 0
+                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
                   crs = -crs;
                 end
                 subdE(j,3) = crs;
@@ -1412,7 +1431,7 @@ classdef plq_1piece
             subdE(j,2) = NCE(j,2);
             mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) > 0
+                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
                   crs = -crs;
                 end
                 subdE(j,3) = crs;
