@@ -3,7 +3,7 @@ classdef region
     properties
         ineqs=functionF;
         lineqs;
-        not;
+       % not;
         % not impies not of union of ineqs
 
         % else its intersection of ineqs
@@ -15,21 +15,21 @@ classdef region
     end
 
      methods
-         function obj = region(fs, vars, not)
+         function obj = region(fs, vars) %, not)
             % put checks for type of f and d
             %disp("region")
             %disp(nargin)
 
             %fs = fs.filterzero()
          
-            if nargin == 2
-              obj.not = false;
-            elseif nargin == 3
-              obj.not = not;
-            else
-              obj.not = false;
-              return
-            end
+         %   if nargin == 2
+         %     obj.not = false;
+         %   elseif nargin == 3
+         %     obj.not = not;
+         %   else
+         %     obj.not = false;
+         %     return
+         %   end
             m = size(fs,1);
             n = size(fs,2);
             nineq = 0;
@@ -48,9 +48,9 @@ classdef region
 
          % add code for not
          function f = plus(obj1,obj2)
-             if obj1.not | obj2.not
-                 disp("Implement not in plus")
-             end
+          %   if obj1.not | obj2.not
+          %       disp("Implement not in plus")
+          %   end
             l = []; 
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -63,9 +63,9 @@ classdef region
          end
 
          function f = minus(obj1,obj2)
-             if obj1.not | obj2.not
-                 disp("Implement not in minus")
-             end
+%              if obj1.not | obj2.not
+%                  disp("Implement not in minus")
+%              end
             l = []; 
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -233,15 +233,15 @@ classdef region
              fprintf("vy =  ")
              fprintf("%d  ", obj.vy);
              fprintf("\n\n")
-             disp("not")
-             obj.not
-             if obj.not
-               disp("Not of union of following ineqs")
-               obj.ineqs.printLIneq;
-             else
+%              disp("not")
+%              obj.not
+%              if obj.not
+%                disp("Not of union of following ineqs")
+%                obj.ineqs.printLIneq;
+%              else
                disp("Intersection of following ineqs")
                obj.ineqs.printLIneq;
-             end
+%              end
          %    disp(["Vertices = ", num2str(obj.nv)]);
          %    disp(obj.vx)
          %    disp(obj.vy)
@@ -520,9 +520,9 @@ classdef region
 
          % stupid way of doing this
      function obj = intersection(obj1, obj2)
-         if obj1.not | obj2.not
-                 disp("Implement not in intersection")
-             end
+%          if obj1.not | obj2.not
+%                  disp("Implement not in intersection")
+%              end
          l = [];
            for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
@@ -647,35 +647,35 @@ classdef region
          %obj2.ineqs.printL
          linter = false;
          n = 0;
-         if obj1.not & obj2.not 
-             %disp ("implement not in intersection2")
-             obj = obj1; % place holder
-             return
-         elseif obj1.not
-            for i = 1:size(obj1.ineqs,2)
-                objn1 = region([-obj1.ineqs(i).f], obj1.vars);
-         %       %disp('objn1')
-         %       %objn1.print
-               [linter, inter] = intersection2(objn1, obj2, lprint);
-         %      %inter.print
-               if linter
-                 n = n + 1  ;
-                 obj(n) = inter;
-              %   obj(n).print
-               end 
-         %      %obj(n).not
-                
-            end
-             if n > 0
-                 linter = true;
-             end
-             return
-          elseif obj2.not
-              %disp ("implement not in intersection2")
-              obj = obj1; % place holder
-              return
-          else
-             [linter, inter] = intersection2(obj1, obj2,lprint);
+%          if obj1.not & obj2.not 
+%              %disp ("implement not in intersection2")
+%              obj = obj1; % place holder
+%              return
+%          elseif obj1.not
+%             for i = 1:size(obj1.ineqs,2)
+%                 objn1 = region([-obj1.ineqs(i).f], obj1.vars);
+%          %       %disp('objn1')
+%          %       %objn1.print
+%                [linter, inter] = intersection2(objn1, obj2, lprint);
+%          %      %inter.print
+%                if linter
+%                  n = n + 1  ;
+%                  obj(n) = inter;
+%               %   obj(n).print
+%                end 
+%          %      %obj(n).not
+%                 
+%             end
+%              if n > 0
+%                  linter = true;
+%              end
+%              return
+%           elseif obj2.not
+%               %disp ("implement not in intersection2")
+%               obj = obj1; % place holder
+%               return
+%           else
+              [linter, inter] = intersection2(obj1, obj2,lprint);
                
              %obj(1) = intersection2(obj1, obj2);
              if linter
@@ -685,7 +685,7 @@ classdef region
                obj(1) = obj1;     
              end  
                
-          end
+%           end
          
      end
      
