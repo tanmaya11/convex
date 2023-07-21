@@ -1237,10 +1237,12 @@ classdef plq_1piece
             for j = 1:obj.envd(i).nv
                 %obj.conjf = [obj.conjf,expr(j)];
                 if undV(j)
-                  disp('negate')
-                  j
-                  for k = 1: size (subdE,2)
-                    ts = -subdE(edgeNo(j),k);
+                
+                  
+                  % this gives overlapping regions  
+                  % temp fix 
+                  for k = 1: 2 %size (subdE,2)
+                    ts = - subdE(edgeNo(j),k);
                     if isAlways(ts == 0)
                         continue;
                     end
@@ -1248,6 +1250,12 @@ classdef plq_1piece
                     obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
                   
                   end    
+                  obj.conjf = [obj.conjf,expr(j)];
+                  obj.conjd = [obj.conjd, region([subdE(edgeNo(j),1:2),-subdE(edgeNo(j),3)], dualVars)];
+                  
+
+                  
+                  % with not
                   %obj.conjf = [obj.conjf,expr(j)];
                   %obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
                   %obj.conjd = [obj.conjd, region(-subdV(j,:), dualVars)];

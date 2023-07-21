@@ -39,5 +39,5 @@ function plq_eg
       maxd(i).print
   end
   
-  
+  %[maxf,maxd] = conjugate_PS.merge(maxf,maxd)
 end

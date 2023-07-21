@@ -42,6 +42,7 @@ if i > 1
       function obj = conjugate(obj)
           for i = 1:obj.nPieces
               obj.pieces(i)=obj.pieces(i).conjugate;
+
               %obj.pieces(i).conjf.printL
               if i == 1
                   return
@@ -83,9 +84,17 @@ if i > 1
                          for ir = 1:size(r1,2)
                              %disp('r1')
                              %r1(ir).print
+                           r1(ir) = r1(ir).getVertices();  
+                           % Removing regions which are points
+                           if r1(ir).nv == 1
+                               continue;
+                           end 
+                           %disp('Feasible region')
+                           %disp(n)
+                           %r1(ir).isFeasibleWBPts
                            n = n + 1;
                            r(n) = r1(ir);
-                           r(n) = r(n).getVertices();
+                           %r(n) = r(n).getVertices();
                     %       disp(n)
                     %       r(n).print
 
@@ -315,6 +324,53 @@ if i > 1
 %           end
           end
           
-  end
-end
+      end
+
+      function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+
+          ia(1) = 1;
+          n = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+          for i = 1:size(maxf,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(maxf,2)
+                  if isAlways(maxf(i).f == maxf(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          ia
+          ja
+          nmaxf = [];
+          nmaxd = [];
+          m = 0
+          for i = 1:n
+            if (ia(i) == ia(i+1))
+                m = m + 1
+                nmaxf(m) = maxf(i);
+                nmaxd(m) = maxd(i);
+            else
+                % get common boundary and merge
+                % make groups and add 
+                %r = maxd(i);
+                %for j=ia(i),ia(i+1)-1
+                %    [l,r1] = r.merge (maxd(ja(j)))
+                %    if l
+                %        r1 = r;
+                %    end
+                %end
+            end
+          end
+      end
+      end
+
 end

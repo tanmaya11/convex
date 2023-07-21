@@ -483,6 +483,16 @@ classdef region
 
          end
 
+         function l = isFeasibleWBPts(obj)
+             l = false;
+             for i = 1:obj.nv
+               if ~ obj.ptFeasible(obj.vars, [obj.vx(i),obj.vy(i)])
+                   return
+               end
+             end
+             l = true;
+         end
+
          function l = isFeasible(obj)
              l = false;
              for i = 1:size(obj.ineqs,2)
@@ -774,6 +784,21 @@ classdef region
            end
            
        end
+       for i = 1:obj.nv
+           V(i,1) = obj.vx(i);
+           V(i,2) = obj.vy(i);
+       end 
+       %disp('unique vertices')
+       %obj.vx,obj.vy
+       V = unique(V,"rows");
+       if obj.nv ~= size(V,1)
+         obj.nv = size(V,1);
+        % obj.vx
+        % obj.vy
+         obj.vx = V(:,1)';
+         obj.vy = V(:,2)';
+       end
+
      end
 
      function obj = conjugate(obj)
