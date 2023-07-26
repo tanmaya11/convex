@@ -99,6 +99,34 @@ classdef plq_1piece
         end
 
 
+        % add remaining sections.
+        function [f,r] = intersectionDomain (obj)
+          n = 0;
+          for i =1:size(obj.envd,2)
+            for j =i+1:size(obj.envd,2)
+              [l,r1] = intersection3(obj.envd(i), obj.envd(j), false);
+              if l
+                f1 = obj.envf(i);
+                f2 = obj.envf(j);
+                for ir = 1:size(r1,2)
+                   r1(ir) = r1(ir).getVertices();  
+                   if r1(ir).nv == 1
+                     continue;
+                   end 
+                   n = n + 1;
+                   r(n) = r1(ir);
+                   f(n,1) = f1;
+                   f(n,2) = f2;
+
+
+
+                end
+              end
+                       
+            end 
+          end
+        end
+      
     end
 
     methods % convex
@@ -115,25 +143,49 @@ classdef plq_1piece
               end
               obj = convexEnvelope1 (obj,x,y);
               %return
+              for i=1:size(obj.envd,2)
+                  obj.envd(i) = obj.envd(i).getVertices();
+              end
+              
+              %disp("convexEnvelope1")
+              %obj.print
 
-              obj = obj.maxEnvelope([x,y]);
+              %[f,r] = obj.intersectionDomain;
+
+              %for i = 1:size(r,2)
+              %    r(i).print
+              %end
+              %return
+
+
+              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              %disp("maxconvexEnvelope1")
+
+              
               li = obj.entireRegion ();
               if li > 0
                 obj = obj.removeNMax (li,[x,y]);
               end
+              %disp("removeconvexEnvelope1")
+              %obj.print
+              %return
+
               
               obj = obj.maxEnvelopeIntersect([x,y]);
+              for i=1:size(obj.envd,2)
+                  obj.envd(i) = obj.envd(i).getVertices();
+              end
               
               
-              obj = obj.maxEnvelope([x,y]);
-              
+              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              %disp("max2")
               
               obj = obj.unique();
               %disp("b4 vertices")
               %size(obj.envd,2)
-              for j=1:size(obj.envd,2)
-                obj.envd(j) = obj.envd(j).getVertices();
-              end
+              %for j=1:size(obj.envd,2)
+              %  obj.envd(j) = obj.envd(j).getVertices();
+              %end
             %end
             return
             
@@ -1689,7 +1741,7 @@ classdef plq_1piece
 
         % fix for multiple intersections
         % remove outside polytope ineqs
-        function obj = maxEnvelope (obj, vars)
+        function obj = maxEnvelopeWhenEqDomain (obj, vars)
             envdT = [];
             envfT = [];
             enveT = [];
@@ -1701,7 +1753,9 @@ classdef plq_1piece
                     if (obj.envd(i) == obj.envd(j))
                       %obj.envd(i).print  
                       envdT = [envdT,obj.envd(i)];
-                      [index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
+                      %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
+                      [l0, f, index] = obj.envd(j).maximum( [obj.envf(i), obj.envf(j)]);
+                      % check when l is false
                       envfT = [envfT, f]     ;
                       if index == 1
                         enveT = [enveT,obj.envExpr(i)];
@@ -1713,7 +1767,9 @@ classdef plq_1piece
                     end
                 end
             end
+            
             for i = 1:size(obj.envd,2)
+                
               if (l(i) == 1)
                     envdT = [envdT,obj.envd(i)];
                     enveT = [enveT,obj.envExpr(i)];
@@ -1734,7 +1790,8 @@ classdef plq_1piece
                 if (i == li) 
                     continue;
                 end
-                [ind,p] = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
+                [l, p, ind] = obj.envd(i).maximum( [obj.envf(i), obj.envf(li)]);
+                %[ind,p] = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
                 if (p == obj.envf(li))
                     d = [d,i];
                 end
@@ -1777,7 +1834,8 @@ classdef plq_1piece
                     %obj.envd(j).print
                     %d.print
                     envdT = [envdT,d0];
-                    [index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
+                    [l0, f, index] = obj.envd(j).maximum( [obj.envf(i), obj.envf(j)]);
+                    %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
                       envfT = [envfT, f]     ;
                       if index == 1
                         enveT = [enveT,obj.envExpr(i)];

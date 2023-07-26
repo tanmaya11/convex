@@ -30,6 +30,10 @@ classdef region
          %     obj.not = false;
          %     return
          %   end
+
+            if nargin == 0
+                return
+            end
             m = size(fs,1);
             n = size(fs,2);
             nineq = 0;
@@ -248,7 +252,7 @@ classdef region
          end
 
          % max over a region
-         function [l, fmax] = maxArray (obj, f1, f2) 
+         function [l, fmax, index] = maxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           for i = 1:size(fv1,2)
@@ -258,11 +262,14 @@ classdef region
           l = true;
           if all(sv1 <= sv2)
               fmax = f2;
+              index=2;
           elseif all(sv2 <= sv1)
               fmax = f1;
+              index=1;
           else
               l = false;
               fmax = 0;
+              index=0;
           end
         end
         
@@ -852,6 +859,16 @@ classdef region
              fv(i) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
          end
      end
+
+
+     function [l, maxf, index] = maximum(obj, f)
+          %obj.print
+          %f(1).print
+          %f(2).print
+          
+          [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
+     end
+
      end
 
      

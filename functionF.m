@@ -41,6 +41,7 @@ classdef functionF
             
             fprintf(char(simplify(obj.f)));
             fprintf("\n")
+            
         end
         
         function printIneq(obj)
@@ -214,6 +215,10 @@ classdef functionF
         function f = subsF (obj,vars,vals)
             %x = xv;
             %y = yv;
+            if (subs(obj.den, vars, vals) == 0)
+                f = functionF(intmax,1);
+                return;
+            end
             f = functionF(subs(obj.f, vars, vals));
         end    
 

@@ -32,13 +32,18 @@ if i > 1
 
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces
+              i
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
               if i == 1
                   return
               end
+              disp('end')
           end
       end
        
+      
+      
+      
       function obj = conjugate(obj)
           for i = 1:obj.nPieces
               obj.pieces(i)=obj.pieces(i).conjugate;
@@ -143,9 +148,15 @@ if i > 1
               % do this if functions are linear
              disp(["i", num2str(i)])
              %r2(i).print
-             f1 = f(i,1);
-             f2 = f(i,2);
-              [l, fmax] = r2(i).maxArray (f1, f2) ;
+
+% check this
+
+             %f1 = f(i,1);
+             %f2 = f(i,2);
+             % [l, fmax] = r2(i).maxArray (f1, f2) ;
+%%%%
+
+              [l, fmax, ind] = r2(i).maximum(f(i,:));
                if l
                  n = n + 1;
                  maxf(n) = fmax;

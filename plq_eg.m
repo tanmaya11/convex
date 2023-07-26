@@ -19,10 +19,10 @@ function plq_eg
   %return
   
   convex_PS = PS.convexEnvelope();
-  %return
+ % return
   
-%  convex_PS.print
-%  return
+ % convex_PS.print
+ % return
   conjugate_PS = convex_PS.conjugate();
 %  conjugate_PS.print
 % return
