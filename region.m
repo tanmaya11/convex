@@ -107,13 +107,34 @@ classdef region
              if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
                  return;
              end
-             for i = 1:size(obj1.ineqs,2)
-               if (~(obj1.ineqs(i) == obj2.ineqs(i)))
-                   return
+             if obj1.nv ~= obj2.nv
+                return
+             end
+             for i = 1:obj1.nv
+                 l1(i) = false;
+                 l2(i) = false;
+             end
+
+             for i = 1:obj1.nv
+               for j = 1:obj2.nv
+                   if (obj1.vx(i) == obj2.vx(j)) & (obj1.vy(i) == obj2.vy(j))
+                       l1(i) = true;
+                       l2(j) = true;
+                       break;
+                   end
                end
-            end 
-            
-            l = true;
+             end
+
+             if (all(l1)==true )
+                 l = true;
+                 
+                 
+             else
+                 l = false;
+             end
+             
+             
+             
          end
 
          function obj = unique(obj)
@@ -258,6 +279,13 @@ classdef region
           for i = 1:size(fv1,2)
               sv1(i) = fv1(i).f;
               sv2(i) = fv2(i).f;
+              if (isnan(sv1(i)))
+                  sv1(i) = 0;
+                  sv2(i) = 0;
+              elseif (isnan(sv2(i)))
+                  sv1(i) = 0;
+                  sv2(i) = 0;
+              end
           end
           l = true;
           if all(sv1 <= sv2)
@@ -271,6 +299,7 @@ classdef region
               fmax = 0;
               index=0;
           end
+         
         end
         
 

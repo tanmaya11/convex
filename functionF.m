@@ -38,8 +38,14 @@ classdef functionF
         end   
         
         function print(obj)
-            
-            fprintf(char(simplify(obj.f)));
+            %obj.f
+            %class(obj.f)
+            %if (isdouble(obj.f))
+            %   fprintf(char((obj.f)));  
+            %elseif class(obj.f) == 'sym' 
+               fprintf(char(simplify(obj.f))); 
+              
+            %end 
             fprintf("\n")
             
         end
@@ -216,7 +222,13 @@ classdef functionF
             %x = xv;
             %y = yv;
             if (subs(obj.den, vars, vals) == 0)
-                f = functionF(intmax,1);
+                if (subs(obj.num, vars, vals) == 0)
+                  f = functionF(nan,1);  
+                elseif (subs(obj.num, vars, vals) > 0)    
+                  f = functionF(intmax,1);
+                else
+                  f = functionF(-intmax,1);
+                end  
                 return;
             end
             f = functionF(subs(obj.f, vars, vals));

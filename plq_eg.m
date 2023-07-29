@@ -22,7 +22,7 @@ function plq_eg
  % return
   
  % convex_PS.print
- % return
+  return
   conjugate_PS = convex_PS.conjugate();
 %  conjugate_PS.print
 % return
