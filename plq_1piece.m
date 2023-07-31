@@ -1304,19 +1304,19 @@ classdef plq_1piece
               crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
               
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             % check eta1(1)=eta2(1)=0  page 68/136
               [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
               %crs
-              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars);
+              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars)
               
             %  subdE
             %  edgeNo
               %disp('post')
               %crs
-              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
+              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs)
 
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
               expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
@@ -1385,6 +1385,7 @@ classdef plq_1piece
                 end
                 obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
                 obj.conjd = [obj.conjd, region(subdE(j,:), dualVars)];
+                obj.conjd(end).print
             end
 
         end
@@ -1530,7 +1531,7 @@ classdef plq_1piece
                     continue
                 end
               
-
+                unR(j) = true;
                 subdE(j,1) = NCE(j,1);
                 subdE(j,2) = NCE(j,2);
 
@@ -1564,8 +1565,8 @@ classdef plq_1piece
             subdV = sym(zeros(obj.envd(i).nv,3));
             undV = zeros(obj.envd(i).nv,1);
             vars = obj.f.getVars;
-            drx1 = obj.envf(i).dfdx(vars(1))
-            drx2 = obj.envf(i).dfdx(vars(2))
+            drx1 = obj.envf(i).dfdx(vars(1));
+            drx2 = obj.envf(i).dfdx(vars(2));
             [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
             [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
             for j = 1:obj.envd(i).nv
@@ -1625,8 +1626,10 @@ classdef plq_1piece
         function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
             vars2 = [vars(2),vars(1)];
             for j = 1: obj.envd(i).nv
-                l1 = drx1.limit(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)])
-                l2 = drx1.limit(vars2,[obj.envd(i).vy(j),obj.envd(i).vx(j)])
+                %obj.envd(i).vx(j)
+                %obj.envd(i).vy(j)
+                l1 = drx1.limit(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]);
+                l2 = drx1.limit(vars2,[obj.envd(i).vy(j),obj.envd(i).vx(j)]);
                 if (l1 == l2)
                     ldrx1(j) = true;
                     limdrx1(j) = double(l1.f);
@@ -1642,7 +1645,7 @@ classdef plq_1piece
             
             NC = sym(zeros(obj.envd(i).nv,2));
             vars = obj.f.getVars;
-            obj.envd(i).vx
+            %obj.envd(i).vx
             meanx = sum(obj.envd(i).vx)/obj.envd(i).nv;
             meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
             
@@ -1718,8 +1721,8 @@ classdef plq_1piece
                 % get edge no
                 edge = vars(2)-slope*vars(1)-q;
                 for k = 1: size(obj.envd(i).ineqs,2)
-                    e0 = obj.envd(i).ineqs(k)
-                    e0 = e0.normalize (vars)
+                    e0 = obj.envd(i).ineqs(k);
+                    e0 = e0.normalize (vars);
                     if (e0.f == edge)
                         break;
                     end
@@ -1762,11 +1765,11 @@ classdef plq_1piece
              
              slope = obj.envd(i).slope(j,1);
              q = obj.envd(i).yIntercept (j,slope);
-             edge = vars(2)-slope*vars(1)-q
+             edge = vars(2)-slope*vars(1)-q;
                 
                 for k = 1: size(obj.envd(i).ineqs,2)
-                    e0 = obj.envd(i).ineqs(k)
-                    e0 = e0.normalize (vars)
+                    e0 = obj.envd(i).ineqs(k);
+                    e0 = e0.normalize (vars);
                     if (e0.f == edge)
                         break;
                     end
