@@ -1305,10 +1305,10 @@ classdef plq_1piece
               
 
               NCV = obj.getNormalConeVertex(i, s1, s2);
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
   
-            
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+            % check eta1(1)=eta2(1)=0  page 68/136
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars);
               
@@ -1564,9 +1564,8 @@ classdef plq_1piece
             subdV = sym(zeros(obj.envd(i).nv,3));
             undV = zeros(obj.envd(i).nv,1);
             vars = obj.f.getVars;
-            drx1 = obj.envf(i).dfdx(vars(1));
-            drx2 = obj.envf(i).dfdx(vars(2)) ;
-
+            drx1 = obj.envf(i).dfdx(vars(1))
+            drx2 = obj.envf(i).dfdx(vars(2))
             [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
             [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
             for j = 1:obj.envd(i).nv
@@ -1626,13 +1625,14 @@ classdef plq_1piece
         function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
             vars2 = [vars(2),vars(1)];
             for j = 1: obj.envd(i).nv
-                l1 = drx1.limit(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]);
-                l2 = drx1.limit(vars,[obj.envd(i).vy(j),obj.envd(i).vx(j)]);
+                l1 = drx1.limit(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)])
+                l2 = drx1.limit(vars2,[obj.envd(i).vy(j),obj.envd(i).vx(j)])
                 if (l1 == l2)
                     ldrx1(j) = true;
                     limdrx1(j) = double(l1.f);
                 else
                     ldrx1(j) = false;
+                    limdrx1(j) = 0;
                 end
             end
         end 
