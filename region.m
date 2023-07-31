@@ -362,6 +362,9 @@ classdef region
 
            % if intersecting point is not in feasible region mark it true
            for i = 1:size(intersectingEdges,2)
+               %disp('intersecting point')
+               %intersectingPts{i}
+               %obj.ptFeasible (vars,intersectingPts{i})
                if obj.ptFeasible (vars,intersectingPts{i})
                  continue;
                end
@@ -473,15 +476,17 @@ classdef region
            obj.ineqs(rem) = [];
          end
 
-         function obj = simplify2 (obj, vars, obj2)
+         function obj = simplify2 (obj, vars)
            rem = [];
              for i = 1:size(obj.ineqs,2)
              for j = i+1:size(obj.ineqs,2)
-                 s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars);
+                 s = solve ([obj.ineqs(i).f==0,obj.ineqs(j).f==0],vars)
                  if isempty(s.x)
                      continue;
                  end
                  if obj2.ptFeasible (vars,[s.x,s.y])
+                 
+                 %obj.ptFeasible (vars,[s.x,s.y])
                  if obj.ptFeasible (vars,[s.x,s.y])
                      continue;
                  end
@@ -500,9 +505,9 @@ classdef region
            for i = 1:size(obj.ineqs,2)
                %subs ([obj.ineqs(i).f],vars,point)
                for j = 1:size(point,1)
-                 %obj.ineqs(i).f
-                 %double(point(j,:))
-                 %subs ([obj.ineqs(i).f],vars,double(point(j,:)))
+                %obj.ineqs(i).f
+                %point(j,:)
+                %subs ([obj.ineqs(i).f],vars,double(point(j,:)))
                if subs ([obj.ineqs(i).f],vars,double(point(j,:))) > 0
                    l = false;
                    return
@@ -735,8 +740,22 @@ classdef region
          
      end
      
+     function obj = normalizeEdge(obj)
+         for i = 1:size(obj.ineqs,2)  
+             c = getLinearCoeffs (obj.ineqs(i),obj.vars)
+             
+             if (c(2) == 0)
+                 % double * f not overloaded
+                 obj.ineqs(i).f = (1/c(1)) * obj.ineqs(i).f
+             else
+                 obj.ineqs(i).f = (1/c(2)) * obj.ineqs(i).f
+             end
+         end
+     end
+
      % wont work for degree > 2
      function obj = getVertices(obj)
+         
        obj.nv=0;
        t1 = sym('t1');
        t2 = sym('t2');

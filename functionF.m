@@ -218,6 +218,17 @@ classdef functionF
 
         end
 
+        function obj = normalize (obj,vars)
+          c = obj.getLinearCoeffs (vars)
+             
+          if (c(2) == 0)
+            % double * f not overloaded
+            obj.f = (1/c(1)) * obj.f
+          else
+             obj.f = (1/c(2)) * obj.f
+          end
+        end
+
         function f = subsF (obj,vars,vals)
             %x = xv;
             %y = yv;

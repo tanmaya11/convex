@@ -21,15 +21,15 @@ function plq_eg
   convex_PS = PS.convexEnvelope();
  % return
   
-%  convex_PS.print
-%  return
+  %convex_PS.print
+  %return
   conjugate_PS = convex_PS.conjugate();
-  conjugate_PS.print
-% return
+%  conjugate_PS.print
+ return
 %disp ("Check intersection")
   [f2, r2] = conjugate_PS.intersectionConjugateDomain;
   %r2(5).print
-%  return
+  return
   disp("Start maximum")
   [maxf,maxd] = conjugate_PS.maximum(f2,r2);
   

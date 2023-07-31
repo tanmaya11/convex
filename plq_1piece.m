@@ -1281,8 +1281,11 @@ classdef plq_1piece
             s1 = sym('s1');
             s2 = sym('s2');
             dualVars = [s1,s2];
-            %disp("in conjugateFunction")
-            %obj.envExpr(i).type
+            %obj.envd(i) = obj.envd(i).normalizeEdge;  
+            %obj.envd(i).print
+            obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
+            disp("in conjugateFunction")
+            obj.envExpr(i).type
             if obj.envExpr(i).type == 1
               disp('type 1')
               t = sym('t');
@@ -1298,10 +1301,11 @@ classdef plq_1piece
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
               vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );    %  cpsi2(2)*vs1 - cpsi2(1)*vs2  cancels t^2 term - then solve for t 
-              crs = subs(vs1,t, vt)    ;                       % crs = 0  equation of parabola 
+              crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
+              
 
               NCV = obj.getNormalConeVertex(i, s1, s2);
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             
               [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
@@ -1713,16 +1717,21 @@ classdef plq_1piece
                 q = obj.envd(i).yIntercept (j,slope);
                 % get edge no
                 edge = vars(2)-slope*vars(1)-q;
-                if subs(edge,vars,[meanx,meany]) > 0
-                    edge = -edge;
-                end
-                
-                for k = 1: obj.envd(i).nv
-                    if (obj.envd(i).ineqs(k).f == edge)
+                for k = 1: size(obj.envd(i).ineqs,2)
+                    e0 = obj.envd(i).ineqs(k)
+                    e0 = e0.normalize (vars)
+                    if (e0.f == edge)
                         break;
                     end
                 end
                 edgeNo(j)=k;
+
+
+                if subs(edge,vars,[meanx,meany]) > 0
+                    edge = -edge
+                end
+                
+                
                 
                 %%
                 pslope = -1/slope;
@@ -1752,17 +1761,20 @@ classdef plq_1piece
              j = obj.envd(i).nv;
              
              slope = obj.envd(i).slope(j,1);
-             edge = vars(2)-slope*vars(1)-q;
-                if subs(edge,vars,[meanx,meany]) > 0
-                    edge = -edge;
-                end
+             q = obj.envd(i).yIntercept (j,slope);
+             edge = vars(2)-slope*vars(1)-q
                 
-                for k = 1: obj.envd(i).nv
-                    if (obj.envd(i).ineqs(k).f == edge)
+                for k = 1: size(obj.envd(i).ineqs,2)
+                    e0 = obj.envd(i).ineqs(k)
+                    e0 = e0.normalize (vars)
+                    if (e0.f == edge)
                         break;
                     end
                 end
                 edgeNo(j)=k;
+                if subs(edge,vars,[meanx,meany]) > 0
+                    edge = -edge;
+                end
                    
              pslope = -1/slope;
              if pslope ~= inf
