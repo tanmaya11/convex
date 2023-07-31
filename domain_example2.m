@@ -39,7 +39,7 @@ hold on;
 
 x = linspace(-5, 1, 100);
 y = (7*x+11)/6;
-plot(x,y);
+%plot(x,y);
 %line_label = 'x+y <= 0';
 %text(-3, 0, line_label, 'HorizontalAlignment', 'left');
 hold on;

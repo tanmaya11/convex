@@ -33,8 +33,11 @@ if i > 2
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces
               i
+              %if i == 1
+              %    continue;
+              %end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 2
+              if i == 1
                   return
               end
               disp('end')
