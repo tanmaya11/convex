@@ -1304,11 +1304,11 @@ classdef plq_1piece
               crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
               
 
-              NCV = obj.getNormalConeVertex(i, s1, s2)
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
+              NCV = obj.getNormalConeVertex(i, s1, s2);
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars)
               
@@ -1318,8 +1318,8 @@ classdef plq_1piece
               %crs
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs)
 
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
-              expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV)
+              expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
 
             
             elseif obj.envExpr(i).type == 3   
@@ -1347,45 +1347,73 @@ classdef plq_1piece
               % corollary 4.20
               % corollary 4.26 - vertex
             end
-            
-            
+%            edgeNo
+            undV
+            unR
             for j = 1:obj.envd(i).nv
                 %obj.conjf = [obj.conjf,expr(j)];
                 if undV(j)
-                
-                  
+                  if j == obj.envd(i).nv
+                    e0 = 1
+                  else    
+                    e0 = j+1
+                  end  
                   % this gives overlapping regions  
                   % temp fix 
-                  for k = 1: 2 %size (subdE,2)
-                    ts = - subdE(edgeNo(j),k);
-                    if isAlways(ts == 0)
-                        continue;
-                    end
-                    obj.conjf = [obj.conjf,expr(j)];
-                    obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
-                  
-                  end    
-                  obj.conjf = [obj.conjf,expr(j)];
-                  obj.conjd = [obj.conjd, region([subdE(edgeNo(j),1:2),-subdE(edgeNo(j),3)], dualVars)];
-                  
+                  %for k = 1: 2 %size (subdE,2)
+                  %  ts = - subdE(edgeNo(j),k);
+                  %  %ts = - subdE(j,k);
+                  %  if isAlways(ts == 0)
+                  %      continue;
+%                     end
+%                     obj.conjf = [obj.conjf,expr(j)];
+%                     obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
+%                     obj.conjd(end) = obj.conjd(end).getVertices()
+%                   end    
+                   obj.conjf = [obj.conjf,expr(j)];
+                   obj.conjd = [obj.conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
+                   obj.conjd(end) = obj.conjd(end).getVertices()
 
-                  
-                  % with not
-                  %obj.conjf = [obj.conjf,expr(j)];
-                  %obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
-                  %obj.conjd = [obj.conjd, region(-subdV(j,:), dualVars)];
+                   r = subdV(e0,:)
+                   r(j) = -r(j)
+                   obj.conjf = [obj.conjf,expr(j)];
+                   obj.conjd = [obj.conjd, region(r, dualVars)];
+                   obj.conjd(end) = obj.conjd(end).getVertices()
+
+                   if j == 1
+                    e0 = obj.envd(i).nv
+                   else    
+                    e0 = j-1
+                   end  
+                   r = subdV(e0,:)
+                   r(e0) = -r(e0)
+                   obj.conjf = [obj.conjf,expr(j)];
+                   obj.conjd = [obj.conjd, region(r, dualVars)];
+                   obj.conjd(end) = obj.conjd(end).getVertices()
+
+
+
+% 
+%                   
+%                   % with not
+%                   %obj.conjf = [obj.conjf,expr(j)];
+%                   %obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
+%                   %obj.conjd = [obj.conjd, region(-subdV(j,:), dualVars)];
                 else
                   obj.conjf = [obj.conjf,expr(j)];  
                   obj.conjd = [obj.conjd, region(subdV(j,:), dualVars)];
+                  obj.conjd(end) = obj.conjd(end).getVertices()
                 end
             end
             for j = 1:obj.envd(i).nv
-                if (~unR(j))
-                    continue
-                end
+                if (unR(j))
+                   % continue
+                
                 obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
                 obj.conjd = [obj.conjd, region(subdE(j,:), dualVars)];
-                obj.conjd(end).print
+                obj.conjd(end) = obj.conjd(end).getVertices()
+                end
+                %obj.conjd(end).print
             end
 
         end
@@ -1440,17 +1468,33 @@ classdef plq_1piece
                   zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00)^2)/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00);
                   expr(obj.envd(i).nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00);
                 else
+                  zeta00 = (psi2(1) + m*psi2(2))^2  ;
+                  delta1 = -2*(psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*(psi0(1)*psi2(1) + psi1(1)^2 + m*(psi1(2)^2*m + psi0(1)*psi2(2) + psi0(2)*psi2(1) + 2*psi1(1)*psi1(2) + psi0(2)*psi2(2)*m))  ;
+                  delta0 = 2*psi1(1)*psi2(3)*(psi1(1)+m*psi1(2)) -2*psi1(3)*psi2(1)*(psi1(1)+m*psi1(2))-psi0(3)*psi2(1)*(psi2(1)+m*psi2(2)) ...
+                  + psi0(1)*psi2(3)*(psi2(1)+m*psi2(2)) -2*m*psi1(3)*psi2(2)*(psi1(1)+m*psi1(2)) + 2*m*psi1(2)*psi2(3)*(psi1(1)+m*psi1(2)) ...
+                  - m * psi0(3)*psi2(2) * (psi2(1)+m*psi2(2)) + m * psi0(2)*psi2(3)*(psi2(1)+m*psi2(2) ) + 2*q*psi1(1)*psi2(2)*(psi1(1)+m*psi1(2)) ...
+                  - 2*q*psi1(2)*psi2(1)* (psi1(1)+m*psi1(2)) + q*psi0(1)*psi2(2)*(psi2(1)+m*psi2(2))-q*psi0(2)*psi2(1)*(psi2(1)+m*psi2(2))
+                  si1 = 2*(psi2(1) + m*psi2(2)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s1 + 2*m*(m*psi2(2) + psi2(1)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m* psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s2 + delta1;
+                  si1_2 = -(psi2(1) + m*psi2(2))*s1 -m *(psi2(1)+m*psi2(2))*s2+psi0(1)*psi2(1) +psi1(1)^2 + m*(m*psi1(2)^2 + psi0(1)*psi2(2)+psi0(2)*psi2(1)+2*psi1(1)*psi1(2)+m*psi0(2)*psi2(2));
+                  si0 = (-psi2(3)*(psi2(1)+m*psi2(2))-q*psi2(2)*(psi2(1)+m*psi2(2)))*s1 + (q*psi2(1)*(psi2(1)+m*psi2(2))-m*psi2(3)*(psi2(1)+m*psi2(2)))*s2 + delta0;  
+
+              %    obj.envd(i).nv+j
+              %    si1_2
+              %    sqrt(si1_2)
+              %    si1 / (zeta00 * sqrt(si1_2)) + si0
+              %    simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
+                  expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0);
                  %   disp("To be implemented")
-                %  delta1 = -2*(psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*(psi0(1)*psi2(1) + psi1(1)^2 + m*(psi1(2)^2*m + psi0(1)*psi2(2) + psi0(2)*psi2(1) + 2*psi1(1)*psi1(2) + psi0(2)*psi2(2)*m))  
-                %  si1 = 2*(psi2(1) + m*psi2(2)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s1 + 2*m*(m*psi2(2) + psi2(1)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m* psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s2 + delta1
-                  %expr(2*obj.envd(i).nv+1) = (si1 / (zeta00 * sqrt_si1_2)) + si0
+                  
+                  
+                  %expr(2*obj.envd(i).nv+1) = (si1 / (zeta00 * sqrt(si1_2))) + si0
                 end
             end
         end
 
         function expr = conjugateExprVerticesT1 (obj, i, dualVars, unV )
             vars = obj.f.getVars;
-            subdE = sym(zeros(obj.envd(i).nv));
+            %subdE = sym(zeros(obj.envd(i).nv));
             for j = 1:obj.envd(i).nv
                 if unV(j)
                     expr(j) = obj.envd(i).vx(j)*dualVars(1) + obj.envd(i).vy(j)*dualVars(2) - obj.f.subsF(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f;
@@ -1719,7 +1763,7 @@ classdef plq_1piece
                 slope = obj.envd(i).slope(j,j+1);
                 q = obj.envd(i).yIntercept (j,slope);
                 % get edge no
-                edge = vars(2)-slope*vars(1)-q;
+                edge = vars(2)-slope*vars(1)-q
                 for k = 1: size(obj.envd(i).ineqs,2)
                     e0 = obj.envd(i).ineqs(k);
                     e0 = e0.normalize (vars);
@@ -1754,6 +1798,7 @@ classdef plq_1piece
                 else
                     eq = s1 - obj.envd(i).vx(j+1);
                 end
+                % not reqd - check and remove
                 if subs(eq,[s1,s2],[meanx,meany]) > 0
                     eq = -eq;
                 end
@@ -1765,7 +1810,7 @@ classdef plq_1piece
              
              slope = obj.envd(i).slope(j,1);
              q = obj.envd(i).yIntercept (j,slope);
-             edge = vars(2)-slope*vars(1)-q;
+             edge = vars(2)-slope*vars(1)-q
                 
                 for k = 1: size(obj.envd(i).ineqs,2)
                     e0 = obj.envd(i).ineqs(k);
@@ -1775,6 +1820,7 @@ classdef plq_1piece
                     end
                 end
                 edgeNo(j)=k;
+                % not reqd - check and remove
                 if subs(edge,vars,[meanx,meany]) > 0
                     edge = -edge;
                 end

@@ -49,15 +49,15 @@ if i > 2
       
       function obj = conjugate(obj)
           for i = 1:obj.nPieces
-              disp('conjugate')
-              i
-              obj.pieces(i).envf.printL
+             % disp('conjugate')
+             % i
+             % obj.pieces(i).envf.printL
               obj.pieces(i)=obj.pieces(i).conjugate;
-              disp('done')
-              size(obj.pieces(i).envf)
-              obj.pieces(i).envf.printL
-              size(obj.pieces(i).conjf)
-              obj.pieces(i).conjf.printL
+             % disp('done')
+             % size(obj.pieces(i).envf)
+             % obj.pieces(i).envf.printL
+             % size(obj.pieces(i).conjf)
+             % obj.pieces(i).conjf.printL
               if i == 2
                   return
               end
