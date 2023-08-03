@@ -1378,7 +1378,7 @@ classdef plq_1piece
               disp('subdE check')
               [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
               %crs
-              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars)
+              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars)
               
             %  subdE
             %  edgeNo
@@ -1630,8 +1630,8 @@ classdef plq_1piece
             end
         end
 
-        function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, NCE, edgeNo, unDV, crs, dualvars)
-            subdE = sym(zeros(obj.envd(i).nv,4));
+        function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, subdE, edgeNo, unDV, crs, dualvars)
+            %subdE = sym(zeros(obj.envd(i).nv,4));
             unR = zeros(obj.envd(i).nv,1);
             for j = 1:obj.envd(i).nv-1
                 if unDV(j)
@@ -1664,9 +1664,11 @@ classdef plq_1piece
               return
             end
             unR(j) = true;
-            subdE(j,1) = NCE(j,1);
-            subdE(j,2) = NCE(j,2);
+            % filled in T2
+            %subdE(j,1) = NCE(j,1);
+            %subdE(j,2) = NCE(j,2);
 
+                
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
