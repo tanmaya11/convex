@@ -273,20 +273,18 @@ classdef region
          end
 
          function plot (obj)
-             disp('vx')
-             obj.vx
              
-             l1 = min(min(obj.vx),min(obj.vy))
+             l1 = min(min(obj.vx),min(obj.vy));
              if l1 < -10
-                 l1 = -10
+                 l1 = -10;
              end
-             l2 = max(max(obj.vx),max(obj.vy))
+             l2 = max(max(obj.vx),max(obj.vy));
              if l2 > 10
-                 l2 = 10
+                 l2 = 10;
              end
-             l1 = -10;
-             l2 = 10;
-           obj.ineqs.plotLIneq (obj.vars, [l1,l2])   
+             l1 = 0;
+             l2 = 6;
+           obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
 
          end
 

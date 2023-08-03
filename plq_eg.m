@@ -19,16 +19,16 @@ function plq_eg
   %return
   
   convex_PS = PS.convexEnvelope();
-  %convex_PS.plot;
-  %return
+%  convex_PS.plot;
+%  return
   
   %convex_PS.print
   %return
   conjugate_PS = convex_PS.conjugate();
   conjugate_PS.plot;
-  return
+%  return
 %  conjugate_PS.print
-% return
+ return
 %disp ("Check intersection")
   [f2, r2] = conjugate_PS.intersectionConjugateDomain;
   %r2(5).print

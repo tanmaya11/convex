@@ -57,30 +57,25 @@ classdef plq_1piece
 
          function plot(obj)
            for j=1:size(obj.envf,2) 
-               obj.envf(j).print
-             figure;  
-             obj.envd(j).vx
-             min(obj.envd(j).vx)
-             limits = [min(obj.envd(j).vx),max(obj.envd(j).vx),min(obj.envd(j).vy),max(obj.envd(j).vy)]
+             
+             limits = [min(obj.envd(j).vx),max(obj.envd(j).vx),min(obj.envd(j).vy),max(obj.envd(j).vy)];
              for i = 1:4
                  if limits(i) > 10
-                     limits(i) = 10
+                     limits(i) = 10;
                  end
                  if limits(i) < -10
-                     limits(i) = -10
+                     limits(i) = -10;
                  end
              end
              
              obj.envf(j).f = simplify(obj.envf(j).f);
-             obj.envf(j).plot3d (limits);
-             obj.envd(j).print
-             figure;
-             obj.envd(j).plot;
-             %continue
+             %figure;  
+             %obj.envf(j).plot3d (limits);
+             %figure;
+             %obj.envd(j).plot;
              if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                disp("Conjugate Expr")
-               figure;
                limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
                for i = 1:4
                  if limits(i) > 10
@@ -93,23 +88,23 @@ classdef plq_1piece
                %obj.conjd(k).vx
                %obj.conjd(k).vy
                %limits
-               obj.conjf(k).print
-               obj.conjf(k).plot3d (limits);
+               %figure;
+               %obj.conjf(k).plot3d (limits);
              end
              figure;
                
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
                for i = 1:4
-                 if limits(i) > 10
-                     limits(i) = 10;
+                 if limits(i) > 6
+                     limits(i) = 6;
                  end
-                 if limits(i) < -10
-                     limits(i) = -10;
+                 if limits(i) < -1
+                     limits(i) = -1;
                  end
                end
                disp('Conjugate Domain')
-               obj.conjd(k).plot
+               obj.conjd(k).plot;
              end
              
              
@@ -207,6 +202,7 @@ classdef plq_1piece
               obj = convexEnvelope1 (obj,x,y);
               %return
               for i=1:size(obj.envd,2)
+                  obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
                   obj.envd(i) = obj.envd(i).getVertices();
               end
               %return
@@ -1367,11 +1363,20 @@ classdef plq_1piece
               crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
               
 
+%%%%%%%%%%%%%
+% Checking parabola
+%              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
+%%%%%%%%%%%%%
+
+
               NCV = obj.getNormalConeVertex(i, s1, s2);
               [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
   
             % check eta1(1)=eta2(1)=0  page 68/136
               [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+
+              disp('subdE check')
+              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, NCE, edgeNo, undV, crs, dualVars)
               
@@ -1639,8 +1644,9 @@ classdef plq_1piece
                 end
               
                 unR(j) = true;
-                subdE(j,1) = NCE(j,1);
-                subdE(j,2) = NCE(j,2);
+                % filled in T2
+                %subdE(j,1) = NCE(j,1);
+                %subdE(j,2) = NCE(j,2);
 
                 mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
@@ -1660,6 +1666,21 @@ classdef plq_1piece
             unR(j) = true;
             subdE(j,1) = NCE(j,1);
             subdE(j,2) = NCE(j,2);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
             mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
                 if subs(crs,dualvars,[mdPtx,mdPty]) < 0
@@ -1676,6 +1697,7 @@ classdef plq_1piece
             drx2 = obj.envf(i).dfdx(vars(2));
             [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
             [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
                   undV(j)=true;
@@ -1727,7 +1749,70 @@ classdef plq_1piece
 
         end
 
-        
+        function [subdV,undV] = getSubdiffVertexT2 (obj, i, NCV, dualVars)
+            subdV = sym(zeros(obj.envd(i).nv,3));
+            undV = zeros(obj.envd(i).nv,1);
+            vars = obj.f.getVars;
+            drx1 = obj.envf(i).dfdx(vars(1));
+            drx2 = obj.envf(i).dfdx(vars(2));
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            
+            for j = 1:obj.envd(i).nv
+              if ~ldrx1(j)
+                  undV(j)=true;
+                  continue;
+              end
+              if ~ldrx2(j)
+                  undV(j)=true;
+                  continue;
+              end
+              undV(j)=false;
+              
+             
+              f = functionF(NCV(j,1));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(2) == 0)
+                subdV(j,1) = dualVars(1)-limdrx1(j);
+                subdV(j,1) = coef(1)*subdV(j,1) ;
+              elseif (coef(2) < 0)
+                m = double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
+              end 
+
+              
+              f = functionF(NCV(j,2));
+              k = j+1;
+              if k > obj.envd(i).nv
+                  k = 1;
+              end
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(2) == 0)
+                subdV(j,2) = dualVars(1)-limdrx1(k);
+                subdV(j,2) = coef(1)*subdV(j,2) ;
+              elseif (coef(2) < 0)
+                m = double(diff(NCV(j,2),dualVars(1)));
+                c = yIntercept(m, [limdrx1(k),limdrx2(k)]);
+                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -double(diff(NCV(j,2),dualVars(1)));
+                c = yIntercept(m, [limdrx1(k),limdrx2(k)]);
+                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+              end 
+
+              
+
+              
+             
+            end
+
+        end
+
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
