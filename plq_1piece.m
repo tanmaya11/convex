@@ -55,6 +55,69 @@ classdef plq_1piece
 
          end
 
+         function plot(obj)
+           for j=1:size(obj.envf,2) 
+               obj.envf(j).print
+             figure;  
+             obj.envd(j).vx
+             min(obj.envd(j).vx)
+             limits = [min(obj.envd(j).vx),max(obj.envd(j).vx),min(obj.envd(j).vy),max(obj.envd(j).vy)]
+             for i = 1:4
+                 if limits(i) > 10
+                     limits(i) = 10
+                 end
+                 if limits(i) < -10
+                     limits(i) = -10
+                 end
+             end
+             
+             obj.envf(j).f = simplify(obj.envf(j).f);
+             obj.envf(j).plot3d (limits);
+             obj.envd(j).print
+             figure;
+             obj.envd(j).plot;
+             %continue
+             if (size(obj.conjfia,1) > 0)
+             for k = obj.conjfia(j):obj.conjfia(j+1)-1
+               disp("Conjugate Expr")
+               figure;
+               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
+               for i = 1:4
+                 if limits(i) > 10
+                     limits(i) = 10;
+                 end
+                 if limits(i) < -10
+                     limits(i) = -10;
+                 end
+               end
+               %obj.conjd(k).vx
+               %obj.conjd(k).vy
+               %limits
+               obj.conjf(k).print
+               obj.conjf(k).plot3d (limits);
+             end
+             figure;
+               
+             for k = obj.conjfia(j):obj.conjfia(j+1)-1
+               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
+               for i = 1:4
+                 if limits(i) > 10
+                     limits(i) = 10;
+                 end
+                 if limits(i) < -10
+                     limits(i) = -10;
+                 end
+               end
+               disp('Conjugate Domain')
+               obj.conjd(k).plot
+             end
+             
+             
+             end
+           end
+           
+         end
+
     end
 
     methods % utility

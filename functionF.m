@@ -49,6 +49,44 @@ classdef functionF
             fprintf("\n")
             
         end
+
+        function plot3d(obj, limits)
+            if limits(1) == limits(2)
+                limits(1) = limits(1)-30
+                limits(2) = limits(2)+30
+            end
+            if limits(3) == limits(4)
+                limits(3) = limits(3)-30
+                limits(4) = limits(4)+30
+            end
+            
+            ezsurf(obj.f, limits)
+        end
+
+        function plot(obj, vars, limits)
+            limits
+            polyvars = obj.vars;
+            if  size(vars,2) == size(polyvars,2)
+                vx = linspace(limits(1), limits(2), 100)
+                fy = solve(obj.f==0,vars(2));
+                vy = subs(fy,polyvars(1),vx)
+                plot(vx,vy);
+            elseif ismember (vars(1), polyvars)
+                fx = solve(obj.f==0,vars(1));
+                vy = zeros(1,100);
+                vx = double(fx) + vy
+                vy = linspace(limits(1), limits(2), 100)
+                plot(vx,vy);
+            elseif ismember (vars(2), polyvars)
+                fy = solve(obj.f==0,vars(2));
+                vx = zeros(1,100);
+                vy = double(fy) + vx
+                vx = linspace(limits(1), limits(2), 100)
+                plot(vx,vy);
+            else
+            end
+            
+        end
         
         function printIneq(obj)
             fprintf(char(obj.f));
@@ -83,6 +121,24 @@ classdef functionF
             end
         end
 
+        function plotLIneq (l, vars,limit)
+            % change this
+            l2 = [];
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j)
+                    l(i,j).plot(vars,limit);
+                    hold on;
+                    l2 = [l2,l(i,j).f<=0]
+                end
+            end
+            plot(intersect(l2))
+        end
+
+        function plot2 (l)
+            figure;
+            plot(intersect(l))
+        end
     
     end
     

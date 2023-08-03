@@ -145,7 +145,10 @@ classdef domain
         disp("Vertex number")
         disp(obj.V)
       end
-        
+
+      function plot(obj)
+          obj.polygon.plot
+      end
       
       
   end

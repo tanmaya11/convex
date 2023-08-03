@@ -30,11 +30,18 @@ if i > 2
             end
       end
 
+      function plot(obj)
+           for i = 1:obj.nPieces
+               obj.pieces(i).plot
+           end
+      end
+
+      
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces
               i
               if i == 1
-                  continue;
+                %  continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
               if i == 2
