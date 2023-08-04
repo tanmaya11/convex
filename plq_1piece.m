@@ -1368,12 +1368,26 @@ classdef plq_1piece
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
 
-
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              
+              % print normal cone for debugging %%%%%%%%%%%%%%%%%%%%%%
+              %temp = [];
+              %for i0 = 1:size(NCV,1)
+              %  for j0 = 1:size(NCV,2)
+              %      if NCV(i0,j0) == 0
+              %          continue;
+              %      end
+              %      temp = [temp,functionF(NCV(i0,j0))];
+              %  end
+              %end
+              %figure;
+              %obj.envd(i).plot;
+              %temp.plotLIneq ([s1,s2],[-6,0]);
+              %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
 
               disp('subdE check')
               [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
@@ -1443,7 +1457,7 @@ classdef plq_1piece
                    obj.conjd(end) = obj.conjd(end).getVertices()
 
                    r = subdV(e0,:)
-                   r(j) = -r(j)
+                   r(2) = -r(2)
                    obj.conjf = [obj.conjf,expr(j)];
                    obj.conjd = [obj.conjd, region(r, dualVars)];
                    obj.conjd(end) = obj.conjd(end).getVertices()
@@ -1454,7 +1468,7 @@ classdef plq_1piece
                     e0 = j-1
                    end  
                    r = subdV(e0,:)
-                   r(e0) = -r(e0)
+                   r(1) = -r(1)
                    obj.conjf = [obj.conjf,expr(j)];
                    obj.conjd = [obj.conjd, region(r, dualVars)];
                    obj.conjd(end) = obj.conjd(end).getVertices()
@@ -1911,9 +1925,13 @@ classdef plq_1piece
             
              for j = 1: obj.envd(i).nv-1
                 slope = obj.envd(i).slope(j,j+1);
-                q = obj.envd(i).yIntercept (j,slope);
+                if slope == inf
+                  edge = vars(1) -obj.envd(i).vx(j)  
+                else
+                  q = obj.envd(i).yIntercept (j,slope);
                 % get edge no
-                edge = vars(2)-slope*vars(1)-q
+                  edge = vars(2)-slope*vars(1)-q
+                end
                 for k = 1: size(obj.envd(i).ineqs,2)
                     e0 = obj.envd(i).ineqs(k);
                     e0 = e0.normalize (vars);
@@ -1957,10 +1975,18 @@ classdef plq_1piece
                  
              end
              j = obj.envd(i).nv;
-             
              slope = obj.envd(i).slope(j,1);
-             q = obj.envd(i).yIntercept (j,slope);
-             edge = vars(2)-slope*vars(1)-q
+             if slope == inf
+                edge = vars(1) -obj.envd(i).vx(j)  
+             else
+                q = obj.envd(i).yIntercept (j,slope);
+                % get edge no
+                edge = vars(2)-slope*vars(1)-q
+             end
+                
+             %
+             %q = obj.envd(i).yIntercept (j,slope);
+             %edge = vars(2)-slope*vars(1)-q
                 
                 for k = 1: size(obj.envd(i).ineqs,2)
                     e0 = obj.envd(i).ineqs(k);

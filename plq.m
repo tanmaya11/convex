@@ -41,10 +41,10 @@ if i > 2
           for i = 1:obj.nPieces
               i
               if i == 1
-                  continue;
+                  %continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 2
+              if i == 1
                   return
               end
               disp('end')
@@ -65,7 +65,7 @@ if i > 2
              % obj.pieces(i).envf.printL
              % size(obj.pieces(i).conjf)
              % obj.pieces(i).conjf.printL
-              if i == 2
+              if i == 1
                   return
               end
           end

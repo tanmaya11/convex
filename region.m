@@ -282,7 +282,7 @@ classdef region
              if l2 > 10
                  l2 = 10;
              end
-             l1 = 0;
+             l1 = -6;
              l2 = 6;
            obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
 
