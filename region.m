@@ -288,6 +288,13 @@ classdef region
 
          end
 
+         function plotL (obj)
+             figure;
+             size(obj)
+             for i = 1:size(obj,2)
+                 obj(i).plot
+             end
+         end
          % max over a region
          function [l, fmax, index] = maxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
@@ -669,8 +676,16 @@ classdef region
                  l2 = [l2,l(i).f];
              end
              lR = region(l2, obj1.vars);
+             if lprint
+             lR = lR.getVertices();
+             lR.isFeasibleWBPts
+             lR.print;
+             lR.plot;
+             end
              %size(lR.ineqs,2)
              lR = lR.simplify (vars);
+             disp('aft simplify')
+             lR.print;
              
              if size(lR.ineqs,2) == 0
                  linter = false  ;
@@ -695,65 +710,42 @@ classdef region
              qR = region(q2,obj1.vars);
            %  disp("lR")
            %  lR.print
-           %  disp("qR")
-           %  qR.print
+             disp("qR")
+             qR.print;
+             lR.print;
              objR = lR + qR;
          else    
              objR = lR;
          end
          %disp("Not in intersection2")
          %objR.not
-         linter = isFeasible(objR);
+         if lprint
+             disp("objR")
+             objR.print
+         end
+         objR = objR.getVertices();
+         if objR.nv == 0
+           linter=false  
+         else
+           linter = isFeasible(objR);
+         end
      end
      
      function [linter,obj] = intersection3(obj1, obj2, lprint)
          % split into linear and quad first
          %disp("Intersection3")
          obj = region.empty();
-         %obj1.ineqs.printL
-         %obj2.ineqs.printL
+         obj1.ineqs.printL
+         obj2.ineqs.printL
          linter = false;
          n = 0;
-%          if obj1.not & obj2.not 
-%              %disp ("implement not in intersection2")
-%              obj = obj1; % place holder
-%              return
-%          elseif obj1.not
-%             for i = 1:size(obj1.ineqs,2)
-%                 objn1 = region([-obj1.ineqs(i).f], obj1.vars);
-%          %       %disp('objn1')
-%          %       %objn1.print
-%                [linter, inter] = intersection2(objn1, obj2, lprint);
-%          %      %inter.print
-%                if linter
-%                  n = n + 1  ;
-%                  obj(n) = inter;
-%               %   obj(n).print
-%                end 
-%          %      %obj(n).not
-%                 
-%             end
-%              if n > 0
-%                  linter = true;
-%              end
-%              return
-%           elseif obj2.not
-%               %disp ("implement not in intersection2")
-%               obj = obj1; % place holder
-%               return
-%           else
-              [linter, inter] = intersection2(obj1, obj2,lprint);
-               
-             %obj(1) = intersection2(obj1, obj2);
-             if linter
-               n = n + 1  ;
-               obj(n) = inter;
-             else
-               obj(1) = obj1;     
-             end  
-               
-%           end
-         
+         [linter, inter] = intersection2(obj1, obj2,lprint);
+         if linter
+             n = n + 1  ;
+             obj(n) = inter;
+         else
+             obj(1) = obj1;     
+         end  
      end
      
      function obj = normalizeEdge(obj)
@@ -854,6 +846,9 @@ classdef region
              obj.vy(obj.nv) = obj.vy(i);
            end
            
+       end
+       if obj.nv == 0
+           return;
        end
        for i = 1:obj.nv
            V(i,1) = obj.vx(i);

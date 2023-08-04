@@ -25,22 +25,23 @@ function plq_eg
   %convex_PS.print
   %return
   conjugate_PS = convex_PS.conjugate();
-  conjugate_PS.plot;
+%  conjugate_PS.plot;
 %  return
-  conjugate_PS.print
- return
+%  conjugate_PS.print
+ %return
 %disp ("Check intersection")
   [f2, r2] = conjugate_PS.intersectionConjugateDomain;
   %r2(5).print
 %  return
   disp("Start maximum")
   [maxf,maxd] = conjugate_PS.maximum(f2,r2);
-  return
+  %return
   for i = 1:size(maxf,2)
       disp(i)
       maxf(i).print
       maxd(i).print
   end
+  maxd.plotL
   
   %[maxf,maxd] = conjugate_PS.merge(maxf,maxd)
 end
