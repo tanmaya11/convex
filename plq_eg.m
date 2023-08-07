@@ -19,12 +19,14 @@ function plq_eg
   %return
   
   convex_PS = PS.convexEnvelope();
+  disp("convex done")
 %  convex_PS.plot;
 %  return
   
   %convex_PS.print
   %return
   conjugate_PS = convex_PS.conjugate();
+   disp("conjugate done")
 %  conjugate_PS.plot;
 %  return
 %  conjugate_PS.print
@@ -36,12 +38,12 @@ function plq_eg
   disp("Start maximum")
   [maxf,maxd] = conjugate_PS.maximum(f2,r2);
   %return
-  for i = 1:size(maxf,2)
-      disp(i)
-      maxf(i).print
-      maxd(i).print
-  end
-  maxd.plotL
+%  for i = 1:size(maxf,2)
+%      disp(i)
+%      maxf(i).print
+%      maxd(i).print
+%  end
+%  maxd.plotL
   
   %[maxf,maxd] = conjugate_PS.merge(maxf,maxd)
 end

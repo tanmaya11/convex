@@ -684,8 +684,8 @@ classdef region
              end
              %size(lR.ineqs,2)
              lR = lR.simplify (vars);
-             disp('aft simplify')
-             lR.print;
+             %disp('aft simplify')
+             %lR.print;
              
              if size(lR.ineqs,2) == 0
                  linter = false  ;
@@ -710,9 +710,9 @@ classdef region
              qR = region(q2,obj1.vars);
            %  disp("lR")
            %  lR.print
-             disp("qR")
-             qR.print;
-             lR.print;
+            % disp("qR")
+           %  qR.print;
+           %  lR.print;
              objR = lR + qR;
          else    
              objR = lR;
@@ -725,7 +725,7 @@ classdef region
          end
          objR = objR.getVertices();
          if objR.nv == 0
-           linter=false  
+           linter=false  ;
          else
            linter = isFeasible(objR);
          end
@@ -735,8 +735,8 @@ classdef region
          % split into linear and quad first
          %disp("Intersection3")
          obj = region.empty();
-         obj1.ineqs.printL
-         obj2.ineqs.printL
+       %  obj1.ineqs.printL
+       %  obj2.ineqs.printL
          linter = false;
          n = 0;
          [linter, inter] = intersection2(obj1, obj2,lprint);
