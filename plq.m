@@ -41,10 +41,10 @@ if i > 2
           for i = 1:obj.nPieces
              % i
               if i == 1
-                  continue;
+                 % continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 2
+              if i == 1
                   return
               end
               disp('end')
@@ -65,7 +65,7 @@ if i > 2
              % obj.pieces(i).envf.printL
              % size(obj.pieces(i).conjf)
              % obj.pieces(i).conjf.printL
-              if i == 2
+              if i == 1
                   return
               end
           end
@@ -358,12 +358,13 @@ if i > 2
       end
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
-
           ia(1) = 1;
           n = 0;
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
+
+          % ja has indices of all equal functions , ia by col no
           for i = 1:size(maxf,2)
               if (marked(i))
                   ia(i+1) = n+1;
@@ -379,26 +380,42 @@ if i > 2
               end
               ia(i+1) = n+1;
           end
-          ia
-          ja
-          nmaxf = [];
-          nmaxd = [];
-          m = 0
-          for i = 1:n
-            if (ia(i) == ia(i+1))
-                m = m + 1
+          %nmaxf = [];
+          %nmaxd = [];
+          m = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+        %  nmaxf= [];
+        %  nmaxd= [];
+          for i = 1:size(maxf,2)
+              
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1)) 
+                m = m + 1;
                 nmaxf(m) = maxf(i);
                 nmaxd(m) = maxd(i);
             else
                 % get common boundary and merge
                 % make groups and add 
-                %r = maxd(i);
-                %for j=ia(i),ia(i+1)-1
-                %    [l,r1] = r.merge (maxd(ja(j)))
-                %    if l
-                %        r1 = r;
-                %    end
-                %end
+               r = maxd(i);
+              
+               for j=ia(i):ia(i+1)-1
+                   marked(ja(j)) = true;
+                   [l,r] = r.merge (maxd(ja(j)));
+                   
+                   if ~l
+                     m = m + 1;
+                     nmaxf(m) = maxf(i);
+                     nmaxd(m) = maxd(ja(j));  
+                   end
+               end
+               m = m + 1;
+               nmaxf(m) = maxf(i);
+               nmaxd(m) = r;  
+                   
             end
           end
       end

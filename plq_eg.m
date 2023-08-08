@@ -44,6 +44,12 @@ function plq_eg
 %      maxd(i).print
 %  end
 %  maxd.plotL
-  
-  %[maxf,maxd] = conjugate_PS.merge(maxf,maxd)
+%return  
+  [maxf,maxd] = conjugate_PS.merge(maxf,maxd);
+  for i = 1:size(maxf,2)
+      disp(i)
+      maxf(i).print
+      maxd(i).print
+  end
+  maxd.plotL
 end

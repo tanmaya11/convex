@@ -928,6 +928,33 @@ classdef region
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
 
+     function [l,obj] = merge (obj, obj2)
+         %obj.print;
+         %obj2.print;
+         l = false;
+         n = 0;
+         obj = obj + obj2;
+         obj = obj.unique;
+         %disp("unique")
+         %obj.print;
+         mark = [];
+         for i =1:size(obj.ineqs,2)
+           for j =1:size(obj.ineqs,2)
+             if obj.ineqs(i) == obj.ineqs(j).unaryminus
+                 l = true;
+                 n = n + 1;
+                 mark(n) = i;
+                 n = n + 1;
+                 mark(n) = j;
+             end
+           end
+         
+         end
+         obj.ineqs(mark) = []; 
+     end
+
+
+
      end
 
      
