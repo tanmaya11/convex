@@ -75,8 +75,8 @@ classdef plq_1piece
              %obj.envd(j).plot;
              if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
-               disp("Conjugate Expr")
-               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
+               %disp("Conjugate Expr")
+               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)];
                for i = 1:4
                  if limits(i) > 10
                      limits(i) = 10;
@@ -94,16 +94,16 @@ classdef plq_1piece
              figure;
                
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
-               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)]
+               limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)];
                for i = 1:4
                  if limits(i) > 6
                      limits(i) = 6;
                  end
-                 if limits(i) < -1
-                     limits(i) = -1;
+                 if limits(i) < -6
+                     limits(i) = -6;
                  end
                end
-               disp('Conjugate Domain')
+               %disp('Conjugate Domain')
                obj.conjd(k).plot;
              end
              
@@ -1432,6 +1432,9 @@ classdef plq_1piece
 %            edgeNo
             %undV
            % unR
+           conjf=functionF.empty;
+            conjd=region.empty;
+            strt = size(obj.conjf,2)+1;
             for j = 1:obj.envd(i).nv
                 %obj.conjf = [obj.conjf,expr(j)];
                 if undV(j)
@@ -1452,15 +1455,28 @@ classdef plq_1piece
 %                     obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
 %                     obj.conjd(end) = obj.conjd(end).getVertices()
 %                   end    
-                   obj.conjf = [obj.conjf,expr(j)];
-                   obj.conjd = [obj.conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
-                   obj.conjd(end) = obj.conjd(end).getVertices();
+%                    obj.conjf = [obj.conjf,expr(j)];
+%                    obj.conjd = [obj.conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
+%                    obj.conjd(end) = obj.conjd(end).getVertices();
 
+
+                   %%%%%%%%%%%%%
+                   conjf = [conjf,expr(j)];
+                   conjd = [conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
+                   conjd(end) = conjd(end).getVertices();
+                   %%%%%%%%%%%%%
                    r = subdV(e0,:);
                    r(2) = -r(2);
-                   obj.conjf = [obj.conjf,expr(j)];
-                   obj.conjd = [obj.conjd, region(r, dualVars)];
-                   obj.conjd(end) = obj.conjd(end).getVertices();
+%                    obj.conjf = [obj.conjf,expr(j)];
+%                    obj.conjd = [obj.conjd, region(r, dualVars)];
+%                    obj.conjd(end) = obj.conjd(end).getVertices();
+                   %%%%%%%%%%%%%%%%%%%
+                   conjf = [conjf,expr(j)];
+                   conjd = [conjd, region(r, dualVars)];
+                   conjd(end) = conjd(end).getVertices();
+                   %%%%%%%%%%%%%%%%%%%
+
+
 
                    if j == 1
                     e0 = obj.envd(i).nv;
@@ -1469,10 +1485,15 @@ classdef plq_1piece
                    end  
                    r = subdV(e0,:);
                    r(1) = -r(1);
-                   obj.conjf = [obj.conjf,expr(j)];
-                   obj.conjd = [obj.conjd, region(r, dualVars)];
-                   obj.conjd(end) = obj.conjd(end).getVertices();
+%                    obj.conjf = [obj.conjf,expr(j)];
+%                    obj.conjd = [obj.conjd, region(r, dualVars)];
+%                    obj.conjd(end) = obj.conjd(end).getVertices();
 
+                   %%%%%%%%%%%%%%%%%
+                   conjf = [conjf,expr(j)];
+                   conjd = [conjd, region(r, dualVars)];
+                   conjd(end) = conjd(end).getVertices();
+                   %%%%%%%%%%%%%%%%%
 
 
 % 
@@ -1482,22 +1503,64 @@ classdef plq_1piece
 %                   %obj.conjd = [obj.conjd, region(subdV(j,:), dualVars,true)];
 %                   %obj.conjd = [obj.conjd, region(-subdV(j,:), dualVars)];
                 else
-                  obj.conjf = [obj.conjf,expr(j)];  
-                  obj.conjd = [obj.conjd, region(subdV(j,:), dualVars)];
-                  obj.conjd(end) = obj.conjd(end).getVertices();
+%                   obj.conjf = [obj.conjf,expr(j)];  
+%                   obj.conjd = [obj.conjd, region(subdV(j,:), dualVars)];
+%                   obj.conjd(end) = obj.conjd(end).getVertices();
+
+                  %%%%%%%%%%%%%%%%%
+                  conjf = [conjf,expr(j)];  
+                  conjd = [conjd, region(subdV(j,:), dualVars)];
+                  conjd(end) = conjd(end).getVertices();
+                  %%%%%%%%%%%%%%%%%
                 end
             end
             for j = 1:obj.envd(i).nv
                 if (unR(j))
                    % continue
                 
-                obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
-                obj.conjd = [obj.conjd, region(subdE(j,:), dualVars)];
-                obj.conjd(end) = obj.conjd(end).getVertices();
+%                 obj.conjf = [obj.conjf,expr(obj.envd(i).nv+j)];
+%                 obj.conjd = [obj.conjd, region(subdE(j,:), dualVars)];
+%                 obj.conjd(end) = obj.conjd(end).getVertices();
+
+               %%%%%%%%%%%%%%%%%
+                
+                conjf = [conjf,expr(obj.envd(i).nv+j)];
+                conjd = [conjd, region(subdE(j,:), dualVars)];
+                conjd(end) = conjd(end).getVertices();
+                  %%%%%%%%%%%%%%%%%
+                
                 end
                 %obj.conjd(end).print
             end
-
+            
+            %obj.conjf =  obj.conjf+conjf;
+            %obj.conjd =  obj.conjd+conjd;
+            % merge wont work due to union vs intersection
+            %[conjf,conjd] = obj.merge(conjf,conjd);
+            for i = 1:size(conjf,2)
+                obj.conjf = [obj.conjf, conjf(i)];
+            end
+            for i = 1:size(conjf,2)
+                obj.conjd = [obj.conjd, conjd(i)];
+            end
+            
+            return 
+            disp("Conjugate printouts")
+            %obj.conjf.printL  
+            %obj.conjd.print
+            for i = strt:size(obj.conjf,2)
+              disp(i)
+              obj.conjf(i).print
+              obj.conjd(i).print
+            end
+            [obj.conjf(strt:end),obj.conjd(strt:end)] = obj.merge(obj.conjf(strt:end),obj.conjd(strt:end));
+            disp('after merging')
+            for i = strt:size(obj.conjf,2)
+              disp(i)
+              obj.conjf(i).print
+              obj.conjd(i).print
+            end
+            
         end
 
         %% T3 %%
@@ -2025,7 +2088,74 @@ classdef plq_1piece
                 
              NC(j,2) = eq;
                 
-        end
+    end
+
+         
+    % to be changed
+    function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+          ia(1) = 1;
+          n = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(maxf,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(maxf,2)
+                  
+                  if isAlways(maxf(i).f == maxf(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          %nmaxf = [];
+          %nmaxd = [];
+          m = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+        %  nmaxf= [];
+        %  nmaxd= [];
+          for i = 1:size(maxf,2)
+              
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1)) 
+                m = m + 1;
+                nmaxf(m) = maxf(i);
+                nmaxd(m) = maxd(i);
+            else
+                % get common boundary and merge
+                % make groups and add 
+               r = maxd(i);
+              
+               for j=ia(i):ia(i+1)-1
+                   marked(ja(j)) = true;
+                   [l,r] = r.merge (maxd(ja(j)));
+                   
+                   if ~l
+                     m = m + 1;
+                     nmaxf(m) = maxf(i);
+                     nmaxd(m) = maxd(ja(j));  
+                   end
+               end
+               m = m + 1;
+               nmaxf(m) = maxf(i);
+               r = r.getVertices();
+               nmaxd(m) = r;  
+                   
+            end
+          end
+      end
 
     end
     methods % max

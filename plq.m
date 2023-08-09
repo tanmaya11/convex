@@ -41,10 +41,10 @@ if i > 2
           for i = 1:obj.nPieces
              % i
               if i == 1
-                 % continue;
+                  continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 1
+              if i == 2
                   return
               end
               disp('end')
@@ -65,7 +65,7 @@ if i > 2
              % obj.pieces(i).envf.printL
              % size(obj.pieces(i).conjf)
              % obj.pieces(i).conjf.printL
-              if i == 1
+              if i == 2
                   return
               end
           end
@@ -88,15 +88,22 @@ if i > 2
                      %k1
                      %k2
                      if(k1 <= k2)
-                   %    disp('Conjugate Domain Intersection')
-                   %    disp([k1,k2])
-                       %if (k1 == 6  & k2 == 10)
+                       %disp('Conjugate Domain Intersection')
+                       %disp([k1,k2])
+                       %if (k1 == 2  & k2 == 9)
                        %  [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), true);
                        %else
                            [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), false);
                        %end
+                       %if k2 == 9
+                       %    obj.pieces(i1).conjd(k1).print
+                       %    obj.pieces(i2).conjd(k2).print
+                       %    l
+                       %end
                        if l
-              %           disp("Conjugate Intersection")
+                           k1
+                           k2
+                      %   disp("Conjugate Intersection")
                          % fill vertices of r
                          %obj.pieces(i1).conjd(k1).print
                          %obj.pieces(i2).conjd(k2).print
@@ -107,9 +114,13 @@ if i > 2
                       %       disp('r1')
                       %       r1(ir).print
                            r1(ir) = r1(ir).getVertices();  
+                       %    if k1 == 2 & k2 == 5
+                       %        r1(ir) = r1(ir).getVertices(true);  
+                       %        r1(ir).print
+                       %    end 
                            % Removing regions which are points
-                           if r1(ir).nv == 1
-                               continue;
+                           if r1(ir).nv == 1            % problem detecting R2R1 in example1
+                       %        continue;
                            end 
                            %disp('Feasible region')
                            %disp(n)

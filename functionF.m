@@ -567,7 +567,7 @@ classdef functionF
     methods % ineqs
 
         
-        function [l,obj] = removeParallel(obj, vars)
+        function [l,obj] = removeParallel(obj, vars, lprint)
             rm = [];
             l = false;
                 
@@ -577,6 +577,13 @@ classdef functionF
               for j = i+1:size(obj,2)
                 c2 = obj(j).getLinearCoeffs (vars);
                 slope2 = c2(1)/c2(2);
+                %if nargin == 3
+                    %if lprint
+                    %disp('remove parallel')
+                    %c1
+                    %c2
+                    %end
+                %end
                 if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
                     if (c1(2) == 0)
                         if ((c1(3)/c1(1) >= c2(3)/c2(1)) & c1(1)>0)
@@ -594,10 +601,12 @@ classdef functionF
                     l = false;
                 elseif (slope1 == slope2 )
                     if c1(2) ~= 0
+                    %    disp('h1')
                     if c1(2) > 0
                         l = c1(3)/c1(2) > - c2(3)/c2(2);
                     else
-                        l = c2(3)/c2(2) > - c1(3)/c1(2);
+                    %    disp('h2')
+                        l = c2(3)/c2(2) < - c1(3)/c1(2);
                     end
                     else 
                     if c1(1) > 0

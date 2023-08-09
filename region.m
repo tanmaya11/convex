@@ -648,18 +648,18 @@ classdef region
 
          if nl > 0
              
-             [notF,l] = l(1:nl).removeParallel(vars);
-             if notF
-                 linter = false  ;
+             %[notF,l] = l(1:nl).removeParallel(vars, lprint);
+             %if notF
+             %    linter = false  ;
                  %disp("Not feasible 1")
            
-                 return
-             end
+             %    return
+             %end
              
-             if lprint
-             disp('removeParallel')
-                 l.printL
-             end
+             %if lprint
+             %disp('removeParallel')
+             %    l.printL
+             %end
              [notF,l] = l.removeSum(lprint);
              if notF
                  linter = false  ;
@@ -677,6 +677,7 @@ classdef region
              end
              lR = region(l2, obj1.vars);
              if lprint
+                 disp('vertex simplify')
              lR = lR.getVertices();
              lR.isFeasibleWBPts
              lR.print;
@@ -719,11 +720,17 @@ classdef region
          end
          %disp("Not in intersection2")
          %objR.not
+         objR = objR.getVertices();
          if lprint
+             disp("objR b4 simplify")
+             
+             objR.print
              disp("objR")
+             
+             objR = objR.simplify (objR.vars)
              objR.print
          end
-         objR = objR.getVertices();
+         
          if objR.nv == 0
            linter=false  ;
          else
@@ -762,7 +769,7 @@ classdef region
      end
 
      % wont work for degree > 2
-     function obj = getVertices(obj)
+     function obj = getVertices(obj, lprint)
          
        obj.nv=0;
        t1 = sym('t1');
@@ -775,13 +782,13 @@ classdef region
                f2 = obj.ineqs(j);
                f2 = f2.subsF (obj.vars,varsTemp);
                s = solve ([f1.f==0,f2.f==0],varsTemp);
+               
                if isempty(s)
                    continue;
                elseif isempty(s.t1)
                    continue;
                elseif isempty(s.t2)
                    continue;
-               
                end
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
                    
@@ -825,6 +832,10 @@ classdef region
           %disp("--")
        end
        for i = 1:n
+           if nargin == 2
+               intmax,obj.vy(i)
+               obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
+           end
            if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
              obj.nv=obj.nv+1;
              obj.vx(obj.nv) = obj.vx(i);
@@ -928,6 +939,8 @@ classdef region
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
 
+     
+     % wont work cause of intersection vs union
      function [l,obj] = merge (obj, obj2)
          %obj.print;
          %obj2.print;
@@ -953,8 +966,7 @@ classdef region
          obj.ineqs(mark) = []; 
      end
 
-
-
+     
      end
 
      
