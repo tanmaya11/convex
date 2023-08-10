@@ -2,6 +2,9 @@ function plq_eg
   x=sym('x');
   y=sym('y');
   f=functionF(x*y);
+  
+  
+
 
   
   
@@ -26,7 +29,7 @@ function plq_eg
   %convex_PS.print
   %return
   conjugate_PS = convex_PS.conjugate();
-   disp("conjugate done")
+%   disp("conjugate done")
 %  conjugate_PS.plot;
 %  return
 %  conjugate_PS.print
@@ -53,5 +56,7 @@ function plq_eg
       maxf(i).print
       maxd(i).print
   end
-  maxd.plotL
+  %maxd.plotL
+
+  
 end

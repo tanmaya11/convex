@@ -104,7 +104,10 @@ classdef plq_1piece
                  end
                end
                %disp('Conjugate Domain')
+               %obj.conjd(k).plotByVertex;
                obj.conjd(k).plot;
+               obj.conjd(k).plotRegion;
+               
              end
              
              

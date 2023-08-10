@@ -8,3 +8,13 @@ z = (30*x - 30*y - x*y + 5*x^2 + 5*y^2 + 25)/(x - y + 10)
 %ezsurf(x,y,z,[0 2 0 2]);
 %ezsurf(x,y,z,[-5 1 -4 5]);
 ezsurf(x,y,z,[-5 -1 -4 5]);
+
+vertices_ineq1 = [0, 0; 1, 0; 0, 1];
+vertices_ineq2 = [-1, -1; 0, 1; 1, -1];
+
+% Plot the inequalities
+figure;
+fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
+hold on;
+fill(vertices_ineq2(:, 1), vertices_ineq2(:, 2), 'r', 'FaceAlpha', 0.5);
+axis equal;

@@ -7,6 +7,7 @@ classdef functionF
         num = sym('num');
         den = sym('den');
         symf = sym('f')   % for sake of substitution
+        %persistent icolor ;
     end    
     properties  
         f = sym('f') ;
@@ -15,6 +16,10 @@ classdef functionF
     
     methods  % init + display
         function obj = functionF(num, den)
+%            persistent icolor;
+%            if isempty (icolor)
+%                icolor=1
+%            end
             if nargin == 0
               obj.num=0;
               obj.den=1;
@@ -37,6 +42,25 @@ classdef functionF
             den = obj.den;
         end   
         
+        
+        
+        function setGlobalParameter(obj)
+            persistent icolor;
+            icolor = 1+icolor
+        end
+        
+        function value = getGlobalParameter(obj)
+ %           persistent icolor;
+ %           value = icolor
+             persistent icolor;
+            if isempty (icolor)
+                icolor=1
+            else
+                icolor=icolor+1
+            end
+            value = icolor
+        end
+
         function print(obj)
             %obj.f
             %class(obj.f)
@@ -63,14 +87,35 @@ classdef functionF
             ezsurf(obj.f, limits);
         end
 
+        function [vx,vy] = getPoints (obj, vars, limits)
+            start = limits(1);
+            step = (limits(2)-limits(1))/100;
+            n = 0;
+            ci = start;
+            for i = 1:100
+                cj = start;
+                for j = 1:100
+                  cj = cj+step;    
+                  if (subs(obj.f,vars,[ci,cj]) <= 0)
+                      n = n+1;
+                      vx(n) = ci;
+                      vy(n) = cj;
+                  end
+                end
+                ci = ci+step;    
+            end
+        end
+
         function plot(obj, vars, limits)
-            
+            colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
             polyvars = obj.vars;
             if  size(vars,2) == size(polyvars,2)
                 vx = linspace(limits(1), limits(2), 100);
                 fy = solve(obj.f==0,vars(2));
                 vy = subs(fy,polyvars(1),vx);
+                %[vx,vy] = getPoints (obj, polyvars, limits)
                 plot(vx,vy);
+                %fill(vx,vy,colors(1+mod(obj.getGlobalParameter,7)),'FaceAlpha',0.5);
             elseif ismember (vars(1), polyvars)
                 fx = solve(obj.f==0,vars(1));
                 vy = zeros(1,100);
@@ -85,8 +130,13 @@ classdef functionF
                 plot(vx,vy);
             else
             end
-            
+            %obj.setGlobalParameter; 
         end
+
+        function plotIneq (obj, limits)
+            ezsurf(obj.f <=0, limits)
+        end 
+
         
         function printIneq(obj)
             fprintf(char(obj.f));
@@ -127,6 +177,7 @@ classdef functionF
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     %l(i,j)
+                     
                     l(i,j).plot(vars,limit);
                     hold on;
              %       l2 = [l2,l(i,j).f<=0]

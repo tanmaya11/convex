@@ -292,9 +292,83 @@ classdef region
              figure;
              size(obj)
              for i = 1:size(obj,2)
+                 i
                  obj(i).plot
+                 obj(i).plotRegion;
              end
          end
+
+
+       
+         function value = getGlobalParameter(obj)
+ %           persistent icolor;
+ %           value = icolor
+             persistent icolor;
+            if isempty (icolor)
+                icolor=1
+            else
+                icolor=icolor+1
+            end
+            value = icolor
+         end
+
+
+         function [vx,vy] = plotRegion (obj)
+            limitsx = [-6,6];
+            limitsy = [-15,20];
+            pts = 75;
+            colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
+            stepx = (limitsx(2)-limitsx(1))/pts;
+            stepy = (limitsy(2)-limitsy(1))/pts;
+            n = 0;
+            vx = [];
+            vy = [];
+            ci = limitsx(1);
+            for i = 1:pts
+                cj = limitsy(1);
+                for j = 1:pts
+                  
+                  if obj.ptFeasible (obj.vars,[ci,cj]);
+                      n = n+1;
+                      vx(n) = ci;
+                      vy(n) = cj;
+                  end
+                  cj = cj+stepy;    
+                end
+                ci = ci+stepx;    
+            end
+            c = colors(1+mod(obj.getGlobalParameter,7))
+            if n == 0
+                disp ('region not displayed')
+            end
+            fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+         end
+
+         function plotByVertex (obj)
+             %figure;
+             limit = 6;
+             for i = 1:obj.nv
+                 vertices_ineq1(i, 1) = obj.vx(i);
+                 if (vertices_ineq1(i, 1) > limit) 
+                     vertices_ineq1(i, 1) = limit
+                 end
+                 if (vertices_ineq1(i, 1) < -limit) 
+                     vertices_ineq1(i, 1) = -limit
+                 end
+
+                 vertices_ineq1(i, 2) = obj.vy(i);
+
+                 if (vertices_ineq1(i, 2) > limit) 
+                     vertices_ineq1(i, 2) = limit
+                 end
+                 if (vertices_ineq1(i, 2) < -limit) 
+                     vertices_ineq1(i, 2) = -limit
+                 end
+                 
+             end
+             fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
+         end
+        
          % max over a region
          function [l, fmax, index] = maxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
