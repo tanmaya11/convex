@@ -19,7 +19,7 @@ classdef plq
           disp("")
           disp("")
           for i = 1:obj.nPieces
-if i > 2
+if i > 1
                   return
               end
               disp(["Piece ", num2str(i)])
@@ -41,7 +41,7 @@ if i > 2
           for i = 1:obj.nPieces
              % i
               if i == 1
-                  continue;
+                  %continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
               if i == 2

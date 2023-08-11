@@ -14,6 +14,113 @@ classdef region
         vars;
     end
 
+    methods  % testing
+         function l = checkPiece1 (obj)
+             l = false;
+             
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [sym('x'), sym('y')]
+                 return
+             end
+             if obj.nv ~= 4
+                 return
+             end
+             if obj.vx ~= [1,2,2,0]
+                 return
+             end
+             if obj.vy ~= [1,1,0,0]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==y-1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==x-2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==-y);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==y-x);
+                 return
+            end
+             l = true;
+             return
+
+
+
+         end
+
+         
+         function l = checkConvexDomain11 (obj)
+             l = false;
+             
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [x, y]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [0,2,0]
+                 return
+             end
+             if obj.vy ~= [0,0,1]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==-y);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==y-x);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==x+y-2);
+                 return
+            end
+             l = true;
+             return
+         end
+
+         function l = checkConvexDomain12 (obj)
+             l = false;
+             
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [x, y]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [2,1,2]
+                 return
+             end
+             if obj.vy ~= [1,1,0]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==y-1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==x-2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==2-y-x);
+                 return
+            end
+             l = true;
+             return
+         end
+
+    
+    end
+%  
      methods
          function obj = region(fs, vars) %, not)
             % put checks for type of f and d

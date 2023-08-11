@@ -12,6 +12,65 @@ classdef convexExpr
         vzeta = functionF.empty();
     end
 
+    methods  % testing
+         function l = checkExpr1 (obj)
+             x = sym('x');
+             y = sym('y');
+             l = false;
+
+             if obj.type~= 1
+                 return
+             end
+             f = 0;
+             if ~isAlways(obj.vpsi0.f == f)
+                 return
+             end
+             f = y/2;
+             if ~isAlways(obj.vpsi1.f == f)
+                 return
+             end
+             f = y/8 -x/8 + 1/4;
+             if ~isAlways(obj.vpsi2.f == f)
+                 return
+             end
+             
+             l = true;
+             return
+             
+             
+         end
+
+         function l = checkExpr2 (obj)
+             x = sym('x');
+             y = sym('y');
+             l = false;
+
+             if obj.type~= 3
+                 return
+             end
+             f = x;
+             if ~isAlways(obj.vpsi0.f == f)
+                 return
+             end
+             f = y-1;
+             if ~isAlways(obj.vpsi1.f == f)
+                 return
+             end
+             
+             
+             f = 2;
+             if ~isAlways(obj.vzeta.f == f)
+                 return
+             end
+             
+             
+             l = true;
+             return
+             
+             
+         end
+     end
+%  
     methods
         function obj = convexExpr(type, s0, s1, s2, dl)
             obj.type=type;
@@ -42,20 +101,20 @@ classdef convexExpr
                 obj.expr = obj.psi1^2 / obj.zeta + obj.psi0;
                 obj.vpsi0=functionF(s0);  
                 obj.vpsi1=functionF(s1);
-                obj.zeta =functionF(s2);
+                obj.vzeta =functionF(s2);
             
             elseif type ==3
                 obj.expr= obj.zeta * obj.psi1 + obj.psi0;
                 obj.vpsi0=functionF(s0);  
                 obj.vpsi1=functionF(s1);
-                obj.zeta =functionF(s2);
+                obj.vzeta =functionF(s2);
             elseif type ==4
                 % zeta = dl, du
                 obj.expr= - obj.zeta^2 * obj.psi2 + 2 * obj.zeta * obj.psi1 + obj.psi0;
                 obj.vpsi0=functionF(s0);  
                 obj.vpsi1=functionF(s1);
                 obj.vpsi2=functionF(s2);
-                obj.zeta =functionF(dl);
+                obj.vzeta =functionF(dl);
             else
                 disp("Error in convexExpr")
                 %obj.expr= obj.psi1^2 /obj.psi2 + obj.psi0;
@@ -77,7 +136,7 @@ classdef convexExpr
 
             disp("zeta") 
             
-            obj.zeta
+            obj.vzeta
 
         end
     end

@@ -10,6 +10,62 @@ classdef plq_1piece
         conjfia = [];
     end
 
+
+    methods  % testing
+        function l = checkPiece1 (obj)
+            l = true;
+            l = l & obj.f.checkPiece1;  
+            l = l & obj.d.checkPiece1;
+        end
+
+        
+        function l = checkconvexEnvelope1 (obj)
+            obj.print
+            l = false;
+            size(obj.envf)
+            if size(obj.envf) ~= [1,2]
+                return;
+            end
+
+            x=sym('x');
+            y=sym('y');
+            f = 2*y^2/(y-x+2);
+            
+            if ~ isAlways(simplify(obj.envf(1).f) == f)
+                return;
+            end
+            
+            if ~ obj.envExpr(1).checkExpr1
+                return;
+            end
+            
+             if ~ obj.envd(1).checkConvexDomain11
+               return;
+             end
+            
+            f = x+2*y-2;
+            
+            if ~ isAlways(simplify(obj.envf(2).f) == f)
+                return;
+            end
+            
+            if ~ obj.envExpr(2).checkExpr2
+                return;
+            end
+            
+            if ~ obj.envd(1).checkConvexDomain11
+              return;
+            end
+            
+
+
+             l = true;
+             return
+            
+           
+        end
+
+    end
     methods % creation & print
          function obj = plq_1piece(d,f)
             % put checks for type of f and d

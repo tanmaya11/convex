@@ -13,7 +13,13 @@ classdef functionF
         f = sym('f') ;
     end
 
-    
+    methods  % testing
+        function l = checkPiece1 (obj)
+            x = sym('x');
+            y = sym('y');
+            l = isAlways(obj.f==x*y);
+        end
+    end
     methods  % init + display
         function obj = functionF(num, den)
 %            persistent icolor;
@@ -49,17 +55,6 @@ classdef functionF
             icolor = 1+icolor
         end
         
-        function value = getGlobalParameter(obj)
- %           persistent icolor;
- %           value = icolor
-             persistent icolor;
-            if isempty (icolor)
-                icolor=1
-            else
-                icolor=icolor+1
-            end
-            value = icolor
-        end
 
         function print(obj)
             %obj.f
