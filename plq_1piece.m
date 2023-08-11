@@ -20,9 +20,128 @@ classdef plq_1piece
 
         
         function l = checkconvexEnvelope1 (obj)
-            obj.print
             l = false;
-            size(obj.envf)
+            if size(obj.envf) ~= [1,2]
+                return;
+            end
+
+            x=sym('x');
+            y=sym('y');
+            f = 2*y^2/(y-x+2);
+            
+            if ~ isAlways(simplify(obj.envf(1).f) == f)
+                return;
+            end
+            
+            if ~ obj.envExpr(1).checkExpr1
+                return;
+            end
+            
+             if ~ obj.envd(1).checkConvexDomain11
+               return;
+             end
+            
+            f = x+2*y-2;
+            
+            if ~ isAlways(simplify(obj.envf(2).f) == f)
+                return;
+            end
+            
+            if ~ obj.envExpr(2).checkExpr2
+                return;
+            end
+            
+            if ~ obj.envd(1).checkConvexDomain11
+              return;
+            end
+            
+
+
+             l = true;
+             return
+        end
+        function l = checkconjugate1 (obj)
+            l = false;
+            obj.print
+            [1,7,10]
+            
+            if obj.conjfia ~= [1,7,10]
+                return;
+            end
+
+            s1=sym('s1');
+            s2=sym('s2');
+            
+            f = 0;
+            if ~ isAlways(simplify(obj.conjf(1).f) == f)
+                return;
+            end
+            f = 2*s1;
+            if ~ isAlways(simplify(obj.conjf(2).f) == f)
+                return;
+            end
+            f = 2*s1;
+            if ~ isAlways(simplify(obj.conjf(3).f) == f)
+                return;
+            end
+            f = 2*s1;
+            if ~ isAlways(simplify(obj.conjf(4).f) == f)
+                return;
+            end
+            f = s1+s2-1;
+            if ~ isAlways(simplify(obj.conjf(5).f) == f)
+                return;
+            end
+            f = (s1+s2)^2/4;
+            if ~ isAlways(simplify(obj.conjf(6).f) == f)
+                return;
+            end
+            f = 2*s1+s2-2;
+            if ~ isAlways(simplify(obj.conjf(7).f) == f)
+                return;
+            end
+            f = s1+s2-1;
+            if ~ isAlways(simplify(obj.conjf(8).f) == f)
+                return;
+            end
+            f = 2*s1;
+            if ~ isAlways(simplify(obj.conjf(9).f) == f)
+                return;
+            end
+            if ~ obj.conjd(1).checkConjugateDomain11
+               return;
+            end
+            if ~ obj.conjd(2).checkConjugateDomain12
+               return;
+            end
+            if ~ obj.conjd(3).checkConjugateDomain13
+               return;
+            end
+            if ~ obj.conjd(4).checkConjugateDomain14
+               return;
+            end
+            
+            if ~ obj.conjd(5).checkConjugateDomain15
+               return;
+            end
+            
+            if ~ obj.conjd(6).checkConjugateDomain16
+               return;
+            end
+            
+            if ~ obj.conjd(7).checkConjugateDomain17
+               return;
+            end
+            if ~ obj.conjd(8).checkConjugateDomain18
+               return;
+            end
+            if ~ obj.conjd(9).checkConjugateDomain19
+               return;
+            end
+            
+            l = true;
+             return
+            
             if size(obj.envf) ~= [1,2]
                 return;
             end
@@ -63,6 +182,9 @@ classdef plq_1piece
              return
             
            
+        
+
+
         end
 
     end
@@ -93,6 +215,7 @@ classdef plq_1piece
              obj.envExpr(j).print
              disp('Domain')
              obj.envd(j).print
+           
              %disp("Conjugate Expr")
              %obj.conjf.printL(obj.conjfia(j),obj.conjfia(j+1)-1)
              if (size(obj.conjfia,1) > 0)

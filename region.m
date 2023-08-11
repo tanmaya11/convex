@@ -118,8 +118,290 @@ classdef region
              return
          end
 
-    
+         function l = checkConjugateDomain11 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 5
+                 return
+             end
+             if obj.vx ~= [0,-intmax,-intmax,0,-intmax]
+                 return
+             end
+             if obj.vy ~= [0,intmax,-intmax,-intmax,0]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1+s2);
+                 return
+            end
+             l = true;
+             return
+         end
+
+         function l = checkConjugateDomain12 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [0.5,0,intmax]
+                 return
+             end
+             if obj.vy ~= [1.5,0,-intmax]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1+s2-2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==-s1-s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==(s1+s2)^2/8-s1);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+
+         function l = checkConjugateDomain13 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [5.000000e-01  2147483647  2147483647]
+                 return
+             end
+             if obj.vy ~= [1.500000e+00  2147483647  1.500000e+00]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==2 - s2 - s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s2 - s1 - 1);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+
+
+         function l = checkConjugateDomain14 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [0  2147483647  0]
+                 return
+             end
+             if obj.vy ~= [0  -2147483647  -2147483647]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==-s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 + s2);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+         function l = checkConjugateDomain15 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 2
+                 return
+             end
+             if obj.vx ~= [5.000000e-01  5.000000e-01]
+                 return
+             end
+             if obj.vy ~= [1.500000e+00  2147483647]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==2 - s2 - s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 - s2 + 1);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+
+         function l = checkConjugateDomain16 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [5.000000e-01  0  -2147483647]
+                 return
+             end
+             if obj.vy ~= [1.500000e+00  0  2147483647]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- s1 - s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s1 - (s1 + s2)^2/8);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+
+         function l = checkConjugateDomain17 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 4
+                 return
+             end
+             if obj.vx ~= [1  2147483647  1  2147483647]
+                 return
+             end
+             if obj.vy ~= [2  2147483647  2147483647  2]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==1 - s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==2 - s2);
+                 return
+            end
+            
+            l = true;
+             return
+            
+         end
+
+         function l = checkConjugateDomain18 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 4
+                 return
+             end
+             if obj.vx ~= [1  -2147483647  1  -2147483647]
+                 return
+             end
+             if obj.vy ~= [2  2147483647  2147483647  2]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 - s2 + 1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 - 1);
+                 return
+            end
+            
+            l = true;
+             return
+            
+         end
+
+         function l = checkConjugateDomain19 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 5
+                 return
+             end
+             if obj.vx ~= [1  2147483647  -2147483647  1  2147483647]
+                 return
+             end
+             if obj.vy ~= [2  -2147483647  -2147483647  -2147483647  2]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s2 - s1 - 1);
+                 return
+            end
+            
+            l = true;
+             return
+
+
+
+            
+         end
+
     end
+
+
 %  
      methods
          function obj = region(fs, vars) %, not)
