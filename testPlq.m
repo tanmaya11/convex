@@ -2,10 +2,11 @@ classdef testPlq < matlab.unittest.TestCase
 
     properties
         PS
+        PS1
     end
 
     methods (TestMethodSetup)
-        function setUpTestData(testCase)
+       function setUpTestData(testCase)
             % Initialize common data for all test methods
             x=sym('x');
             y=sym('y');
@@ -19,23 +20,28 @@ classdef testPlq < matlab.unittest.TestCase
             testCase.PS = plq(p);
             testCase.PS = testCase.PS.convexEnvelope();
             testCase.PS = testCase.PS.conjugate();
+            
        end
     end
 
     methods (Test)
         function testCreation (testCase)
             testCase.verifyEqual(testCase.PS.nPieces,3);
-            testCase.verifyEqual(testCase.PS.pieces(1).checkPiece1, true)
+            testCase.verifyEqual(testCase.PS.pieces(1).checkPiece1, true);
         end
 
         function testConvexEnvelope (testCase)
-            
-            testCase.verifyEqual(testCase.PS.pieces(1).checkconvexEnvelope1, true)
+            testCase.verifyEqual(testCase.PS.pieces(1).checkconvexEnvelope1, true);
         end
 
         function testConjugate (testCase)
-            
-            testCase.verifyEqual(testCase.PS.pieces(1).checkconjugate1, true)
+            testCase.verifyEqual(testCase.PS.pieces(1).checkconjugate1, true);
+        end
+
+        function testMaximum (testCase)
+            testCase.PS = testCase.PS.intersectionConjugateDomain;
+            testCase.PS = testCase.PS.maximum;
+            testCase.verifyEqual(true, testCase.PS.pieces(1).checkMaximum1);
         end
 
     end

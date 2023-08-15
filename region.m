@@ -399,6 +399,298 @@ classdef region
             
          end
 
+         function l = checkMaxDomain11 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [-5.000000e-01  -2147483647  -2147483647]
+                 return
+             end
+             if obj.vy ~= [5.000000e-01  2147483647  5.000000e-01]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 - s2 + 1);
+                 return
+            end
+            
+            l = true;
+             return
+         end
+
+
+         function l = checkMaxDomain12 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 5
+                 return
+             end
+             if obj.vx ~= [0  -5.000000e-01  -2147483647  0  -5.000000e-01]
+                 return
+             end
+             if obj.vy ~= [0  5.000000e-01  -2147483647  -2147483647  -2147483647]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 + s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s2 - s1 - 1);
+                 return
+            end
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain13 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 1
+                 return
+             end
+             if obj.vx ~= [5.000000e-01]
+                 return
+             end
+             if obj.vy ~= [1.500000e+00 ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- s1 - s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s1 - s2 + 1);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==(s1 + s2)^2/8 - s1);
+                 return
+            end
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain14 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [0  5.000000e-01  2147483647]
+                 return
+             end
+             if obj.vy ~= [0  1.500000e+00  -2147483647 ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- s1 - s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s2 - s1 - 1 );
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==(s1 + s2)^2/8 - s1);
+                 return
+            end
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain15 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [1  2147483647  2147483647 ]
+                 return
+             end
+             if obj.vy ~= [2  2147483647  2 ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s2 - s1 - 1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==2 - s2);
+                 return
+            end
+           
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain16 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [0  2147483647  0]
+                 return
+             end
+             if obj.vy ~= [0  -2147483647  -2147483647 ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==-s1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==s1 + s2);
+                 return
+            end
+           
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain17 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 2
+                 return
+             end
+             if obj.vx ~= [1  1]
+                 return
+             end
+             if obj.vy ~= [2  2147483647   ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 - s2 + 1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==1 - s1);
+                 return
+            end
+           
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain18 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [-2147483647  -5.000000e-01  5.000000e-01]
+                 return
+             end
+             if obj.vy ~= [2147483647  5.000000e-01  1.500000e+00   ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- s1 - s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s1 - s2 + 1 );
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==(s1 + s2)^2/8 - s1);
+                 return
+            end
+            l = true;
+             return
+         end
+
+         function l = checkMaxDomain19 (obj)
+             l = false;
+             
+             s1 = sym('s1');
+             s2 = sym('s2');
+             if obj.vars ~= [s1, s2]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [-5.000000e-01  0  5.000000e-01]
+                 return
+             end
+             if obj.vy ~= [5.000000e-01  0  1.500000e+00   ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==s1 + s2 - 2);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- s1 - s2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==s2 - s1 - 1 );
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==s1 - (s1 + s2)^2/8);
+                 return
+            end
+            l = true;
+             return
+         end
     end
 
 

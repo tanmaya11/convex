@@ -35,12 +35,15 @@ function plq_eg
 %  conjugate_PS.print
 % return
 %disp ("Check intersection")
-  [f2, r2] = conjugate_PS.intersectionConjugateDomain;
+  %[f2, r2] = conjugate_PS.intersectionConjugateDomain;
+  mconjugate_PS = conjugate_PS.intersectionConjugateDomain;
   %r2(5).print
  % return
   disp("Start maximum")
-  [maxf,maxd] = conjugate_PS.maximum(f2,r2);
-  %return
+  %[maxf,maxd] = mconjugate_PS.maximum %(f2,r2);
+  mconjugate_PS = mconjugate_PS.maximum %(f2,r2);
+  mconjugate_PS.print;
+  return
 %  for i = 1:size(maxf,2)
 %      disp(i)
 %      maxf(i).print
@@ -51,10 +54,11 @@ function plq_eg
 % merge wont work due to union vs intersection
   %[maxf,maxd] = conjugate_PS.merge(maxf,maxd);
  % return
-  for i = 1:size(maxf,2)
+
+  for i = 1:size(mconjugate_PS.pieces(1).maxf,2)
       disp(i)
-      maxf(i).print
-      maxd(i).print
+      mconjugate_PS.pieces(1).maxf(i).print
+      mconjugate_PS.pieces(1).maxd(i).print
   end
   %maxd.plotL
 

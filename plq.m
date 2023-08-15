@@ -44,7 +44,7 @@ if i > 1
                   %continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 2
+              if i == 1
                   return
               end
               disp('end')
@@ -64,109 +64,125 @@ if i > 1
              % size(obj.pieces(i).envf)
              % obj.pieces(i).envf.printL
              % size(obj.pieces(i).conjf)
-             % obj.pieces(i).conjf.printL
-              if i == 2
+              %obj.pieces(i).conjf.printL
+              if i == 1
                   return
               end
           end
       end
 
-      function [f,r] = intersectionConjugateDomain (obj)
-        n = 0;
+      function obj = intersectionConjugateDomain (obj)
+        %n = 0;
         
-        for i1 = 1:obj.nPieces
-          for j1 = 1:size(obj.pieces(i1).conjfia,2)-1
-             for k1 = obj.pieces(i1).conjfia(j1):obj.pieces(i1).conjfia(j1+1)-1
-              
-                for i2 = 1:obj.nPieces
-                  for j2 = 1:size(obj.pieces(i2).conjfia,2)-1
-                    for k2 = obj.pieces(i2).conjfia(j2):obj.pieces(i2).conjfia(j2+1)-1
-                       if(i1 == i2 & k2 < obj.pieces(i1).conjfia(j1+1))
-                         continue
-                       end 
-                 
-                     %k1
-                     %k2
-                     if(k1 <= k2)
-                       %disp('Conjugate Domain Intersection')
-                       %disp([k1,k2])
-                       %if (k1 == 2  & k2 == 9)
-                       %  [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), true);
-                       %else
-                           [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), false);
-                       %end
-                       %if k2 == 9
-                       %    obj.pieces(i1).conjd(k1).print
-                       %    obj.pieces(i2).conjd(k2).print
-                       %    l
-                       %end
-                       if l
-                           k1
-                           k2
-                      %   disp("Conjugate Intersection")
-                         % fill vertices of r
-                         %obj.pieces(i1).conjd(k1).print
-                         %obj.pieces(i2).conjd(k2).print
-                         f1 = obj.pieces(i1).conjf(k1);
-                         f2 = obj.pieces(i1).conjf(k2);
-                 %        size(r1,2)
-                         for ir = 1:size(r1,2)
-                      %       disp('r1')
-                      %       r1(ir).print
-                           r1(ir) = r1(ir).getVertices();  
-                       %    if k1 == 2 & k2 == 5
-                       %        r1(ir) = r1(ir).getVertices(true);  
-                       %        r1(ir).print
-                       %    end 
-                           % Removing regions which are points
-                           if r1(ir).nv == 1            % problem detecting R2R1 in example1
-                       %        continue;
-                           end 
-                           %disp('Feasible region')
-                           %disp(n)
-                           %r1(ir).isFeasibleWBPts
-                           n = n + 1;
-                       %    disp("k2k2")
-                       %    k1
-                       %    k2
-                           r(n) = r1(ir);
-                           %r(n) = r(n).getVertices();
-                    %       disp(n)
-                    %       r(n).print
-
-                           f(n,1) = f1;
-                           f(n,2) = f2;
-                           %return
-                         end
-                         %return
-                         
-                       %if k1 == 2 & k2 == 5
-                       %    return
-                       %end
-
-                       end
-                       %return
-                       %obj.pieces(i1).conjd(k1).print
-                       %disp('Conjugate Domain 2')
-              
-                       %obj.pieces(i2).conjd(k2).print
-                    end
-                  end
-                 end
-              end
-            end
-           
-          end
-          
+        for i = 1:obj.nPieces
+            disp('piece')
+            i
+            obj.pieces(i).conjfia
+           obj.pieces(i) = obj.pieces(i).intersectionConjugateDomain
         end
-          
-          
-          
+
+
+%           for j1 = 1:size(obj.pieces(i1).conjfia,2)-1
+%              for k1 = obj.pieces(i1).conjfia(j1):obj.pieces(i1).conjfia(j1+1)-1
+%               
+%                 for i2 = 1:obj.nPieces
+%                   for j2 = 1:size(obj.pieces(i2).conjfia,2)-1
+%                       j2
+%                       obj.pieces(i2).conjfia(j2),obj.pieces(i2).conjfia(j2+1)
+%                     for k2 = obj.pieces(i2).conjfia(j2):obj.pieces(i2).conjfia(j2+1)-1
+%                        if(i1 == i2 & k2 < obj.pieces(i1).conjfia(j1+1))
+%                          continue
+%                        end 
+%                  
+%                      %k1
+%                      %k2
+%                      if(k1 <= k2)
+%                        %disp('Conjugate Domain Intersection')
+%                        %disp([k1,k2])
+%                        %if (k1 == 2  & k2 == 9)
+%                        %  [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), true);
+%                        %else
+%                            [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), false);
+%                        %end
+%                        %if k2 == 9
+%                        %    obj.pieces(i1).conjd(k1).print
+%                        %    obj.pieces(i2).conjd(k2).print
+%                        %    l
+%                        %end
+%                        if l
+%                            k1
+%                            k2
+%                       %   disp("Conjugate Intersection")
+%                          % fill vertices of r
+%                          %obj.pieces(i1).conjd(k1).print
+%                          %obj.pieces(i2).conjd(k2).print
+%                          f1 = obj.pieces(i1).conjf(k1);
+%                          f2 = obj.pieces(i1).conjf(k2);
+%                  %        size(r1,2)
+%                          for ir = 1:size(r1,2)
+%                       %       disp('r1')
+%                       %       r1(ir).print
+%                            r1(ir) = r1(ir).getVertices();  
+%                        %    if k1 == 2 & k2 == 5
+%                        %        r1(ir) = r1(ir).getVertices(true);  
+%                        %        r1(ir).print
+%                        %    end 
+%                            % Removing regions which are points
+%                            if r1(ir).nv == 1            % problem detecting R2R1 in example1
+%                        %        continue;
+%                            end 
+%                            %disp('Feasible region')
+%                            %disp(n)
+%                            %r1(ir).isFeasibleWBPts
+%                            n = n + 1;
+%                        %    disp("k2k2")
+%                        %    k1
+%                        %    k2
+%                            obj.pieces(ir)maxd(n) = r1(ir);
+%                            %r(n) = r(n).getVertices();
+%                     %       disp(n)
+%                     %       r(n).print
+% 
+%                            obj.maxf(n,1) = f1;
+%                            obj.max(n,2) = f2;
+%                            %return
+%                          end
+%                          %return
+%                          
+%                        %if k1 == 2 & k2 == 5
+%                        %    return
+%                        %end
+% 
+%                        end
+%                        %return
+%                        %obj.pieces(i1).conjd(k1).print
+%                        %disp('Conjugate Domain 2')
+%               
+%                        %obj.pieces(i2).conjd(k2).print
+%                     end
+%                   end
+%                  end
+%               end
+%             end
+%            
+%           end
+%           
+%         end
+%           
+%           
+%           
           %         obj.conjd(k1).intersection2(obj.conjd(k2))
           
         end
 
-      function [maxf,maxd] = maximum(obj, f, r2)
+      function obj = maximum(obj) %, f, r2)
+
+
+
+          for i=1:obj.nPieces
+              obj.pieces(i) = obj.pieces(i).maximum;
+          end
+          return
           % 1 - eq constant
           % 2 - linear ineq const
           % 3 - linear
@@ -174,7 +190,7 @@ if i > 1
 
           % not used quadratic ineq - check that
           n = 0;
-          for i = 1:size(r2,2)
+          for i = 1:size(obj.maxd,2)
 
               % do this if functions are linear
              disp(["i", num2str(i)])
@@ -187,11 +203,12 @@ if i > 1
              % [l, fmax] = r2(i).maxArray (f1, f2) ;
 %%%%
 
-              [l, fmax, ind] = r2(i).maximum(f(i,:));
+              [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
                if l
                  n = n + 1;
                  maxf(n) = fmax;
-                 maxd(n) = r2(i);
+                 %maxd(n) = r2(i);
+                 maxd(n) = obj.maxd(i);
                  continue
                end  
 

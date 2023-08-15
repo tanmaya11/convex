@@ -8,6 +8,8 @@ classdef plq_1piece
         conjf=functionF.empty();
         conjd = region.empty();
         conjfia = [];
+        maxf=functionF.empty();
+        maxd = region.empty();
     end
 
 
@@ -62,8 +64,8 @@ classdef plq_1piece
         end
         function l = checkconjugate1 (obj)
             l = false;
-            obj.print
-            [1,7,10]
+            %obj.print
+            %[1,7,10]
             
             if obj.conjfia ~= [1,7,10]
                 return;
@@ -176,8 +178,34 @@ classdef plq_1piece
               return;
             end
             
-
-
+            if ~ obj.conjd(1).checkMaxDomain11
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain12
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain13
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain14
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain15
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain16
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain17
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain18
+               return;
+            end
+            if ~ obj.conjd(1).checkMaxDomain19
+               return;
+            end
+            disp('reached')
              l = true;
              return
             
@@ -186,6 +214,66 @@ classdef plq_1piece
 
 
         end
+
+        function l = checkMaximum1 (obj)
+          l = false;
+          s1=sym('s1');
+          s2=sym('s2');
+            
+          f = 0;
+          if ~ isAlways(simplify(obj.maxf(1).f) == f)
+             return;
+          end
+            
+          f = 0;
+          if ~ isAlways(simplify(obj.maxf(2).f) == f)
+             return;
+          end
+
+          
+          f = s1+s2-1;
+          if ~ isAlways(simplify(obj.maxf(3).f) == f)
+             return;
+          end
+
+          f = 2*s1;
+          if ~ isAlways(simplify(obj.maxf(4).f) == f)
+             return;
+          end
+          
+
+          f = 2*s1+s2-2;
+          if ~ isAlways(simplify(obj.maxf(5).f) == f)
+             return;
+          end
+          
+          f = 2*s1;
+          if ~ isAlways(simplify(obj.maxf(6).f) == f)
+             return;
+          end
+          
+          f = 2*s1+s2-2;
+          if ~ isAlways(simplify(obj.maxf(7).f) == f)
+             return;
+          end
+
+          f = (s1+s2)^2/4;
+          if ~ isAlways(simplify(obj.maxf(8).f) == f)
+             return;
+          end
+          
+
+          f = (s1+s2)^2/4;
+          if ~ isAlways(simplify(obj.maxf(9).f) == f)
+             return;
+          end
+          
+          l = true;
+          return
+          
+        
+        end
+
 
     end
     methods % creation & print
@@ -226,6 +314,13 @@ classdef plq_1piece
                obj.conjd(k).print
              end
              end
+           end
+           fprintf("\n\n\n\n\n")
+           disp("Maximum conjugate")
+           for i = 1:size(obj.maxf,2)
+             disp(i)
+             obj.maxf(i).print
+             obj.maxd(i).print
            end
            %disp("Conjugate Expr")
             % obj.conjf.printL
@@ -1514,7 +1609,7 @@ classdef plq_1piece
               obj.conjfia(i+1) = size(obj.conjf,2)+1;
               %conjd = obj.envd(i).conjugate;
           end
-          
+          %obj.conjfia
         end
 
         function obj = conjugateFunction (obj,i)
@@ -2340,8 +2435,137 @@ classdef plq_1piece
       end
 
     end
+
+    methods % intersection
+      function obj = intersectionConjugateDomain (obj)
+        n = 0;
+        disp('intersectionConjugateDomain')
+        obj.conjfia
+        for j1 = 1:size(obj.conjfia,2)-1
+           for k1 = obj.conjfia(j1):obj.conjfia(j1+1)-1
+              
+                  for j2 = j1+1:size(obj.conjfia,2)-1
+                    
+                    for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
+                       
+                     if(k1 <= k2)
+                       %disp('Conjugate Domain Intersection')
+                       %disp([k1,k2])
+                       %if (k1 == 2  & k2 == 9)
+                       %  [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), true);
+                       %else
+                           [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
+                       %end
+                       %if k2 == 9
+                       %    obj.pieces(i1).conjd(k1).print
+                       %    obj.pieces(i2).conjd(k2).print
+                       %    l
+                       %end
+                       if l
+                           k1
+                           k2
+                      %   disp("Conjugate Intersection")
+                         % fill vertices of r
+                         %obj.pieces(i1).conjd(k1).print
+                         %obj.pieces(i2).conjd(k2).print
+                         f1 = obj.conjf(k1);
+                         f2 = obj.conjf(k2);
+                 %        size(r1,2)
+                         for ir = 1:size(r1,2)
+                      %       disp('r1')
+                      %       r1(ir).print
+                           r1(ir) = r1(ir).getVertices();  
+                       %    if k1 == 2 & k2 == 5
+                       %        r1(ir) = r1(ir).getVertices(true);  
+                       %        r1(ir).print
+                       %    end 
+                           % Removing regions which are points
+                           if r1(ir).nv == 1            % problem detecting R2R1 in example1
+                       %        continue;
+                           end 
+                           %disp('Feasible region')
+                           %disp(n)
+                           %r1(ir).isFeasibleWBPts
+                           n = n + 1;
+                       %    disp("k2k2")
+                       %    k1
+                       %    k2
+                           obj.maxd(n) = r1(ir);
+                           %r(n) = r(n).getVertices();
+                    %       disp(n)
+                    %       r(n).print
+
+                           obj.maxf(n,1) = f1;
+                           obj.maxf(n,2) = f2;
+                           %return
+                         end
+                         %return
+                         
+                       %if k1 == 2 & k2 == 5
+                       %    return
+                       %end
+
+                       end
+                       %return
+                       %obj.pieces(i1).conjd(k1).print
+                       %disp('Conjugate Domain 2')
+              
+                       %obj.pieces(i2).conjd(k2).print
+                    end
+                  end
+                 end
+              end
+            end
+           
+          
+          
+          
+          
+          %         obj.conjd(k1).intersection2(obj.conjd(k2))
+          
+        end
+    end
+
     methods % max
 
+
+      function obj = maximum(obj) %, f, r2)
+          
+
+          n = 0;
+          for i = 1:size(obj.maxd,2)
+
+              % do this if functions are linear
+             disp(["i", num2str(i)])
+             %r2(i).print
+
+% check this
+
+             %f1 = f(i,1);
+             %f2 = f(i,2);
+             % [l, fmax] = r2(i).maxArray (f1, f2) ;
+%%%%
+
+              [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if l
+                 n = n + 1;
+                 maxf(n) = fmax;
+                 %maxd(n) = r2(i);
+                 maxd(n) = obj.maxd(i);
+                 continue
+               else  
+                 disp('maximum : check if it reaches here')
+               end  
+          end
+          obj.maxf=functionF.empty();
+          obj.maxd = region.empty();
+          for i =1:n
+            obj.maxf(i) = maxf(i);
+            obj.maxd(i) = maxd(i);
+          
+          end
+          
+      end 
 
         function obj = maxOfConjugate (obj)
           
