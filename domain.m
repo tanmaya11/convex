@@ -55,6 +55,41 @@ classdef domain
           
         end
 
+        function l = checkPiece3 (obj)
+           %obj.print
+           
+           
+           l = false;
+           if ~ obj.polygon.checkPiece3
+               return;
+           end
+           if obj.nE ~= 2
+               return;
+           end
+           if obj.E(1,:) ~= [2,3]
+               return;
+           end
+           if obj.E(2,:) ~= [4,1]
+               return;
+           end
+           
+           if obj.mE ~= [1, 1.5]
+               return;
+           end
+           if obj.cE ~= [0, 1.5]
+               return;
+           end
+           if obj.nV ~= 0
+               return;
+           end
+           
+              
+           
+           l = true;
+           return
+          
+        end
+
     end
  
 %      methods  % testing

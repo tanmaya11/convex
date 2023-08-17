@@ -53,7 +53,45 @@ classdef region
 
          end
 
-         
+         function l = checkPiece3 (obj)
+             l = false;
+             
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [sym('x'), sym('y')]
+                 return
+             end
+             if obj.nv ~= 4
+                 return
+             end
+             if obj.vx ~= [ 1  1  0  -1]
+                 return
+             end
+             if obj.vy ~= [3  1  0  0  
+]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==x - 1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==x - y);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==-y);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==y - (3*x)/2 - 3/2);
+                 return
+            end
+             l = true;
+             return
+
+
+
+         end
+
          function l = checkConvexDomain11 (obj)
              l = false;
              
@@ -1055,8 +1093,8 @@ classdef region
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           for i = 1:size(fv1,2)
-              sv1(i) = fv1(i).f;
-              sv2(i) = fv2(i).f;
+              sv1(i) = fv1(i).f
+              sv2(i) = fv2(i).f
               if (isnan(sv1(i)))
                   sv1(i) = 0;
                   sv2(i) = 0;
@@ -1084,6 +1122,7 @@ classdef region
          % removes redundant ineq by finding points of intersection
          % check this code again
          function obj = simplify (obj, vars, obj2)
+             obj.print
            rem = [];
            n = 0;
            x = sym('x');
@@ -1096,101 +1135,294 @@ classdef region
              for j = i+1:size(obj.ineqs,2)
                  f2 = subs(obj.ineqs(j).f, vars,[x,y])  ;
                  s = solve ([f1==0,f2==0],[x,y]);
+                 
                  %disp('s.x')
                  %s.x
                  if isempty(s.x)
                      continue;
                  end
+                 sx = double(s.x);
+                 sy = double(s.y);
                  l =true;
                  if nargin > 2
-                     l = obj2.ptFeasible (vars,[s.x,s.y]);
+                     l = obj2.ptFeasible (vars,[sx,sy]);
                  end
                  %if obj2.ptFeasible (vars,[s.x,s.y])
                  if l
                      pointExists = false;
                      for k = 1:n
-                         if (intersectingPts(k) == [s.x,s.y])
+                         
+                         if (intersectingPts(k,1:2) == [sx,sy])
                              pointExists = true;
                              break;
                          end
                      end
                      if pointExists
-                       intersectingEdges{k} = [intersectingEdges{k},[i,j]];
-                       
+                       intersectingEdges(k,nEdges(k)+1) = i;
+                       intersectingEdges(k,nEdges(k)+2) = j;
+                       nEdges(k) = nEdges(k) + 2;
                      else
                        n = n + 1;
-                       intersectingPts{n} = [s.x,s.y];
-                       intersectingEdges{n} = [i,j];
+                       intersectingPts(n,1:2) = [sx,sy];
+                       intersectingEdges(n,1:2) = [i,j];
+                       nEdges(n) = 2;
                      end
                  end
                  
              end 
            end
-           for i = 1:size(intersectingEdges,2)
+           intersectingPts
+           intersectingEdges
+           nEdges
+           for i = 1:size(intersectingEdges,1)
+               lp(i) = false;
+           end
+           
+           % Mark feasible points as true
+           for i = 1:size(intersectingEdges,1)
+               %disp('intersecting point')
+               %intersectingPts{i}
+               %obj.ptFeasible (vars,intersectingPts{i})
+               if obj.ptFeasible (vars,intersectingPts(i,1:2))
+                 lp(i) = true;
+                 continue;
+               end
+           end
+           %lp
+           for i = 1:size(obj.ineqs,2)
+               ls(i) = false;
+           end
+           % Mark pair of edges for each feasible point
+           % split into 2 loops - pair and more
+
+           for i = 1:size(obj.ineqs,2)
+             ledgesP(i) = false;
+           end 
+           for i = 1:size(intersectingEdges,1)
+               if ~lp(i)
+                   continue
+               end
+               if nEdges(i) == 2
+                   ls(intersectingEdges(i,1:2)) = true; 
+                   nEdgesP(i,1:2) = intersectingEdges(i,1:2);
+                   ledgesP(intersectingEdges(i,1))=true;
+                   ledgesP(intersectingEdges(i,2))=true;
+               end
+           end
+           %ls
+           for i = 1:size(intersectingEdges,1)
+               if ~lp(i)
+                   continue
+               end
+               if nEdges(i) == 2
+                   continue
+               end
+               %edges = [];
+               for j = 1:nEdges(i) %:2
+                   if (mod(j,2)==0)
+                       continue
+                   end
+                   if ~(        ls(intersectingEdges(i,j))|ls(intersectingEdges(i,j+1))  )  
+                      %edges = [edges,[intersectingEdges(i,j),intersectingEdges(i,j+1)]];
+                      ls(intersectingEdges(i,j:j+1)) = true; 
+                  end
+               end
+           end
+           %ls
+           % At this point all feasible vertices are covered but some have
+           % more than 2 edges hence next few loops to remove extra edges
+           for i = 1:size(obj.ineqs,2) %size(intersectingEdges,1)
+             
+             ledges(i) = false;
+           end 
+           for i = 1:size(intersectingEdges,1)
+             nEdgesM(i) = 0;
+             
+           end 
+           ledges
+           % nEdgesM : Counts number of vertices thro an edge
+           % logical ledges used to not double count
+           for i = 1:size(intersectingEdges,1)
+               if ~lp(i)
+                   continue
+               end
+               for j = 1:nEdges(i)
+                   if ~ledges(intersectingEdges(i,j))
+                   if (ls(intersectingEdges(i,j)))
+                       ledges(intersectingEdges(i,j)) = true;
+                       nEdgesM(i) = nEdgesM(i)+1;
+                   end
+                   end
+                   
+               end    
+               for j = 1:nEdges(i)
+                 ledges(intersectingEdges(i,j)) = false;
+               end
+           end
+           %nEdgesM
+           %ledgesP
+           % putting neccesary edges in nEdgeP to decide which ones can be
+           % removed
+           for i = 1:size(intersectingEdges,1)
+               if ~lp(i)
+                   continue
+               end
+               if (nEdgesM(i) == 2 & nEdges(i) == 2)
+                   
+                   continue
+               elseif (nEdgesM(i) == 2)
+                   
+                 n = 0;  
+                 
+                 for j = 1:nEdges(i)
+                   if ledgesP(intersectingEdges(i,j))  
+                       continue
+                   end
+                   if (ls(intersectingEdges(i,j)))
+                       n = n+1;
+                       nEdgesP(i,n) = intersectingEdges(i,j)
+                   end
+                 end    
+               end
+               
+           end
+%           nEdgesP
+%unmark array is used to remove some edges which were earlier added
+           for i = 1:size(obj.ineqs,2)
+               lsp(i) = false;
+               unmark(i) = false;
+           end
+
+           for i = 1:size(intersectingEdges,1)
+               unMark(i) = false;    
+               if nEdgesM(i) ~= 2
+                   continue
+               end
+               lsp(nEdgesP(i,1)) = true;
+               lsp(nEdgesP(i,2)) = true;
+           end 
+ %          lsp
+           
+           for i = 1:size(intersectingEdges,1)
+               if nEdgesM(i) <= 2
+                   continue
+               end
+               n = 0;
+               for j=1:nEdges(i)
+                  if (lsp(intersectingEdges(i,j))) 
+                      n = n + 1;
+                  else
+                      unmark(intersectingEdges(i,j)) = true;
+                  end
+               end
+               if (n >= 2)
+               for j=1:nEdges(i)
+                  if (lsp(intersectingEdges(i,j))) 
+               %       n = n + 1
+                  else
+                      unmark(intersectingEdges(i,j)) = true;
+                  end
+               end
+               
+               end
+           end
+%           unmark
+           for i = 1:size(obj.ineqs,2)
+               if (ls(i) & ~lsp(i) & unmark(i))
+                   ls(i) = false;
+               end
+           end
+
+
+
+           rem = [];
+           for i = 1:size(ls,2)
+               
+              if (~ls(i))
+                rem = [rem,i];
+              end
+           end
+           obj.ineqs(rem) = [];
+           return
+           
+           disp('in simp')
+           for i = 1:size(intersectingEdges,1)
                lp(i) = false;
            end
            for i = 1:size(obj.ineqs,2)
                ls(i) = false;
                
            end
-
+           
+           ls
            %n
            %intersectingPts{n}
            %intersectingEdges{n}
 
            % if intersecting point is not in feasible region mark it true
-           for i = 1:size(intersectingEdges,2)
+           for i = 1:size(intersectingEdges,1)
                %disp('intersecting point')
                %intersectingPts{i}
                %obj.ptFeasible (vars,intersectingPts{i})
-               if obj.ptFeasible (vars,intersectingPts{i})
+               if obj.ptFeasible (vars,intersectingPts(i,1:2))
                  continue;
                end
                lp(i) = true;
-               for j = 1:  size(intersectingEdges{i},2) 
-                   ls(intersectingEdges{i}(j)) = true;
+               
+               for j = 1:  nEdges(i) %size(intersectingEdges{i},2) 
+                   
+                   ls(intersectingEdges(i,j)) = true;
                end
+               ls
            end
-           %lp
-           %ls
+           % infeasible points and corresponding edges marked true
 
+           nEdges
+           lp
+           ls
+
+        
+           
            % if valid point created by intersection of only 2 edges - mark
-           % false
-           for i = 1:size(intersectingEdges,2)
+           % false as edges are needed
+           for i = 1:size(intersectingEdges,1)
               if (lp(i))
                   continue
               end
               
-              if size(intersectingEdges{i},2) == 2 
-                 for j = 1:  size(intersectingEdges{i},2) 
-                   ls(intersectingEdges{i}(j)) = false;
+              %if size(intersectingEdges{i},2) == 2 
+              if nEdges(i) == 2 
+                 for j = 1:  nEdges(i) %size(intersectingEdges{i},2) 
+                   ls(intersectingEdges(i,j)) = false;
                  end
               end
            end
-           %disp('lp2')
-           %lp
-           %ls
+           disp('lp2')
+           lp
+           ls
            
-           % remove edges where point is to be removed
-           for i = 1:size(intersectingEdges,2)
+           % where multiple edges intersect at a point - put one pair
+           for i = 1:size(intersectingEdges,1)
               if (lp(i))
                   continue
               end
               edges = [];
-              for j = 1:  size(intersectingEdges{i},2)
+              for j = 1:  nEdges(i) %size(intersectingEdges{i},2)
                   if mod(j,2)==0
                       continue
                   end
-                  if ~(        ls(intersectingEdges{i}(j))|ls(intersectingEdges{i}(j+1))  )  
-                    edges = [edges,[intersectingEdges{i}(j),intersectingEdges{i}(j+1)]];
+                  if ~(        ls(intersectingEdges(i,j))|ls(intersectingEdges(i,j+1))  )  
+                    edges = [edges,[intersectingEdges(i,j),intersectingEdges(i,j+1)]];
                   end
               end
-              intersectingEdges{i} = edges;
+              intersectingEdges(i,:) = edges;
+              nEdges(i) = size(edges,2);
            end
+
            % mark singletons and filter 
            for i = 1:size(obj.ineqs,2)
                ls(i) = true;
-               
+             
            end
            %disp('lp3')
            %lp
@@ -1202,8 +1434,8 @@ classdef region
               end
               %if size(intersectingEdges{i},2) == 2
                 lp(i)=true;
-                for j = 1:  size(intersectingEdges{i},2)
-                  ls(intersectingEdges{i}(j)) = false  ;
+                for j = 1:  nEdges(i)
+                  ls(intersectingEdges(i,j)) = false  ;
                 end
               %else
               %  lp(i)=true;
@@ -1211,22 +1443,22 @@ classdef region
               %    ls(intersectingEdges{i}(j)) = false  ;
               %  end  
               %end 
-              intersectingEdges{i} = edges;
+              intersectingEdges(i,:) = edges;
            end
            %disp('lp4')
            %lp
            %ls
            
-           for i = 1:size(intersectingEdges,2)
+           for i = 1:size(intersectingEdges,1)
               if (lp(i))
                   continue;
               end
               lM = false;
-              for j = 1:  size(intersectingEdges{i},2)
+              for j = 1:  nEdges(i) %size(intersectingEdges{i},2)
                 if mod(j,2)==0
                   continue;
                 end
-                if ls(intersectingEdges{i}(j)) & ls(intersectingEdges{i}(j+1))
+                if ls(intersectingEdges(i,j)) & ls(intersectingEdges(i,j+1))
                     lM=true;
                     break;
                 end
@@ -1241,7 +1473,7 @@ classdef region
            
            % put code for lP false        
            %all(lp)
-           %lp
+           lp
            if  all(lp)==true
            for i = 1:size(ls,2)
                
@@ -1250,7 +1482,7 @@ classdef region
               end
            end
            end
-           %rem
+           rem
            obj.ineqs(rem) = [];
          end
 
@@ -1285,14 +1517,15 @@ classdef region
                for j = 1:size(point,1)
                 %obj.ineqs(i).f
                 %point(j,:)
-                %subs ([obj.ineqs(i).f],vars,double(point(j,:)))
-               if subs ([obj.ineqs(i).f],vars,double(point(j,:))) > 0
+               %double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
+               if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
                    l = false;
                    return
                end
                end
            end  
          end
+
 
          function obj = removeDenominator(obj)
            for i = 1:size(obj.ineqs,2)

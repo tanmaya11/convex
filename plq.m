@@ -39,15 +39,18 @@ if i > 1
       
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces
-             % i
-              if i == 1
-                  %continue;
+              i
+              %if i == 1 
+              %    continue;
+              %end
+              if i >= 2 
+                  continue;
               end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
-              if i == 1
-                  return
-              end
-              disp('end')
+              %if i ==  1
+              %    return
+              %end
+              %disp('end')
           end
       end
        
@@ -59,6 +62,7 @@ if i > 1
              % disp('conjugate')
              % i
              % obj.pieces(i).envf.printL
+
               obj.pieces(i)=obj.pieces(i).conjugate;
              % disp('done')
              % size(obj.pieces(i).envf)

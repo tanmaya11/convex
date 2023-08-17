@@ -20,7 +20,96 @@ classdef plq_1piece
             l = l & obj.d.checkPiece1;
         end
 
+        function l = checkPiece3 (obj)
+            l = true;
+            l = l & obj.f.checkPiece1; 
+            l = l & obj.d.checkPiece3;
+        end
         
+        function l = checkEta3 (obj)
+            l = false;
+            vars = obj.f.getVars;
+            if (size(vars,2)==2)
+              x = vars(1);
+              y = vars(2);
+            end  
+            a=sym('a');
+            b=sym('b');
+           [etaV, etaE, etaR] =  obj.getEtaFunctions (x,y,a,b);
+
+           if ~ size(etaV) == [0,0]
+               return
+           end
+           
+           % etaE(1) = f - ax - by at V1
+           % etaE(2) = -[(a+mb-q)^2]/4 -bq
+           % etaE(3) = f - ax - by at V2
+           f = 1-b-a;
+           if ~ isAlways(etaE(1,1).f == f)
+              return;
+           end
+           f = -(a+b)^2/4;
+           if ~ isAlways(etaE(1,2).f == f)
+              return;
+           end
+           f = 0;
+           if ~ isAlways(etaE(1,3).f == f)
+              return;
+           end
+           
+           f = a;
+           if ~ isAlways(etaE(2,1).f == f)
+              return;
+           end
+           f = a/2 - (3*b)/4 - (a*b)/2 - a^2/6 - (3*b^2)/8 - 3/8;
+           if ~ isAlways(etaE(2,2).f == f)
+              return;
+           end
+           f = 3 - 3*b - a;
+           if ~ isAlways(etaE(2,3).f == f)
+              return;
+           end
+
+
+           %etaR
+           %etaR(1) = a+mb
+           %etaR(2) <= etaR(1) <= etaR(3)
+           %df1 = f1.dfdx(x)
+           %b1 = df1.subsVarsPartial ([x,y],[xv1,yv1]);
+           %b1 <= etaR(1) <= b2
+           f = a+b;
+           if ~ isAlways(etaR(1,1).f == f)
+              return;
+           end
+           f = 0;
+           if ~ isAlways(etaR(1,2).f == f)
+              return;
+           end
+           f = 2;
+           if ~ isAlways(etaR(1,3).f == f)
+              return;
+           end
+           
+           f = a + (3*b)/2;
+           if ~ isAlways(etaR(2,1).f == f)
+              return;
+           end
+           f = -3/2;
+           if ~ isAlways(etaR(2,2).f == f)
+              return;
+           end
+           f = 9/2;
+           if ~ isAlways(etaR(2,3).f == f)
+              return;
+           end
+
+
+           l = true;
+           
+           
+
+        end
+
         function l = checkconvexEnvelope1 (obj)
             l = false;
             if size(obj.envf) ~= [1,2]
@@ -330,6 +419,9 @@ classdef plq_1piece
          end
 
          function plot(obj)
+             figure;
+             obj.d.plot;
+             
            for j=1:size(obj.envf,2) 
              
              limits = [min(obj.envd(j).vx),max(obj.envd(j).vx),min(obj.envd(j).vy),max(obj.envd(j).vy)];
@@ -345,8 +437,9 @@ classdef plq_1piece
              obj.envf(j).f = simplify(obj.envf(j).f);
              %figure;  
              %obj.envf(j).plot3d (limits);
-             %figure;
-             %obj.envd(j).plot;
+             figure;
+             obj.d.plot;
+             obj.envd(j).plot;
              if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                %disp("Conjugate Expr")
@@ -479,13 +572,21 @@ classdef plq_1piece
               obj = convexEnvelope1 (obj,x,y);
               %return
               for i=1:size(obj.envd,2)
+                  %obj.envd(i).print
+                  %figure;
+                  %obj.envd(i).plot;
                   obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
+                  %disp('after simplify')
+                  %obj.envd(i).print
+                  %figure;
+                  %obj.envd(i).plot;
+                  
                   obj.envd(i) = obj.envd(i).getVertices();
               end
               %return
               %disp("convexEnvelope1")
               %obj.print
-
+              %obj.plot
               %[f,r] = obj.intersectionDomain;
 
               %for i = 1:size(r,2)
@@ -496,14 +597,16 @@ classdef plq_1piece
 
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               %disp("maxconvexEnvelope1")
+              %obj.print
               %return
               
               li = obj.entireRegion ();
               if li > 0
                 obj = obj.removeNMax (li,[x,y]);
               end
-              %disp("removeconvexEnvelope1")
-              %obj.print
+             %disp("removeconvexEnvelope1")
+             % obj.print
+              
               
 
               
@@ -524,6 +627,9 @@ classdef plq_1piece
               %  obj.envd(j) = obj.envd(j).getVertices();
               %end
             %end
+            %disp("finalconvexEnvelope1")
+             % obj.print
+             
             return
             
         end
@@ -538,12 +644,12 @@ classdef plq_1piece
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
 
-            %etaV.printL();
-            %disp("etaE")
-            %etaE.printL();
-            %disp("etaR")
-            %etaR.printL();
-            %return
+%             etaV.printL();
+%             disp("etaE")
+%             etaE.printL();
+%             disp("etaR")
+%             etaR.printL();
+%             return
             % put a check that eta are only polynomials 
 
              % (vix, vjx) is the pair :  1 for edge else 0 
@@ -559,7 +665,8 @@ classdef plq_1piece
             %return
             %disp("solve")
             [envfs, envxs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            %disp("solve done")
+            size(envfs,2)
+            disp("solve done")
             
             for i = 1:size(envfs,2)
 
@@ -567,15 +674,26 @@ classdef plq_1piece
                 %r = unique(r);
                 %disp("check.....")
                 %envds(i).print
+                %disp('r1')
                 r  = obj.d.polygon + envds(i);
+                %r.print
+                %disp('r2')
+                %r.print
                 r = r.removeDenominator;
+                %disp('r3')
+                %r.print
                 r = unique(r);
+                %disp('r4')
+                %r.print
                 if (r.isFeasible)
                   obj.envf = [obj.envf, envfs(i)];
                   obj.envExpr = [obj.envExpr, envxs(i)];
                   obj.envd = [obj.envd, r.removeDenominator];
                   
                 end
+               % disp('r5')
+               % obj.envd(end).print
+               % obj.envd(end).plot
             end
             %obj.envd(1).print
             %obj.envd(2).print
@@ -669,6 +787,7 @@ classdef plq_1piece
             % Get a in terms of b 
             if (isempty(av))
                 lSol = false;
+                disp('returning')
                 return;
             end
             lSol = true;
@@ -678,6 +797,7 @@ classdef plq_1piece
             %alpha1 = bcoeffs(2);
 
             %substitute a in objective and get coefficients of b
+            %obj0
             obj0 = obj0.subsVarsPartial([a],[av]);
             objfacts = coeffs(obj0.f,b);
             eta0 = objfacts(1);
@@ -704,6 +824,13 @@ classdef plq_1piece
             %nb
             %lb
             %ub
+
+            nb = 1;
+            lb(1) = max(lb)
+            ub(1) = min(ub)
+            if lb(1) >= ub(1)
+                return
+            end
             nb0 = nb;
             for j=1:size(etaV,2)
                if (lV(j)) 
@@ -739,30 +866,33 @@ classdef plq_1piece
             end
             
             
-            nb1 = nb0; 
-            for i = nb0+1:nb
-                wB = false;
-                for j = 1:nb0
-                    if (lb(i) < lb(j))
-                        wB = true;
-                        break;
-                    end
-                    if (ub(i) > ub(j))
-                        wB = true;
-                        break;
-                    end
-                end
-                if wB
-                    continue;
-                end
-                nb1 = nb1+1;
-                lb(nb1) = lb(i);
-                ub(nb1) = ub(i);
-            end
-            nb = nb1;
-            %for i = 1:nb
-            %  mlb = lb(i);
-            %  mub = ub(i);
+%             nb1 = nb0; 
+%             for i = nb0+1:nb
+%                 wB = false;
+%                 for j = 1:nb0
+%                     if (lb(i) < lb(j))
+%                         wB = true;
+%                         break;
+%                     end
+%                     if (ub(i) > ub(j))
+%                         wB = true;
+%                         break;
+%                     end
+%                 end
+%                 if wB
+%                     continue;
+%                 end
+%                 nb1 = nb1+1;
+%                 lb(nb1) = lb(i);
+%                 ub(nb1) = ub(i);
+%             end
+%             nb = nb1;
+ if nb > 2
+     disp('Check this - union/intersection')
+ end
+          %   for i = 1:nb
+           %   mlb = lb(i);
+           %   mub = ub(i);
             mlb = max(lb);
             mub = min(ub);
             %size(envfs)
@@ -798,6 +928,7 @@ classdef plq_1piece
               %disp("in linear")
               %envds(end).print
             end
+            % end
             return
             
         end
@@ -812,10 +943,10 @@ classdef plq_1piece
           %av = z - m*b;
           %z = a+m*b;
           %lSolve = true;
-          av = solve(z-a-m*b,a);
-          eq = etah-etaw;
-          eq = eq.subsVarsPartial([a],[av]);
-          bv = eq.solve(b);
+          av = solve(z-a-m*b,a)
+          eq = etah-etaw
+          eq = eq.subsVarsPartial([a],[av])
+          bv = eq.solve(b)
           linfeasible = false;
 
           if (isempty(bv))
@@ -862,8 +993,8 @@ classdef plq_1piece
 
             end  
           nb0 = nb;
-          %lb
-          %ub
+          lb
+          ub
 
           % solve these to get bounds
           for j=1:size(etaV,2)
@@ -933,9 +1064,10 @@ classdef plq_1piece
               
             end
           end
-          %lb
-          %ub
+          lb
+          ub
           nb1 = nb0; 
+          
             for i = nb0+1:nb
                 wB = false;
                 for j = 1:nb0
@@ -959,22 +1091,22 @@ classdef plq_1piece
           %lb
           %ub
            
-          %lb
-          %ub
-          obj0 = etah + functionF(a*x+b*y);
-          obj0 = obj0.subsVarsPartial([a],[av]);
-          obj0 = obj0.subsVarsPartial([b],[bv]);
-          deg = polynomialDegree(obj0.f,z);
+          lb
+          ub
+          obj0 = etah + functionF(a*x+b*y)
+          obj0 = obj0.subsVarsPartial([a],[av])
+          obj0 = obj0.subsVarsPartial([b],[bv])
+          deg = polynomialDegree(obj0.f,z)
           if (deg ~= 2) 
               disp("check degree of polynomial in z in quad-lin")
               return
           end
-          objfacts = coeffs(obj0.f,z);
+          objfacts = coeffs(obj0.f,z)
           
           if (deg+1 == size(objfacts,2))
-            psi0 = objfacts(1);
-            psi1 = objfacts(2)/2;
-            psi2 = -objfacts(3);
+            psi0 = objfacts(1)
+            psi1 = objfacts(2)/2
+            psi2 = -objfacts(3)
           elseif (deg == size(objfacts,2))
             z0 = simplify(obj0.f - objfacts(end)*z^2);
             %polynomialDegree(z0,z)
@@ -1000,8 +1132,8 @@ classdef plq_1piece
           %lb
           %ub
 
-          mlb = max(lb);
-          mub = min(ub);
+          mlb = max(lb)
+          mub = min(ub)
             
             %for i = 1:size(lb,2)
             
@@ -1022,8 +1154,13 @@ classdef plq_1piece
           
           mlb = min(lb);
           mub = max(ub);
+
+          % Why returning here - check
+          % fishy but needed
           if mlb == -inf
+              disp('returning')
               return
+              
           elseif mub == inf
               return
           end
@@ -1080,17 +1217,17 @@ classdef plq_1piece
            
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
      %       disp("quadquad")
-          av = alpha1*b + alpha0;
+          av = alpha1*b + alpha0
           
-          obj0 = etah + functionF(a*x+b*y);
+          obj0 = etah + functionF(a*x+b*y)
                     
-          obj0 = obj0.subsVarsPartial([a],[av]);
+          obj0 = obj0.subsVarsPartial([a],[av])
           
           nb = 1;
           
-          c = etaR(ix,1) - etaR(ix,2);
-          c = c.subsVarsPartial([a],[av]);
-          coef = coeffs(c.f);
+          c = etaR(ix,1) - etaR(ix,2)
+          c = c.subsVarsPartial([a],[av])
+          coef = coeffs(c.f)
           if (coef(end) > 0)
             lb(nb) = c.solve(b);
             c = etaR(ix,1) - etaR(ix,3);
@@ -1177,8 +1314,9 @@ classdef plq_1piece
               end
             end
           end
-          mlb = max(lb);
-          mub = min(ub);
+          mlb = max(lb)
+          mub = min(ub)
+          
           %if mlb < mub
           psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x;
           psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x;
@@ -1189,7 +1327,7 @@ classdef plq_1piece
            %   mub = ub(i);
            %mlb
            %mub
-              if mlb >= mub
+              if isAlways(mlb >= mub)
            %       disp('infeasible')
                   return
               else
@@ -1198,24 +1336,37 @@ classdef plq_1piece
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               envfs = [envfs, f0];
-              r0 = -simplify(mub*psi2-psi1);
-              r1 = simplify(mlb*psi2-psi1);
+              r0 = -simplify(mub*psi2-psi1)
+              r1 = simplify(mlb*psi2-psi1)
               envds = [envds, region([r0,r1], [x,y])];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
+              envds(end).print
+              %figure;
+              %obj.d.plot
+              %envds(end).plot
 
 
               f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
-              r0 = simplify(psi1-mlb*psi2);
+              r0 = simplify(psi1-mlb*psi2)
               envfs = [envfs, f0];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mlb)];
+              envds(end).print
+%figure;
+ %             obj.d.plot
+  %            envds(end).plot
 
 
               f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
-              r0 = simplify(mub*psi2-psi1);
+              r0 = simplify(mub*psi2-psi1)
               envfs = [envfs, f0];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mub)];
+              envds(end).print
+%figure;
+ %             obj.d.plot
+  %            envds(end).plot
+
               end
           %end
           %end
@@ -1228,25 +1379,15 @@ classdef plq_1piece
           envxs = [];
           envds = [];
           for i=1:size(ix,2)
-              
-             % i
-            %  if i ~= 9 
-            %      continue
-            %  end
-            % for j = 1:size(envfs,2)
-            %            disp('envfs')
-            %            envfs(j).print
-             %           disp('envds')
-                        
-              %          envds(i).print
-             %       end
-                    
-             %if i > 8
-                % return
-             %end
+             i
+             if i ~= 5
+             %    continue
+             end
+             lV = []; 
              for j = 1:size(etaV,2)
                lV(j) = false;
              end
+             lE=[];
              for j = 1:size(etaE,1)
                lE(j) = false;
              end
@@ -1270,19 +1411,20 @@ classdef plq_1piece
                   etaw = etaV(jx(i));
                   lV(jx(i)) = true;
               end
+              etah
+              etaw
               if (etah == etaw)
                   continue;
               end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
               if (degreeh==1 & degreew==1)
-                 %   disp("lin-lin")
+                    disp("lin-lin")
                   %  continue
                     %objective function set here as we can exchange a and b
                     %if required
 
-             %       etah
-             %       etaw
+                    
              %       ixd(i)
              %       jxd(i)
                     obj0 = etah + functionF(a*x+b*y);
@@ -1296,14 +1438,14 @@ classdef plq_1piece
                     else
                         etaRj = etaR(jx(i),:);
                     end
-              %      etaRi(1)
-              %      etaRi(2)
-              %      etaRi(3)
+                   % etaRi(1)
+                   % etaRi(2)
+                   % etaRi(3)
                     
                     
-               %     etaRj(1)
-               %     etaRj(2)
-               %     etaRj(3)
+                   % etaRj(1)
+                   % etaRj(2)
+                   % etaRj(3)
                     %size(envfs,2)
                     [envfs, envxs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, a, b, envfs, envxs, envds) ;
                     % fix if ix or jx doesnt exist
@@ -1313,13 +1455,13 @@ classdef plq_1piece
                         [envfs, envxs, envds, lSol] = solveLinearLinear1(obj, obj0, etah, etaw, etaV, lV, etaE, lE, etaRi, ixd(i), etaRj, jxd(i), x, y, b, a, envfs, envxs, envds) ;
                     end
 
-              %      for i = 1:size(envfs,2)
+                    %for i = 1:size(envfs,2)
                     %    disp('envfs')
-               %         envfs(i).print
-             %           disp('envds')
+                    %    envfs(i).print
+                    %    disp('envds')
                         
-              %          envds(i).print
-                %    end
+                    %    envds(i).print
+                    %end
                     
                 end 
                 
@@ -1342,7 +1484,7 @@ classdef plq_1piece
                 end
                 
                 if (degreeh==1 & degreew==2)
-               %     disp("lin-quad")
+                    disp("lin-quad")
                   %  continue;
                  %   etah
                   %  etaw
@@ -1351,14 +1493,16 @@ classdef plq_1piece
                     % check if lV lE need to be updated -don't think so tho
                     
                     [envfs, envxs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaRj, jxd(i), etaRi, ixd(i), etaV, lV, etaE, lE, jx(i), envfs, envxs,envds);
+                    
                 end
                             
                 if (degreeh==2 & degreew==2)
-             %       disp("quad-quad")
+                    disp("quad-quad")
                    % continue;
                     obj0 = etah + functionF(a*x+b*y);
                     
                     if (mh == mw)
+                       disp('equal')
                        %av = (2*mh*b+qh+qw)/2;
                        alpha1 = mh;
                        alpha0 = (qh+qw)/2
@@ -1367,18 +1511,8 @@ classdef plq_1piece
                        size(envfs)
                     else
                     %   disp("mh /= mw")
-                       c0 = sqrt(mh*mw);
-                       c0 = c0*((mh-mw)*b+qh-qw);
-                       av = (qw*mh-qh*mw+c0)/(mh-mw);
-                       %c0 = (qw*mh-qh*mw+c0)/(mh-mw);
-                       
-                       %av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
-                       %av = (qw*mh-qh*mw+c0*((mh-mw)*b+qh-qw))/(mh-mw)
-                       %av = c0 * ((mh-mw)*b+qh-qw);
-                       
-                       
-                       alpha = coeffs(av,b);
-                      % size(alpha)
+                       av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
+                       alpha = coeffs(av,b)
                        if (size(alpha,2) == 2)
                            alpha1 = alpha(2);
                            alpha0 = alpha(1);
@@ -1407,7 +1541,17 @@ classdef plq_1piece
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                     end
                 end
-                    
+%                    for i = 1:size(envfs,2)
+%                        disp('envfs')
+%                        envfs(i).print
+%                        disp('envds')
+%                         envds(i) = envds(i).getVertices()
+%                        envds(i).print
+%                %        figure;
+%                %        obj.d.plot
+%               %         envds(i).plot
+%                     end
+                     
             end 
            
         end
@@ -1588,6 +1732,9 @@ classdef plq_1piece
                 xv = obj.d.polygon.vx(obj.d.V(i));
                 yv = obj.d.polygon.vy(obj.d.V(i));
                 etaV(i) = eta.subsVarsPartial([x,y],[xv,yv]);
+            end
+            if obj.d.nV == 0
+                etaV=functionF.empty();
             end
             
         end
@@ -2622,8 +2769,12 @@ classdef plq_1piece
                 if (i == li) 
                     continue;
                 end
+                obj.envd(i).print
                 [l, p, ind] = obj.envd(i).maximum( [obj.envf(i), obj.envf(li)]);
                 %[ind,p] = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
+                p
+                obj.envf(i)
+                obj.envf(li)
                 if (p == obj.envf(li))
                     d = [d,i];
                 end

@@ -12,7 +12,8 @@ function plq_eg
   
   d1=domain([0,0;2,0;2,1;1,1],x,y);
   d2=domain([-5,5;1,3;-1,0;-5,-4],x,y);
-  d3=domain([0,0;1,2;2,2;2,1],x,y);
+  d3=domain([-5,-4;0,0;1,1;1,3],x,y);
+  %d3=domain([0,0;1,2;2,2;2,1],x,y);
   p(1)=plq_1piece(d1,f);
   p(2)=plq_1piece(d2,f);
   p(3)=plq_1piece(d3,f);
@@ -23,11 +24,11 @@ function plq_eg
   
   convex_PS = PS.convexEnvelope();
   disp("convex done")
-%  convex_PS.plot;
+  convex_PS.plot;
 %  return
   
-  %convex_PS.print
-  %return
+  convex_PS.print
+  return
   conjugate_PS = convex_PS.conjugate();
 %   disp("conjugate done")
 %  conjugate_PS.plot;

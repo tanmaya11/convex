@@ -57,14 +57,19 @@ classdef functionF
         
 
         function print(obj)
-            %obj.f
-            %class(obj.f)
+%            obj.f
+%            class(obj.f)
+%            if obj.isZero
+%                fprintf("0"); 
+%                return;
+%            end
             %if (isdouble(obj.f))
             %   fprintf(char((obj.f)));  
-            %elseif class(obj.f) == 'sym' 
+%            if class(obj.f) == 'sym' 
                fprintf(char(simplify(obj.f))); 
-              
-            %end 
+%            else  
+%                fprintf(char((obj.f)));  
+ %           end 
             fprintf("\n")
             
         end
@@ -141,7 +146,7 @@ classdef functionF
         function printL (l, first, last)
 
             if nargin == 1
-            
+            size(l)
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).print;
@@ -198,6 +203,14 @@ classdef functionF
         function f = unaryminus(obj)
             f = functionF(-obj.num,obj.den);
         end
+        function f = mtimes(f1,f2)
+            num = f1.num * f2.num;
+            den = f1.den * f2.den;
+            f = functionF(num,den);
+            % fix this
+            % check def of num den here
+        end
+
     end
 
     methods % derivatives
