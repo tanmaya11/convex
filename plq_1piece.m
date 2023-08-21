@@ -576,7 +576,7 @@ classdef plq_1piece
                   %figure;
                   %obj.envd(i).plot;
                   obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
-                  %disp('after simplify')
+          %        disp('after simplify')
                   %obj.envd(i).print
                   %figure;
                   %obj.envd(i).plot;
@@ -584,8 +584,9 @@ classdef plq_1piece
                   obj.envd(i) = obj.envd(i).getVertices();
               end
               %return
-              %disp("convexEnvelope1")
-              %obj.print
+              disp("convexEnvelope1")
+              obj.print
+              %return
               %obj.plot
               %[f,r] = obj.intersectionDomain;
 
@@ -604,19 +605,27 @@ classdef plq_1piece
               if li > 0
                 obj = obj.removeNMax (li,[x,y]);
               end
-             %disp("removeconvexEnvelope1")
-             % obj.print
+  %           disp("removeconvexEnvelope1")
+  %           obj.print
+  %          return  
               
+%for j=1:size(obj.envd,2)
+        %         figure;
+        %        obj.envd(j).plot;
               
-
+ %             end
               
               obj = obj.maxEnvelopeIntersect([x,y]);
+             disp("maxEnvelopeIntersect")
+              obj.print
+             
               %return
               for i=1:size(obj.envd,2)
                   obj.envd(i) = obj.envd(i).getVertices();
               end
               
               %return
+              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               %disp("max2")
               
@@ -627,9 +636,13 @@ classdef plq_1piece
               %  obj.envd(j) = obj.envd(j).getVertices();
               %end
             %end
-            %disp("finalconvexEnvelope1")
-             % obj.print
-             
+            disp("finalconvexEnvelope1")
+             %obj.print
+             for j=1:size(obj.envd,2)
+                % figure;
+                %obj.envd(j).plot;
+              
+              end
             return
             
         end
@@ -681,10 +694,10 @@ classdef plq_1piece
                 %r.print
                 r = r.removeDenominator;
                 %disp('r3')
-                %r.print
+                r.print
                 r = unique(r);
                 %disp('r4')
-                %r.print
+                r.print
                 if (r.isFeasible)
                   obj.envf = [obj.envf, envfs(i)];
                   obj.envExpr = [obj.envExpr, envxs(i)];
@@ -1217,6 +1230,7 @@ classdef plq_1piece
            
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
      %       disp("quadquad")
+     %return
           av = alpha1*b + alpha0
           
           obj0 = etah + functionF(a*x+b*y)
@@ -1381,7 +1395,7 @@ classdef plq_1piece
           for i=1:size(ix,2)
              i
              if i ~= 5
-             %    continue
+               %  continue
              end
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1525,8 +1539,8 @@ classdef plq_1piece
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0,  alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                  %      disp('aft')
                  %      size(envfs)
-                       continue
-                 %      disp("second")
+                 %      continue
+                       disp("second")
                        av = (qw*mh-qh*mw-sqrt(mh*mw)*(mh-mw)*b+qh-qw)/(mh-mw);
                        alpha = coeffs(av,b);
                        if (size(alpha) == 2)
@@ -1541,7 +1555,7 @@ classdef plq_1piece
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                     end
                 end
-%                    for i = 1:size(envfs,2)
+                    for i = 1:size(envfs,2)
 %                        disp('envfs')
 %                        envfs(i).print
 %                        disp('envds')
@@ -1550,7 +1564,7 @@ classdef plq_1piece
 %                %        figure;
 %                %        obj.d.plot
 %               %         envds(i).plot
-%                     end
+                     end
                      
             end 
            
@@ -2799,13 +2813,19 @@ classdef plq_1piece
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
                     %if (obj.envd(i) == obj.envd(j))
+                    i
+                    j
+                    
                     d = intersection(obj.envd(i),obj.envd(j));
                     if isempty(d)
                         continue;
                     end
-                    
+                    disp('intersect')
+                    d.print
+                    disp('b4 simplify')
                     %d0 = d.simplify (vars,obj.envd(i));
                     d0 = d.simplify (vars,obj.d.polygon);
+                    disp('aft simplify')
                    % disp("intersection")
                    % obj.d.polygon.print
                    % d.print
@@ -2834,8 +2854,11 @@ classdef plq_1piece
                     %setDifference = simplify(obj.envd(i) & ~d)
                     %obj.envd(i).print
                     %d0.print
+                    disp('here')
+                    obj.envd(i).print
+                    d0.print
                     d1 = obj.envd(i) - d0;
-                    %d1.print
+                    d1.print
                     d1 = d1.simplify (vars,obj.d.polygon);
                     %d1.print
                     %continue

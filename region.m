@@ -1093,8 +1093,8 @@ classdef region
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           for i = 1:size(fv1,2)
-              sv1(i) = fv1(i).f
-              sv2(i) = fv2(i).f
+              sv1(i) = fv1(i).f;
+              sv2(i) = fv2(i).f;
               if (isnan(sv1(i)))
                   sv1(i) = 0;
                   sv2(i) = 0;
@@ -1137,7 +1137,10 @@ classdef region
                  s = solve ([f1==0,f2==0],[x,y]);
                  
                  %disp('s.x')
+                 %f1
+                 %f2
                  %s.x
+                 %s.y
                  if isempty(s.x)
                      continue;
                  end
@@ -1171,9 +1174,9 @@ classdef region
                  
              end 
            end
-           intersectingPts
-           intersectingEdges
-           nEdges
+   %        intersectingPts
+   %        intersectingEdges
+           %nEdges
            for i = 1:size(intersectingEdges,1)
                lp(i) = false;
            end
@@ -1188,7 +1191,7 @@ classdef region
                  continue;
                end
            end
-           %lp
+    %       lp
            for i = 1:size(obj.ineqs,2)
                ls(i) = false;
            end
@@ -1239,7 +1242,7 @@ classdef region
              nEdgesM(i) = 0;
              
            end 
-           ledges
+           %ledges
            % nEdgesM : Counts number of vertices thro an edge
            % logical ledges used to not double count
            for i = 1:size(intersectingEdges,1)
@@ -1259,7 +1262,7 @@ classdef region
                  ledges(intersectingEdges(i,j)) = false;
                end
            end
-           %nEdgesM
+     %      nEdgesM
            %ledgesP
            % putting neccesary edges in nEdgeP to decide which ones can be
            % removed
@@ -1286,7 +1289,7 @@ classdef region
                end
                
            end
-%           nEdgesP
+      %     nEdgesP
 %unmark array is used to remove some edges which were earlier added
            for i = 1:size(obj.ineqs,2)
                lsp(i) = false;
@@ -1298,10 +1301,14 @@ classdef region
                if nEdgesM(i) ~= 2
                    continue
                end
+               if nEdgesP(i,1) == 0   % edge was marked due to other vertex hence not recorded here
+                   continue;
+               end
                lsp(nEdgesP(i,1)) = true;
                lsp(nEdgesP(i,2)) = true;
            end 
- %          lsp
+       %    lsp
+       %    size(lsp)
            
            for i = 1:size(intersectingEdges,1)
                if nEdgesM(i) <= 2
@@ -1345,7 +1352,7 @@ classdef region
            obj.ineqs(rem) = [];
            return
            
-           disp('in simp')
+        %   disp('in simp')
            for i = 1:size(intersectingEdges,1)
                lp(i) = false;
            end
@@ -1354,7 +1361,7 @@ classdef region
                
            end
            
-           ls
+         %  ls
            %n
            %intersectingPts{n}
            %intersectingEdges{n}
@@ -1377,9 +1384,9 @@ classdef region
            end
            % infeasible points and corresponding edges marked true
 
-           nEdges
-           lp
-           ls
+          % nEdges
+          % lp
+          % ls
 
         
            
@@ -1571,6 +1578,16 @@ classdef region
                      
                      return;
                  end
+                 % put case with only 1 variable then activate this
+               %  class(s)
+               %  if ~s.isSymType
+               %  if isempty(s.x)
+               %      return;
+               %  end
+               %  if isempty(s.y)
+               %      return;
+               %  end
+               %  end
                  %obj.ineqs(i).print
                  %obj.ineqs(j).print
                end 
@@ -1593,8 +1610,10 @@ classdef region
               l = [l,obj2.ineqs(i).f];
          end 
          obj = region(l, obj1.vars);
+         %disp('in intersection')
+         %obj.print
          if (isFeasible(obj))
-             %disp('feasible')
+             disp('feasible')
              obj = obj.unique;
          else
              obj = region.empty;
