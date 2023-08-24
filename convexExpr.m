@@ -48,11 +48,13 @@ classdef convexExpr
              if obj.type~= 3
                  return
              end
+             
              f = x;
              if ~isAlways(obj.vpsi0.f == f)
                  return
              end
-             f = y-1;
+             
+             f = y - 1;
              if ~isAlways(obj.vpsi1.f == f)
                  return
              end
@@ -63,6 +65,62 @@ classdef convexExpr
                  return
              end
              
+             
+             l = true;
+             return
+             
+             
+         end
+
+         function l = checkExpr21 (obj)
+             x = sym('x');
+             y = sym('y');
+             %obj.print
+             l = false;
+
+             if obj.type~= 1
+                 return
+             end
+             f = (591*x)/176 - (197*y)/88 + 525/176;
+             if ~isAlways(obj.vpsi0.f == f)
+                 return
+             end
+             f = (17*x)/88 + (9*y)/44 - 5/88;
+             if ~isAlways(obj.vpsi1.f == f)
+                 return
+             end
+             f = x/44 - y/66 + 25/132;
+             if ~isAlways(obj.vpsi2.f == f)
+                 return
+             end
+             
+             l = true;
+             return
+             
+             
+         end
+
+         function l = checkExpr22 (obj)
+             x = sym('x');
+             y = sym('y');
+            % obj.print
+             l = false;
+
+             if obj.type~= 1
+                 return
+             end
+             f = (11*x)/4 - (11*y)/4 + 5/2;
+             if ~isAlways(obj.vpsi0.f == f)
+                 return
+             end
+             f = x/4 + y/4;
+             if ~isAlways(obj.vpsi1.f == f)
+                 return
+             end
+             f = x/36 - y/36 + 5/18;
+             if ~isAlways(obj.vpsi2.f == f)
+                 return
+             end
              
              l = true;
              return

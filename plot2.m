@@ -1,5 +1,11 @@
 %ezplot('(x+y)^2-8*x')
-
+ezplot("x+(3/2)*y+3/2")
+hold on
+ezplot("x+y+1")
+hold on
+ezplot("-6*x+2*y+28")
+hold on
+return
 ezplot('s2/2 - s1/2 - (s1 + s2)^2/36 + 11/4')
 hold on
 ezplot('(27*s1)/44 - (51*s2)/88 + (s1 + (3*s2)/2)^2/44 - 591/176')

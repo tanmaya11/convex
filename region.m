@@ -53,6 +53,45 @@ classdef region
 
          end
 
+         function l = checkPiece2 (obj)
+             l = false;
+             
+             x = sym('x');
+             y = sym('y');
+             %obj.print
+             if obj.vars ~= [sym('x'), sym('y')]
+                 return
+             end
+             if obj.nv ~= 4
+                 return
+             end
+             if obj.vx ~= [-5  1  -1  -5]
+                 return
+             end
+             if obj.vy ~= [5  3  0  -4]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==x/3 + y - 10/3);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==(3*x)/2 - y + 3/2);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==x - y + 1);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(4).f==- x - 5);
+                 return
+            end
+             l = true;
+             return
+
+
+
+         end
+
          function l = checkPiece3 (obj)
              l = false;
              
@@ -126,7 +165,7 @@ classdef region
 
          function l = checkConvexDomain12 (obj)
              l = false;
-             
+             %obj.print
              x = sym('x');
              y = sym('y');
              if obj.vars ~= [x, y]
@@ -135,27 +174,92 @@ classdef region
              if obj.nv ~= 3
                  return
              end
-             if obj.vx ~= [2,1,2]
+             if obj.vx ~= [1  2  2 ]
                  return
              end
-             if obj.vy ~= [1,1,0]
+             if obj.vy ~= [1  1  0 ]
                  return
              end
              
             
-             if ~ isAlways (obj.ineqs(1).f==y-1);
+             if ~ isAlways (obj.ineqs(1).f==y - 1);
                  return
              end
-            if ~ isAlways (obj.ineqs(2).f==x-2);
+            if ~ isAlways (obj.ineqs(2).f==2 - y - x);
                  return
             end
-            if ~ isAlways (obj.ineqs(3).f==2-y-x);
+            if ~ isAlways (obj.ineqs(3).f==x - 2);
                  return
             end
              l = true;
              return
          end
 
+         function l = checkConvexDomain21 (obj)
+             l = false;
+             %obj.print
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [x, y]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [1  -5  -1 ]
+                 return
+             end
+             if obj.vy ~= [3  5  0  ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==x + 3*y - 10);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==3*x - 2*y + 3);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==- 5*x - 4*y - 5);
+                 return
+            end
+             l = true;
+             return
+         end
+
+         function l = checkConvexDomain22 (obj)
+             l = false;
+             %obj.print
+             x = sym('x');
+             y = sym('y');
+             if obj.vars ~= [x, y]
+                 return
+             end
+             if obj.nv ~= 3
+                 return
+             end
+             if obj.vx ~= [-5  -1  -5 ]
+                 return
+             end
+             if obj.vy ~= [-4  0  5   ]
+                 return
+             end
+             
+            
+             if ~ isAlways (obj.ineqs(1).f==x - y + 1);
+                 return
+             end
+            if ~ isAlways (obj.ineqs(2).f==- x - 5);
+                 return
+            end
+            if ~ isAlways (obj.ineqs(3).f==5*x + 4*y + 5);
+                 return
+            end
+             l = true;
+             return
+         end
+
+         
          function l = checkConjugateDomain11 (obj)
              l = false;
              
@@ -769,6 +873,43 @@ classdef region
              
          end
 
+         function obj = regionWPts(obj, vx, vy, x, y)
+             n = 0;
+             vx
+             vy
+             size(vx)
+             for i = 1: size(vx,2)-1
+                 if vx(i) == vx(i+1)
+                   n = n + 1;
+                   ineq(n) = x-vx(i)  
+                 else
+                   m = (vy(i+1)-vy(i))/(vx(i+1)-vx(i));
+                   c = vy(i)-m*vx(i);
+                   n = n + 1;
+                   ineq(n) = y-m*x-c
+                 end 
+             end
+             
+             if vx(1) == vx(end)
+               n = n + 1;
+               ineq(n) = x-vx(1)  
+             else
+               m = (vy(end)-vy(1))/(vx(end)-vx(1));
+               c = vy(1)-m*vx(1);
+               n = n + 1;
+               ineq(n) = y-m*x-c
+             end
+             meanx = sum(vx)/3
+             meany = sum(vy)/3
+             for i = 1:n
+                 if double(subs(ineq(i),[x,y],[meanx,meany])) > 0
+                     ineq(i) = -ineq(i);
+                 end
+
+             end
+             obj = region(ineq,[x,y]);
+         end
+
          % add code for not
          function f = plus(obj1,obj2)
           %   if obj1.not | obj2.not
@@ -1119,6 +1260,46 @@ classdef region
         end
         
 
+        function [nl, v1, v2] = splitmaxArray (obj, f1, f2) 
+          fv1 = obj.funcVertices (f1);
+          fv2 = obj.funcVertices (f2);
+          v1 = [];
+          v2 = [];
+          for i = 1:size(fv1,2)
+              sv1(i) = fv1(i).f;
+              sv2(i) = fv2(i).f;
+              % replace with limit
+              if (isnan(sv1(i)))
+                  sv1(i) = 0;
+                  sv2(i) = 0;
+              elseif (isnan(sv2(i)))
+                  sv1(i) = 0;
+                  sv2(i) = 0;
+              end
+              if sv1(i) == sv2(i)
+                  v2 = [v2,i];
+                  v1 = [v1,i];
+              elseif sv1(i) > sv2(i)
+                  v1 = [v1,i];
+              else    
+                  v2 = [v2,i];
+              end
+
+          end
+          
+          if size(v1,2) == 3
+              nl(1) = 1;
+          else
+              nl(1) = 0;
+          end
+          if size(v2) == 3
+              nl(2) = 1;
+          else
+              nl(2) = 0;
+          end
+          
+        end
+        
          % removes redundant ineq by finding points of intersection
          % check this code again
          function obj = simplify (obj, vars, obj2)
@@ -1283,7 +1464,7 @@ classdef region
                    end
                    if (ls(intersectingEdges(i,j)))
                        n = n+1;
-                       nEdgesP(i,n) = intersectingEdges(i,j)
+                       nEdgesP(i,n) = intersectingEdges(i,j);
                    end
                  end    
                end
@@ -1946,6 +2127,28 @@ classdef region
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
 
+     function [f2, fe, d] = splitMax(obj, f, expr)
+       [nl, v1, v2] = obj.splitmaxArray (f(1), f(2)) 
+       f2 = [];
+       fe = [];
+       d = [];
+       v{1}=v1;
+       v{2}=v2;
+       for i = 1:2
+           if nl(i) == 0
+               continue
+           end
+           f2 = [f2,f(i)];
+           fe = [fe,expr(i)];
+           d0 = obj.regionWPts(obj.vx(v{i}), obj.vy(v{i}), obj.vars(1), obj.vars(2));
+           d = [d,d0];
+           disp('Regiopn')
+           d0.print
+% create region with points
+
+       end
+       
+     end
      
      % wont work cause of intersection vs union
      function [l,obj] = merge (obj, obj2)

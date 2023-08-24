@@ -37,6 +37,8 @@ classdef testPlq < matlab.unittest.TestCase
         function testConvexEnvelope (testCase)
             %testCase.PS = testCase.PS.convexEnvelope();
             testCase.PS.pieces(1)=testCase.PS.pieces(1).convexEnvelope;
+            disp("")
+            testCase.PS.pieces(1).print
             testCase.verifyEqual(testCase.PS.pieces(1).checkconvexEnvelope1, true);
         end
 % 
@@ -58,6 +60,17 @@ classdef testPlq < matlab.unittest.TestCase
               testCase.PS.pieces(1)=testCase.PS.pieces(1).maximum;
             
          end
+
+         function testCreation2 (testCase)
+            testCase.verifyEqual(testCase.PS.pieces(2).checkPiece2, true);
+        end
+
+        function testConvexEnvelope2 (testCase)
+            %testCase.PS = testCase.PS.convexEnvelope();
+            testCase.PS.pieces(2)=testCase.PS.pieces(2).convexEnvelope;
+            testCase.PS.pieces(2).print
+            testCase.verifyEqual(testCase.PS.pieces(2).checkconvexEnvelope2, true);
+        end
         function testCreation3 (testCase)
             testCase.verifyEqual(testCase.PS.pieces(3).checkPiece3, true);
         end
