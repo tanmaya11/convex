@@ -870,7 +870,7 @@ classdef region
               end
             end
             obj.vars = vars;  
-             
+            obj = obj.getVertices 
          end
 
          function obj = regionWPts(obj, vx, vy, x, y)
@@ -927,6 +927,40 @@ classdef region
          end
 
          function f = minus(obj1,obj2)
+            l = []; 
+            for i = 1:size(obj1.ineqs,2)
+              l = [l,obj1.ineqs(i).f];
+            end
+            l2 = [];
+            for i = 1:size(obj2.ineqs,2)
+              ladd = true;  
+              for j = 1:size(obj1.ineqs,2)
+                if (obj2.ineqs(i) == obj1.ineqs(j))
+                    ladd = false;
+                    break;
+                    
+                end
+
+                
+              end
+              if ladd
+                  l2 = [l2,obj2.ineqs(i).f];
+              end
+            end
+            for i = 1: size(l2,2)
+                l = [l,-l2(i)];
+            end
+            %if (size(l2,2) ~= 0)
+            %  mult = (-1) ^ size(l2,2);
+            %  for i = 1: size(l2,2)
+            %    mult = mult * l2(i);
+            %  end
+            %  l = [l,mult];
+            %end
+            f = region(l,obj1.vars);
+         end
+         
+         function f = minus0(obj1,obj2)
 %              if obj1.not | obj2.not
 %                  disp("Implement not in minus")
 %              end
@@ -964,6 +998,9 @@ classdef region
          
          function l = eq(obj1,obj2)
              l = false;
+             %obj1.print
+             %obj2.print
+             
              if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
                  return;
              end
@@ -1260,14 +1297,71 @@ classdef region
         end
         
 
+        function [r] = splitmax2 (obj, f1, f2) 
+           % disp('splitmax2')
+
+          fv1 = obj.funcVertices (f1);
+          fv2 = obj.funcVertices (f2);
+          f = f1-f2;
+          vars = f.getVars;
+          x = sym('x');
+          y = sym('y');
+          f = subs(f.f, vars ,[x,y]);
+          
+          fx = [];
+          fy = [];
+          for i = 1:size(obj.ineqs,2)
+            g = subs(obj.ineqs(i).f, vars,[x,y]);
+            s = solve ([f==0,g==0],[x,y]);
+            if isempty(s)
+              continue;
+            end
+            
+            if isempty(s.x)
+              continue;
+            end
+            sx = double(s.x);
+            sy = double(s.y);
+            if ~obj.ptFeasible (vars,[sx,sy])
+                continue
+            end
+            fx = [fx,sx];
+            fy = [fy,sy];
+            
+          end
+          %fx
+          %fy
+          f1
+          f2
+          size(fx)
+          if size(fx,2) == 2
+              m = (fy(2)-fy(1))/(fx(2)-fx(1));
+              c = fy(1) - m*fx(1);
+              ineq = vars(2)-m*vars(1);
+          end
+          for i = 1:size(fv1,2)
+              if (double(fv1(i).f) > double(fv2(i).f))
+                  if subs(ineq,vars,[obj.vx(i),obj.vy(i)]) <= 0
+                    r = [ineq,-ineq];
+                    return
+                  else
+                    r = [-ineq,ineq];
+                    return  
+                  end
+              end
+
+          end
+          
+        end
+
         function [nl, v1, v2] = splitmaxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           v1 = [];
           v2 = [];
           for i = 1:size(fv1,2)
-              sv1(i) = fv1(i).f;
-              sv2(i) = fv2(i).f;
+              sv1(i) = fv1(i).f
+              sv2(i) = fv2(i).f
               % replace with limit
               if (isnan(sv1(i)))
                   sv1(i) = 0;
@@ -1303,7 +1397,7 @@ classdef region
          % removes redundant ineq by finding points of intersection
          % check this code again
          function obj = simplify (obj, vars, obj2)
-             obj.print
+           %  obj.print
            rem = [];
            n = 0;
            x = sym('x');
@@ -1312,6 +1406,8 @@ classdef region
            %intersectingEdges = []
            
            for i = 1:size(obj.ineqs,2)
+             %  obj.ineqs(i).f
+               
              f1 = subs(obj.ineqs(i).f, vars,[x,y]);
              for j = i+1:size(obj.ineqs,2)
                  f2 = subs(obj.ineqs(j).f, vars,[x,y])  ;
@@ -1965,11 +2061,11 @@ classdef region
        varsTemp = [t1,t2];
        for i = 1:size(obj.ineqs,2)  
            f1 = obj.ineqs(i);
-           f1 = f1.subsF (obj.vars,varsTemp);
+           f1 = f1.subsF (obj.vars,varsTemp)
            for j = i+1:size(obj.ineqs,2)  
                f2 = obj.ineqs(j);
-               f2 = f2.subsF (obj.vars,varsTemp);
-               s = solve ([f1.f==0,f2.f==0],varsTemp);
+               f2 = f2.subsF (obj.vars,varsTemp)
+               s = solve ([f1.f==0,f2.f==0],varsTemp)
                
                if isempty(s)
                    continue;

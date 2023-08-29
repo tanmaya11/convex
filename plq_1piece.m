@@ -45,11 +45,12 @@ classdef plq_1piece
            if ~ size(etaV) == [0,0]
                return
            end
-           
+           etaE.printL
+           etaR.printL
            % etaE(1) = f - ax - by at V1
            % etaE(2) = -[(a+mb-q)^2]/4 -bq
            % etaE(3) = f - ax - by at V2
-           f = 1-b-a;
+           f = 0;
            if ~ isAlways(etaE(1,1).f == f)
               return;
            end
@@ -57,7 +58,8 @@ classdef plq_1piece
            if ~ isAlways(etaE(1,2).f == f)
               return;
            end
-           f = 0;
+           f = 1-b-a;
+           
            if ~ isAlways(etaE(1,3).f == f)
               return;
            end
@@ -645,7 +647,7 @@ disp('test22')
               %return
               disp("convexEnvelope1")
               obj.print
-             % return
+           %   return
               %obj.plot
               %[f,r] = obj.intersectionDomain;
 
@@ -720,10 +722,10 @@ disp('test22')
 
 %             etaV.printL();
  %            disp("etaE")
- %            etaE.printL();
- %            disp("etaR")
- %            etaR.printL();
-%             return
+   %          etaE.printL();
+   %          disp("etaR")
+   %          etaR.printL();
+   %          return
             % put a check that eta are only polynomials 
 
              % (vix, vjx) is the pair :  1 for edge else 0 
@@ -1338,9 +1340,11 @@ disp('b4 etak')
            
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
      %       disp("quadquad")
-    % return
+     
           av = alpha1*b + alpha0
-          
+          %return
+
+          % obj0 not used
           obj0 = etah + functionF(a*x+b*y)
                     
           obj0 = obj0.subsVarsPartial([a],[av])
@@ -1353,48 +1357,60 @@ disp('b4 etak')
           
           c = etaR(ix,1) - etaR(ix,2)
           c = c.subsVarsPartial([a],[av])
-          coef = coeffs(c.f)
-          double(coef)
-          double(coef(end)) > 0
-          if (double(coef(end)) > 0)
-            lb(nb) = c.solve(b);
-            c = etaR(ix,1) - etaR(ix,3);
-            c = c.subsVarsPartial([a],[av]);
-            ub(nb) = c.solve(b);
-          else
-            ub(nb) = -c.solve(b);
-            c = etaR(ix,1) - etaR(ix,3);
-            c = c.subsVarsPartial([a],[av]);
-            lb(nb) = -c.solve(b);
-          end
+          coef = double(coeffs(c.f))
           
-          %lb(nb) = etaR(ix,2).f
-          %ub(nb) = etaR(ix,3).f
-          nb = 2;
-          av
+          if (double(coef(end)) > 0)
+              lb(nb) =  c.solve(b);
+          else
+              ub(nb) = c.solve(b);
+          end
+
+
+          c = etaR(ix,3) - etaR(ix,1)
+          c = c.subsVarsPartial([a],[av])
+          coef = double(coeffs(c.f))
+          
+          if (double(coef(end)) < 0)
+              ub(nb) = c.solve(b);
+          else
+              lb(nb) = c.solve(b);
+          end
+
+          double(lb)
+          
+          double(ub)
+          
+          nb = nb + 1
           c = etaR(jx,1) - etaR(jx,2)
-          c = c.subsVarsPartial([a],[av]);
+          c = c.subsVarsPartial([a],[av])
           coef = coeffs(c.f)
           double(coef)
           if (double(coef(end)) > 0)
-            lb(nb) = c.solve(b);
-            c = etaR(jx,1) - etaR(jx,3);
-            c = c.subsVarsPartial([a],[av]);
-            ub(nb) = c.solve(b);
+              lb(nb) =  c.solve(b)
           else
-            ub(nb) = -c.solve(b);
-            c = etaR(jx,1) - etaR(jx,3);
-            c = c.subsVarsPartial([a],[av]);
-            lb(nb) = -c.solve(b);
+              disp('ub')
+              ub(nb) = c.solve(b)
           end
-          lb = double(lb);
-          ub = double(ub);
-          lb
-          ub
-          %return
-          %lb(nb) = etaR(jx,2).f
-          %ub(nb) = etaR(jx,3).f
 
+          double(lb)
+          double(ub)
+
+          c = etaR(jx,3) - etaR(jx,1)
+          c = c.subsVarsPartial([a],[av])
+          coef = double(coeffs(c.f))
+          
+          if (double(coef(end)) < 0)
+              ub(nb) = c.solve(b);
+          else
+              lb(nb) = c.solve(b);
+          end
+
+          double(lb)
+          double(ub)
+          
+          
+
+          
           for j=1:size(etaV,2)
             if (lV(j))
               continue;
@@ -1445,13 +1461,16 @@ disp('b4 etak')
               end
             end
           end
+          mlb = double(max(lb))
+          mub = double(min(ub))
           mlb = max(lb)
           mub = min(ub)
           
           %if mlb < mub
-          psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x;
-          psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x;
-          psi2=(alpha1+mh)^2/(4*mh);
+          %checked on 29/8
+          psi0=-(alpha0-qh)^2/(4*mh)+alpha0*x
+          psi1=-(alpha1+mh)*(alpha0-qh)/(2*mh) + y -qh + alpha1*x
+          psi2=(alpha1+mh)^2/(4*mh)
           %return
           %for i = 1: nb
           %    mlb = lb(i);
@@ -1459,7 +1478,7 @@ disp('b4 etak')
            %mlb
            %mub
               if isAlways(mlb >= mub)
-           %       disp('infeasible')
+                  disp('infeasible')
                   return
               else
        %           disp('here')
@@ -1737,7 +1756,68 @@ disp('b4 etak')
         end
 
         function [envfs, envxs, envds] = solveConstQuad  (obj, etah, etaw, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
-        end
+          linfeasible = false;
+          f0 = etah-etaw;
+          av = f0.solve(a); 
+          obj0 = obj0.subsVarsPartial([a],[av])
+          objfacts = coeffs(obj0.f,b);
+          if size(objfacts,2) == 1
+            eta0 = 0;
+            eta1 = objfacts(1);  
+                
+          else
+            eta0 = objfacts(1);
+            eta1 = objfacts(2);  
+          end
+          if (ixd > 0)
+            [nb, lb, ub, linfeasible] = getBoundsLinear (obj, etaRix,ixd, a,b,av, nb, lb, ub)
+            linfeasible
+            if (linfeasible)  
+               return;
+            end
+          end
+          if (jxd > 0)
+            [nb, lb, ub, linfeasible] = getBoundsLinear (obj, etaRjx,jxd, a,b,av, nb, lb, ub)
+            linfeasible
+            if (linfeasible)  
+              return;
+            end
+          end
+            for j=1:size(etaV,2)
+              if (lV(j)) 
+                continue;
+              end
+              etak = etaV(j);
+              c = etah - etak ; % <= 0   easier for substitution
+              c = c.subsVarsPartial([a],[av]);
+              [nb,lb, ub, linfeasible] = getBound1 (obj,c,b,nb,lb,ub);
+              if (linfeasible) 
+                return;
+              end
+            end
+            for j=1:size(etaE,1)
+              if (lE(j))
+                continue;
+              end
+              for k = 1:size(etaE,2) 
+                etak = etaE(j,k);
+                c = etah - etak;  % <= 0   easier for substitution
+                c = c.subsVarsPartial([a],[av]);
+                if (isZero(c)) 
+                  continue
+                end
+                [nb,lb, ub, linfeasible] = getBound1 (obj,c,b,nb,lb,ub);
+                
+               
+                if (linfeasible) 
+                  return;
+                end
+              end
+            end
+            mlb = max(lb)
+            mub = min(ub)
+          
+         end
 
         % solves all subproblems
         function [envfs, envxs, envds] = solve (obj, ix,jx,vix, vjx, ixd, jxd, etaV, etaE, etaR, a, b, x, y)
@@ -1746,8 +1826,8 @@ disp('b4 etak')
           envds = [];
           for i=1:size(ix,2)
              i
-             if i ~= 5
-                % continue
+             if i ~= 11
+         %        continue
              end
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1881,7 +1961,7 @@ disp('b4 etak')
 
                 if (degreeh==0 & degreew==2)
                     disp("const-quad")
-                    continue;
+                  %  continue;
                  %   etah
                   %  etaw
 
@@ -1896,7 +1976,13 @@ disp('b4 etak')
                     disp("quad-quad")
                     %continue;
                     obj0 = etah + functionF(a*x+b*y);
-                    
+
+                    %checking av = alpha1*b+alpha0
+                    %f = etah - etaw
+                    %av = f.solve(a)
+
+                    %checking etah
+                    %simplify(-((a+mh*b-qh)^2)/(4*mh) -b*qh)
                     if (mh == mw)
                        disp('equal')
                        %av = (2*mh*b+qh+qw)/2;
@@ -1907,11 +1993,18 @@ disp('b4 etak')
                        size(envfs)
                     else
                     %   disp("mh /= mw")
+                       disp('slopes')
+                       qh
+                       qw
+                       mh
+                       mw
+
+
                        av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw);
                        alpha = coeffs(av,b);
                        if (size(alpha,2) == 2)
-                           alpha1 = alpha(2);
-                           alpha0 = alpha(1);
+                           alpha1 = alpha(2)
+                           alpha0 = alpha(1)
                        else
                            alpha1 = alpha(1);
                            alpha0 = 0;
@@ -1923,6 +2016,7 @@ disp('b4 etak')
                  %      size(envfs)
                  %      continue
                        disp("second")
+                       % dont recalculate alphas
                        av = (qw*mh-qh*mw-sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw);
                        alpha = coeffs(av,b);
                        if (size(alpha,2) == 2)
@@ -3147,15 +3241,54 @@ disp('b4 etak')
                       if ~l0
                           % temporary fix
                           if obj.envd(j).nv > 3
-                            [fs, fe, ds] = obj.envd(j).splitMax( [obj.envf(i), obj.envf(j)],[obj.envExpr(i), obj.envExpr(j)])
-                            envdT = [envdT,ds];
-                            envfT = [envfT, fs];
-                            enveT = [enveT,fe];
+                            %[fs, fe, ds] = obj.envd(j).splitMax( [obj.envf(i), obj.envf(j)],[obj.envExpr(i), obj.envExpr(j)])
+                          else  
+                            ineqs = obj.envd(j).splitmax2 (obj.envf(i), obj.envf(j)); 
+                            
+size(obj.envd(j).ineqs)
+                            
+
+                            for k = 1: size(obj.envd(j).ineqs,2)
+                              ineqs1(k) = obj.envd(j).ineqs(k).f;
+                            end
+                            
+                            ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(1);
+                            ineqs1
+                            d1 = region(ineqs1,obj.envd(j).vars);
+                            d1.print
+                            d1 = d1.simplify(obj.envd(j).vars)
+                            d1.getVertices
+
+                            envdT = [envdT,d1];
+                            envfT = [envfT, obj.envf(i)];
+                            enveT = [enveT,obj.envExpr(i)];
+                            for k = 1: size(obj.envd(j).ineqs,2)
+                              ineqs1(k) = obj.envd(j).ineqs(k).f;
+                            end
+                            ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(2);
+
+                            d1 = region(ineqs1,obj.envd(j).vars);
+                            d1 = d1.simplify(obj.envd(j).vars)
+                            d1.getVertices
+                            envdT = [envdT,d1];
+                            envfT = [envfT, obj.envf(j)];
+                            enveT = [enveT,obj.envExpr(j)];
+                            
                             l(i) = 0;
                             l(j) = 0;
-                            continue
-                          else
-                            continue
+                            
+%ineqs2= obj.ineqs;
+%          ineqs2(end+1) = ineq;
+          
+
+%                            envdT = [envdT,ds];
+ %                           envfT = [envfT, fs];
+ %                           enveT = [enveT,fe];
+                            l(i) = 0;
+                            l(j) = 0;
+                          %  continue
+                          %else
+                          %  continue
                           end
                       end
                       f
@@ -3251,12 +3384,16 @@ disp('b4 etak')
                     %obj.envd(i).print
                     %obj.envd(j).print
                     %d.print
-                    envdT = [envdT,d0];
                     [l0, f, index] = obj.envd(j).maximum( [obj.envf(i), obj.envf(j)]);
                     %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
                  %   disp('l0')
-                 %   l0
-                      envfT = [envfT, f]     ;
+                    l0
+                    if ~l0
+                        continue
+                    end
+                    envdT = [envdT,d0];
+                    
+                    envfT = [envfT, f]     ;
                       if index == 1
                         enveT = [enveT,obj.envExpr(i)];
                       else

@@ -1,9 +1,9 @@
-%ezplot('(x+y)^2-8*x')
-ezplot("x+(3/2)*y+3/2")
+%ezplot('-y')
+%ezplot("-y")
+%hold on
+ezplot("2*y - 3*x - 3")
 hold on
-ezplot("x+y+1")
-hold on
-ezplot("-6*x+2*y+28")
+ezplot("3*x + 2*y")
 hold on
 return
 ezplot('s2/2 - s1/2 - (s1 + s2)^2/36 + 11/4')
