@@ -637,7 +637,7 @@ disp('test22')
                   obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
                   %obj.envd(i) = obj.envd(i).getVertices();
               end
-              %return
+         %     return
               disp("convexEnvelope1")
            %   obj.print
            %   return
@@ -731,13 +731,21 @@ disp('test22')
             %disp("feasiblePairs") 
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            %disp("solve done")
+            disp("solve done")
+            size(envfs,2)
+            size(envds,2)
+            %return
             for i = 1:size(envfs,2)
               %envfs(i)
               %disp('envd')
               %envds(i).print
               %disp('poly')
               %obj.d.polygon.print
+              %disp('in loop')
+              %i
+              %            size(envfs,2)
+            %size(envds,2)
+
               r  = obj.d.polygon + envds(i);
               %disp('plus')
               if isempty(r) 
@@ -1466,8 +1474,14 @@ disp('test22')
               envfs = [envfs, f0];
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
+
+              %rx = region([r0,r1], [x,y])
+
               envds = [envds, region([r0,r1], [x,y])];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
+
+              size(envfs)
+              size(envds)
               %envds(end).print
               %figure;
               %obj.d.plot
@@ -1476,9 +1490,13 @@ disp('test22')
 
               f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
               r0 = simplify(psi1-mlb*psi2);
+
               envfs = [envfs, f0];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mlb)];
+              size(envfs)
+              size(envds)
+              
               %envds(end).print
 %figure;
  %             obj.d.plot
@@ -1490,6 +1508,9 @@ disp('test22')
               envfs = [envfs, f0];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mub)];
+              size(envfs)
+              size(envds)
+              
               %envds(end).print
 %figure;
  %             obj.d.plot
@@ -1971,11 +1992,13 @@ disp('test22')
                            alpha1 = alpha(1);
                            alpha0 = 0;
                        end
-                %       disp('b4')
-                %       size(envfs)
+                       %disp('b4')
+                       %size(envfs)
+                       %size(envds)
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0,  alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
-                 %      disp('aft')
-                 %      size(envfs)
+                       %disp('aft')
+                       %size(envfs)
+                       %size(envds)
                  %      continue
                        %disp("second")
                        % dont recalculate alphas
@@ -1988,9 +2011,15 @@ disp('test22')
                            alpha1 = alpha(1);
                            alpha0 = 0;
                        end
-
+disp('b4')
+                       size(envfs)
+                       size(envds)
+                       
                        
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
+                       disp('aft')
+                       size(envfs)
+                       size(envds)
                     end
                 end
                      
@@ -3363,16 +3392,16 @@ disp('test22')
                         enveT = [enveT,obj.envExpr(j)];
                       end
                       l(i) = 0;
-                    l(j) = 0;
+                      l(j) = 0;
                     
 
                     %setDifference = simplify(obj.envd(i) & ~d)
                     %obj.envd(i).print
                     %d0.print
                     %disp('subtract here')
-                    %obj.envd(i).print
+                    obj.envd(i).print
                     %disp('d0')
-                    %d0.print
+                    d0.print
                     %disp('d1')
                     d1 = obj.envd(i) - d0;
                     if ~isempty(d1)
@@ -3423,6 +3452,7 @@ disp('test22')
             obj.envf = envfT;
             obj.envd = envdT;
             obj.envExpr = enveT;
+            obj.print
             obj = obj.unique
             return
 

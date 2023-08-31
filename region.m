@@ -2,12 +2,6 @@ classdef region
     % ineqs always stored as <= 0
     properties
         ineqs=functionF;
-        lineqs;
-       % not;
-        % not impies not of union of ineqs
-
-        % else its intersection of ineqs
-
         nv;
         vx;
         vy;
@@ -839,21 +833,7 @@ classdef region
 %  
      methods
          function obj = region(fs, vars) %, not)
-            % put checks for type of f and d
-            %disp("region")
-            %disp(nargin)
-
-            %fs = fs.filterzero()
-         
-         %   if nargin == 2
-         %     obj.not = false;
-         %   elseif nargin == 3
-         %     obj.not = not;
-         %   else
-         %     obj.not = false;
-         %     return
-         %   end
-
+        
             if nargin == 0
                 return
             end
@@ -870,15 +850,16 @@ classdef region
               end
             end
             obj.vars = vars;  
-            obj = obj.removeDenominator;
+            %obj.print
+            obj = obj.normalize1; 
+            %obj.print
+            %obj = obj.removeDenominator;
+            %disp('b4 get vertices')
             obj = obj.getVertices ;
          end
 
          function obj = regionWPts(obj, vx, vy, x, y)
              n = 0;
-             %vx
-             %vy
-             %size(vx)
              for i = 1: size(vx,2)-1
                  if vx(i) == vx(i+1)
                    n = n + 1;
@@ -911,16 +892,11 @@ classdef region
              obj = region(ineq,[x,y]);
          end
 
-         % add code for not
          function f = plus(obj1,obj2)
-          %   if obj1.not | obj2.not
-          %       disp("Implement not in plus")
-          %   end
             l = []; 
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
             end
-            %n = size(obj1.ineqs,2);
             obj2 = obj2.removeDenominator;
             for i = 1:size(obj2.ineqs,2)
                 lunique = true;
@@ -944,13 +920,10 @@ classdef region
 
          function v = getEndpoints (obj, i)
              n = 0;
-             %obj.nv
-             %obj.vx
-             %obj.vy
-
+          %  disp('start')
              for j = 1:obj.nv
-              %   double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
-               if double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)])) == 0
+           %      double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
+               if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
                    n = n + 1;
                    v(n,1) = obj.vx(j);
                    v(n,2) = obj.vy(j);
@@ -961,61 +934,55 @@ classdef region
          end
 
          function f = minus(obj1,obj2)
+             %disp('in minus')
+             if (obj1 == obj2)
+              %   disp('equal')
+                 f = region.empty
+                 return
+             end     
             l = []; 
             for i = 1:size(obj1.ineqs,2)
-            %    disp('v1')
                 v1(i,:,:) = obj1.getEndpoints(i);
                 l = [l,obj1.ineqs(i).f];
             end
-            %disp('size v1')
-            %size(v1)
             l2 = [];
             rm = [];
-            obj2.print
+            %obj2.print
             for i = 1:size(obj2.ineqs,2)
-             %   disp('v2')
               v2(i,:,:) = obj2.getEndpoints(i);
               ladd = true;  
-              
               for j = 1:size(obj1.ineqs,2)
                 if (obj2.ineqs(i) == obj1.ineqs(j)) 
                     lv = true;
-                   % obj2.ineqs(i)
                     for i1 = 1:size(v1,2)
                         for i2 = 1:size(v1,3)
-                    %        disp('v12')
-                     %       v1(j,i1,i2)
-                      %      v2(i,i1,i2)
                             lv = lv & (v1(j,i1,i2) == v2(i,i1,i2));
                         end
-                    
                     end
-                    %lv
                     if lv
                       rm = [rm,j];
                     end  
                     ladd = false;
                     break;
-                
                 end
-
-                
               end
               if ladd
                   l2 = [l2,obj2.ineqs(i).f];
               end
             end
             l(rm) = [];
-           % l
-           % l2
             for i = 1: size(l2,2)
                 l = [l,-l2(i)];
             end
             if (size(l,2)) == 0
                 f = region.empty
             else
+            %    disp('in minus fl')
+            %    l
             f = region(l,obj1.vars);
-            f = f.simplify(obj1.vars)
+            %disp('in minus')
+            %f.print
+            f = f.simplify(f.vars)
             end
          end
          
@@ -1075,24 +1042,15 @@ classdef region
                    end
                end
              end
-
              if (all(l1)==true )
                  l = true;
-                 
-                 
              else
                  l = false;
              end
-             
-             
-             
          end
 
          function l = eq(obj1,obj2)
              l = false;
-             %obj1.print
-             %obj2.print
-             
              if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
                  return;
              end
@@ -1100,7 +1058,6 @@ classdef region
                  return
              end
              l = true;
-             
          end
 
          function obj = unique(obj)
@@ -1116,9 +1073,7 @@ classdef region
                 end
 
             end 
-            %duplicates
             obj.ineqs(duplicates) = [];
-            %obj.ineqs
          end
 
          function m = slope (obj,i,j)
@@ -1474,13 +1429,16 @@ classdef region
           for i = 1:size(obj.ineqs,2)
               l(i) = obj.ineqs(i).f;
           end
-
+         % l
 
           for i = 1:size(obj.ineqs,2)
              l1 = l;
              l1(i) = [];
-             %l1
+          %   l1
              r = region (l1,vars);
+             if r.nv == 0
+                 return
+             end
              if obj.eqVertices(r)
                  %disp('equal')
                  lelim = true;
@@ -1861,7 +1819,16 @@ classdef region
               l = [l,obj1.ineqs(i).f];
            end 
          for i = 1:size(obj2.ineqs,2)
-              l = [l,obj2.ineqs(i).f];
+             lf = true;
+             for j = 1:size(obj1.ineqs,2)
+               if obj1.ineqs(j)==obj2.ineqs(i)
+                   lf = false;
+                   break;
+               end
+             end
+             if lf
+               l = [l,obj2.ineqs(i).f];
+             end
          end 
          obj = region(l, obj1.vars);
          %disp('in intersection')
@@ -2033,6 +2000,11 @@ classdef region
          end
      end
 
+     function obj = normalize1(obj)
+         for i = 1:size(obj.ineqs,2)
+             obj.ineqs(i) = obj.ineqs(i).normalize1;
+         end
+     end
      % wont work for degree > 2
      function obj = getVertices(obj, lprint)
          
@@ -2060,7 +2032,15 @@ classdef region
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = s.t1;
                    obj.vy(obj.nv) = s.t2;
-
+                   if s.t1 == -5 & s.t2 ==0
+                       disp('-5,0')
+                       obj.print
+                       f1
+                       f2
+                   end
+               else
+                   %s
+                   %disp('not feas')
                    
                end
                
@@ -2125,9 +2105,13 @@ classdef region
            end
            
        end
+       %obj.nv
        if obj.nv == 0
+           % Region with parallel ineqs has zero vertices but not empty
+           %obj = region.empty
            return;
        end
+       
        for i = 1:obj.nv
            V(i,1) = obj.vx(i);
            V(i,2) = obj.vy(i);

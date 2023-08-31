@@ -6,8 +6,6 @@ classdef functionF
         vars; 
         num = sym('num');
         den = sym('den');
-        symf = sym('f')   % for sake of substitution
-        %persistent icolor ;
     end    
     properties  
         f = sym('f') ;
@@ -22,10 +20,6 @@ classdef functionF
     end
     methods  % init + display
         function obj = functionF(num, den)
-%            persistent icolor;
-%            if isempty (icolor)
-%                icolor=1
-%            end
             if nargin == 0
               obj.num=0;
               obj.den=1;
@@ -48,29 +42,9 @@ classdef functionF
             den = obj.den;
         end   
         
-        
-        
-        function setGlobalParameter(obj)
-            persistent icolor;
-            icolor = 1+icolor
-        end
-        
-
         function print(obj)
-%            obj.f
-%            class(obj.f)
-%            if obj.isZero
-%                fprintf("0"); 
-%                return;
-%            end
-            %if (isdouble(obj.f))
-            %   fprintf(char((obj.f)));  
-%            if class(obj.f) == 'sym' 
-               fprintf(char(simplify(obj.f))); 
-%            else  
-%                fprintf(char((obj.f)));  
- %           end 
-            fprintf("\n")
+          fprintf(char(simplify(obj.f))); 
+          fprintf("\n")
             
         end
 
@@ -87,24 +61,24 @@ classdef functionF
             ezsurf(obj.f, limits);
         end
 
-        function [vx,vy] = getPoints (obj, vars, limits)
-            start = limits(1);
-            step = (limits(2)-limits(1))/100;
-            n = 0;
-            ci = start;
-            for i = 1:100
-                cj = start;
-                for j = 1:100
-                  cj = cj+step;    
-                  if (subs(obj.f,vars,[ci,cj]) <= 0)
-                      n = n+1;
-                      vx(n) = ci;
-                      vy(n) = cj;
-                  end
-                end
-                ci = ci+step;    
-            end
-        end
+%         function [vx,vy] = getPoints (obj, vars, limits)
+%             start = limits(1);
+%             step = (limits(2)-limits(1))/100;
+%             n = 0;
+%             ci = start;
+%             for i = 1:100
+%                 cj = start;
+%                 for j = 1:100
+%                   cj = cj+step;    
+%                   if (subs(obj.f,vars,[ci,cj]) <= 0)
+%                       n = n+1;
+%                       vx(n) = ci;
+%                       vy(n) = cj;
+%                   end
+%                 end
+%                 ci = ci+step;    
+%             end
+%         end
 
         function plot(obj, vars, limits)
             colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
@@ -331,6 +305,16 @@ classdef functionF
               end
            end
 
+        end
+
+        % not for rational functions
+        function obj = normalize1 (obj,vars)
+            if obj.den ~= 1
+                disp('Rational in normalize1')
+            end
+          c = coeffs(obj.f);
+          obj = functionF((1/abs(c(end)))*obj.num, obj.den);
+          
         end
 
         function obj = normalize (obj,vars)
@@ -571,12 +555,12 @@ classdef functionF
         
         
 % not working 
-            function l = isSubset (obj1, obj2)
-                obj1.f <= 0
-                obj2.f <= 0
-                (obj1.f<=0) <= (obj2.f<=0)
-              l = isAlways((obj1.f<=0) <= (obj2.f<=0))
-            end
+%             function l = isSubset (obj1, obj2)
+%                 obj1.f <= 0
+%                 obj2.f <= 0
+%                 (obj1.f<=0) <= (obj2.f<=0)
+%               l = isAlways((obj1.f<=0) <= (obj2.f<=0))
+%             end
 
             function d = degreeNum(obj)
                 if isequal(class(obj.num),'double')
@@ -608,109 +592,109 @@ classdef functionF
 
     end 
 
-    methods  % conjugate
-        function obj = conjugateRational(obj)
-            
-        end
+%     methods  % conjugate
+%         function obj = conjugateRational(obj)
+%             
+%         end
+% 
+%         function obj = conjugate(obj)
+%             if polynomialDegree(obj.getDen) > 0
+%                 obj = conjugateRational(obj)
+%             else
+%                 %obj = conjugateR(obj)
+%             end
+%             
+%         end
+%     end
 
-        function obj = conjugate(obj)
-            if polynomialDegree(obj.getDen) > 0
-                obj = conjugateRational(obj)
-            else
-                %obj = conjugateR(obj)
-            end
-            
-        end
-    end
-
-    methods % ineqs
+     methods % ineqs
 
         
-        function [l,obj] = removeParallel(obj, vars, lprint)
-            rm = [];
-            l = false;
-                
-            for i = 1:size(obj,2)
-              c1 = obj(i).getLinearCoeffs (vars);
-              slope1 = c1(1)/c1(2);
-              for j = i+1:size(obj,2)
-                c2 = obj(j).getLinearCoeffs (vars);
-                slope2 = c2(1)/c2(2);
-                %if nargin == 3
-                    %if lprint
-                    %disp('remove parallel')
-                    %c1
-                    %c2
-                    %end
-                %end
-                if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
-                    if (c1(2) == 0)
-                        if ((c1(3)/c1(1) >= c2(3)/c2(1)) & c1(1)>0)
-                            rm = [rm,j];
-                        else
-                            rm = [rm,i];
-                        end
-                    else
-                        if (c1(3)/c1(2) >= c2(3)/c2(2))
-                            rm = [rm,j];
-                        else
-                            rm = [rm,i];
-                        end
-                    end
-                    l = false;
-                elseif (slope1 == slope2 )
-                    if c1(2) ~= 0
-                    %    disp('h1')
-                    if c1(2) > 0
-                        l = c1(3)/c1(2) > - c2(3)/c2(2);
-                    else
-                    %    disp('h2')
-                        l = c2(3)/c2(2) < - c1(3)/c1(2);
-                    end
-                    else 
-                    if c1(1) > 0
-                        l = c1(3)/c1(1) > - c2(3)/c2(1);
-                    else
-                        l = c2(3)/c2(1) > - c1(3)/c1(1);
-                    end
-                    
-                    end
-                end
-              end
-              
-            end
-            
-            obj(rm) = [];
-        end
-
-        function l = antiParallelFeasible(obj,vars)
-            for i = 1:size(obj,2)
-              c1 = obj(i).getLinearCoeffs (vars);
-              slope1 = c1(1)/c1(2);
-              if slope1 == -inf
-                  slope1 = inf;
-              end
-              for j = i+1:size(obj,2)
-                c2 = obj(j).getLinearCoeffs (vars);
-                slope2 = c2(1)/c2(2);
-                if slope2 == -inf
-                  slope2 = inf;
-                end
-              
-                if (slope1 == slope2 & sign(c1(1)) ~= sign(c2(1)))
-                        if (c1(3)/c1(1) + c2(3)/c2(1) > 0)
-                            l = false;
-                            return
-                        end
-                    
-                end
-              end
-              
-            end
-            l = true;
-        
-        end
-
+%         function [l,obj] = removeParallel(obj, vars, lprint)
+%             rm = [];
+%             l = false;
+%                 
+%             for i = 1:size(obj,2)
+%               c1 = obj(i).getLinearCoeffs (vars);
+%               slope1 = c1(1)/c1(2);
+%               for j = i+1:size(obj,2)
+%                 c2 = obj(j).getLinearCoeffs (vars);
+%                 slope2 = c2(1)/c2(2);
+%                 %if nargin == 3
+%                     %if lprint
+%                     %disp('remove parallel')
+%                     %c1
+%                     %c2
+%                     %end
+%                 %end
+%                 if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
+%                     if (c1(2) == 0)
+%                         if ((c1(3)/c1(1) >= c2(3)/c2(1)) & c1(1)>0)
+%                             rm = [rm,j];
+%                         else
+%                             rm = [rm,i];
+%                         end
+%                     else
+%                         if (c1(3)/c1(2) >= c2(3)/c2(2))
+%                             rm = [rm,j];
+%                         else
+%                             rm = [rm,i];
+%                         end
+%                     end
+%                     l = false;
+%                 elseif (slope1 == slope2 )
+%                     if c1(2) ~= 0
+%                     %    disp('h1')
+%                     if c1(2) > 0
+%                         l = c1(3)/c1(2) > - c2(3)/c2(2);
+%                     else
+%                     %    disp('h2')
+%                         l = c2(3)/c2(2) < - c1(3)/c1(2);
+%                     end
+%                     else 
+%                     if c1(1) > 0
+%                         l = c1(3)/c1(1) > - c2(3)/c2(1);
+%                     else
+%                         l = c2(3)/c2(1) > - c1(3)/c1(1);
+%                     end
+%                     
+%                     end
+%                 end
+%               end
+%               
+%             end
+%             
+%             obj(rm) = [];
+%         end
+% 
+%         function l = antiParallelFeasible(obj,vars)
+%             for i = 1:size(obj,2)
+%               c1 = obj(i).getLinearCoeffs (vars);
+%               slope1 = c1(1)/c1(2);
+%               if slope1 == -inf
+%                   slope1 = inf;
+%               end
+%               for j = i+1:size(obj,2)
+%                 c2 = obj(j).getLinearCoeffs (vars);
+%                 slope2 = c2(1)/c2(2);
+%                 if slope2 == -inf
+%                   slope2 = inf;
+%                 end
+%               
+%                 if (slope1 == slope2 & sign(c1(1)) ~= sign(c2(1)))
+%                         if (c1(3)/c1(1) + c2(3)/c2(1) > 0)
+%                             l = false;
+%                             return
+%                         end
+%                     
+%                 end
+%               end
+%               
+%             end
+%             l = true;
+%         
+%         end
+% 
         function [l,obj] = removeSum(obj, lprint)
             rm = [];
             l = false;
