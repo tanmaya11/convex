@@ -870,18 +870,19 @@ classdef region
               end
             end
             obj.vars = vars;  
-            obj = obj.getVertices 
+            obj = obj.removeDenominator;
+            obj = obj.getVertices ;
          end
 
          function obj = regionWPts(obj, vx, vy, x, y)
              n = 0;
-             vx
-             vy
-             size(vx)
+             %vx
+             %vy
+             %size(vx)
              for i = 1: size(vx,2)-1
                  if vx(i) == vx(i+1)
                    n = n + 1;
-                   ineq(n) = x-vx(i)  
+                   ineq(n) = x-vx(i)  ;
                  else
                    m = (vy(i+1)-vy(i))/(vx(i+1)-vx(i));
                    c = vy(i)-m*vx(i);
@@ -899,8 +900,8 @@ classdef region
                n = n + 1;
                ineq(n) = y-m*x-c
              end
-             meanx = sum(vx)/3
-             meany = sum(vy)/3
+             meanx = sum(vx)/3;
+             meany = sum(vy)/3;
              for i = 1:n
                  if double(subs(ineq(i),[x,y],[meanx,meany])) > 0
                      ineq(i) = -ineq(i);
@@ -920,25 +921,82 @@ classdef region
               l = [l,obj1.ineqs(i).f];
             end
             %n = size(obj1.ineqs,2);
+            obj2 = obj2.removeDenominator;
             for i = 1:size(obj2.ineqs,2)
-              l = [l,obj2.ineqs(i).f];
+                lunique = true;
+               for j = 1:size(obj1.ineqs,2)
+                 if (obj1.ineqs(j) == obj2.ineqs(i))
+                     lunique = false;
+                     break;
+                 end
+                 if (obj1.ineqs(j).f == -obj2.ineqs(i).f)
+                     f = region.empty;
+                     return;
+                 end
+               end
+               if lunique
+                   l = [l,obj2.ineqs(i).f];
+               end
             end 
             f = region(l,obj1.vars);
+         end
+
+
+         function v = getEndpoints (obj, i)
+             n = 0;
+             %obj.nv
+             %obj.vx
+             %obj.vy
+
+             for j = 1:obj.nv
+              %   double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
+               if double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)])) == 0
+                   n = n + 1;
+                   v(n,1) = obj.vx(j);
+                   v(n,2) = obj.vy(j);
+               end
+             end
+            
+             v = sortrows(v);
          end
 
          function f = minus(obj1,obj2)
             l = []; 
             for i = 1:size(obj1.ineqs,2)
-              l = [l,obj1.ineqs(i).f];
+            %    disp('v1')
+                v1(i,:,:) = obj1.getEndpoints(i);
+                l = [l,obj1.ineqs(i).f];
             end
+            %disp('size v1')
+            %size(v1)
             l2 = [];
+            rm = [];
+            obj2.print
             for i = 1:size(obj2.ineqs,2)
+             %   disp('v2')
+              v2(i,:,:) = obj2.getEndpoints(i);
               ladd = true;  
+              
               for j = 1:size(obj1.ineqs,2)
-                if (obj2.ineqs(i) == obj1.ineqs(j))
+                if (obj2.ineqs(i) == obj1.ineqs(j)) 
+                    lv = true;
+                   % obj2.ineqs(i)
+                    for i1 = 1:size(v1,2)
+                        for i2 = 1:size(v1,3)
+                    %        disp('v12')
+                     %       v1(j,i1,i2)
+                      %      v2(i,i1,i2)
+                            lv = lv & (v1(j,i1,i2) == v2(i,i1,i2));
+                        end
+                    
+                    end
+                    %lv
+                    if lv
+                      rm = [rm,j];
+                    end  
                     ladd = false;
                     break;
-                    
+                
                 end
 
                 
@@ -947,17 +1005,18 @@ classdef region
                   l2 = [l2,obj2.ineqs(i).f];
               end
             end
+            l(rm) = [];
+           % l
+           % l2
             for i = 1: size(l2,2)
                 l = [l,-l2(i)];
             end
-            %if (size(l2,2) ~= 0)
-            %  mult = (-1) ^ size(l2,2);
-            %  for i = 1: size(l2,2)
-            %    mult = mult * l2(i);
-            %  end
-            %  l = [l,mult];
-            %end
+            if (size(l,2)) == 0
+                f = region.empty
+            else
             f = region(l,obj1.vars);
+            f = f.simplify(obj1.vars)
+            end
          end
          
          function f = minus0(obj1,obj2)
@@ -996,14 +1055,9 @@ classdef region
          end
          
          
-         function l = eq(obj1,obj2)
+         function l = eqVertices(obj1,obj2)
              l = false;
-             %obj1.print
-             %obj2.print
              
-             if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
-                 return;
-             end
              if obj1.nv ~= obj2.nv
                 return
              end
@@ -1031,6 +1085,21 @@ classdef region
              end
              
              
+             
+         end
+
+         function l = eq(obj1,obj2)
+             l = false;
+             %obj1.print
+             %obj2.print
+             
+             if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
+                 return;
+             end
+             if ~ obj1.eqVertices(obj2)
+                 return
+             end
+             l = true;
              
          end
 
@@ -1306,10 +1375,12 @@ classdef region
           vars = f.getVars;
           x = sym('x');
           y = sym('y');
-          f = subs(f.f, vars ,[x,y]);
+          f = subs(f.f, vars ,[x,y])
           
           fx = [];
           fy = [];
+          n = 0;
+          fxy = [];
           for i = 1:size(obj.ineqs,2)
             g = subs(obj.ineqs(i).f, vars,[x,y]);
             s = solve ([f==0,g==0],[x,y]);
@@ -1327,17 +1398,21 @@ classdef region
             end
             fx = [fx,sx];
             fy = [fy,sy];
-            
+            n = n+1;
+            fxy(n,1)= sx;
+            fxy(n,2)= sy;
           end
-          %fx
-          %fy
-          f1
-          f2
-          size(fx)
-          if size(fx,2) == 2
+          %fxy
+          fxy = unique(fxy,"rows");
+          fx = fxy(:,1);
+          fy = fxy(:,2);
+          %f1
+          %f2
+          %size(fx)
+          if size(fx,1) == 2
               m = (fy(2)-fy(1))/(fx(2)-fx(1));
               c = fy(1) - m*fx(1);
-              ineq = vars(2)-m*vars(1);
+              ineq = vars(2)-m*vars(1)-c;
           end
           for i = 1:size(fv1,2)
               if (double(fv1(i).f) > double(fv2(i).f))
@@ -1394,9 +1469,48 @@ classdef region
           
         end
         
+        function [lelim, obj] = deleteIneq (obj, vars)
+          lelim = false;
+          for i = 1:size(obj.ineqs,2)
+              l(i) = obj.ineqs(i).f;
+          end
+
+
+          for i = 1:size(obj.ineqs,2)
+             l1 = l;
+             l1(i) = [];
+             %l1
+             r = region (l1,vars);
+             if obj.eqVertices(r)
+                 %disp('equal')
+                 lelim = true;
+                 obj = r;
+                 return;
+             end
+          end
+
+
+        end
+
+
+        function obj = simplify (obj, vars)
+            %disp('in simplify')
+            %obj.print
+          for i = 1:size(obj.ineqs,2)
+            [lelim, obj] = obj.deleteIneq (vars);
+            %i
+            %lelim
+            %obj.print
+            if ~lelim
+                return
+            end
+          end
+
+        end
+
          % removes redundant ineq by finding points of intersection
          % check this code again
-         function obj = simplify (obj, vars, obj2)
+         function obj = simplify0 (obj, vars, obj2)
            %  obj.print
            rem = [];
            n = 0;
@@ -1451,8 +1565,8 @@ classdef region
                  
              end 
            end
-   %        intersectingPts
-   %        intersectingEdges
+           intersectingPts
+           intersectingEdges
            %nEdges
            for i = 1:size(intersectingEdges,1)
                lp(i) = false;
@@ -1468,7 +1582,7 @@ classdef region
                  continue;
                end
            end
-    %       lp
+           lp
            for i = 1:size(obj.ineqs,2)
                ls(i) = false;
            end
@@ -1489,7 +1603,7 @@ classdef region
                    ledgesP(intersectingEdges(i,2))=true;
                end
            end
-           %ls
+           ls
            for i = 1:size(intersectingEdges,1)
                if ~lp(i)
                    continue
@@ -1502,13 +1616,15 @@ classdef region
                    if (mod(j,2)==0)
                        continue
                    end
-                   if ~(        ls(intersectingEdges(i,j))|ls(intersectingEdges(i,j+1))  )  
+                   if (~        ls(intersectingEdges(i,j))|ls(intersectingEdges(i,j+1))  )  
                       %edges = [edges,[intersectingEdges(i,j),intersectingEdges(i,j+1)]];
                       ls(intersectingEdges(i,j:j+1)) = true; 
+                      %break
                   end
                end
            end
-           %ls
+           ls
+           % nEdges(i) : length of intersectingEdges(i,:)
            % At this point all feasible vertices are covered but some have
            % more than 2 edges hence next few loops to remove extra edges
            for i = 1:size(obj.ineqs,2) %size(intersectingEdges,1)
@@ -1520,7 +1636,7 @@ classdef region
              
            end 
            %ledges
-           % nEdgesM : Counts number of vertices thro an edge
+           % nEdgesM : Number of edges thro feasible vertex
            % logical ledges used to not double count
            for i = 1:size(intersectingEdges,1)
                if ~lp(i)
@@ -1539,8 +1655,8 @@ classdef region
                  ledges(intersectingEdges(i,j)) = false;
                end
            end
-     %      nEdgesM
-           %ledgesP
+           nEdgesM
+           ledges
            % putting neccesary edges in nEdgeP to decide which ones can be
            % removed
            for i = 1:size(intersectingEdges,1)
@@ -1566,7 +1682,7 @@ classdef region
                end
                
            end
-      %     nEdgesP
+           nEdgesP
 %unmark array is used to remove some edges which were earlier added
            for i = 1:size(obj.ineqs,2)
                lsp(i) = false;
@@ -1584,7 +1700,7 @@ classdef region
                lsp(nEdgesP(i,1)) = true;
                lsp(nEdgesP(i,2)) = true;
            end 
-       %    lsp
+           lsp
        %    size(lsp)
            
            for i = 1:size(intersectingEdges,1)
@@ -1610,14 +1726,14 @@ classdef region
                
                end
            end
-%           unmark
+           unmark
            for i = 1:size(obj.ineqs,2)
                if (ls(i) & ~lsp(i) & unmark(i))
                    ls(i) = false;
                end
            end
 
-
+           ls
 
            rem = [];
            for i = 1:size(ls,2)
@@ -1626,148 +1742,9 @@ classdef region
                 rem = [rem,i];
               end
            end
-           obj.ineqs(rem) = [];
-           return
-           
-        %   disp('in simp')
-           for i = 1:size(intersectingEdges,1)
-               lp(i) = false;
-           end
-           for i = 1:size(obj.ineqs,2)
-               ls(i) = false;
-               
-           end
-           
-         %  ls
-           %n
-           %intersectingPts{n}
-           %intersectingEdges{n}
-
-           % if intersecting point is not in feasible region mark it true
-           for i = 1:size(intersectingEdges,1)
-               %disp('intersecting point')
-               %intersectingPts{i}
-               %obj.ptFeasible (vars,intersectingPts{i})
-               if obj.ptFeasible (vars,intersectingPts(i,1:2))
-                 continue;
-               end
-               lp(i) = true;
-               
-               for j = 1:  nEdges(i) %size(intersectingEdges{i},2) 
-                   
-                   ls(intersectingEdges(i,j)) = true;
-               end
-               ls
-           end
-           % infeasible points and corresponding edges marked true
-
-          % nEdges
-          % lp
-          % ls
-
-        
-           
-           % if valid point created by intersection of only 2 edges - mark
-           % false as edges are needed
-           for i = 1:size(intersectingEdges,1)
-              if (lp(i))
-                  continue
-              end
-              
-              %if size(intersectingEdges{i},2) == 2 
-              if nEdges(i) == 2 
-                 for j = 1:  nEdges(i) %size(intersectingEdges{i},2) 
-                   ls(intersectingEdges(i,j)) = false;
-                 end
-              end
-           end
-           disp('lp2')
-           lp
-           ls
-           
-           % where multiple edges intersect at a point - put one pair
-           for i = 1:size(intersectingEdges,1)
-              if (lp(i))
-                  continue
-              end
-              edges = [];
-              for j = 1:  nEdges(i) %size(intersectingEdges{i},2)
-                  if mod(j,2)==0
-                      continue
-                  end
-                  if ~(        ls(intersectingEdges(i,j))|ls(intersectingEdges(i,j+1))  )  
-                    edges = [edges,[intersectingEdges(i,j),intersectingEdges(i,j+1)]];
-                  end
-              end
-              intersectingEdges(i,:) = edges;
-              nEdges(i) = size(edges,2);
-           end
-
-           % mark singletons and filter 
-           for i = 1:size(obj.ineqs,2)
-               ls(i) = true;
-             
-           end
-           %disp('lp3')
-           %lp
-           %ls
-           
-           for i = 1:size(intersectingEdges,2)
-              if (lp(i))
-                  continue
-              end
-              %if size(intersectingEdges{i},2) == 2
-                lp(i)=true;
-                for j = 1:  nEdges(i)
-                  ls(intersectingEdges(i,j)) = false  ;
-                end
-              %else
-              %  lp(i)=true;
-              %  for j = 1:  2
-              %    ls(intersectingEdges{i}(j)) = false  ;
-              %  end  
-              %end 
-              intersectingEdges(i,:) = edges;
-           end
-           %disp('lp4')
-           %lp
-           %ls
-           
-           for i = 1:size(intersectingEdges,1)
-              if (lp(i))
-                  continue;
-              end
-              lM = false;
-              for j = 1:  nEdges(i) %size(intersectingEdges{i},2)
-                if mod(j,2)==0
-                  continue;
-                end
-                if ls(intersectingEdges(i,j)) & ls(intersectingEdges(i,j+1))
-                    lM=true;
-                    break;
-                end
-              end
-              if lM
-                  lp(i)=true;
-              end
-           end
-           %disp('lp5')
-           %lp
-           %ls
-           
-           % put code for lP false        
-           %all(lp)
-           lp
-           if  all(lp)==true
-           for i = 1:size(ls,2)
-               
-              if (ls(i))
-                rem = [rem,i];
-              end
-           end
-           end
            rem
            obj.ineqs(rem) = [];
+           return
          end
 
          function obj = simplify2 (obj, vars)
@@ -1875,7 +1852,7 @@ classdef region
          end
 
          % stupid way of doing this
-     function obj = intersection(obj1, obj2)
+         function obj = intersection (obj1, obj2)
 %          if obj1.not | obj2.not
 %                  disp("Implement not in intersection")
 %              end
@@ -1892,6 +1869,10 @@ classdef region
          if (isFeasible(obj))
              disp('feasible')
              obj = obj.unique;
+             if obj.nv <= 2
+                 disp('degenerate ');
+                 obj = region.empty;
+             end
          else
              obj = region.empty;
          end
@@ -2041,13 +2022,13 @@ classdef region
      
      function obj = normalizeEdge(obj)
          for i = 1:size(obj.ineqs,2)  
-             c = getLinearCoeffs (obj.ineqs(i),obj.vars)
+             c = getLinearCoeffs (obj.ineqs(i),obj.vars);
              
              if (c(2) == 0)
                  % double * f not overloaded
-                 obj.ineqs(i).f = (1/c(1)) * obj.ineqs(i).f
+                 obj.ineqs(i).f = (1/c(1)) * obj.ineqs(i).f;
              else
-                 obj.ineqs(i).f = (1/c(2)) * obj.ineqs(i).f
+                 obj.ineqs(i).f = (1/c(2)) * obj.ineqs(i).f;
              end
          end
      end
@@ -2061,11 +2042,11 @@ classdef region
        varsTemp = [t1,t2];
        for i = 1:size(obj.ineqs,2)  
            f1 = obj.ineqs(i);
-           f1 = f1.subsF (obj.vars,varsTemp)
+           f1 = f1.subsF (obj.vars,varsTemp);
            for j = i+1:size(obj.ineqs,2)  
                f2 = obj.ineqs(j);
-               f2 = f2.subsF (obj.vars,varsTemp)
-               s = solve ([f1.f==0,f2.f==0],varsTemp)
+               f2 = f2.subsF (obj.vars,varsTemp);
+               s = solve ([f1.f==0,f2.f==0],varsTemp);
                
                if isempty(s)
                    continue;
@@ -2079,6 +2060,8 @@ classdef region
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = s.t1;
                    obj.vy(obj.nv) = s.t2;
+
+                   
                end
                
            end
@@ -2117,7 +2100,7 @@ classdef region
        end
        for i = 1:n
            if nargin == 2
-               intmax,obj.vy(i)
+               %intmax,obj.vy(i)
                obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
            end
            if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
@@ -2150,7 +2133,8 @@ classdef region
            V(i,2) = obj.vy(i);
        end 
        %disp('unique vertices')
-       %obj.vx,obj.vy
+       %obj.vx
+       %obj.vy
        V = unique(V,"rows");
        if obj.nv ~= size(V,1)
          obj.nv = size(V,1);

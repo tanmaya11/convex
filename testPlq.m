@@ -47,6 +47,8 @@ classdef testPlq < matlab.unittest.TestCase
             %testCase.PS = testCase.PS.conjugate();
             testCase.PS.pieces(1)=testCase.PS.pieces(1).convexEnvelope;
             testCase.PS.pieces(1)=testCase.PS.pieces(1).conjugate;
+           
+
             testCase.verifyEqual(testCase.PS.pieces(1).checkconjugate1, true);
         end
 % 
@@ -58,6 +60,7 @@ classdef testPlq < matlab.unittest.TestCase
               testCase.PS.pieces(1)=testCase.PS.pieces(1).conjugate;
               testCase.PS.pieces(1)=testCase.PS.pieces(1).intersectionConjugateDomain;
               testCase.PS.pieces(1)=testCase.PS.pieces(1).maximum;
+               testCase.PS.pieces(1).print
             
          end
 
