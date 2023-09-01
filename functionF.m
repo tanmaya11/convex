@@ -307,6 +307,21 @@ classdef functionF
 
         end
 
+        function [l,c] = quadterm (obj, x)
+            
+            [qc,qt] = coeffs(obj.f,x);
+            l = false;
+            
+            for i = 1:size(qt,2)
+                if isAlways (qt(i) == x^2)
+                    l = true;
+                    c = qc(i);
+                    return
+                end
+            end
+        end
+        
+
         % not for rational functions
         function obj = normalize1 (obj,vars)
             if obj.den ~= 1

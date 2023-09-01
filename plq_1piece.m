@@ -1327,8 +1327,8 @@ disp('test22')
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
      %       disp("quadquad")
      
-          av = alpha1*b + alpha0;
-          return
+          av = alpha1*b + alpha0
+      %    return
 
           % obj0 not used
           %obj0 = etah + functionF(a*x+b*y)
@@ -1341,8 +1341,8 @@ disp('test22')
           %etaR(jx,:).printL
           nb = 1;
           
-          c = etaR(ix,1) - etaR(ix,2);
-          c = c.subsVarsPartial([a],[av]);
+          c = etaR(ix,1) - etaR(ix,2)
+          c = c.subsVarsPartial([a],[av])
           coef = double(coeffs(c.f));
           
           if (double(coef(end)) > 0)
@@ -1352,8 +1352,8 @@ disp('test22')
           end
 
 
-          c = etaR(ix,3) - etaR(ix,1);
-          c = c.subsVarsPartial([a],[av]);
+          c = etaR(ix,3) - etaR(ix,1)
+          c = c.subsVarsPartial([a],[av])
           coef = double(coeffs(c.f));
           
           if (double(coef(end)) < 0)
@@ -1367,8 +1367,8 @@ disp('test22')
          % double(ub)
           
           nb = nb + 1;
-          c = etaR(jx,1) - etaR(jx,2);
-          c = c.subsVarsPartial([a],[av]);
+          c = etaR(jx,1) - etaR(jx,2)
+          c = c.subsVarsPartial([a],[av])
           coef = coeffs(c.f);
           %double(coef)
           if (double(coef(end)) > 0)
@@ -1381,8 +1381,8 @@ disp('test22')
           %double(lb)
           %double(ub)
 
-          c = etaR(jx,3) - etaR(jx,1);
-          c = c.subsVarsPartial([a],[av]);
+          c = etaR(jx,3) - etaR(jx,1)
+          c = c.subsVarsPartial([a],[av])
           coef = double(coeffs(c.f));
           
           if (double(coef(end)) < 0)
@@ -1394,7 +1394,9 @@ disp('test22')
           %double(lb)
           %double(ub)
           
-          
+          lb 
+          ub
+
 
           
           for j=1:size(etaV,2)
@@ -1404,24 +1406,57 @@ disp('test22')
             etak = etaV(j);
            % nc = nc+1;
             % make this a function
-            c = etah - etak;  % <= 0   easier for substitution
-            c = c.subsVarsPartial([a],[av]);
+            c = etah - etak  % <= 0   easier for substitution
+            c = c.subsVarsPartial([a],[av])
+
+            
+            %[qc,qt] = coeffs(c.f,b);
+            [l,qc] = c.quadterm (b);
+
+            if ~l
+                disp('no quad term in quadquad fishy')
+            end
+            disp('qc')
+            double(qc)
             %c.print
             %disp('here')
             z0 = c.solve(b);
             if isreal(z0(1))
-            nb = nb+1;
-            if z0(1) < z0(2)
-              lb(nb) = z0(1);
-              ub(nb) = z0(2);
+              if qc > 0
+            %double(z0)
+            
+                nb = nb+1;
+                if z0(1) < z0(2)
+                  lb(nb) = z0(1);
+                  ub(nb) = z0(2);
+                else
+                  ub(nb) = z0(1);
+                  lb(nb) = z0(2);
+                end
+              
+
             else
-              ub(nb) = z0(1);
-              lb(nb) = z0(2);
-            end
+              
+                if z0(1) < z0(2)
+                  nb = nb+1;  
+                  ub(nb) = z0(1);
+                  lb(nb) = -inf;
+                  nb = nb+1;  
+                  ub(nb) = inf;
+                  lb(nb) = z0(2);
+                else
+                   nb = nb+1;  
+                  ub(nb) = z0(2);
+                  lb(nb) = -inf;
+                  nb = nb+1;  
+                  ub(nb) = inf;
+                  lb(nb) = z0(1);
+                end
+              end
             end
           end
-          %lb
-          %ub
+          double(lb)
+          double(ub)
           %return
           for j=1:size(etaE,1)
             if (lE(j))
@@ -1431,20 +1466,51 @@ disp('test22')
               etak = etaE(j,k);
               %nc = nc+1;
               c = etah - etak;  % <= 0   easier for substitution
-              c = c(nc).subsVarsPartial([a],[av]);
-           %   c.print
-              z0 = c.solve(b);
-              if isreal(z0(1))
+              c = c.subsVarsPartial([a],[av]);
+              c.print
+              [l,qc] = c.quadterm (b);
+
+            if ~l
+                disp('no quad term in quadquad fishy')
+            end
+            disp('qc')
+            double(qc)
+            %c.print
+            %disp('here')
+            z0 = c.solve(b);
+            if isreal(z0(1))
+              if qc > 0
+            %double(z0)
             
-              nb = nb+1;
-              if z0(1) < z0(2)
-              lb(nb) = z0(1);
-              ub(nb) = z0(2);
+                nb = nb+1;
+                if z0(1) < z0(2)
+                  lb(nb) = z0(1);
+                  ub(nb) = z0(2);
+                else
+                  ub(nb) = z0(1);
+                  lb(nb) = z0(2);
+                end
+              
+
             else
-              ub(nb) = z0(1);
-              lb(nb) = z0(2);
+              
+                if z0(1) < z0(2)
+                  nb = nb+1;  
+                  ub(nb) = z0(1);
+                  lb(nb) = -inf;
+                  nb = nb+1;  
+                  ub(nb) = inf;
+                  lb(nb) = z0(2);
+                else
+                   nb = nb+1;  
+                  ub(nb) = z0(2);
+                  lb(nb) = -inf;
+                  nb = nb+1;  
+                  ub(nb) = inf;
+                  lb(nb) = z0(1);
+                end
               end
-              end
+            end
             end
           end
           %mlb = double(max(lb))
@@ -1463,7 +1529,7 @@ disp('test22')
            %   mub = ub(i);
            %mlb
            %mub
-              if isAlways(mlb >= mub)
+              if double(mlb) >= double(mub)
                   disp('infeasible')
                   return
               else
@@ -1973,7 +2039,7 @@ disp('test22')
                        alpha0 = (qh+qw)/2;
                        
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
-                       size(envfs)
+                       
                     else
                     %   disp("mh /= mw")
                      %  disp('slopes')
