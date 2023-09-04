@@ -1,8 +1,36 @@
 %ezplot('-y')
 %ezplot("-y")
 %hold on
-ezplot("2*y - 3*x - 3")
+
+
+%ezplot('x - 1' ) 
+%hold on
+ezplot('x - y'  )
+
 hold on
+ezplot('(2*y)/3 - x - 1') 
+hold on
+ezplot('- x - (2*y)/3' )
+hold on
+ezplot('6^(1/2)/4 - (6^(1/2)*x)/2 - y + 7/8'  )
+hold on
+ezplot('y + (6^(1/2)*x)/2 - 3/8' )
+hold on
+return
+ezplot("x - y")
+hold on
+
+ezplot("-3*x + 2*y -3")
+hold on
+ezplot("x + y")
+hold on
+ezplot("x + y-2")
+hold on
+ezplot("x + 3*y/2+3/2")
+hold on
+ezplot("x + 3*y/2-9/2")
+hold on
+return
 ezplot("3*x + 2*y")
 hold on
 return

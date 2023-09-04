@@ -659,7 +659,7 @@ disp('test22')
               disp("maxconvexEnvelope2")
               %obj.print
               
-              %return
+          %    return
               
           %    li = obj.entireRegion ();
           %    if li > 0
@@ -684,7 +684,7 @@ disp('test22')
               %    obj.envd(i) = obj.envd(i).getVertices();
               end
               
-              %return
+              return
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope3")
@@ -719,21 +719,20 @@ disp('test22')
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
 
-   %             etaV.printL();
-   %            disp("etaE")
-   %          etaE.printL();
-   %          disp("etaR")
-   %          etaR.printL();
-   %          return
-            % put a check that eta are only polynomials 
+%                 etaV.printL();
+%                disp("etaE")
+%              etaE.printL();
+%              disp("etaR")
+%              etaR.printL();
+%              return
+%             % put a check that eta are only polynomials 
 
              % (vix, vjx) is the pair :  1 for edge else 0 
             %disp("feasiblePairs") 
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             disp("solve done")
-            size(envfs,2)
-            size(envds,2)
+            
             %return
             for i = 1:size(envfs,2)
               %envfs(i)
@@ -1328,7 +1327,7 @@ disp('test22')
      %       disp("quadquad")
      
           av = alpha1*b + alpha0
-      %    return
+         % return
 
           % obj0 not used
           %obj0 = etah + functionF(a*x+b*y)
@@ -1892,8 +1891,8 @@ disp('test22')
           envds = [];
           for i=1:size(ix,2)
             % i
-             if i ~= 11
-         %        continue
+             if i ~= 9
+                % continue
              end
              lV = []; 
              for j = 1:size(etaV,2)
@@ -2037,7 +2036,6 @@ disp('test22')
                        %av = (2*mh*b+qh+qw)/2;
                        alpha1 = mh;
                        alpha0 = (qh+qw)/2;
-                       
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                        
                     else
@@ -2058,14 +2056,12 @@ disp('test22')
                            alpha1 = alpha(1);
                            alpha0 = 0;
                        end
-                       %disp('b4')
-                       %size(envfs)
-                       %size(envds)
+                       %disp('checking av')
+                       % should evaluate to 0
+                       %f = etah - etaw
+                       %f = f.subsF([a],[alpha1*b + alpha0])
+                       %simplify(f.f)
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0,  alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
-                       %disp('aft')
-                       %size(envfs)
-                       %size(envds)
-                 %      continue
                        %disp("second")
                        % dont recalculate alphas
                        av = (qw*mh-qh*mw-sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw);
@@ -2077,15 +2073,14 @@ disp('test22')
                            alpha1 = alpha(1);
                            alpha0 = 0;
                        end
-disp('b4')
-                       size(envfs)
-                       size(envds)
-                       
+%                        disp('checking av2')
+%                        %should evaluate to 0
+%                        f = etah - etaw
+%                        f = f.subsF([a],[alpha1*b + alpha0])
+%                        simplify(f.f)
+%                        
                        
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
-                       disp('aft')
-                       size(envfs)
-                       size(envds)
                     end
                 end
                      
@@ -2249,7 +2244,7 @@ disp('b4')
                 df = etaT.dfdx(x);
                 xp = df.solve(x);
                 etaE(i,2) = etaT.subsVarsPartial([x],[xp]);
-                
+                %etaE(i,2).print
                 
                 %obj.f
                 f1 = obj.f.subsVarsPartial([y],[edgey]);
@@ -2262,7 +2257,8 @@ disp('b4')
 
                 b1 = df1.subsVarsPartial ([x,y],[xv1,yv1]);
                 b2 = df1.subsVarsPartial ([x,y],[xv2,yv2]);
-                if (double(b1.f) < double(b2.f))
+                %if (double(b1.f) < double(b2.f))
+                if xv1 < xv2
                   etaR(i,2) = b1;  %subs(df1,[x,y],[xv1,yv1]);
                   etaR(i,3) = b2; %subs(df1,[x,y],[xv2,yv2]);
                 else
@@ -2272,6 +2268,7 @@ disp('b4')
                   %etaE(i,1) = etaE(i,3);
                   %etaE(i,3) = t;
                 end
+                %etaE(i,:)
             end
 
             % Eta for Vertices
@@ -3420,13 +3417,18 @@ disp('b4')
                     %if (obj.envd(i) == obj.envd(j))
                     i
                     j
-                    
+                    if i == 1 & j == 6
+                        %return
+                    end
+                    obj.envd(i).print
+                    obj.envd(j).print
                     d = intersection(obj.envd(i),obj.envd(j));
                     if isempty(d)
                         continue;
                     end
-                    disp('intersect')
-                    d.print
+                    %disp('intersect')
+                    %d.print
+                    
                     %disp('b4 simplify')
                     %d0 = d.simplify (vars,obj.envd(i));
                     d0 = d.simplify (vars ); %,obj.d.polygon);
@@ -3434,7 +3436,7 @@ disp('b4')
                    % disp("intersection")
                    % obj.d.polygon.print
                    % d.print
-                    d0.print
+                    
                     %return
                     if isempty(d0)
                         continue;
@@ -3442,6 +3444,8 @@ disp('b4')
                     %obj.envd(i).print
                     %obj.envd(j).print
                     %d.print
+                    disp('b4 max')
+                    d0.print
                     [l0, f, index] = d0.maximum( [obj.envf(i), obj.envf(j)]);
                     %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
                  %   disp('l0')
@@ -3462,17 +3466,23 @@ disp('b4')
                     
 
                     %setDifference = simplify(obj.envd(i) & ~d)
-                    %obj.envd(i).print
+                    obj.envd(i).print
                     %d0.print
                     %disp('subtract here')
-                    obj.envd(i).print
-                    %disp('d0')
+                    %obj.envd(i).print
+                    disp('d0')
                     d0.print
                     %disp('d1')
                     d1 = obj.envd(i) - d0;
                     if ~isempty(d1)
-                    %d1.print
+                    d1.print
+                    
                     d1 = d1.simplify (vars); %,obj.d.polygon);
+                    d1.print
+                    
+                    if d1.nv == 0
+                        disp('nv 0 post minus 1')
+                    end
                     %d1.print
                     %continue
                     
@@ -3493,6 +3503,10 @@ disp('b4')
                     
                     %d1.print
                     d1 = d1.simplify (vars); %,obj.d.polygon);
+                    if d1.nv == 0
+                        disp('nv 0 post minus 2')
+                    end
+                    
                     %d1.print
                     %d1 = simplify(obj.envd(j) - d0)
                     envdT = [envdT,d1];

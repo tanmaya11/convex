@@ -933,6 +933,10 @@ classdef region
              v = sortrows(v);
          end
 
+
+         % doesnt work when returning more than one region 
+         % fix it
+         % to detect - end point interval contained in bigger interval
          function f = minus(obj1,obj2)
              %disp('in minus')
              if (obj1 == obj2)
@@ -980,6 +984,8 @@ classdef region
             %    disp('in minus fl')
             %    l
             f = region(l,obj1.vars);
+
+            % if nv is zero split into more regions
             %disp('in minus')
             %f.print
             f = f.simplify(f.vars)
@@ -1024,7 +1030,7 @@ classdef region
          
          function l = eqVertices(obj1,obj2)
              l = false;
-             
+             %obj1.nv
              if obj1.nv ~= obj2.nv
                 return
              end
@@ -1831,7 +1837,6 @@ classdef region
              end
          end 
          obj = region(l, obj1.vars);
-         %disp('in intersection')
          %obj.print
          if (isFeasible(obj))
              disp('feasible')
@@ -1839,6 +1844,11 @@ classdef region
              if obj.nv <= 2
                  disp('degenerate ');
                  obj = region.empty;
+             else
+                 if obj.nv == 0
+           disp('in intersection nv 0')
+         end
+         
              end
          else
              obj = region.empty;
