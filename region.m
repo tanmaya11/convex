@@ -938,10 +938,9 @@ classdef region
          % fix it
          % to detect - end point interval contained in bigger interval
          function f = minus(obj1,obj2)
-             %disp('in minus')
+             disp('in minus')
              if (obj1 == obj2)
-              %   disp('equal')
-                 f = region.empty
+                 f = [region.empty]
                  return
              end     
             l = []; 
@@ -951,7 +950,6 @@ classdef region
             end
             l2 = [];
             rm = [];
-            %obj2.print
             for i = 1:size(obj2.ineqs,2)
               v2(i,:,:) = obj2.getEndpoints(i);
               ladd = true;  
@@ -979,17 +977,35 @@ classdef region
                 l = [l,-l2(i)];
             end
             if (size(l,2)) == 0
-                f = region.empty
-            else
-            %    disp('in minus fl')
-            %    l
-            f = region(l,obj1.vars);
-
-            % if nv is zero split into more regions
-            %disp('in minus')
-            %f.print
-            f = f.simplify(f.vars)
+                f = [region.empty];
+                return
             end
+
+            % original code
+            f0 = region(l,obj1.vars);
+            f0 = f0.getVertices
+            disp('here')
+            f0.nv
+            if f0.nv >= 3
+              f = [f0.simplify(obj1.vars)];
+              return
+            else  
+              f1 = f0.divideRegions(obj1);
+              size(f1)
+              f = [];
+              for i = 1: size(f1,2)
+                  f0 = f1(i).simplify(obj1.vars);
+                  if f0 == obj1
+                      continue
+                  end
+                  f = [f,f0];
+              end
+            end
+
+            
+            % create multiple regions here
+            
+            
          end
          
          function f = minus0(obj1,obj2)
@@ -2017,7 +2033,7 @@ classdef region
      end
      % wont work for degree > 2
      function obj = getVertices(obj, lprint)
-         
+   %     disp('in getVertices') 
        obj.nv=0;
        t1 = sym('t1');
        t2 = sym('t2');
@@ -2042,12 +2058,7 @@ classdef region
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = s.t1;
                    obj.vy(obj.nv) = s.t2;
-                   if s.t1 == -5 & s.t2 ==0
-                       disp('-5,0')
-                       obj.print
-                       f1
-                       f2
-                   end
+                   
                else
                    %s
                    %disp('not feas')
@@ -2057,88 +2068,94 @@ classdef region
            end
            
        end
-       %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
+     end
 
-       % putting intmax for inf to avoid Nans 
-       % intmax + intmax = intmax
-       %disp('ptFeasile')
-       %obj.print
-       n = obj.nv;
-       if obj.ptFeasible(obj.vars, [intmax,intmax])
-          obj.nv=obj.nv+1;
-          obj.vx(obj.nv) = intmax;
-          obj.vy(obj.nv) = intmax;
-          %disp("++")
-       end
-       if obj.ptFeasible(obj.vars, [intmax,-intmax])
-          obj.nv=obj.nv+1;
-          obj.vx(obj.nv) = intmax;
-          obj.vy(obj.nv) = -intmax;
-          %disp("+-")
-       end
-       if obj.ptFeasible(obj.vars, [-intmax,intmax])
-          obj.nv=obj.nv+1;
-          obj.vx(obj.nv) = -intmax;
-          obj.vy(obj.nv) = intmax;
-          %disp("-+")
-       end
-       if obj.ptFeasible(obj.vars, [-intmax,-intmax])
-          obj.nv=obj.nv+1;
-          obj.vx(obj.nv) = -intmax;
-          obj.vy(obj.nv) = -intmax;
-          %disp("--")
-       end
-       for i = 1:n
-           if nargin == 2
-               %intmax,obj.vy(i)
-               obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
-           end
-           if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
-             obj.nv=obj.nv+1;
-             obj.vx(obj.nv) = obj.vx(i);
-             obj.vy(obj.nv) = intmax;
-           end
-           if obj.ptFeasible(obj.vars, [obj.vx(i),-intmax])
-             obj.nv=obj.nv+1;
-             obj.vx(obj.nv) = obj.vx(i);
-             obj.vy(obj.nv) = -intmax;
-           end
-           if obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
-             obj.nv=obj.nv+1;
-             obj.vx(obj.nv) = intmax;
-             obj.vy(obj.nv) = obj.vy(i);
-           end
-           if obj.ptFeasible(obj.vars, [-intmax,obj.vy(i)])
-             obj.nv=obj.nv+1;
-             obj.vx(obj.nv) = -intmax;
-             obj.vy(obj.nv) = obj.vy(i);
+       function f = divideRegions(obj,obj2)
+         
+       obj.nv=0;
+         t1 = sym('t1');
+         t2 = sym('t2');
+         varsTemp = [t1,t2];
+         ir = 0
+         for i = 1:size(obj.ineqs,2)  
+           f1 = obj.ineqs(i);
+           f1 = f1.subsF (obj.vars,varsTemp);
+           for j = i+1:size(obj.ineqs,2)  
+               f2 = obj.ineqs(j);
+               f2 = f2.subsF (obj.vars,varsTemp);
+               s = solve ([f1.f==0,f2.f==0],varsTemp);
+               
+               if isempty(s)
+                   continue;
+               elseif isempty(s.t1)
+                   continue;
+               elseif isempty(s.t2)
+                   continue;
+               end
+               if ~obj2.ptFeasible (obj2.vars,[s.t1,s.t2])
+                 continue
+               end
+               
+               ir = ir + 1;
+               index(ir) = 0;
+               for k = 1:size(obj.ineqs,2)  
+                 if double(subs ([obj.ineqs(k).f],obj.vars,[s.t1,s.t2])) < 1.0e-12
+                     index(ir) = index(ir)+1;
+                     r(ir,index(ir)) = obj.ineqs(k).f;
+                 end
+               end
+               
            end
            
-       end
-       %obj.nv
-       if obj.nv == 0
-           % Region with parallel ineqs has zero vertices but not empty
-           %obj = region.empty
-           return;
-       end
-       
-       for i = 1:obj.nv
-           V(i,1) = obj.vx(i);
-           V(i,2) = obj.vy(i);
-       end 
-       %disp('unique vertices')
-       %obj.vx
-       %obj.vy
-       V = unique(V,"rows");
-       if obj.nv ~= size(V,1)
-         obj.nv = size(V,1);
-        % obj.vx
-        % obj.vy
-         obj.vx = V(:,1)';
-         obj.vy = V(:,2)';
-       end
+         end
+         % at this point r(ir) corresponds to satisfying ineqs for each
+         % possible vertex
 
-     end
+%          ir
+%          index
+%          for i = 1:ir
+%              disp('list')
+%              for j = 1:index(ir)
+%                  r(i,j)
+%              end
+%          end
+          is = 0;
+         s = r;
+         for i=1:ir
+                 leq = false;
+                 for j = 1:is
+                     if indexS(j) ~= index(i)
+                         continue;
+                     end
+                     leq = true;
+                     for k = 1:index(i)
+                         if ~ isequal(r(i,k),s(j,k))
+                             leq = false;
+                             break;
+                         end
+                     end
+                     if leq
+                       break;
+                     end
+                 end
+                 if leq
+                    continue;
+                 end
+                 is = is+1;
+             
+                 indexS(is) = index(i);
+                 for j = 1:indexS(is)
+                     s(is,j) = r(i,j);
+                 end
+             
+         end
+
+         f = [];
+         for i = 1:is
+           f = [f, region(s(i,:),obj.vars)]; 
+         end
+       
+       end
 
      function obj = conjugate(obj)
      end
@@ -2253,5 +2270,6 @@ classdef region
      
      end
 
+     
      
 end
