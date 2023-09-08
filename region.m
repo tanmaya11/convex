@@ -2033,7 +2033,7 @@ classdef region
      end
      % wont work for degree > 2
      function obj = getVertices(obj, lprint)
-   %     disp('in getVertices') 
+         
        obj.nv=0;
        t1 = sym('t1');
        t2 = sym('t2');
@@ -2058,19 +2058,89 @@ classdef region
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = s.t1;
                    obj.vy(obj.nv) = s.t2;
-                   
-               else
-                   %s
-                   %disp('not feas')
-                   
                end
                
            end
            
        end
-     end
+       %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
 
-       function f = divideRegions(obj,obj2)
+       % putting intmax for inf to avoid Nans 
+       % intmax + intmax = intmax
+       %disp('ptFeasile')
+       %obj.print
+       n = obj.nv;
+       if obj.ptFeasible(obj.vars, [intmax,intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = intmax;
+          obj.vy(obj.nv) = intmax;
+          %disp("++")
+       end
+       if obj.ptFeasible(obj.vars, [intmax,-intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = intmax;
+          obj.vy(obj.nv) = -intmax;
+          %disp("+-")
+       end
+       if obj.ptFeasible(obj.vars, [-intmax,intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = -intmax;
+          obj.vy(obj.nv) = intmax;
+          %disp("-+")
+       end
+       if obj.ptFeasible(obj.vars, [-intmax,-intmax])
+          obj.nv=obj.nv+1;
+          obj.vx(obj.nv) = -intmax;
+          obj.vy(obj.nv) = -intmax;
+          %disp("--")
+       end
+       for i = 1:n
+           if nargin == 2
+               intmax,obj.vy(i)
+               obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
+           end
+           if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = obj.vx(i);
+             obj.vy(obj.nv) = intmax;
+           end
+           if obj.ptFeasible(obj.vars, [obj.vx(i),-intmax])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = obj.vx(i);
+             obj.vy(obj.nv) = -intmax;
+           end
+           if obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = intmax;
+             obj.vy(obj.nv) = obj.vy(i);
+           end
+           if obj.ptFeasible(obj.vars, [-intmax,obj.vy(i)])
+             obj.nv=obj.nv+1;
+             obj.vx(obj.nv) = -intmax;
+             obj.vy(obj.nv) = obj.vy(i);
+           end
+           
+       end
+       if obj.nv == 0
+           return;
+       end
+       for i = 1:obj.nv
+           V(i,1) = obj.vx(i);
+           V(i,2) = obj.vy(i);
+       end 
+       %disp('unique vertices')
+       %obj.vx,obj.vy
+       V = unique(V,"rows");
+       if obj.nv ~= size(V,1)
+         obj.nv = size(V,1);
+        % obj.vx
+        % obj.vy
+         obj.vx = V(:,1)';
+         obj.vy = V(:,2)';
+       end
+
+     end
+     function f = divideRegions(obj,obj2)
          
        obj.nv=0;
          t1 = sym('t1');

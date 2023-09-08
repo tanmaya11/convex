@@ -1,24 +1,27 @@
 classdef testFunctionF < matlab.unittest.TestCase
 
     methods (Test)
-        function testCreation
-            x=sym('x');
-            y=sym('y');
-            f=functionF(x*y);
-            d1=domain([0,0;2,0;2,1;1,1],x,y);
-            d2=domain([-5,5;1,3;-1,0;-5,-4],x,y);
-            d3=domain([0,0;1,2;2,2;2,1],x,y);
-            p(1)=plq_1piece(d1,f);
-            p(2)=plq_1piece(d2,f);
-            p(3)=plq_1piece(d3,f);
-            PS = plq(p);
-
-            testCase.verifyEqual(PS.nPieces,3);
-
-            for i = 1:PS.nPieces
-                
-            end
+        function noParameter (testCase)
+          f1 = functionF();
+          testCase.verifyEqual(f1.getNum(),1);
+          testCase.verifyEqual(f1.getDen(),1);
+          testCase.verifyEqual(f1.f,1);
         end
+        function oneParameter (testCase)
+          x = sym('x'); 
+          f1 = functionF(x^2);
+          testCase.verifyEqual(f1.getNum(),x^2);
+          testCase.verifyEqual(f1.getDen(),1);
+          testCase.verifyEqual(f1.f,x^2);
+        end
+        function twoParameter (testCase)
+          x = sym('x'); 
+          f1 = functionF(x^2,x+1);
+          testCase.verifyEqual(f1.getNum(),x^2);
+          testCase.verifyEqual(f1.getDen(),x+1);
+          testCase.verifyEqual(f1.f,x^2/(x+1));
+        end
+        
     end
 
     

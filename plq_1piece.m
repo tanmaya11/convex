@@ -639,9 +639,9 @@ disp('test22')
               end
          %     return
               disp("convexEnvelope1")
-           %   obj.print
+              obj.print
            %   return
-              %obj.plot
+             % obj.plot
               %[f,r] = obj.intersectionDomain;
 
               %for i = 1:size(r,2)
@@ -653,7 +653,7 @@ disp('test22')
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope1")
               %return
-              %obj.print
+              obj.print
               obj = obj.unique();
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope2")
@@ -3336,7 +3336,7 @@ disp('test22')
           
 
 %                           l(i) = 0;
-                            l(j) = 0;
+%                             l(j) = 0;
                           %  continue
                           %else
                           %  continue
@@ -3474,45 +3474,56 @@ disp('test22')
                     d0.print
                     %disp('d1')
                     d1 = obj.envd(i) - d0;
-                    if ~isempty(d1)
-                    d1.print
-                    
-                    d1 = d1.simplify (vars); %,obj.d.polygon);
-                    d1.print
-                    
-                    if d1.nv == 0
-                        disp('nv 0 post minus 1')
+
+                    for id=1:size(d1,1)
+                        envdT = [envdT,d1(id)];
+                        envfT = [envfT, obj.envf(i)]     ;
+                        enveT = [enveT,obj.envExpr(i)];
                     end
-                    %d1.print
-                    %continue
-                    
-                        
-                    
-                    envdT = [envdT,d1];
-                    envfT = [envfT, obj.envf(i)]     ;
-                    enveT = [enveT,obj.envExpr(i)];
-                    end
-                    %disp('subtract2')
+%                     if ~isempty(d1)
+%                     d1.print
+%                     
+%                     d1 = d1.simplify (vars); %,obj.d.polygon);
+%                     d1.print
+%                     
+%                     if d1.nv == 0
+%                         disp('nv 0 post minus 1')
+%                     end
+%                     %d1.print
+%                     %continue
+%                     
+%                         
+%                     
+%                     envdT = [envdT,d1];
+%                     envfT = [envfT, obj.envf(i)]     ;
+%                     enveT = [enveT,obj.envExpr(i)];
+%                     end
+%                     %disp('subtract2')
                     
                     %obj.envd(j).print
                     %disp('d0')
                     %d0.print
                     %disp('d1')
                     d1 = obj.envd(j) - d0;
-                    if ~isempty(d1)
-                    
-                    %d1.print
-                    d1 = d1.simplify (vars); %,obj.d.polygon);
-                    if d1.nv == 0
-                        disp('nv 0 post minus 2')
+                    for id=1:size(d1,1)
+                        envdT = [envdT,d1(id)];
+                        envfT = [envfT, obj.envf(i)]     ;
+                        enveT = [enveT,obj.envExpr(i)];
                     end
-                    
-                    %d1.print
-                    %d1 = simplify(obj.envd(j) - d0)
-                    envdT = [envdT,d1];
-                    envfT = [envfT, obj.envf(j)]     ;
-                    enveT = [enveT,obj.envExpr(j)];
-                    end
+%                     if ~isempty(d1)
+%                     
+%                     %d1.print
+%                     d1 = d1.simplify (vars); %,obj.d.polygon);
+%                     if d1.nv == 0
+%                         disp('nv 0 post minus 2')
+%                     end
+%                     
+%                     %d1.print
+%                     %d1 = simplify(obj.envd(j) - d0)
+%                     envdT = [envdT,d1];
+%                     envfT = [envfT, obj.envf(j)]     ;
+%                     enveT = [enveT,obj.envExpr(j)];
+%                     end
 
                     %end
                 end

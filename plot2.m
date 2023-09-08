@@ -1,7 +1,11 @@
 %ezplot('-y')
 %ezplot("-y")
 %hold on
-
+%ezplot('exp(-x^2)',[-1,1]  )
+%ezplot('sin(x)' ,[-1,1] )
+ezplot('abs(x*y)'  )
+return
+hold on
 
 %ezplot('x - 1' ) 
 %hold on
