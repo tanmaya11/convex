@@ -132,7 +132,8 @@ classdef testPlq < matlab.unittest.TestCase
 
         function testConvexEnvelopei (testCase)
             %testCase.PS = testCase.PS.convexEnvelope();
-            i = 17
+            i = 10
+            testCase.PS.pieces(i).print
             testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
            testCase.PS.pieces(i).print
             testCase.verifyEqual(true, true);

@@ -657,7 +657,7 @@ disp('test22')
               obj = obj.unique();
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope2")
-              %obj.print
+              obj.print
               
           %    return
               
@@ -677,7 +677,7 @@ disp('test22')
               
               obj = obj.maxEnvelopeIntersect([x,y]);
               disp("maxEnvelopeIntersect2")
-             % obj.print
+              obj.print
              
               %return
               for i=1:size(obj.envd,2)
@@ -688,7 +688,7 @@ disp('test22')
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope3")
-              %obj.print
+              obj.print
               %disp("max2")
               
               obj = obj.unique();
@@ -751,12 +751,13 @@ disp('test22')
                   continue
               end
               %r.print
-              r = r.removeDenominator;
+              %r = r.removeDenominator;
               r = unique(r);
               if (r.isFeasible)
                   obj.envf = [obj.envf, envfs(i)];
                   obj.envExpr = [obj.envExpr, envxs(i)];
-                  obj.envd = [obj.envd, r.removeDenominator];
+                  %obj.envd = [obj.envd, r.removeDenominator];
+                  obj.envd = [obj.envd, r];
               end
              
             end
@@ -905,9 +906,9 @@ disp('test22')
             %lb
             %ub
 
-             nb = 1;
-             lb(1) = max(lb);
-             ub(1) = min(ub);
+%             nb = 1;
+%             lb(1) = max(lb);
+%             ub(1) = min(ub);
 %             if lb(1) >= ub(1)
 %                 return
 %             end
@@ -1921,8 +1922,8 @@ disp('test22')
                   lV(jx(i)) = true;
               end
               
-             % etah
-             % etaw
+              etah
+              etaw
              % ix(i)
              % jx(i)
              % ixd(i)
@@ -2131,21 +2132,6 @@ disp('test22')
                     s = proj.x1;
                     subs(eq1,proj);
                     subs(eq2,proj);
-                    %s = etaR(i,1).subsVarsPartial ([a,b],vertex);
-                    % s = df(x) = 2mx + q
-                    %s = functionF(2*obj.d.mE(i)*vertex(1) + obj.d.cE(i));
-         
-                    %s = vertex(1)
-                    %obj.d.mE(i)
-                    %obj.d.cE(i)
-                    %i
-                    %j
-                    %s
-                %    vertex
-                    %etaR(i,2)
-                    %etaR(i,3)
-                    
-                    %if ((etaR(i,2)<=s)&(s<=etaR(i,3)))
                     %if ((vjx1<=s)&(s<=vjx2))
                       n = n + 1;
                       ix(n) = i;
@@ -2197,9 +2183,10 @@ disp('test22')
                       end
                 end
             end
-            return
+            %return
             % vertex vertex cases
-            size(obj.d.V,2)
+            %size(obj.d.V,2)
+            
             for i = 1:size(obj.d.V,2)
               for j = i+1:size(obj.d.V,2)
                  n = n + 1;
@@ -2279,6 +2266,10 @@ disp('test22')
             end
             if obj.d.nV == 0
                 etaV=functionF.empty();
+            end
+            if obj.d.nE == 0
+                etaE=functionF.empty();
+                etaR=functionF.empty();
             end
             
         end
@@ -3450,6 +3441,7 @@ disp('test22')
                     %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
                  %   disp('l0')
                     %l0
+                    % put splitting code in else
                     if ~l0
                         continue
                     end

@@ -938,9 +938,9 @@ classdef region
          % fix it
          % to detect - end point interval contained in bigger interval
          function f = minus(obj1,obj2)
-             disp('in minus')
+             %disp('in minus')
              if (obj1 == obj2)
-                 f = [region.empty]
+                 f = [region.empty];
                  return
              end     
             l = []; 
