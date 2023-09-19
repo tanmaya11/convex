@@ -1,9 +1,45 @@
-%ezplot('(x+y)^2-8*x')
-ezplot("x+(3/2)*y+3/2")
+%ezplot('-y')
+%ezplot("-y")
+%hold on
+ezplot('log(abs(x))/log(exp(1))')
+return
+ezplot('x^2*(ln(abs(y)+0.5))'  )
+return
+%ezplot('exp(-x^2)',[-1,1]  )
+%ezplot('sin(x)' ,[-1,1] )
+ezplot('abs(x*y)'  )
+return
 hold on
-ezplot("x+y+1")
+
+%ezplot('x - 1' ) 
+%hold on
+ezplot('x - y'  )
+
 hold on
-ezplot("-6*x+2*y+28")
+ezplot('(2*y)/3 - x - 1') 
+hold on
+ezplot('- x - (2*y)/3' )
+hold on
+ezplot('6^(1/2)/4 - (6^(1/2)*x)/2 - y + 7/8'  )
+hold on
+ezplot('y + (6^(1/2)*x)/2 - 3/8' )
+hold on
+return
+ezplot("x - y")
+hold on
+
+ezplot("-3*x + 2*y -3")
+hold on
+ezplot("x + y")
+hold on
+ezplot("x + y-2")
+hold on
+ezplot("x + 3*y/2+3/2")
+hold on
+ezplot("x + 3*y/2-9/2")
+hold on
+return
+ezplot("3*x + 2*y")
 hold on
 return
 ezplot('s2/2 - s1/2 - (s1 + s2)^2/36 + 11/4')

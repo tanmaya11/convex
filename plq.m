@@ -36,6 +36,13 @@ if i > 1
            end
       end
 
+      function plotDomain(obj)
+           %figure;
+           for i = 1:obj.nPieces
+               obj.pieces(i).plotDomain
+           end
+      end
+
       
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces

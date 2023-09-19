@@ -169,7 +169,7 @@ classdef domain
       end
 
       function obj = getEdges (obj)
-          for i = 1:obj.polygon.nv-1
+          for i = 1:obj.polygon.nv
               l(i) = 0;
           end
           for i = 1:obj.polygon.nv-1
