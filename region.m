@@ -849,6 +849,7 @@ classdef region
                 end  
               end
             end
+            % add code to get unique ineqs
             obj.vars = vars;  
             %obj.print
             obj = obj.normalize1; 
@@ -1225,8 +1226,8 @@ classdef region
              if l2 > 10
                  l2 = 10;
              end
-             l1 = -6;
-             l2 = 6;
+             l1 = -10;
+             l2 = 10;
            obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
 
          end

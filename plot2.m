@@ -1,6 +1,10 @@
 %ezplot('-y')
 %ezplot("-y")
 %hold on
+ezplot('log(abs(x))/log(exp(1))')
+return
+ezplot('x^2*(ln(abs(y)+0.5))'  )
+return
 %ezplot('exp(-x^2)',[-1,1]  )
 %ezplot('sin(x)' ,[-1,1] )
 ezplot('abs(x*y)'  )

@@ -480,9 +480,9 @@ disp('test22')
          end
 
          function plot(obj)
-             figure;
-             obj.d.plot;
-             
+             %figure;
+             %obj.d.plot;
+             %   figure;
            for j=1:size(obj.envf,2) 
              
              limits = [min(obj.envd(j).vx),max(obj.envd(j).vx),min(obj.envd(j).vy),max(obj.envd(j).vy)];
@@ -498,10 +498,11 @@ disp('test22')
              obj.envf(j).f = simplify(obj.envf(j).f);
              %figure;  
              %obj.envf(j).plot3d (limits);
-             figure;
-             obj.d.plot;
-             obj.envd(j).plot;
+             %figure;
+             %obj.d.plot;
+             %obj.envd(j).plot;
              if (size(obj.conjfia,1) > 0)
+              
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                %disp("Conjugate Expr")
                limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)];
@@ -533,17 +534,30 @@ disp('test22')
                end
                %disp('Conjugate Domain')
                %obj.conjd(k).plotByVertex;
-               obj.conjd(k).plot;
-               obj.conjd(k).plotRegion;
+               limits = [-10,10,-10,10];
+               %obj.conjd(k).plot;
+              % obj.conjd(k).plotRegion;
                
              end
              
              
              end
            end
+           figure;
+           for i = 1:size(obj.maxf,2)
+             disp(i)
+             obj.maxd(i).plot
+           end
+           
            
          end
 
+         function plotDomain(obj)
+             figure;
+             obj.d.plot;
+             
+           
+         end
     end
 
     methods % utility
@@ -620,6 +634,18 @@ disp('test22')
     end
 
     methods % convex
+        function obj = setconvexEnvelope(obj)
+          vars = obj.f.getVars;
+          if (size(vars,2)==2)
+            x = vars(1);
+            y = vars(2);
+          end  
+          obj.envf = [functionF(y^2/(y-x+1))];
+          obj.envExpr = [convexExpr(1,0,y/2,(y-x+1)/4)];
+          obj.envd = [obj.d.polygon];
+        
+        end
+
         function obj = convexEnvelope(obj)
             %disp("in convexEnvelope")
             %for i = 1:size(obj.f,2)
@@ -637,9 +663,9 @@ disp('test22')
                   obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
                   %obj.envd(i) = obj.envd(i).getVertices();
               end
-         %     return
-              disp("convexEnvelope1")
-              obj.print
+          %    return
+             % disp("convexEnvelope1")
+            %  obj.print
            %   return
              % obj.plot
               %[f,r] = obj.intersectionDomain;
@@ -651,15 +677,15 @@ disp('test22')
 
 
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              disp("maxconvexEnvelope1")
+              %disp("maxconvexEnvelope1")
               %return
-              obj.print
+             % obj.print
               obj = obj.unique();
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              disp("maxconvexEnvelope2")
-              obj.print
+              %disp("maxconvexEnvelope2")
+              %obj.print
               
-          %    return
+            %  return
               
           %    li = obj.entireRegion ();
           %    if li > 0
@@ -676,19 +702,21 @@ disp('test22')
  %             end
               
               obj = obj.maxEnvelopeIntersect([x,y]);
-              disp("maxEnvelopeIntersect2")
-              obj.print
+              %disp("maxEnvelopeIntersect2")
+              %obj.print
              
               %return
               for i=1:size(obj.envd,2)
               %    obj.envd(i) = obj.envd(i).getVertices();
               end
               
-              return
+             %return
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              disp("maxconvexEnvelope3")
-              obj.print
+              %disp("maxconvexEnvelope3")
+              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              %disp("maxconvexEnvelope4")
+              %obj.print
               %disp("max2")
               
               obj = obj.unique();
@@ -698,13 +726,14 @@ disp('test22')
               %  obj.envd(j) = obj.envd(j).getVertices();
               %end
             %end
-            disp("finalconvexEnvelope1")
+            %disp("finalconvexEnvelope1")
              %obj.print
-             for j=1:size(obj.envd,2)
+             %for j=1:size(obj.envd,2)
                 % figure;
                 %obj.envd(j).plot;
               
-              end
+             %end
+            % [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr)
             return
             
         end
@@ -719,11 +748,11 @@ disp('test22')
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
 
-%                 etaV.printL();
+                 etaV.printL();
 %                disp("etaE")
-%              etaE.printL();
+              etaE.printL();
 %              disp("etaR")
-%              etaR.printL();
+              etaR.printL();
 %              return
 %             % put a check that eta are only polynomials 
 
@@ -876,10 +905,16 @@ disp('test22')
 
             %substitute a in objective and get coefficients of b
             %obj0
-            obj0 = obj0.subsVarsPartial([a],[av]);
+            obj0 = obj0.subsVarsPartial([a],[av])
             objfacts = coeffs(obj0.f,b);
-            eta0 = objfacts(1);
-            eta1 = objfacts(2);
+           if size(objfacts,2) == 1
+                eta0 = 0;
+                eta1 = objfacts(1);  
+                
+                else
+                eta0 = objfacts(1);
+                eta1 = objfacts(2);  
+                end
             % obj = b * eta1 + eta0
             %return
             nb = 0 ;
@@ -998,14 +1033,14 @@ disp('test22')
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(objfacts(2), [x,y]) ];
+                envds = [envds, region(eta1, [x,y]) ];
   %              disp("inf")
   %              envfs(end).print 
   %              envfs(end).print
               elseif (mlb == -inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-objfacts(2), [x,y]) ];
+                envds = [envds, region(-eta1, [x,y]) ];
    %             disp("-inf")
    %             mub
    %             obj0.print
@@ -1013,12 +1048,12 @@ disp('test22')
               elseif (mlb ~= mub)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(objfacts(2), [x,y]) ];
+                envds = [envds, region(eta1, [x,y]) ];
     %          disp("notinf1")
      %           envfs(end).print
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-objfacts(2), [x,y]) ];
+                envds = [envds, region(-eta1, [x,y]) ];
       %          disp("notinf2")
       %          envfs(end).print
               
@@ -1283,11 +1318,12 @@ disp('test22')
 
             %for i = 1:nb
               %f0 = simplify(psi1^2/psi2+psi0);
-              f0 = functionF(psi1^2,psi2) + functionF(psi0);
+              f0 = functionF(psi1^2,psi2) + functionF(psi0)
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
               % put in r1
               %envfs = [envfs, functionF(f0)];
+              envfs
               envfs = [envfs, f0];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
               envds = [envds, region([r0,r1], [x,y])];
@@ -1534,7 +1570,8 @@ disp('test22')
                   return
               else
        %           disp('here')
-              f0 = simplify(psi1^2/psi2+psi0);
+              %f0 = simplify(psi1^2/psi2+psi0);
+              f0 = functionF(psi1^2,psi2) + functionF(psi0);
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               envfs = [envfs, f0];
@@ -1557,7 +1594,7 @@ disp('test22')
               f0 = simplify(-mlb^2*psi2 + 2*mlb*psi1 + psi0);
               r0 = simplify(psi1-mlb*psi2);
 
-              envfs = [envfs, f0];
+              envfs = [envfs, functionF(f0)];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mlb)];
               size(envfs)
@@ -1571,7 +1608,7 @@ disp('test22')
 
               f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
               r0 = simplify(mub*psi2-psi1);
-              envfs = [envfs, f0];
+              envfs = [envfs, functionF(f0)];
               envds = [envds, region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mub)];
               size(envfs)
@@ -1598,8 +1635,12 @@ disp('test22')
           if size(vars,2) == 1
               
               if vars(1) == a
-                av = etah.f;
-                obj0 = obj0.subsVarsPartial([a],[av]);
+                  etaw
+                  etah
+                  t0 = etaw-etah
+                  av = solve(t0.f,a)
+                av = etah.f
+                obj0 = obj0.subsVarsPartial([a],[av])
                 objfacts = coeffs(obj0.f,b);
                 if size(objfacts,2) == 1
                 eta0 = 0;
@@ -1712,8 +1753,121 @@ disp('test22')
             
             
               else
-                  disp('to be implemented')
-                  return
+                 etaw
+                  etah
+                  t0 = etaw-etah
+                  bv = solve(t0.f,b)
+                  %return
+                obj0 = obj0.subsVarsPartial([b],[bv])
+                objfacts = coeffs(obj0.f,a);
+                if size(objfacts,2) == 1
+                eta0 = 0;
+                eta1 = objfacts(1);  
+                
+                else
+                eta0 = objfacts(1);
+                eta1 = objfacts(2);  
+                end
+                if (ixd > 0)
+                  [nb, lb, ub, linfeasible] = getBoundsLinear (obj, etaRix,ixd, b,a,bv, nb, lb, ub);
+                  %linfeasible
+                  if (linfeasible)  
+                    return;
+                  end
+                end
+                if (jxd > 0)
+                  [nb, lb, ub, linfeasible] = getBoundsLinear (obj, etaRjx,jxd, b,a,bv, nb, lb, ub);
+                  %linfeasible
+                  if (linfeasible)  
+                    return;
+                  end
+                end
+                for j=1:size(etaV,2)
+                  if (lV(j)) 
+                    continue;
+                  end
+                  etak = etaV(j);
+                  c = etah - etak ; % <= 0   easier for substitution
+                  c = c.subsVarsPartial([b],[bv]);
+                  [nb,lb, ub, linfeasible] = getBound1 (obj, c,a,nb,lb,ub);
+                  if (linfeasible) 
+                    return;
+                  end
+                end
+                for j=1:size(etaE,1)
+                  if (lE(j))
+                    continue;
+                  end
+                  for k = 1:size(etaE,2) 
+                    etak = etaE(j,k);
+                    c = etah - etak;  % <= 0   easier for substitution
+                    c = c.subsVarsPartial([b],[bv]);
+                    if (isZero(c)) 
+                      continue
+                    end
+                    [nb,lb, ub, linfeasible] = getBound1 (obj,c,a,nb,lb,ub);
+                 
+               
+                    if (linfeasible) 
+                      return;
+                    end
+                  end
+                end
+                mlb = max(lb);
+                mub = min(ub);
+          
+                % soln
+                % max (lb * eta1 + eta0, ub * eta1 + eta0)
+                % if eta1 >= 0   :  ub * eta1 + eta0
+                % if eta1 <= 0   :  lb * eta1 + eta0   
+
+                %objfacts
+                if (double(mlb) > double(mub))
+          %      disp('infeasible')
+                else
+                if size(objfacts,2) == 2
+                if (mub == inf)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mlb])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
+                  envds = [envds, region(objfacts(2), [x,y]) ];
+                elseif (mlb == -inf)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mub])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
+                  envds = [envds, region(-objfacts(2), [x,y]) ];
+                elseif (mlb ~= mub)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mlb])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
+                  envds = [envds, region(objfacts(2), [x,y]) ];
+                  
+              
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mub])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
+                  envds = [envds, region(-objfacts(2), [x,y]) ];
+                end
+                else
+                if (mub == inf)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mlb])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
+                  envds = [envds, region(objfacts(1), [x,y]) ];
+                elseif (mlb == -inf)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mub])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
+                  envds = [envds, region(-objfacts(1), [x,y]) ];
+                elseif (mlb ~= mub)
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mlb])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
+                  envds = [envds, region(objfacts(1), [x,y]) ];
+                  
+              
+                  envfs = [envfs, obj0.subsVarsPartial([a],[mub])];
+                  envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
+                  envds = [envds, region(-objfacts(1), [x,y]) ];
+                end
+                
+                end
+              %disp("in linear")
+              %envds(end).print
+            end
               end
                 
           else
@@ -1958,7 +2112,27 @@ disp('test22')
                   
               end 
 
-              
+              if (degreeh==1 & degreew==0)
+                    %disp("const-lin")
+            %        continue
+                    obj0 = etah + functionF(a*x+b*y);
+                    if ixd(i) == 0
+                        etaRi=functionF;
+                    else
+                        etaRi = etaR(ix(i),:);
+                    end
+                    if jxd(i) == 0
+                        etaRj=functionF;
+                    else
+                        etaRj = etaR(jx(i),:);
+                    end
+                   
+                    [envfs, envxs, envds]  = solveConstLinear(obj, obj0, etaw, etah, x, y, a, b, jxd(i), ixd(i), etaRj, etaRi, etaV, lV, etaE, lE, envfs, envxs, envds);
+                    
+             
+                  
+              end 
+
               if (degreeh==1 & degreew==1)
                    % disp("lin-lin")
                    % continue
@@ -2002,6 +2176,12 @@ disp('test22')
                     
                     [envfs, envxs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaRi, ixd(i), etaRj, jxd(i), etaV, lV, etaE, lE, ix(i), envfs, envxs,envds);
             % flipping a,b gives same answer
+                end
+                if (degreeh==2 & degreew==0)
+                    %disp("const-quad")
+                    
+                    [envfs, envxs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaRi, ixd(i), etaRj, jxd(i), etaV, lV, etaE, lE, ix(i), envfs, envxs,envds);
+                    
                 end
                 
                 if (degreeh==1 & degreew==2)
@@ -2277,6 +2457,7 @@ disp('test22')
     end
 
     methods % conjugate
+        
         function obj = conjugate (obj)
             %disp("in conjugate")
             %size(obj.envf)
@@ -2319,6 +2500,7 @@ disp('test22')
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
               vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );    %  cpsi2(2)*vs1 - cpsi2(1)*vs2  cancels t^2 term - then solve for t 
+              disp('crs')
               crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
               
 
@@ -2327,7 +2509,7 @@ disp('test22')
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
               
               % print normal cone for debugging %%%%%%%%%%%%%%%%%%%%%%
               %temp = [];
@@ -2343,21 +2525,21 @@ disp('test22')
               %obj.envd(i).plot;
               %temp.plotLIneq ([s1,s2],[-6,0]);
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
 
              % disp('subdE check')
-              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars);
+              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
               %crs
-              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
+              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars)
               
             %  subdE
             %  edgeNo
               %disp('post')
               %crs
-              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
+              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs)
 
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
               expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
@@ -2473,6 +2655,8 @@ disp('test22')
                   %%%%%%%%%%%%%%%%%
                 end
             end
+            disp('vertices')
+            size(conjf,2)
             for j = 1:obj.envd(i).nv
                 if (unR(j))
                    % continue
@@ -2503,7 +2687,7 @@ disp('test22')
                 obj.conjd = [obj.conjd, conjd(i)];
             end
             
-            return 
+            
             disp("Conjugate printouts")
             %obj.conjf.printL  
             %obj.conjd.print
@@ -2512,7 +2696,8 @@ disp('test22')
               obj.conjf(i).print
               obj.conjd(i).print
             end
-            [obj.conjf(strt:end),obj.conjd(strt:end)] = obj.merge(obj.conjf(strt:end),obj.conjd(strt:end));
+            return 
+            %[obj.conjf(strt:end),obj.conjd(strt:end)] = obj.merge(obj.conjf(strt:end),obj.conjd(strt:end));
             disp('after merging')
             for i = strt:size(obj.conjf,2)
               disp(i)
@@ -2733,8 +2918,8 @@ disp('test22')
             vars = obj.f.getVars;
             drx1 = obj.envf(i).dfdx(vars(1));
             drx2 = obj.envf(i).dfdx(vars(2));
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
             
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
@@ -2749,7 +2934,7 @@ disp('test22')
               
              
               f = functionF(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
+              coef = f.getLinearCoeffs (dualVars)
               if (coef(2) == 0)
                 subdV(j,1) = dualVars(1)-limdrx1(j);
                 subdV(j,1) = coef(1)*subdV(j,1) ;
@@ -2791,10 +2976,11 @@ disp('test22')
             subdV = sym(zeros(obj.envd(i).nv,3));
             undV = zeros(obj.envd(i).nv,1);
             vars = obj.f.getVars;
-            drx1 = obj.envf(i).dfdx(vars(1));
-            drx2 = obj.envf(i).dfdx(vars(2));
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            
+            drx1 = obj.envf(i).dfdx(vars(1))
+            drx2 = obj.envf(i).dfdx(vars(2))
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
             
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
@@ -2809,7 +2995,7 @@ disp('test22')
               
              
               f = functionF(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
+              coef = f.getLinearCoeffs (dualVars)
               if (coef(2) == 0)
                 subdV(j,1) = dualVars(1)-limdrx1(j);
                 subdV(j,1) = coef(1)*subdV(j,1) ;
@@ -2825,11 +3011,11 @@ disp('test22')
 
               
               f = functionF(NCV(j,2));
-              k = j+1;
+              k = j+1
               if k > obj.envd(i).nv
                   k = 1;
               end
-              coef = f.getLinearCoeffs (dualVars);
+              coef = f.getLinearCoeffs (dualVars)
               if (coef(2) == 0)
                 subdV(j,2) = dualVars(1)-limdrx1(k);
                 subdV(j,2) = coef(1)*subdV(j,2) ;
@@ -2876,11 +3062,11 @@ disp('test22')
             NC = sym(zeros(obj.envd(i).nv,2));
             vars = obj.f.getVars;
             %obj.envd(i).vx
-            meanx = sum(obj.envd(i).vx)/obj.envd(i).nv;
-            meany = sum(obj.envd(i).vy)/obj.envd(i).nv;
+            meanx = sum(obj.envd(i).vx)/obj.envd(i).nv
+            meany = sum(obj.envd(i).vy)/obj.envd(i).nv
             
              for j = 1: obj.envd(i).nv-1
-                slope = obj.envd(i).slope(j,j+1);
+                slope = obj.envd(i).slope(j,j+1)
                 pslope = -1/slope;
                 if pslope == -inf
                     pslope = inf;
@@ -2891,17 +3077,25 @@ disp('test22')
                 else
                     eq = s1 - obj.envd(i).vx(j);
                 end
-                if subs(eq,[s1,s2],[meanx,meany]) < 0
+                
+                if subs(eq,[s1,s2],[obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)]) < 0
+                %if subs(eq,[s1,s2],[meanx,meany]) < 0
                     eq = -eq;
                 end
-                NC(j,1) = eq;
+                NC(j,1) = eq
                 if pslope ~= inf
                     q = obj.envd(i).yIntercept (j+1,pslope);
                     eq = s2 - pslope*s1 - q;
                 else
                     eq = s1 - obj.envd(i).vx(j+1);
                 end
-                if subs(eq,[s1,s2],[meanx,meany]) < 0
+               obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)
+                meanx,meany
+                subs(eq,[s1,s2],[obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)])
+                subs(eq,[s1,s2],[meanx,meany])
+                if subs(eq,[s1,s2],[obj.envd(i).vx(j),obj.envd(i).vy(j)]) < 0
+                %if subs(eq,[s1,s2],[meanx,meany]) < 0
+                    
                     eq = -eq;
                 end
                 
@@ -2917,10 +3111,11 @@ disp('test22')
              else
                eq = s1 - obj.envd(i).vx(j);
              end
-             if subs(eq,[s1,s2],[meanx,meany]) < 0
+             if subs(eq,[s1,s2],[obj.envd(i).vx(1),obj.envd(i).vy(1)]) < 0
+             %if subs(eq,[s1,s2],[meanx,meany]) < 0
                     eq = -eq;
                 end
-                
+              
              NC(j,1) = eq;
              if pslope ~= inf
                q = obj.envd(i).yIntercept (1,pslope);
@@ -2928,7 +3123,8 @@ disp('test22')
              else
                eq = s1 - obj.envd(i).vx(1);
              end
-             if subs(eq,[s1,s2],[meanx,meany]) < 0
+             if subs(eq,[s1,s2],[obj.envd(i).vx(j),obj.envd(i).vy(j)]) < 0
+             %if subs(eq,[s1,s2],[meanx,meany]) < 0
                     eq = -eq;
                 end
                 
@@ -2965,6 +3161,7 @@ disp('test22')
 
 
                 if subs(edge,vars,[meanx,meany]) > 0
+                    
                     edge = -edge;
                 end
                 
@@ -2978,7 +3175,8 @@ disp('test22')
                 else
                     eq = s1 - obj.envd(i).vx(j);
                 end
-                if subs(eq,[s1,s2],[meanx,meany]) > 0
+                if subs(eq,[s1,s2],[obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)]) > 0    
+                %if subs(eq,[s1,s2],[meanx,meany]) > 0
                     eq = -eq;
                 end
                 NC(j,1) = eq;
@@ -2989,7 +3187,8 @@ disp('test22')
                     eq = s1 - obj.envd(i).vx(j+1);
                 end
                 % not reqd - check and remove
-                if subs(eq,[s1,s2],[meanx,meany]) > 0
+                if subs(eq,[s1,s2],[obj.envd(i).vx(j),obj.envd(i).vy(j)]) > 0   
+                %if subs(eq,[s1,s2],[meanx,meany]) > 0
                     eq = -eq;
                 end
                 
@@ -3030,7 +3229,8 @@ disp('test22')
              else
                eq = s1 - obj.envd(i).vx(j);
              end
-             if subs(eq,[s1,s2],[meanx,meany]) > 0
+             if subs(eq,[s1,s2],[obj.envd(i).vx(1),obj.envd(i).vy(1)]) > 0   
+             %if subs(eq,[s1,s2],[meanx,meany]) > 0
                     eq = -eq;
                 end
                 
@@ -3041,7 +3241,8 @@ disp('test22')
              else
                eq = s1 - obj.envd(i).vx(1);
              end
-             if subs(eq,[s1,s2],[meanx,meany]) > 0
+             if subs(eq,[s1,s2],[obj.envd(i).vx(j),obj.envd(i).vy(j)]) > 0   
+             %if subs(eq,[s1,s2],[meanx,meany]) > 0
                     eq = -eq;
                 end
                 
@@ -3051,7 +3252,7 @@ disp('test22')
 
          
     % to be changed
-    function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+    function [nmaxf,nmaxd,nmaxe] = merge(obj,maxf,maxd, maxe)
           ia(1) = 1;
           n = 0;
           for i = 1:size(maxf,2)
@@ -3091,6 +3292,7 @@ disp('test22')
             if (ia(i) == ia(i+1)) 
                 m = m + 1;
                 nmaxf(m) = maxf(i);
+                nmaxe(m) = maxe(i);
                 nmaxd(m) = maxd(i);
             else
                 % get common boundary and merge
@@ -3104,12 +3306,14 @@ disp('test22')
                    if ~l
                      m = m + 1;
                      nmaxf(m) = maxf(i);
+                     nmaxe(m) = maxe(i);
                      nmaxd(m) = maxd(ja(j));  
                    end
                end
                m = m + 1;
                nmaxf(m) = maxf(i);
                r = r.getVertices();
+               nmaxe(m) = maxe(i);
                nmaxd(m) = r;  
                    
             end

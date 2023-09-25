@@ -1,13 +1,13 @@
 
 
 syms x y 
-y = linspace(-4, 5, 100);
-x = zeros(size(y));
-x = 0*y-5;
-plot(x,y);
-line_label = 'x <=  0';
-%text(-1, 0, line_label, 'HorizontalAlignment', 'left');
+y = linspace(-10, 10, 100);
+x = y;
+
+z = @(x)(x^2)
+ezsurf(x,[x,y])
 hold on;
+
 
 
 
