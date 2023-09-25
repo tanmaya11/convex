@@ -984,9 +984,9 @@ classdef region
 
             % original code
             f0 = region(l,obj1.vars);
-            f0 = f0.getVertices
-            disp('here')
-            f0.nv
+            f0 = f0.getVertices;
+            %disp('here')
+            %f0.nv
             if f0.nv >= 3
               f = [f0.simplify(obj1.vars)];
               return
@@ -1856,7 +1856,7 @@ classdef region
          obj = region(l, obj1.vars);
          %obj.print
          if (isFeasible(obj))
-             disp('feasible')
+             %disp('feasible')
              obj = obj.unique;
              if obj.nv <= 2
                  disp('degenerate ');

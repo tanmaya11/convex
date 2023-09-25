@@ -109,7 +109,7 @@ classdef testPlqTri < matlab.unittest.TestCase
               testCase.PS.pieces(1)=testCase.PS.pieces(1).intersectionConjugateDomain;
               testCase.PS.pieces(1)=testCase.PS.pieces(1).maximum;
               testCase.PS.pieces(1).print
-                testCase.PS.pieces(1).plot
+            %    testCase.PS.pieces(1).plot
             testCase.verifyEqual(true, true);
         end
 
