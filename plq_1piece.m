@@ -3099,6 +3099,10 @@ disp('test22')
              j = obj.envd(i).nv;
              slope = obj.envd(i).slope(j,1);
              pslope = -1/slope;
+             if pslope == -inf
+                    pslope = inf;
+                end
+                
              if pslope ~= inf
                q = obj.envd(i).yIntercept (j,pslope);
                eq = s2 - pslope*s1 - q;
@@ -3387,6 +3391,7 @@ disp('test22')
 
                            obj.maxf(n,1) = f1;
                            obj.maxf(n,2) = f2;
+                           
                            %return
                          end
                          %return
@@ -3426,7 +3431,10 @@ disp('test22')
           for i = 1:size(obj.maxd,2)
 
                % check size of obj.maxf(i,:) and fix
-               if size(obj.maxf(i)) == 1
+               disp("size in maximum")
+
+               size(obj.maxf(i,:),2)
+               if size(obj.maxf(i,:),2) == 1
                    continue;
                end
                [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));

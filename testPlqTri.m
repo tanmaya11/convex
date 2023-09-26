@@ -102,14 +102,18 @@ classdef testPlqTri < matlab.unittest.TestCase
         
         function testConvexEnvelopei (testCase)
             %testCase.PS = testCase.PS.convexEnvelope();
-            i = 1
+            % 1 checked
+            % 2 checked
+            i = 8;
             %testCase.PS.pieces(i).print
             testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
-            testCase.PS.pieces(1)=testCase.PS.pieces(1).conjugate;
-              testCase.PS.pieces(1)=testCase.PS.pieces(1).intersectionConjugateDomain;
-              testCase.PS.pieces(1)=testCase.PS.pieces(1).maximum;
-              testCase.PS.pieces(1).print
-            %    testCase.PS.pieces(1).plot
+            
+            testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
+            %disp('b4 intersectionConjugateDomain')
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
+              testCase.PS.pieces(i).print
+             %   testCase.PS.pieces(1).plot
             testCase.verifyEqual(true, true);
         end
 
