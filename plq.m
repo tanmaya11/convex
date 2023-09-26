@@ -19,9 +19,9 @@ classdef plq
           disp("")
           disp("")
           for i = 1:obj.nPieces
-if i > 1
-                  return
-              end
+%if i > 1
+%                  return
+%              end
               disp(["Piece ", num2str(i)])
               obj.pieces(i).print;
               

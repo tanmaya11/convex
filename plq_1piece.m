@@ -467,6 +467,7 @@ disp('test22')
            end
            fprintf("\n\n\n\n\n")
            disp("Maximum conjugate")
+           size(obj.maxf,2)
            for i = 1:size(obj.maxf,2)
              disp(i)
              obj.maxf(i).print
@@ -3319,7 +3320,17 @@ disp('test22')
       function obj = intersectionConjugateDomain (obj)
         n = 0;
         %disp('intersectionConjugateDomain')
-        %obj.conjfia
+        obj.conjfia
+        if size(obj.conjfia,2) == 2
+           for k = obj.conjfia(1):obj.conjfia(2)-1 
+             obj.maxd(k) = obj.conjd(k);
+             obj.maxf(k) = obj.conjf(k);
+             size(obj.maxf(k))
+           end
+           disp('obj.maxf')
+           size(obj.maxf)
+           return
+        end
         for j1 = 1:size(obj.conjfia,2)-1
            for k1 = obj.conjfia(j1):obj.conjfia(j1+1)-1
               
@@ -3414,18 +3425,11 @@ disp('test22')
           n = 0;
           for i = 1:size(obj.maxd,2)
 
-              % do this if functions are linear
-             %disp(["i", num2str(i)])
-             %r2(i).print
-
-% check this
-
-             %f1 = f(i,1);
-             %f2 = f(i,2);
-             % [l, fmax] = r2(i).maxArray (f1, f2) ;
-%%%%
-
-              [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               % check size of obj.maxf(i,:) and fix
+               if size(obj.maxf(i)) == 1
+                   continue;
+               end
+               [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -3435,6 +3439,9 @@ disp('test22')
                else  
                  disp('maximum : check if it reaches here')
                end  
+          end
+          if n == 0
+              return
           end
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
