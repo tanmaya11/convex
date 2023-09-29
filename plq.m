@@ -19,9 +19,9 @@ classdef plq
           disp("")
           disp("")
           for i = 1:obj.nPieces
-if i > 1
-                  return
-              end
+%if i > 1
+%                  return
+%              end
               disp(["Piece ", num2str(i)])
               obj.pieces(i).print;
               
@@ -46,13 +46,13 @@ if i > 1
       
       function obj = convexEnvelope(obj)
           for i = 1:obj.nPieces
-              i
+              %i
               %if i == 1 
               %    continue;
               %end
-              if i >= 2 
-                  continue;
-              end
+              %if i >= 2 
+              %    continue;
+              %end
               obj.pieces(i)=obj.pieces(i).convexEnvelope;
               %if i ==  1
               %    return
@@ -76,9 +76,9 @@ if i > 1
              % obj.pieces(i).envf.printL
              % size(obj.pieces(i).conjf)
               %obj.pieces(i).conjf.printL
-              if i == 1
-                  return
-              end
+              %if i == 1
+              %    return
+              %end
           end
       end
 
@@ -86,10 +86,10 @@ if i > 1
         %n = 0;
         
         for i = 1:obj.nPieces
-            disp('piece')
-            i
-            obj.pieces(i).conjfia
-           obj.pieces(i) = obj.pieces(i).intersectionConjugateDomain
+            %disp('piece')
+            %i
+            %obj.pieces(i).conjfia
+           obj.pieces(i) = obj.pieces(i).intersectionConjugateDomain;
         end
 
 
@@ -395,6 +395,21 @@ if i > 1
           end
           
       end
+
+%       function obj = maximumInPairs(obj)
+%           for i=1:obj.nPieces
+%               lc(i) = false;
+%           end
+%           for i=1:obj.nPieces
+% 
+%               for j=i+1:obj.nPieces
+%               [l,rf] = intersection3(obj.maxd(i), obj.maxd(j), false);
+%               if ~l
+%                   continue
+%               end
+%           end
+%       end
+
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
           ia(1) = 1;
