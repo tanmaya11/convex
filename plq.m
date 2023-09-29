@@ -396,10 +396,10 @@ classdef plq
           
       end
 
-%       function obj = maximumInPairs(obj)
-%           for i=1:obj.nPieces
-%               lc(i) = false;
-%           end
+       function obj = maximumInPairs(obj)
+           for i=1:obj.nPieces
+               lc(i) = false;
+           end
 %           for i=1:obj.nPieces
 % 
 %               for j=i+1:obj.nPieces
@@ -408,7 +408,7 @@ classdef plq
 %                   continue
 %               end
 %           end
-%       end
+       end
 
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
