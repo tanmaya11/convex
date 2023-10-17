@@ -2,6 +2,9 @@ classdef plq
   properties
       nPieces = 0;
       pieces = plq_1piece.empty();
+      nmaxf
+      maxf=functionF.empty();
+      maxd = region.empty();
   end
   methods
       function obj = plq(ps)
@@ -36,6 +39,12 @@ classdef plq
            end
       end
 
+      function plotMaxd(obj)
+          figure;
+          for i =1:size(obj.maxf,1)
+            obj.maxd(i,1).plotRegion;
+          end
+      end
       function plotDomain(obj)
            %figure;
            for i = 1:obj.nPieces
@@ -395,6 +404,194 @@ classdef plq
           end
           
       end
+
+      function obj = maximumInFirstPairs(obj)
+           
+           for i=1:2
+              for k1 = 1:size(obj.pieces(i).maxd,1)
+                lc(i,k1) = false;
+              end
+           end
+           n = 0;
+           for i=1:2
+             for k1 = 1:size(obj.pieces(i).maxd,1)
+               for j=i+1:2
+                 for k2 = 1:size(obj.pieces(j).maxd,1)
+                   [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
+                   if l
+                       %k1, k2
+                       %size(rf)
+                       lc(i,k1) = true;
+                       lc(j,k2) = true;
+                       for irf=1:size(rf,2)
+                         %  rf(i).print
+                         n = n + 1;
+                         obj.maxd(n,1) = rf(irf);
+                         obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+                         obj.maxf(n,2) = obj.pieces(j).maxf(k2);
+                         obj.nmaxf(n) = 2;
+                         if n == 5
+                         %    return
+                         end
+
+                       end
+
+                       
+                       
+                   end
+%               if ~l
+%                   continue
+                 end
+               end
+             end
+           end
+           for i=1:2
+              for k1 = 1:size(obj.pieces(i).maxd,1)
+                if lc(i,k1)
+                    continue;
+                end
+                n = n + 1;
+                obj.maxd(n,1) = obj.pieces(i).maxd(k1);
+                obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+                obj.nmaxf(n) = 1;
+                         
+              end
+           end
+           
+           
+       end
+
+        
+        function obj = maximumInPairsAddi(obj, ind)
+
+            for i =1:size(obj.maxf,1)
+               lc(1,i) = false;
+            end
+           
+            for k1 = 1:size(obj.pieces(ind).maxd,1)
+                lc(2,k1) = false;
+            end
+            disp('size of p3')
+            size(obj.pieces(ind).maxd,1)
+           n = 0;
+           for k1=8:size(obj.maxf,1)
+             for k2 = 11:size(obj.pieces(ind).maxd,1)
+                [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), true);
+                
+                if l
+                    k1, k2
+                  lc(1,k1) = true;
+                  lc(2,k2) = true;
+                  %size(rf)
+                  %obj.maxd(k1,1).print
+                  %obj.pieces(ind).maxd(k2).print
+                  
+                  for irf=1:size(rf,2)
+                    n = n + 1
+                    maxd(n,1) = rf(irf);
+                   % rf(irf).print
+                    maxf(n,1) = obj.maxf(k1);
+                    maxf(n,2) = obj.pieces(ind).maxf(k2);
+                    nmaxf(n) = 2;
+                    
+                  end
+                  %return
+                end
+              end
+           end
+           lc(1,:)
+           lc(2,:)
+           disp('n')
+           n
+           for i =1:size(obj.maxf,1)
+               if lc(1,i) 
+                 continue
+               end  
+               n = n + 1;
+               maxd(n,1) = obj.maxd(i);
+               maxf(n,1) = obj.maxf(i);
+               nmaxf(n) = 1;
+               
+           end
+           
+            for k1 = 1:size(obj.pieces(ind).maxd,1)
+               if lc(2,k1) 
+                 continue
+               end
+               n = n + 1
+               maxd(n,1) = obj.pieces(ind).maxd(k1);
+               maxf(n,1) = obj.pieces(ind).maxf(k1);
+               nmaxf(n) = 1;
+                
+            end
+           %Put explicit copy and check 
+           obj.maxf=functionF.empty();
+           obj.maxd = region.empty();
+           obj.nmaxf = []
+
+           for i = 1:n
+             obj.nmaxf(i) = nmaxf(i);
+             obj.maxd(i,1) = maxd(i,1);
+             for k = 1:nmaxf(i)
+               obj.maxf(i,k) = maxf(i,k);
+             end
+           end
+           
+           size(maxf)
+           size(obj.maxf)
+           size(obj.nmaxf)
+
+           
+       end
+
+
+      
+
+
+       % other part implemented - need to be integrated here and for
+       % conjugate
+       function obj = maximumP(obj) %, f, r2)
+          
+
+          n = 0;
+          for i = 1:size(obj.maxf,1)
+              i, obj.nmaxf(i)
+
+               % check size of obj.maxf(i,:) and fix
+               if obj.nmaxf(i) == 1
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i);
+                 maxd(n) = obj.maxd(i,1);
+                 continue;
+               end
+               [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if l
+                 n = n + 1;
+                 maxf(n) = fmax;
+                 %maxd(n) = r2(i);
+                 maxd(n) = obj.maxd(i,1);
+                 continue
+               else  
+                 disp('maximum : check if it reaches here')
+                 i
+                 obj.maxd(i,1).print
+                 
+                 obj.maxf(i,:).printL
+                 
+               end  
+          end
+          if n == 0
+              return
+          end
+          obj.maxf=functionF.empty();
+          obj.maxd = region.empty();
+          for i =1:n
+            obj.maxf(i,1) = maxf(i);
+            obj.maxd(i,1) = maxd(i);
+          end
+          
+      end 
+
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
           ia(1) = 1;

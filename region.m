@@ -852,11 +852,12 @@ classdef region
             % add code to get unique ineqs
             obj.vars = vars;  
             %obj.print
-            obj = obj.normalize1; 
+            obj = obj.normalize1;
+            obj = obj.unique;
             %obj.print
             %obj = obj.removeDenominator;
             %disp('b4 get vertices')
-            obj = obj.getVertices ;
+            obj = obj.getVertices  ;
          end
 
          function obj = regionWPts(obj, vx, vy, x, y)
@@ -1216,6 +1217,16 @@ classdef region
          %    disp(obj.vy)
          end
 
+         function fprint(obj, uNo)
+
+             %fprintf(uNo, obj.vars);
+             fprintf(uNo, char(obj.nv));
+             fprintf(uNo, char(obj.vx));
+             fprintf(uNo, char(obj.vy));
+             obj.ineqs.fprintLIneq(uNo);
+         end
+
+         
          function plot (obj)
              
              l1 = min(min(obj.vx),min(obj.vy));
@@ -2033,7 +2044,7 @@ classdef region
          end
      end
      % wont work for degree > 2
-     function obj = getVertices(obj, lprint)
+     function obj = getVertices(obj)
          
        obj.nv=0;
        t1 = sym('t1');
@@ -2055,10 +2066,17 @@ classdef region
                    continue;
                end
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
-                   
+                   if size(s.t1,1) == 2
+                     f1
+                     f2
+                     double(s.t1)
+                     double(s.t2)
+                   end
+                   for k = 1:size(s.t1,1)
                    obj.nv=obj.nv+1;
-                   obj.vx(obj.nv) = s.t1;
-                   obj.vy(obj.nv) = s.t2;
+                   obj.vx(obj.nv) = double(s.t1(k));
+                   obj.vy(obj.nv) = double(s.t2(k));
+                   end 
                end
                
            end

@@ -74,7 +74,7 @@ classdef testPlqTri < matlab.unittest.TestCase
               testCase.PS.pieces(1)=testCase.PS.pieces(1).convexEnvelope;
               testCase.PS.pieces(1)=testCase.PS.pieces(1).conjugate;
               testCase.PS.pieces(1)=testCase.PS.pieces(1).intersectionConjugateDomain;
-              testCase.PS.pieces(1)=testCase.PS.pieces(1).maximum;
+              testCase.PS=testCase.PS.maximum;
              
                testCase.PS.pieces(1).print
                 testCase.PS.pieces(1).plot
@@ -106,13 +106,13 @@ classdef testPlqTri < matlab.unittest.TestCase
             % 2 checked
             i = 8;
             %testCase.PS.pieces(i).print
-            testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
-            
-            testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
-            %disp('b4 intersectionConjugateDomain')
+            for i = 1:1
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
               testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
               testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
               testCase.PS.pieces(i).print
+            end  
              %   testCase.PS.pieces(1).plot
             testCase.verifyEqual(true, true);
         end
@@ -125,6 +125,76 @@ classdef testPlqTri < matlab.unittest.TestCase
             testCase.PS.pieces(i).print
             testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
             testCase.PS.pieces(i).print
+            
+            testCase.verifyEqual(true, true);
+        end
+
+
+        function testMax (testCase)
+            %testCase.PS = testCase.PS.convexEnvelope();
+            % 1 checked
+            % 2 checked
+            %testCase.PS.pieces(i).print
+            for i = 1:3
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
+              
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
+              testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
+              if i == 3
+                %testCase.PS.pieces(i).print
+                %testCase.PS.pieces(i).plot
+                %testCase.PS.pieces(i).plotRegion;
+              end 
+            end 
+            
+            %return
+
+            testCase.PS.nPieces=3;
+            disp('maximumInPairs')
+            testCase.PS = testCase.PS.maximumInFirstPairs
+            testCase.PS=testCase.PS.maximumP;
+            %testCase.PS.plotMaxd;
+            
+
+%             % write to file
+%             uNo = fopen('op','w');
+%             for i =1:size(testCase.PS.maxf,1)
+%                    testCase.PS.maxf(i,1).fprint(uNo);
+%                    testCase.PS.maxd(i,1).fprint(uNo);
+%              end
+%             fclose(uNo);
+
+
+
+
+             for i = 3:testCase.PS.nPieces
+                 testCase.PS = testCase.PS.maximumInPairsAddi (i)
+                 disp('maximumInPairsAddi')
+                 size(testCase.PS.maxf,1)
+                 testCase.PS=testCase.PS.maximumP;
+                 disp('max')
+                 size(testCase.PS.maxf,1)
+                 
+             end
+             %return
+             figure;
+             for i =1:size(testCase.PS.maxf,1)
+                     i
+                   testCase.PS.maxf(i,1).print;
+                   testCase.PS.maxd(i,1).print;
+                   testCase.PS.maxd(i,1).plot;
+                   testCase.PS.maxd(i,1).plotRegion;
+%           
+             end
+             return
+%       
+             %   testCase.PS.pieces(1).plot
+            
+            testCase.verifyEqual(true, true);
+        end
+
+        function testMaxRecreate (testCase)
             testCase.verifyEqual(true, true);
         end
     end

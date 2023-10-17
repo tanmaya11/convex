@@ -468,7 +468,7 @@ disp('test22')
            fprintf("\n\n\n\n\n")
            disp("Maximum conjugate")
            size(obj.maxf,2)
-           for i = 1:size(obj.maxf,2)
+           for i = 1:size(obj.maxf,1)
              disp(i)
              obj.maxf(i).print
              obj.maxd(i).print
@@ -481,8 +481,8 @@ disp('test22')
          end
 
          function plot(obj)
-             figure;
-             obj.d.plot;
+             %figure;
+             %obj.d.plot;
              
            for j=1:size(obj.envf,2) 
              
@@ -535,13 +535,20 @@ disp('test22')
                %disp('Conjugate Domain')
                %obj.conjd(k).plotByVertex;
                
-               obj.conjd(k).plot;
-              % obj.conjd(k).plotRegion;
+             %  obj.conjd(k).plot;
+             %  obj.conjd(k).plotRegion;
                
              end
              
              
              end
+           end
+           disp("Maximum conjugate")
+           figure;
+           for i = 1:size(obj.maxf,1)
+             disp(i)
+             obj.maxd(i).plot;
+             obj.maxd(i).plotRegion;
            end
            
          end
@@ -3311,7 +3318,7 @@ disp('test22')
                m = m + 1;
                nmaxf(m) = maxf(i);
                r = r.getVertices();
-               nmaxe(m) = maxe(i);
+               nmaxe(m) = maxe(i);t3
                nmaxd(m) = r;  
                    
             end
@@ -3324,15 +3331,14 @@ disp('test22')
       function obj = intersectionConjugateDomain (obj)
         n = 0;
         %disp('intersectionConjugateDomain')
-        obj.conjfia
+        
         if size(obj.conjfia,2) == 2
            for k = obj.conjfia(1):obj.conjfia(2)-1 
-             obj.maxd(k) = obj.conjd(k);
-             obj.maxf(k) = obj.conjf(k);
-             size(obj.maxf(k))
+             obj.maxd(k,1) = obj.conjd(k);
+             obj.maxf(k,1) = obj.conjf(k);
+             
            end
-           disp('obj.maxf')
-           size(obj.maxf)
+           
            return
         end
         for j1 = 1:size(obj.conjfia,2)-1
@@ -3384,7 +3390,7 @@ disp('test22')
                        %    disp("k2k2")
                        %    k1
                        %    k2
-                           obj.maxd(n) = r1(ir);
+                           obj.maxd(n,1) = r1(ir);
                            %r(n) = r(n).getVertices();
                     %       disp(n)
                     %       r(n).print
@@ -3428,12 +3434,9 @@ disp('test22')
           
 
           n = 0;
-          for i = 1:size(obj.maxd,2)
+          for i = 1:size(obj.maxd,1)
 
                % check size of obj.maxf(i,:) and fix
-               disp("size in maximum")
-
-               size(obj.maxf(i,:),2)
                if size(obj.maxf(i,:),2) == 1
                    continue;
                end
@@ -3454,8 +3457,8 @@ disp('test22')
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
           for i =1:n
-            obj.maxf(i) = maxf(i);
-            obj.maxd(i) = maxd(i);
+            obj.maxf(i,1) = maxf(i);
+            obj.maxd(i,1) = maxd(i);
           
           end
           

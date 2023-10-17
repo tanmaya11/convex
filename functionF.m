@@ -48,6 +48,13 @@ classdef functionF
             
         end
 
+
+        function fprint(obj, uNo)
+          fprintf(uNo, char(simplify(obj.f))); 
+          fprintf(uNo, "\n")
+            
+        end
+
         function plot3d(obj, limits)
             if limits(1) == limits(2)
                 limits(1) = limits(1)-30;
@@ -141,6 +148,15 @@ classdef functionF
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).printIneq;
+                end
+            end
+        end
+
+        function fprintLIneq (l,uNo)
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).fprint(uNo);
                 end
             end
         end
