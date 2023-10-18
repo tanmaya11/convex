@@ -1220,9 +1220,12 @@ classdef region
          function fprint(obj, uNo)
 
              %fprintf(uNo, obj.vars);
-             fprintf(uNo, char(obj.nv));
-             fprintf(uNo, char(obj.vx));
-             fprintf(uNo, char(obj.vy));
+             fprintf(uNo, num2str(obj.nv)+"\n");
+             for i = 1:obj.nv
+               fprintf(uNo, num2str(obj.vx(i)) + "  " + num2str(obj.vy(i)) + "\n")  
+             end
+             %fprintf(uNo, num2str(obj.vx));
+             %fprintf(uNo, num2str(obj.vy));
              obj.ineqs.fprintLIneq(uNo);
          end
 
@@ -2066,12 +2069,6 @@ classdef region
                    continue;
                end
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
-                   if size(s.t1,1) == 2
-                     f1
-                     f2
-                     double(s.t1)
-                     double(s.t2)
-                   end
                    for k = 1:size(s.t1,1)
                    obj.nv=obj.nv+1;
                    obj.vx(obj.nv) = double(s.t1(k));

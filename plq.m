@@ -15,6 +15,7 @@ classdef plq
           end
       end
 
+      % io
       function print(obj)
           disp("")
           disp("")
@@ -32,6 +33,69 @@ classdef plq
               %obj.pieces(i).conjf.printL
             end
       end
+
+      function obj = rdMaxfd (obj)
+            s1 = sym('s1');
+            s2 = sym('s2');
+            uNo = fopen('../data/max12.m','r')
+            n = 0;
+            line = fgetl(uNo);
+            lfunc = 0;
+            lregion = 0;
+            nV = 0;
+            
+            while (ischar(line))
+                if strfind(line, "Max Piece") 
+                    lfunc = 1;
+                else if lfunc == 1
+                    n = n + 1;
+                    obj.maxf(n,1) = functionF(str2sym(line));
+                    disp("Function")
+                    obj.maxf(n,1).print
+                    lfunc = 0;
+                    
+               else if lregion == 1
+                       
+                  if nV == 0
+                      nV = str2num(line);
+                      iV = 0;
+                      nEq = 0;
+                  else if (iV < nV)
+                          iV = iV + 1;
+                  else if isempty(line)
+                      r = region(ineq, [s1,s2]);
+                      obj.maxd(n,1) = r; 
+                      lregion = 0;
+                      nEq = 0;
+                      inEq = [];
+                      nV = 0;
+                      r.print
+                  else
+                      nEq = nEq+1;
+                      ineq(nEq) = str2sym(line);
+                  end
+                  end
+                        
+                  end
+                else if isempty(line)
+                   lregion = 1;
+                end
+                end
+                end
+                
+                end
+                line = fgetl(uNo);
+                
+                
+                %expr = sym(exprString)
+            end
+            r = region(ineq, [s1,s2]);
+            obj.maxd(n,1) = r; 
+            r.print
+            fclose(uNo);
+            
+            
+        end
 
       function plot(obj)
            for i = 1:obj.nPieces
@@ -474,9 +538,9 @@ classdef plq
             disp('size of p3')
             size(obj.pieces(ind).maxd,1)
            n = 0;
-           for k1=8:size(obj.maxf,1)
-             for k2 = 11:size(obj.pieces(ind).maxd,1)
-                [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), true);
+           for k1=1:size(obj.maxf,1)
+             for k2 = 1:size(obj.pieces(ind).maxd,1)
+                [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), false);
                 
                 if l
                     k1, k2
@@ -555,7 +619,7 @@ classdef plq
 
           n = 0;
           for i = 1:size(obj.maxf,1)
-              i, obj.nmaxf(i)
+              %i, obj.nmaxf(i)
 
                % check size of obj.maxf(i,:) and fix
                if obj.nmaxf(i) == 1

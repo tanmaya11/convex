@@ -135,12 +135,19 @@ classdef testPlqTri < matlab.unittest.TestCase
             % 1 checked
             % 2 checked
             %testCase.PS.pieces(i).print
-            for i = 1:3
+            uNo = fopen('op','w');
+            %testCase.PS.pieces(1).d.polygon.fprint(uNo)
+            for i = 1:10
+              fprintf(uNo, "Piece " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
+              fprintf(uNo, "convexEnvelope " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
+              fprintf(uNo, "conjugate " + num2str(i) + "\n")
               
               testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
+              fprintf(uNo, "intersectionConjugateDomain " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
+              fprintf(uNo, "maximum " + num2str(i) + "\n")
               if i == 3
                 %testCase.PS.pieces(i).print
                 %testCase.PS.pieces(i).plot
@@ -165,8 +172,14 @@ classdef testPlqTri < matlab.unittest.TestCase
 %              end
 %             fclose(uNo);
 
-
-
+             fprintf(uNo, "Max12\n ")
+             for i =1:size(testCase.PS.maxf,1)
+                   fprintf(uNo, "Max Piece " + num2str(i) + "\n")
+                   testCase.PS.maxf(i,1).fprint(uNo);
+                   fprintf(uNo, "\n")
+                   testCase.PS.maxd(i,1).fprint(uNo);
+                   fprintf(uNo, "\n")
+                 end 
 
              for i = 3:testCase.PS.nPieces
                  testCase.PS = testCase.PS.maximumInPairsAddi (i)
@@ -175,27 +188,67 @@ classdef testPlqTri < matlab.unittest.TestCase
                  testCase.PS=testCase.PS.maximumP;
                  disp('max')
                  size(testCase.PS.maxf,1)
-                 
+                 fprintf(uNo, "Max " + num2str(i) + "\n")
+                 for i =1:size(testCase.PS.maxf,1)
+                   testCase.PS.maxf(i,1).fprint(uNo);
+                   fprintf(uNo, "\n")
+                   testCase.PS.maxd(i,1).fprint(uNo);
+                   fprintf(uNo, "\n")
+                 end
              end
              %return
              figure;
              for i =1:size(testCase.PS.maxf,1)
                      i
-                   testCase.PS.maxf(i,1).print;
-                   testCase.PS.maxd(i,1).print;
+                   %testCase.PS.maxf(i,1).print;
+                   %testCase.PS.maxd(i,1).print;
                    testCase.PS.maxd(i,1).plot;
                    testCase.PS.maxd(i,1).plotRegion;
 %           
              end
-             return
-%       
+             
+           
              %   testCase.PS.pieces(1).plot
             
             testCase.verifyEqual(true, true);
         end
 
+        % check then split into read expr + read region
         function testMaxRecreate (testCase)
-            testCase.verifyEqual(true, true);
+            
+           
+           i = 3;
+           uNo = fopen('op3','w');
+           fprintf(uNo, "Piece " + num2str(i) + "\n")
+           testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
+           fprintf(uNo, "convexEnvelope " + num2str(i) + "\n")
+           testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
+           fprintf(uNo, "conjugate " + num2str(i) + "\n")
+           testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
+           fprintf(uNo, "intersectionConjugateDomain " + num2str(i) + "\n")
+           testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
+           fprintf(uNo, "maximum " + num2str(i) + "\n")
+           testCase.PS.nPieces=3;
+           testCase.PS = testCase.PS.rdMaxfd;
+
+
+           testCase.PS = testCase.PS.maximumInPairsAddi (i)
+           disp('maximumInPairsAddi')
+           size(testCase.PS.maxf,1)
+           testCase.PS=testCase.PS.maximumP;
+           disp('max')
+           size(testCase.PS.maxf,1)
+           fprintf(uNo, "Max " + num2str(i) + "\n")
+           for i =1:size(testCase.PS.maxf,1)
+              fprintf(uNo, "Max Piece " + num2str(i) + "\n")
+              testCase.PS.maxf(i,1).fprint(uNo);
+              fprintf(uNo, "\n")
+              testCase.PS.maxd(i,1).fprint(uNo);
+              fprintf(uNo, "\n")
+           end
+             
+           fclose(uNo);
+           testCase.verifyEqual(true, true);
         end
     end
 
