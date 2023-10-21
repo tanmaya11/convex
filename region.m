@@ -1263,19 +1263,20 @@ classdef region
  %           value = icolor
              persistent icolor;
             if isempty (icolor)
-                icolor=1
+                icolor=1;
             else
-                icolor=icolor+1
+                icolor=icolor+1;
             end
-            value = icolor
+            value = icolor;
          end
 
 
-         function [vx,vy] = plotRegion (obj)
+         function [vx,vy] = plotRegion (obj, textR)
             limitsx = [-6,6];
             limitsy = [-15,20];
+            
             pts = 75;
-            colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
+            colors = ['b', 'r', 'g', 'm', 'c', 'y'];
             stepx = (limitsx(2)-limitsx(1))/pts;
             stepy = (limitsy(2)-limitsy(1))/pts;
             n = 0;
@@ -1295,11 +1296,29 @@ classdef region
                 end
                 ci = ci+stepx;    
             end
-            c = colors(1+mod(obj.getGlobalParameter,7))
+            c = colors(1+mod(obj.getGlobalParameter,6))
             if n == 0
                 disp ('region not displayed')
             end
-            fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            avx = sum(vx)/n;
+            avy = sum(vy)/n;
+            m = 0;
+            for i = 1:n
+                if (abs(vx(i) -avx)<0.1 & abs(vy(i) -avy)<0.1)
+                    continue
+                end    
+                m = m+1;
+                vx1(m) = vx(i);
+                vy1(m) = vy(i);
+            end
+            %text = "R";
+            text(avx,avy,textR,'FontSize',12, 'FontWeight', 'bold','Color', 'k')
+            if m==0
+                fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            else
+                fill(vx1, vy1, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            end
+            
          end
 
          function plotByVertex (obj)
@@ -1329,6 +1348,7 @@ classdef region
         
          % max over a region
          function [l, fmax, index] = maxArray (obj, f1, f2) 
+            
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           for i = 1:size(fv1,2)
@@ -1421,6 +1441,73 @@ classdef region
           
         end
 
+        function [r] = splitmax3 (obj, f1, f2) 
+           % disp('splitmax2')
+
+          fv1 = obj.funcVertices (f1);
+          fv2 = obj.funcVertices (f2);
+          f = f1-f2;
+           vars = f.getVars;
+%           x = sym('x');
+%           y = sym('y');
+%           f = subs(f.f, vars ,[x,y])
+%           
+%           fx = [];
+%           fy = [];
+%           n = 0;
+%           fxy = [];
+%           for i = 1:size(obj.ineqs,2)
+%             g = subs(obj.ineqs(i).f, vars,[x,y]);
+%             s = solve ([f==0,g==0],[x,y]);
+%             if isempty(s)
+%               continue;
+%             end
+%             
+%             if isempty(s.x)
+%               continue;
+%             end
+%             sx = double(s.x);
+%             sy = double(s.y);
+%             if ~obj.ptFeasible (vars,[sx,sy])
+%                 continue
+%             end
+%             fx = [fx,sx];
+%             fy = [fy,sy];
+%             n = n+1;
+%             fxy(n,1)= sx;
+%             fxy(n,2)= sy;
+%           end
+%           %fxy
+%           fxy = unique(fxy,"rows");
+%           fx = fxy(:,1);
+%           fy = fxy(:,2);
+%           %f1
+%           %f2
+%           %size(fx)
+%           if size(fx,1) == 2
+%               m = (fy(2)-fy(1))/(fx(2)-fx(1));
+%               c = fy(1) - m*fx(1);
+%               ineq = vars(2)-m*vars(1)-c;
+%           end
+          ineq = f;
+          vars
+          f.print
+          for i = 1:size(fv1,2)
+              if (double(fv1(i).f) > double(fv2(i).f))
+                  if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) <= 0
+                    r = [ineq,-ineq];
+                    return
+                  else
+                    r = [-ineq,ineq];
+                    return  
+                  end
+              end
+
+          end
+          
+        end
+
+        
         function [nl, v1, v2] = splitmaxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
@@ -2290,6 +2377,7 @@ classdef region
      
      % return function values at vertices
      function fv = funcVertices (obj, f)
+         
          for i =1:obj.nv
              fv(i) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
          end
@@ -2353,7 +2441,18 @@ classdef region
          obj.ineqs(mark) = []; 
      end
 
-     
+     function l = hasNegativeIneqs(obj)
+         l = true;
+         for i = 1:size(obj.ineqs,2)
+           for j = i+1:size(obj.ineqs,2)
+               if (obj.ineqs(i) == -obj.ineqs(j))
+                   return;
+               end
+           end
+         end
+         l = false;
+     end
+
      end
 
      

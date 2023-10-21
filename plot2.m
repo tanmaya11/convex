@@ -1,3 +1,38 @@
+ezplot('x+y-1')
+hold on
+ezplot('-x-y')
+hold on
+ezplot('y/3 - x - 1/6')
+hold on
+ezplot('x - (5*y)/4 - 25/4')
+hold on
+ezplot('(x + y)^2 - 8*x ')
+
+hold on
+ezplot('7*x - 5*y - 25')
+hold on
+
+return
+ezplot('x + y - 1  ')
+hold on
+ezplot('- x - y  ')
+
+hold on
+ezplot('x - y/3 + 1/6 ')
+hold on
+ezplot('y - x - 1  ')
+hold on
+ezplot('(x + y)^2 - 8*x  ')
+hold on
+ezplot('18*y - 18*x - (x + y)^2 + 99  ')
+
+
+hold on
+return
+
+
+
+return
 %ezplot('-y')
 %ezplot("-y")
 %hold on
@@ -8,7 +43,7 @@ return
 %ezplot('exp(-x^2)',[-1,1]  )
 %ezplot('sin(x)' ,[-1,1] )
 ezplot('abs(x*y)'  )
-return
+
 hold on
 
 %ezplot('x - 1' ) 

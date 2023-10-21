@@ -34,10 +34,9 @@ classdef plq
             end
       end
 
-      function obj = rdMaxfd (obj)
+      function obj = rdMaxfd (obj, uNo)
             s1 = sym('s1');
             s2 = sym('s2');
-            uNo = fopen('../data/max12.m','r')
             n = 0;
             line = fgetl(uNo);
             lfunc = 0;
@@ -67,7 +66,7 @@ classdef plq
                       obj.maxd(n,1) = r; 
                       lregion = 0;
                       nEq = 0;
-                      inEq = [];
+                      ineq = sym.empty;
                       nV = 0;
                       r.print
                   else
@@ -89,15 +88,112 @@ classdef plq
                 
                 %expr = sym(exprString)
             end
-            r = region(ineq, [s1,s2]);
-            obj.maxd(n,1) = r; 
-            r.print
-            fclose(uNo);
+            disp('out')
+           % r = region(ineq, [s1,s2]);
+           % obj.maxd(n,1) = r; 
+           % r.print
+           n
+           size(obj.maxd)
             
             
         end
 
-      function plot(obj)
+      function obj = rdMaxfd2 (obj)
+            s1 = sym('s1');
+            s2 = sym('s2');
+            uNo = fopen('../data/max3d.m','r')
+            n = 0;
+            line = fgetl(uNo);
+            lfunc = 0;
+            lregion = 0;
+            nV = 0;
+            
+            while (ischar(line))
+                if strfind(line, "Max Piece") 
+                    lfunc = 1;
+                else if lfunc == 1
+                    nf = str2num(line);
+                    n = n + 1;
+                    obj.nmaxf(n) =nf;
+                    for i = 1:nf
+                      line = fgetl(uNo);  
+                      obj.maxf(n,i) = functionF(str2sym(line));
+                      %disp("Function")
+                      %obj.maxf(n,i).print
+                    end
+                    lfunc = 0;
+                    
+               else if lregion == 1
+                       
+                  if nV == 0
+                      nV = str2num(line);
+                      iV = 0;
+                      nEq = 0;
+                  else if (iV < nV)
+                      iV = iV + 1;
+                  else if isempty(line)
+                      r = region(ineq, [s1,s2]);
+                      obj.maxd(n,1) = r; 
+                      lregion = 0;
+                      nEq = 0;
+                      ineq = sym.empty;
+                      nV = 0;
+                      %r.print
+                  else
+                      nEq = nEq+1;
+                      ineq(nEq) = str2sym(line);
+                  end
+                  end
+                        
+                  end
+                else if isempty(line)
+                   lregion = 1;
+                end
+                end
+                end
+                
+                end
+                line = fgetl(uNo);
+                
+                
+                %expr = sym(exprString)
+            end
+
+          
+            %obj.maxf(n,1).print
+            %obj.maxd(n,1).print
+
+            if nEq ~= 0
+              r = region(ineq, [s1,s2]);
+              obj.maxd(n,1) = r; 
+              r.print
+            end
+
+
+            
+            fclose(uNo);
+            size(obj.maxf,1)
+            size(obj.maxd,1)
+            rm = [];
+            for i = 1:size(obj.maxf,1)
+              if obj.maxd(i,1).hasNegativeIneqs
+                  obj.maxd(i,1).print
+                  
+                  rm = [rm,i]
+              end
+            end
+            rm
+            %size(obj.maxf)
+            obj.maxf(rm,:) = [];
+            obj.maxd(rm,:) = [];
+            obj.nmaxf(rm) = [];
+            obj.maxd(18,1).print
+            
+            %size(obj.maxf)
+        end
+
+        
+        function plot(obj)
            for i = 1:obj.nPieces
                obj.pieces(i).plot
            end
@@ -638,11 +734,64 @@ classdef plq
                else  
                  disp('maximum : check if it reaches here')
                  i
-                 obj.maxd(i,1).print
+                 % temp code
+                 %if n == 4
+                % figure;
+                % obj.maxd(i,1).print;
+                % obj.maxd(i,1).plot;
+                % obj.maxd(i,1).plotRegion;
+                % end
+                 %continue
+                 %obj.maxd(i,1).print
+                 %obj.maxf(i,:).printL
+                 %%%%%%%%%%
+
+                          
+                 ineqs = obj.maxd(i,1).splitmax3 (obj.maxf(i,1), obj.maxf(i,2));
+                 ineqs1 = sym.empty ;          
+                 for k = 1: size(obj.maxd(i,1).ineqs,2)
+                   ineqs1(k) = obj.maxd(i).ineqs(k).f;
+                 end
+                 ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(1).f;
+                 d1 = region(ineqs1,obj.maxd(i,1).vars);
+                 d1 = d1.simplify(obj.maxd(i,1).vars);
+                 %d1.print
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i,1);
+                 %maxf(n).print
+                 maxd(n) = d1;
+
+                 %if n == 5
+                 %figure;
+                 %d1.print;
+                 %d1.plot;
+                 %d1.plotRegion;
+                 %end
+                 %maxd(n).print
+                 %maxf(n).print
+
+
+                 ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2).f;
+                 %ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2);
+                 d1 = region(ineqs1,obj.maxd(i,1).vars);
+                 d1 = d1.simplify(obj.maxd(i,1).vars);
+                 %d1.print
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i,2);
+                 maxd(n) = d1;
+                 %maxd(n).print
+                 %maxf(n).print
+                 %if n == 6
+                 %figure;
+                 %d1.print;
+                 %d1.plot;
+                 %d1.plotRegion;
+                 %return
+                 %end
                  
-                 obj.maxf(i,:).printL
                  
-               end  
+                 
+               end
           end
           if n == 0
               return

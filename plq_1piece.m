@@ -548,7 +548,7 @@ disp('test22')
            for i = 1:size(obj.maxf,1)
              disp(i)
              obj.maxd(i).plot;
-             obj.maxd(i).plotRegion;
+             obj.maxd(i).plotRegion("M"+num2str(i));
            end
            
          end

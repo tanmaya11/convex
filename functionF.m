@@ -193,6 +193,10 @@ classdef functionF
         function f = unaryminus(obj)
             f = functionF(-obj.num,obj.den);
         end
+
+        function f = uminus(obj)
+            f = functionF(-obj.num,obj.den);
+        end
         function f = mtimes(f1,f2)
             num = f1.num * f2.num;
             den = f1.den * f2.den;
