@@ -899,9 +899,9 @@ classdef region
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
             end
-            obj2 = obj2.removeDenominator;
+            %obj2 = obj2.removeDenominator;
             for i = 1:size(obj2.ineqs,2)
-                lunique = true;
+               lunique = true;
                for j = 1:size(obj1.ineqs,2)
                  if (obj1.ineqs(j) == obj2.ineqs(i))
                      lunique = false;
@@ -1086,6 +1086,7 @@ classdef region
 
          function obj = unique(obj)
              n = 0;
+             
             duplicates = [];
             for i = 1:size(obj.ineqs,2)
                 for j = i+1:size(obj.ineqs,2)
@@ -1096,12 +1097,23 @@ classdef region
                     end
                 end
 
-            end 
+            end
+           
             obj.ineqs(duplicates) = [];
          end
 
          function m = slope (obj,i,j)
           m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
+         end
+
+         function m = slopeIneq(obj,i)
+             if obj.ineqs(i).isLinear
+                 c = obj.ineqs(i).getLinearCoeffs (obj.vars);
+                 m = -c(1);
+             else
+                 m = -intmax;
+                 disp("to be implemented in slopeIneq")
+             end
          end
 
           function c = yIntercept (obj,i,m)
@@ -2166,6 +2178,8 @@ classdef region
            end
            
        end
+
+         
        %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
 
        % putting intmax for inf to avoid Nans 
@@ -2243,7 +2257,26 @@ classdef region
        end
 
      end
-     function f = divideRegions(obj,obj2)
+
+
+      function [nv, vx, vy] = vertexOfEdge(obj,ind)
+              nv = 0;
+%              disp('in')
+%              ind
+%              obj.nv
+             % obj.vx
+%              disp('out')
+%              size(obj.vx)
+               for i = 1:obj.nv
+                 f1 = obj.ineqs(ind).subsF (obj.vars,[obj.vx(i),obj.vy(i)]);
+                 if f1.isZero
+                     nv = nv + 1;
+                     vx(nv) = obj.vx(i);
+                     vy(nv) = obj.vy(i);
+                 end
+               end
+          end
+      function f = divideRegions(obj,obj2)
          
        obj.nv=0;
          t1 = sym('t1');
@@ -2415,30 +2448,75 @@ classdef region
        
      end
      
+     function e = getOtherEdgeAtVertex (obj, ind, vertex)
+         for i = 1:size(obj.ineqs,2)
+            if i == ind
+                continue
+            end
+            f1 = obj.ineqs(ind).subsF (obj.vars,vertex);
+            if f1.isZero
+                e = i;
+                break
+            end
+
+         end
+     end
+
      % wont work cause of intersection vs union
      function [l,obj] = merge (obj, obj2)
          %obj.print;
          %obj2.print;
          l = false;
          n = 0;
-         obj = obj + obj2;
-         obj = obj.unique;
+
+         % cant do + as it returns empty due to contadictory ineqs
+         %obj = obj + obj2;
+         %obj.print;
+         %disp('in merge')
+         %obj.print
+         %obj = obj.unique;
          %disp("unique")
          %obj.print;
          mark = [];
          for i =1:size(obj.ineqs,2)
-           for j =1:size(obj.ineqs,2)
-             if obj.ineqs(i) == obj.ineqs(j).unaryminus
-                 l = true;
-                 n = n + 1;
-                 mark(n) = i;
-                 n = n + 1;
-                 mark(n) = j;
+           for j =1:size(obj2.ineqs,2)
+             if obj.ineqs(i) == -obj2.ineqs(j)
+                 [nvi, vxi, vyi] = obj.vertexOfEdge(i);
+                 [nvj, vxj, vyj] = obj2.vertexOfEdge(j);
+                 if nvi ~= nvj
+                     continue
+                 end
+                 % check same vertices and convex angles 
+                 if all(vxi == vxj) & all(vyi == vyj)
+                     % check slopes
+                     edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(1),vyi(1)]);
+                     if ~obj.ineqs(edgeiNo).isLinear 
+                         continue;
+                     end
+                     edgejNo = obj.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
+                     if ~obj2.ineqs(edgejNo).isLinear 
+                         continue;
+                     end
+                     
+                     mi = obj.slopeIneq(edgeiNo);
+                     mj = obj2.slopeIneq(edgejNo);
+                     if atan(mi)+atan(mj) < pi
+                         
+                       l = true;
+                       n = n + 1;
+                       mark(n) = i;
+                       n = n + 1;
+                       mark(n) = j;
+                     end
+                 end  
              end
            end
          
          end
          obj.ineqs(mark) = []; 
+         obj2.ineqs(mark) = [];
+         obj = obj+obj2;
+         
      end
 
      function l = hasNegativeIneqs(obj)

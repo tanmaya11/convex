@@ -734,7 +734,13 @@ disp('test22')
                 %obj.envd(j).plot;
               
              %end
-            % [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr)
+            [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr);
+            %obj.envd(1).print;
+            %size(obj.envd(1).ineqs,2)
+            %for i = 1:size(obj.envd(1).ineqs,2)
+                
+            %  [nv, vx,vy] = obj.envd(1).vertexOfEdge(i)
+            %end
             return
             
         end
@@ -3257,6 +3263,7 @@ disp('test22')
 
          
     % to be changed
+    % will merge with first - change for general routine
     function [nmaxf,nmaxd,nmaxe] = merge(obj,maxf,maxd, maxe)
           ia(1) = 1;
           n = 0;
@@ -3287,10 +3294,12 @@ disp('test22')
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
+          %ia
+        %  return
         %  nmaxf= [];
         %  nmaxd= [];
-          for i = 1:size(maxf,2)
-              
+        
+        for i = 1:size(maxf,2)
             if  marked(i)
                 continue
             end
@@ -3303,22 +3312,45 @@ disp('test22')
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-              
-               for j=ia(i):ia(i+1)-1
-                   marked(ja(j)) = true;
-                   [l,r] = r.merge (maxd(ja(j)));
+        %       r.print
+               
+               lmerge = true;
+               while lmerge
+                 lmerge = false;
+                 for j=ia(i):ia(i+1)-1
                    
-                   if ~l
-                     m = m + 1;
-                     nmaxf(m) = maxf(i);
-                     nmaxe(m) = maxe(i);
-                     nmaxd(m) = maxd(ja(j));  
+                   if marked(ja(j))
+                       continue
                    end
+         %          maxd(ja(j)).print
+                   [l,r] = r.merge (maxd(ja(j)));
+                   if l
+                     marked(ja(j)) = true;
+                     lmerge = true;
+                   end
+%                    if ~l
+%                      m = m + 1;
+%                      nmaxf(m) = maxf(i);
+%                      nmaxe(m) = maxe(i);
+%                      nmaxd(m) = maxd(ja(j));  
+%                    end
+                 end
                end
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+                   m = m + 1;
+                   nmaxf(m) = maxf(i);
+                   nmaxe(m) = maxe(i);
+                   nmaxd(m) = maxd(ja(j));  
+                 end
+               
                m = m + 1;
                nmaxf(m) = maxf(i);
-               r = r.getVertices();
-               nmaxe(m) = maxe(i);t3
+               %r = r.getVertices();
+               nmaxe(m) = maxe(i);
                nmaxd(m) = r;  
                    
             end
