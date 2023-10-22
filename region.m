@@ -2483,9 +2483,13 @@ classdef region
              if obj.ineqs(i) == -obj2.ineqs(j)
                  [nvi, vxi, vyi] = obj.vertexOfEdge(i);
                  [nvj, vxj, vyj] = obj2.vertexOfEdge(j);
+                 if nvi ~= 2
+                     continue
+                 end
                  if nvi ~= nvj
                      continue
                  end
+
                  % check same vertices and convex angles 
                  if all(vxi == vxj) & all(vyi == vyj)
                      % check slopes
@@ -2501,21 +2505,24 @@ classdef region
                      mi = obj.slopeIneq(edgeiNo);
                      mj = obj2.slopeIneq(edgejNo);
                      if atan(mi)+atan(mj) < pi
-                         
+                         %atan(mi)+atan(mj)
                        l = true;
                        n = n + 1;
                        mark(n) = i;
                        n = n + 1;
                        mark(n) = j;
+                       break;
                      end
                  end  
              end
            end
          
          end
+         if l
          obj.ineqs(mark) = []; 
          obj2.ineqs(mark) = [];
          obj = obj+obj2;
+         end
          
      end
 
