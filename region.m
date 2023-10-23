@@ -2259,6 +2259,7 @@ classdef region
      end
 
 
+
       function [nv, vx, vy] = vertexOfEdge(obj,ind)
               nv = 0;
 %              disp('in')
@@ -2267,6 +2268,8 @@ classdef region
              % obj.vx
 %              disp('out')
 %              size(obj.vx)
+              vx = [];
+              vy = [];
                for i = 1:obj.nv
                  f1 = obj.ineqs(ind).subsF (obj.vars,[obj.vx(i),obj.vy(i)]);
                  if f1.isZero
@@ -2449,12 +2452,14 @@ classdef region
      end
      
      function e = getOtherEdgeAtVertex (obj, ind, vertex)
+         e = 0;
          for i = 1:size(obj.ineqs,2)
             if i == ind
                 continue
             end
-            f1 = obj.ineqs(ind).subsF (obj.vars,vertex);
+            f1 = obj.ineqs(i).subsF (obj.vars,vertex);
             if f1.isZero
+                
                 e = i;
                 break
             end
@@ -2490,20 +2495,38 @@ classdef region
                      continue
                  end
 
-                 [vxi, sortedIndices] = sort(vxi);
+                 [tvxi, sortedIndices] = sort(abs(vxi));
+                 vxi = vxi(sortedIndices);
                  vyi = vyi(sortedIndices);
                  
-                 [vxj, sortedIndices] = sort(vxj);
+                 [tvxj, sortedIndices] = sort(abs(vxj));
+                 vxj = vxj(sortedIndices);
                  vyj = vyj(sortedIndices);
                  
                  % check same vertices and convex angles 
                  if all(vxi == vxj) & all(vyi == vyj)
                      % check slopes
+%                        disp('in merge')
+          %obj.print
+          %obj2.print
+%        
+%                      vxi
+%                      vxj
+%                      vyi
+%                      vyj
+
                      edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(1),vyi(1)]);
+                     if edgeiNo == 0
+                         continue
+                     end
                      if ~obj.ineqs(edgeiNo).isLinear 
                          continue;
                      end
                      edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
+                     if edgejNo == 0
+                         continue
+                     end
+                     
                      if ~obj2.ineqs(edgejNo).isLinear 
                          continue;
                      end
@@ -2524,11 +2547,22 @@ classdef region
                      end
 
 %%%%%%%%%%%%%%%%
+                     
+                    if nvi == 2   
+                     
                      edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(2),vyi(2)]);
+                     if edgeiNo == 0
+                         continue
+                     end
+                     
                      if ~obj.ineqs(edgeiNo).isLinear 
                          continue;
                      end
                      edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(2),vyi(2)]);
+                     if edgejNo == 0
+                         continue
+                     end
+                     
                      if ~obj2.ineqs(edgejNo).isLinear 
                          continue;
                      end
@@ -2547,7 +2581,8 @@ classdef region
                      if (a1+a2 > pi) | (a1+a2 < -pi)
                          continue
                      end
-
+                    end
+                 
 %%%%%%%%%%%%%%%%%
 
                          %atan(mi)+atan(mj)

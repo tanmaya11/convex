@@ -98,10 +98,10 @@ classdef plq
             
         end
 
-      function obj = rdMaxfd2 (obj)
+      function obj = rdMaxfd2 (obj, uNo)
             s1 = sym('s1');
             s2 = sym('s2');
-            uNo = fopen('../data/max3d.m','r')
+            %uNo = fopen('../data/max3d.m','r')
             n = 0;
             line = fgetl(uNo);
             lfunc = 0;
@@ -114,7 +114,7 @@ classdef plq
                 else if lfunc == 1
                     nf = str2num(line);
                     n = n + 1;
-                    obj.nmaxf(n) =nf;
+                    obj.nmaxf(n) = nf;
                     for i = 1:nf
                       line = fgetl(uNo);  
                       obj.maxf(n,i) = functionF(str2sym(line));
@@ -172,6 +172,7 @@ classdef plq
 
             
             fclose(uNo);
+            return
             size(obj.maxf,1)
             size(obj.maxd,1)
             rm = [];
@@ -187,7 +188,7 @@ classdef plq
             obj.maxf(rm,:) = [];
             obj.maxd(rm,:) = [];
             obj.nmaxf(rm) = [];
-            obj.maxd(18,1).print
+            %obj.maxd(18,1).print
             
             %size(obj.maxf)
         end
@@ -639,7 +640,7 @@ classdef plq
                 [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), false);
                 
                 if l
-                    k1, k2
+                   % k1, k2
                   lc(1,k1) = true;
                   lc(2,k2) = true;
                   %size(rf)
@@ -649,7 +650,10 @@ classdef plq
                   for irf=1:size(rf,2)
                     n = n + 1
                     maxd(n,1) = rf(irf);
-                   % rf(irf).print
+                    if n == 56
+                        rf(irf).isFeasibleWBPts
+                   rf(irf).print
+                    end
                     maxf(n,1) = obj.maxf(k1);
                     maxf(n,2) = obj.pieces(ind).maxf(k2);
                     nmaxf(n) = 2;
@@ -659,8 +663,8 @@ classdef plq
                 end
               end
            end
-           lc(1,:)
-           lc(2,:)
+           %lc(1,:)
+           %lc(2,:)
            disp('n')
            n
            for i =1:size(obj.maxf,1)
@@ -678,7 +682,7 @@ classdef plq
                if lc(2,k1) 
                  continue
                end
-               n = n + 1
+               n = n + 1;
                maxd(n,1) = obj.pieces(ind).maxd(k1);
                maxf(n,1) = obj.pieces(ind).maxf(k1);
                nmaxf(n) = 1;
@@ -755,8 +759,8 @@ classdef plq
                  ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(1).f;
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
                  d1 = d1.simplify(obj.maxd(i,1).vars);
-                 %d1.print
-                 n = n + 1;
+                 d1.print
+                 n = n + 1
                  maxf(n) = obj.maxf(i,1);
                  %maxf(n).print
                  maxd(n) = d1;
@@ -775,8 +779,8 @@ classdef plq
                  %ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2);
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
                  d1 = d1.simplify(obj.maxd(i,1).vars);
-                 %d1.print
-                 n = n + 1;
+                 d1.print
+                 n = n + 1
                  maxf(n) = obj.maxf(i,2);
                  maxd(n) = d1;
                  %maxd(n).print
@@ -882,6 +886,7 @@ classdef plq
           disp('in merge')
           ia(1) = 1;
           n = 0;
+          size(maxf,2)
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
@@ -909,8 +914,8 @@ classdef plq
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-       %   ia
-       %   ja
+         % ia
+         % ja
         %  return
         %  nmaxf= [];
         %  nmaxd= [];
@@ -927,9 +932,9 @@ classdef plq
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-        %       if i == 10
-        %       r.print
-        %       end
+               if i == 57
+               r.print
+               end
                
                lmerge = true;
                while lmerge
@@ -939,6 +944,10 @@ classdef plq
                    if marked(ja(j))
                        continue
                    end
+                   if i == 57
+               maxd(ja(j)).print
+               end
+               
          %          maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
          %      if i == 10

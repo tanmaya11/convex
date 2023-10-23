@@ -1,3 +1,19 @@
+ezplot('x + y ')
+hold on
+ezplot('(5*y)/4 - x + 25/4')
+hold on
+ezplot('- x - (3*y)/2 - 3/2')
+hold on
+ezplot('27*x - (51*y)/2 + (x + (3*y)/2)^2 - 591/4 ')
+hold on
+ezplot('(9*y)/2 - 3*x + (x + (3*y)/2)^2 + 9/4')
+hold on
+return
+
+
+(9*y)/2 - 3*x + (x + (3*y)/2)^2 + 9/4 <= 0 
+
+
 ezplot('x+y-1')
 hold on
 ezplot('-x-y')
