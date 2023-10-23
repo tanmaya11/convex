@@ -68,7 +68,7 @@ classdef plq
                       nEq = 0;
                       ineq = sym.empty;
                       nV = 0;
-                      r.print
+                      %r.print
                   else
                       nEq = nEq+1;
                       ineq(nEq) = str2sym(line);
@@ -796,17 +796,21 @@ classdef plq
           if n == 0
               return
           end
-          disp('b4 merge' )
-          n
-          [nmaxf,nmaxd] = obj.merge(maxf,maxd);
-          obj.maxf=functionF.empty();
+%           disp('b4 merge' )
+%           n
+           [nmaxf,nmaxd] = obj.merge(maxf,maxd);
+           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
           %size(nmaxf,2)
+%           for i =1:size(maxf,2)
+%             obj.maxf(i,1) = maxf(i);
+%             obj.maxd(i,1) = maxd(i);
+%           end
           for i =1:size(nmaxf,2)
             obj.maxf(i,1) = nmaxf(i);
             obj.maxd(i,1) = nmaxd(i);
           end
-          
+%           
       end 
 
       
@@ -875,6 +879,7 @@ classdef plq
       end
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+          disp('in merge')
           ia(1) = 1;
           n = 0;
           for i = 1:size(maxf,2)
@@ -904,26 +909,28 @@ classdef plq
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-          %ia
+       %   ia
+       %   ja
         %  return
         %  nmaxf= [];
         %  nmaxd= [];
-        
         for i = 1:size(maxf,2)
+            i
             if  marked(i)
                 continue
             end
             if (ia(i) == ia(i+1)) 
                 m = m + 1;
                 nmaxf(m) = maxf(i);
-                
                 nmaxd(m) = maxd(i);
             else
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
+        %       if i == 10
         %       r.print
-               l2 = false;
+        %       end
+               
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -934,8 +941,11 @@ classdef plq
                    end
          %          maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
+         %      if i == 10
+         %      l
+         %      end
+                   
                    if l
-                       l2 = true;
                      marked(ja(j)) = true;
                      lmerge = true;
                    end
@@ -952,17 +962,17 @@ classdef plq
                    if marked(ja(j))
                        continue
                    end
+                   marked(ja(j)) = true;
                    m = m + 1;
                    nmaxf(m) = maxf(i);
-                   
                    nmaxd(m) = maxd(ja(j));  
                  end
-               if l2
+               
                m = m + 1;
                nmaxf(m) = maxf(i);
                %r = r.getVertices();
                nmaxd(m) = r;  
-               end    
+                   
             end
           end
       end

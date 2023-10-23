@@ -3341,6 +3341,7 @@ disp('test22')
                    if marked(ja(j))
                        continue
                    end
+                   marked(ja(j)) = true;
                    m = m + 1;
                    nmaxf(m) = maxf(i);
                    nmaxe(m) = maxe(i);

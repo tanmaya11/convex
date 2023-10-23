@@ -2213,7 +2213,7 @@ classdef region
        end
        for i = 1:n
            if nargin == 2
-               intmax,obj.vy(i)
+               %intmax,obj.vy(i)
                obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
            end
            if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
@@ -2464,20 +2464,20 @@ classdef region
 
      % wont work cause of intersection vs union
      function [l,obj] = merge (obj, obj2)
-         %obj.print;
-         %obj2.print;
          l = false;
          n = 0;
 
          % cant do + as it returns empty due to contadictory ineqs
          %obj = obj + obj2;
          %obj.print;
-         %disp('in merge')
-         %obj.print
+       %  disp('in merge')
+       %  obj.print
+       %  obj2.print
          %obj = obj.unique;
          %disp("unique")
          %obj.print;
-         mark = [];
+         marki = [];
+         markj = [];
          for i =1:size(obj.ineqs,2)
            for j =1:size(obj2.ineqs,2)
              if obj.ineqs(i) == -obj2.ineqs(j)
@@ -2490,6 +2490,12 @@ classdef region
                      continue
                  end
 
+                 [vxi, sortedIndices] = sort(vxi);
+                 vyi = vyi(sortedIndices);
+                 
+                 [vxj, sortedIndices] = sort(vxj);
+                 vyj = vyj(sortedIndices);
+                 
                  % check same vertices and convex angles 
                  if all(vxi == vxj) & all(vyi == vyj)
                      % check slopes
@@ -2497,34 +2503,77 @@ classdef region
                      if ~obj.ineqs(edgeiNo).isLinear 
                          continue;
                      end
-                     edgejNo = obj.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
+                     edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
                      if ~obj2.ineqs(edgejNo).isLinear 
                          continue;
                      end
                      
                      mi = obj.slopeIneq(edgeiNo);
+                     a1 = atan(mi);
+                     %if a1 < 0
+                     %    a1 = a1 + 2*pi;
+                     %end
                      mj = obj2.slopeIneq(edgejNo);
-                     if atan(mi)+atan(mj) < pi
+                     a2 = atan(mi);
+                     %if a2 < 0
+                     %    a2 = a2 + 2*pi;
+                     %end
+                     
+                     if (a1+a2 > pi) | (a1+a2 < -pi)
+                         continue
+                     end
+
+%%%%%%%%%%%%%%%%
+                     edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(2),vyi(2)]);
+                     if ~obj.ineqs(edgeiNo).isLinear 
+                         continue;
+                     end
+                     edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(2),vyi(2)]);
+                     if ~obj2.ineqs(edgejNo).isLinear 
+                         continue;
+                     end
+                     
+                     mi = obj.slopeIneq(edgeiNo);
+                     a1 = atan(mi);
+                     %if a1 < 0
+                     %    a1 = a1 + 2*pi;
+                     %end
+                     mj = obj2.slopeIneq(edgejNo);
+                     a2 = atan(mi);
+                     %if a2 < 0
+                     %    a2 = a2 + 2*pi;
+                     %end
+                     
+                     if (a1+a2 > pi) | (a1+a2 < -pi)
+                         continue
+                     end
+
+%%%%%%%%%%%%%%%%%
+
                          %atan(mi)+atan(mj)
                        l = true;
                        n = n + 1;
-                       mark(n) = i;
-                       n = n + 1;
-                       mark(n) = j;
+                       marki(n) = i;
+                       markj(n) = j;
                        break;
                      end
                  end  
              end
            end
-         
-         end
          if l
-         obj.ineqs(mark) = []; 
-         obj2.ineqs(mark) = [];
-         obj = obj+obj2;
+          % obj.print;
+          % obj2.print;
+          % marki
+          % markj
+           obj.ineqs(marki) = []; 
+           obj2.ineqs(markj) = [];
+           obj = obj+obj2;
+          % obj.print
          end
          
-     end
+         end
+         
+     
 
      function l = hasNegativeIneqs(obj)
          l = true;
