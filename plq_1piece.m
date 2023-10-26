@@ -3154,6 +3154,10 @@ disp('test22')
             
              for j = 1: obj.envd(i).nv-1
                 slope = obj.envd(i).slope(j,j+1);
+                if slope == -inf
+                    slope = inf;
+                end
+                
                 if slope == inf
                   edge = vars(1) -obj.envd(i).vx(j) ; 
                 else
@@ -3180,6 +3184,10 @@ disp('test22')
                 
                 %%
                 pslope = -1/slope;
+                if pslope == -inf
+                    pslope = inf;
+                end
+                
                 if pslope ~= inf
                     q = obj.envd(i).yIntercept (j,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -3234,6 +3242,10 @@ disp('test22')
                 end
                    
              pslope = -1/slope;
+             if pslope == -inf
+                    pslope = inf;
+                end
+                
              if pslope ~= inf
                q = obj.envd(i).yIntercept (j,pslope);
                eq = s2 - pslope*s1 - q;

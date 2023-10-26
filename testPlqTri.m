@@ -225,28 +225,25 @@ classdef testPlqTri < matlab.unittest.TestCase
 %            uNo = fopen('../data/max12r.m','r')
 %            %uNo = fopen('../data/max123.m','r')
 %            
-           uNo = fopen('../data/max4r.m','r')
-           testCase.PS = testCase.PS.rdMaxfd(uNo);
-           fclose(uNo);
-%            size(testCase.PS.maxf)  
-%            size(testCase.PS.maxd)  
-%            size(testCase.PS.nmaxf)
+            uNo = fopen('../data/max8r.m','r')
+            testCase.PS = testCase.PS.rdMaxfd(uNo);
+            fclose(uNo);
 
 
-           i = 5;
+           i = 9;
            %fprintf(uNo, "Piece " + num2str(i) + "\n")
            testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
-           
+          
            %fprintf(uNo, "convexEnvelope " + num2str(i) + "\n")
            testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
            %fprintf(uNo, "conjugate " + num2str(i) + "\n")
            testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
            %fprintf(uNo, "intersectionConjugateDomain " + num2str(i) + "\n")
            testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
-           %testCase.PS.pieces(i).print
-           %testCase.PS.pieces(i).plot
-           %return
-           %fprintf(uNo, "maximum " + num2str(i) + "\n")
+ %           testCase.PS.pieces(i).print
+ %           testCase.PS.pieces(i).plot
+%            return
+%            %fprintf(uNo, "maximum " + num2str(i) + "\n")
            testCase.PS.nPieces=i;
            %testCase.PS = testCase.PS.rdMaxfd;
 
@@ -277,7 +274,7 @@ classdef testPlqTri < matlab.unittest.TestCase
             
            
           
-           uNo = fopen('../data/max5dr.m','r')
+           uNo = fopen('../data/max8dr.m','r')
            %uNo = fopen('../data/max3r.m','r')
            testCase.PS = testCase.PS.rdMaxfd2(uNo);
            disp('rd done')
@@ -311,28 +308,37 @@ classdef testPlqTri < matlab.unittest.TestCase
           
            %uNo = fopen('../data/max3r.m','r')
            %uNo = fopen('../data/max4r.m','r')
-           uNo = fopen('../data/max5r.m','r')
+           uNo = fopen('../data/max7r.m','r')
            %uNo = fopen('../data/max12r.m','r')
            %uNo = fopen('../data/max12t.m','r')
              
            testCase.PS = testCase.PS.rdMaxfd(uNo);
            fclose(uNo);
            %%%%
-          
-           
+           colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+           n = 0
+           f = testCase.PS.maxf(1,1)
+           c = colors(mod(n,6)+1)
+           for i =1:size(testCase.PS.maxf,1)
+           end  
            figure;
              for i =1:size(testCase.PS.maxf,1)
                      i
+                   if (f.f ~= testCase.PS.maxf(i,1).f)  
+                       n = n + 1
+                       c = colors(mod(n,6)+1)
+                       f = testCase.PS.maxf(i,1);
+                   end
                    testCase.PS.maxf(i,1).print;
                    testCase.PS.maxd(i,1).print;
                    testCase.PS.maxd(i,1).plot;
                    textR = "R"+num2str(i);
-                   testCase.PS.maxd(i,1).plotRegion(textR);
+                   testCase.PS.maxd(i,1).plotRegionC(textR,c);
                    
 
 %           
              end
-             
+             n
            testCase.verifyEqual(true, true);
         end
     end

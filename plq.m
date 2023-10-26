@@ -720,7 +720,11 @@ classdef plq
           n = 0;
           for i = 1:size(obj.maxf,1)
               %i, obj.nmaxf(i)
-
+               if obj.maxd(i,1).nv == 0
+                   % complex variables were removed later hence some
+                   % regions need to be removed
+                   continue
+               end
                % check size of obj.maxf(i,:) and fix
                if obj.nmaxf(i) == 1
                  n = n + 1;
@@ -932,9 +936,7 @@ classdef plq
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-               if i == 57
-               r.print
-               end
+               
                
                lmerge = true;
                while lmerge
@@ -944,9 +946,6 @@ classdef plq
                    if marked(ja(j))
                        continue
                    end
-                   if i == 57
-               maxd(ja(j)).print
-               end
                
          %          maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));

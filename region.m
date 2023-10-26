@@ -1282,6 +1282,55 @@ classdef region
             value = icolor;
          end
 
+         function [vx,vy] = plotRegionC (obj, textR, c)
+            limitsx = [-6,6];
+            limitsy = [-15,20];
+            
+            pts = 75;
+            colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+            stepx = (limitsx(2)-limitsx(1))/pts;
+            stepy = (limitsy(2)-limitsy(1))/pts;
+            n = 0;
+            vx = [];
+            vy = [];
+            ci = limitsx(1);
+            for i = 1:pts
+                cj = limitsy(1);
+                for j = 1:pts
+                  
+                  if obj.ptFeasible (obj.vars,[ci,cj]);
+                      n = n+1;
+                      vx(n) = ci;
+                      vy(n) = cj;
+                  end
+                  cj = cj+stepy;    
+                end
+                ci = ci+stepx;    
+            end
+            %c = colors(1+mod(obj.getGlobalParameter,6))
+            if n == 0
+                disp ('region not displayed')
+            end
+            avx = sum(vx)/n;
+            avy = sum(vy)/n;
+            m = 0;
+            for i = 1:n
+                if (abs(vx(i) -avx)<0.1 & abs(vy(i) -avy)<0.1)
+                    continue
+                end    
+                m = m+1;
+                vx1(m) = vx(i);
+                vy1(m) = vy(i);
+            end
+            %text = "R";
+            text(avx,avy,textR,'FontSize',12, 'FontWeight', 'bold','Color', 'k')
+            if m==0
+                fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            else
+                fill(vx1, vy1, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            end
+            
+         end
 
          function [vx,vy] = plotRegion (obj, textR)
             limitsx = [-6,6];
@@ -2146,9 +2195,12 @@ classdef region
          end
      end
      % wont work for degree > 2
+     % removed complex vertices
      function obj = getVertices(obj)
          
        obj.nv=0;
+       obj.vx=[];
+       obj.vy=[];
        t1 = sym('t1');
        t2 = sym('t2');
        varsTemp = [t1,t2];
@@ -2165,6 +2217,10 @@ classdef region
                elseif isempty(s.t1)
                    continue;
                elseif isempty(s.t2)
+                   continue;
+               end
+               if ~ isreal(s.t1)
+                   s.t1
                    continue;
                end
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
@@ -2421,9 +2477,9 @@ classdef region
 
 
      function [l, maxf, index] = maximum(obj, f)
-          %obj.print
-          %f(1).print
-          %f(2).print
+          obj.print
+          f(1).print
+          f(2).print
           
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
