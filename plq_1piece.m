@@ -499,9 +499,10 @@ disp('test22')
              obj.envf(j).f = simplify(obj.envf(j).f);
              %figure;  
              %obj.envf(j).plot3d (limits);
-             %figure;
+             figure;
              %obj.d.plot;
-             %obj.envd(j).plot;
+             obj.envd(j).plot;
+             obj.envd(j).plotRegion ("Env");
              if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                %disp("Conjugate Expr")
@@ -535,8 +536,8 @@ disp('test22')
                %disp('Conjugate Domain')
                %obj.conjd(k).plotByVertex;
                
-             %  obj.conjd(k).plot;
-             %  obj.conjd(k).plotRegion;
+               obj.conjd(k).plot;
+               obj.conjd(k).plotRegion ("Conj");
                
              end
              
@@ -665,10 +666,10 @@ disp('test22')
                   %obj.envd(i) = obj.envd(i).getVertices();
               end
           %    return
-             % disp("convexEnvelope1")
-            %  obj.print
-           %   return
-             % obj.plot
+          %     disp("convexEnvelope1")
+          %     obj.print
+          %     return
+%              % obj.plot
               %[f,r] = obj.intersectionDomain;
 
               %for i = 1:size(r,2)
@@ -683,8 +684,8 @@ disp('test22')
              % obj.print
               obj = obj.unique();
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope2")
-              %obj.print
+            %  disp("maxconvexEnvelope2")
+            %  obj.print
               
             %  return
               
@@ -702,11 +703,12 @@ disp('test22')
               
  %             end
               
+ disp("b4 maxEnvelopeIntersect2")
               obj = obj.maxEnvelopeIntersect([x,y]);
-              %disp("maxEnvelopeIntersect2")
+              disp("maxEnvelopeIntersect2")
               %obj.print
              
-              %return
+              return
               %for i=1:size(obj.envd,2)
               %    obj.envd(i) = obj.envd(i).getVertices();
               %end
@@ -716,8 +718,8 @@ disp('test22')
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               %disp("maxconvexEnvelope3")
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope4")
-              %obj.print
+              disp("maxconvexEnvelope4")
+              obj.print
               %disp("max2")
               
               obj = obj.unique();
@@ -741,6 +743,9 @@ disp('test22')
                 
             %  [nv, vx,vy] = obj.envd(1).vertexOfEdge(i)
             %end
+            disp("merge")
+              obj.print
+              
             return
             
         end
@@ -771,6 +776,7 @@ disp('test22')
             
             %return
             for i = 1:size(envfs,2)
+                %i
               %envfs(i)
               %disp('envd')
               %envds(i).print
@@ -786,10 +792,14 @@ disp('test22')
               if isempty(r) 
                   continue
               end
-              %r.print
+%              disp('in')
+%              r.print
+%              return
               %r = r.removeDenominator;
               r = unique(r);
-              if (r.isFeasible)
+              %r.print
+              if (r.isFeasible & r.nv > 2)  % added on 29 oct
+               %   disp('Feasible')
                   obj.envf = [obj.envf, envfs(i)];
                   obj.envExpr = [obj.envExpr, envxs(i)];
                   %obj.envd = [obj.envd, r.removeDenominator];
@@ -3668,9 +3678,6 @@ disp('test22')
                     %if (obj.envd(i) == obj.envd(j))
                    % i
                    % j
-                    if i == 1 & j == 6
-                        %return
-                    end
                     %obj.envd(i).print
                     %obj.envd(j).print
                     d = intersection(obj.envd(i),obj.envd(j));
@@ -3718,10 +3725,15 @@ disp('test22')
                     
 
                     %setDifference = simplify(obj.envd(i) & ~d)
+                    %disp("i")
                     %obj.envd(i).print
                     %d0.print
                     %disp('subtract here')
-                    %obj.envd(i).print
+                    %disp("j")
+                    
+                    %obj.envd(j).print
+                    %disp("i int j")
+                    
                     %disp('d0')
                     %d0.print
                     %disp('d1')

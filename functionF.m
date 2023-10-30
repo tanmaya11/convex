@@ -11,14 +11,8 @@ classdef functionF
         f = sym('f') ;
     end
 
-    methods  % testing
-        function l = checkPiece1 (obj)
-            x = sym('x');
-            y = sym('y');
-            l = isAlways(obj.f==x*y);
-        end
-    end
-    methods  % init + display
+   
+    methods  % init 
         function obj = functionF(num, den)
             if nargin == 0
               obj.num=0;
@@ -35,6 +29,9 @@ classdef functionF
             obj.nv = size(obj.vars,2);
         end
         
+        function f = getF(obj)
+            f = obj.f;
+        end  
         function num = getNum(obj)
             num = obj.num;
         end   
@@ -42,17 +39,16 @@ classdef functionF
             den = obj.den;
         end   
         
+    end
+    methods % display
         function print(obj)
           fprintf(char(simplify(obj.f))); 
           fprintf("\n")
-            
         end
-
 
         function fprint(obj, uNo)
           fprintf(uNo, char(simplify(obj.f))); 
           fprintf(uNo, "\n")
-            
         end
 
         function plot3d(obj, limits)
@@ -64,28 +60,8 @@ classdef functionF
                 limits(3) = limits(3)-30;
                 limits(4) = limits(4)+30;
             end
-            
             ezsurf(obj.f, limits);
         end
-
-%         function [vx,vy] = getPoints (obj, vars, limits)
-%             start = limits(1);
-%             step = (limits(2)-limits(1))/100;
-%             n = 0;
-%             ci = start;
-%             for i = 1:100
-%                 cj = start;
-%                 for j = 1:100
-%                   cj = cj+step;    
-%                   if (subs(obj.f,vars,[ci,cj]) <= 0)
-%                       n = n+1;
-%                       vx(n) = ci;
-%                       vy(n) = cj;
-%                   end
-%                 end
-%                 ci = ci+step;    
-%             end
-%         end
 
         function plot(obj, vars, limits)
             colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
@@ -190,6 +166,8 @@ classdef functionF
         function f = minus(obj1,obj2)
             f = functionF(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
         end
+
+        % to be disabled
         function f = unaryminus(obj)
             f = functionF(-obj.num,obj.den);
         end
@@ -197,6 +175,8 @@ classdef functionF
         function f = uminus(obj)
             f = functionF(-obj.num,obj.den);
         end
+
+        % does not simplify
         function f = mtimes(f1,f2)
             num = f1.num * f2.num;
             den = f1.den * f2.den;
@@ -210,7 +190,6 @@ classdef functionF
     methods % derivatives
 
          function f = dfdx (obj,x)
-            
             f = functionF(simplify(diff(obj.f,x)));
          end 
 
@@ -271,9 +250,6 @@ classdef functionF
     end
     
     methods
-
-        
-        
         function vars = getVars(obj)
             vars = obj.vars;
         end
@@ -343,12 +319,15 @@ classdef functionF
         
 
         % not for rational functions
-        function obj = normalize1 (obj,vars)
+        function obj = normalize1 (obj)
             if obj.den ~= 1
                 disp('Rational in normalize1')
             end
-          c = coeffs(obj.f);
-          obj = functionF((1/abs(c(end)))*obj.num, obj.den);
+            %obj.f
+            %obj.vars
+            
+          c = coeffs(obj.f,obj.vars);
+          obj = functionF(simplify((1/abs(c(end)))*obj.num), obj.den);
           
         end
 

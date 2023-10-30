@@ -851,9 +851,11 @@ classdef region
             end
             % add code to get unique ineqs
             obj.vars = vars;  
+            %disp('b4')
             %obj.print
             obj = obj.normalize1;
             obj = obj.unique;
+            %disp('aft')
             %obj.print
             %obj = obj.removeDenominator;
             %disp('b4 get vertices')
@@ -986,14 +988,14 @@ classdef region
             % original code
             f0 = region(l,obj1.vars);
             f0 = f0.getVertices;
-            %disp('here')
+%            disp('here')
+%            f0.print
             %f0.nv
             if f0.nv >= 3
               f = [f0.simplify(obj1.vars)];
               return
             else  
               f1 = f0.divideRegions(obj1);
-              size(f1)
               f = [];
               for i = 1: size(f1,2)
                   f0 = f1(i).simplify(obj1.vars);
@@ -2477,9 +2479,9 @@ classdef region
 
 
      function [l, maxf, index] = maximum(obj, f)
-          obj.print
-          f(1).print
-          f(2).print
+          %obj.print
+          %f(1).print
+          %f(2).print
           
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
