@@ -3300,40 +3300,13 @@ disp('test22')
     % to be changed
     % will merge with first - change for general routine
     function [nmaxf,nmaxd,nmaxe] = merge(obj,maxf,maxd, maxe)
-          ia(1) = 1;
-          n = 0;
-          for i = 1:size(maxf,2)
-              marked(i) = false;
-          end
 
-          % ja has indices of all equal functions , ia by col no
-          for i = 1:size(maxf,2)
-              if (marked(i))
-                  ia(i+1) = n+1;
-                  continue
-              end
-              
-              for j = i+1:size(maxf,2)
-                  
-                  if isAlways(maxf(i).f == maxf(j).f)
-                      n = n+1;
-                      ja(n) = j;
-                      marked(j) =true;
-                  end
-              end
-              ia(i+1) = n+1;
-          end
-          %nmaxf = [];
-          %nmaxd = [];
+          [n,ia,ja] = getIndexingF (obj)
           m = 0;
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-          %ia
-        %  return
-        %  nmaxf= [];
-        %  nmaxd= [];
-        
+         
         for i = 1:size(maxf,2)
             if  marked(i)
                 continue
@@ -3347,7 +3320,7 @@ disp('test22')
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-        %       r.print
+               r.print
                
                lmerge = true;
                while lmerge
@@ -3357,18 +3330,13 @@ disp('test22')
                    if marked(ja(j))
                        continue
                    end
-         %          maxd(ja(j)).print
+                   maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
+                   l
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
                    end
-%                    if ~l
-%                      m = m + 1;
-%                      nmaxf(m) = maxf(i);
-%                      nmaxe(m) = maxe(i);
-%                      nmaxd(m) = maxd(ja(j));  
-%                    end
                  end
                end
                  for j=ia(i):ia(i+1)-1
@@ -3391,8 +3359,8 @@ disp('test22')
                    
             end
         end
-        disp('in merge')
-        m 
+        %disp('in merge')
+        %m 
 
     end
 
@@ -3565,6 +3533,35 @@ disp('test22')
           end
           n = size(obj.envd,2);
         end
+        
+        
+        function [n,ia,ja] = getIndexingF (obj)
+           nz = 0;
+          ia(1) = 1;
+          ja = [];
+          for i = 1:size(obj.envd,2)
+              marked(i) = false;
+          end
+
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(obj.envd,2)
+              if (marked(i))
+                  ia(i+1) = nz+1;
+                  continue
+              end
+              for j = i+1:size(obj.envd,2)
+                  if (obj.envf(i) == obj.envf(j))
+                      nz = nz+1;
+                      ja(nz) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = nz+1;
+          end
+          n = size(obj.envd,2);
+        end
+        
+        
         % fix for multiple intersections
         % remove outside polytope ineqs
         function obj = maxEnvelopeWhenEqDomain (obj, vars)

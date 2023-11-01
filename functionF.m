@@ -356,6 +356,7 @@ classdef functionF
                 end  
                 return;
             end
+            
             f = functionF(subs(obj.f, vars, vals));
         end    
 
@@ -364,14 +365,21 @@ classdef functionF
             %disp("isZero")
             %obj.vars
             %obj.f
-            if size(coeffs(obj.num,obj.vars)) > 0
-                l = false;
-            else
-                l = true;
+            l = false;
+            if obj.den ~= 1
+                return
             end
             
-            %l = isAlways(obj.f==0);
-           
+            c = coeffs(obj.num,obj.vars);
+
+            n = size(c,2);
+            for i = 1:n
+                if (abs(double(c(i))) > 1.0e-6)
+                    return
+                end
+            end
+            l = true;
+            
         end
         
         function f = subsVarsPartial (obj,vars,varVals)

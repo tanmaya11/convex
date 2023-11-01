@@ -2563,16 +2563,7 @@ classdef region
                  
                  % check same vertices and convex angles 
                  if all(vxi == vxj) & all(vyi == vyj)
-                     % check slopes
-%                        disp('in merge')
-          %obj.print
-          %obj2.print
-%        
-%                      vxi
-%                      vxj
-%                      vyi
-%                      vyj
-
+                    
                      edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(1),vyi(1)]);
                      if edgeiNo == 0
                          continue
