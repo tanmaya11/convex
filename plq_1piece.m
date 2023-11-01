@@ -718,10 +718,14 @@ disp('test22')
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope3")
-              return
+              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope4")
-              obj.print
+              obj = obj.maxEnvelopeIntersect([x,y]);
+              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              
+              %obj.print
               %disp("max2")
               
               obj = obj.unique();
@@ -3525,12 +3529,8 @@ disp('test22')
           
         end
 
-        % fix for multiple intersections
-        % remove outside polytope ineqs
-        function obj = maxEnvelopeWhenEqDomain (obj, vars)
-
-            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-          n = 0;
+        function [n,ia,ja] = getIndexing (obj)
+           n = 0;
           ia(1) = 1;
           ja = [];
           for i = 1:size(obj.envd,2)
@@ -3553,18 +3553,146 @@ disp('test22')
               ia(i+1) = n+1;
           end
 
+        end
+        % fix for multiple intersections
+        % remove outside polytope ineqs
+        function obj = maxEnvelopeWhenEqDomain (obj, vars)
 
-          ia
-          ja
-          % No eq - just return
-          if (ia(n+1) == 1)
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+           [n,ia,ja] = obj.getIndexing;
+          
+           n
+           ia
+           ja
+           % No eq - just return
+           if (ia(n+1) == 1)
               return
-          end 
-          disp("***************************************************************************************")
-          disp("Implement this")
+           end 
+           disp("***************************************************************************************")
+           disp("Implement this")
+           % loop1
+           % remove if equal and update ia,ja
+          
+          rm = [];
+          for i = 1:n
+              for j = ia(i):ia(i+1)-1
+                  if (obj.envf(i) == obj.envf(ja(j)))
+                      rm = [rm,ja(j)];
+                  end
+              end
+
+              
+                  
+          end
+          
+          %rm
+          obj.envf(rm) = [];
+          obj.envd(rm) = [];
+          obj.envExpr(rm) = [];
+          %size(obj.envf)
+          [n,ia,ja] = obj.getIndexing;
+          n
+           ia
+           ja
+          
+          rm = [];
+          for i = 1:n
+              marked(i) = false;
+          end
+          for i = 1:n
+              for j = ia(i):ia(i+1)-1
+                 for k = j+1:ia(i+1)-1
+                  if (obj.envf(ja(k)) == obj.envf(ja(j)))
+                      rm = [rm,ja(k)];
+                      marked(ja(k)) = true;
+                  end
+                 end
+              end
+
+                  
+          end
+          obj.envf(rm) = [];
+          obj.envd(rm) = [];
+          obj.envExpr(rm) = [];
+          %size(obj.envf)
+          [n,ia,ja] = obj.getIndexing;
+          n
+           ia
+           ja
+          % loop2 
+          % update max
+          envdT = [];
+          envfT = [];
+          enveT = [];
+          for i = 1:n
+                l(i)=1;
+          end
+            
+          for i = 1:n
+              for j = ia(i):ia(i+1)-1
+                  [l0, f, index] = obj.envd(i).maximum( [obj.envf(i), obj.envf(ja(j))]);
+                  i, ja(j),l0
+                  if ~l0
+                     ineqs = obj.envd(i).splitmax2 (obj.envf(i), obj.envf(ja(j)));
+                     ineqs1 = region.empty;
+                     for k = 1: size(obj.envd(i).ineqs,2)
+                        ineqs1(k) = obj.envd(i).ineqs(k).f;
+                     end
+                            
+                     ineqs1(size(obj.envd(i).ineqs,2)+1) = ineqs(1);
+                        %ineqs1
+                     d1 = region(ineqs1,obj.envd(i).vars);
+                     d1 = d1.simplify(obj.envd(i).vars);
+                     envdT = [envdT,d1];
+                     envfT = [envfT, obj.envf(i)];
+                     enveT = [enveT,obj.envExpr(i)];
+                     
+                     ineqs1(size(obj.envd(i).ineqs,2)+1) = ineqs(2);
+                     d1 = region(ineqs1,obj.envd(i).vars);
+                     d1 = d1.simplify(obj.envd(i).vars);
+                     envdT = [envdT,d1];
+                     envfT = [envfT, obj.envf(ja(j))];
+                     enveT = [enveT,obj.envExpr(ja(j))];
+                            
+                     
+                  else
+                     envdT = [envdT,obj.envd(i)];
+                     envfT = [envfT, f]     ;
+                     if index == 1
+                        enveT = [enveT,obj.envExpr(i)];
+                     else
+                        enveT = [enveT,obj.envExpr(ja(j))];
+                     end
+                  end 
+                  l(i) = 0;
+                  l(ja(j)) = 0;
+                end
+                  
+          end
+          
+          for i = 1:n
+                
+              if (l(i) == 1)
+                    envdT = [envdT,obj.envd(i)];
+                    enveT = [enveT,obj.envExpr(i)];
+                    envfT = [envfT, obj.envf(i)];     
+              end
+          end
+            obj.envf=functionF.empty();
+            obj.envExpr = convexExpr.empty();
+            obj.envd = region.empty();
+          for i = 1:size(envdT,2)
+              obj.envd(i) = envdT(i);
+              obj.envExpr(i) = enveT(i);
+              obj.envf(i) = envfT(i); 
+              
+            end
+            
+          % loop3 
+          % split if reqd
           disp("***************************************************************************************")
           
-          returm
+          return
           % Eq and clear max
 
           % Eq and split
