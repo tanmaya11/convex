@@ -176,7 +176,7 @@ classdef functionF
             f = functionF(-obj.num,obj.den);
         end
 
-        % does not simplify
+        
         function f = mtimes(f1,f2)
             num = f1.num * f2.num;
             den = f1.den * f2.den;
@@ -237,14 +237,15 @@ classdef functionF
           end
         end
 
+        % fix this
         function l = isConst(obj)
-            v = obj.getVars;
-            if size(v,2) > 0
+
+            if size(obj.vars,2) > 0
                 l = false;
                 return
             end
-            cn = coeffs(obj.num,obj.vars);
-            cd = coeffs(obj.den,obj.vars);
+            cn = coeffs(obj.num,obj.vars)
+            cd = coeffs(obj.den,obj.vars)
             l = all(cn(2:end)==0) & all(cd(2:end)==0);
         end
     end

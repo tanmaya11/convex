@@ -80,6 +80,60 @@ classdef testFunctionF < matlab.unittest.TestCase
             testCase.verifyEqual(isAlways(g.getDen==1),true);
 
         end
+
+        function testDerivatives (testCase)
+            x=sym('x');
+            y=sym('y');
+            f1 = functionF(x*y);
+            testCase.verifyEqual(isAlways(f1.dfdx(x).getF == y),true);
+            testCase.verifyEqual(isAlways(f1.dfdx(y).getF == x),true);
+            f2 = functionF(x,y);
+            testCase.verifyEqual(isAlways(f2.dfdx(x).getF == 1/y),true);
+            testCase.verifyEqual(isAlways(f2.dfdx(y).getF == -x/y^2),true);
+            f3 = functionF(x^2);
+            testCase.verifyEqual(isAlways(f3.dfdx(x).getF == 2*x),true);
+            testCase.verifyEqual(isAlways(f3.dfdx(y).getF == 0),true);
+            f4 = functionF(x^2,y);
+            testCase.verifyEqual(isAlways(f4.dfdx(x).getF == 2*x/y),true);
+            testCase.verifyEqual(isAlways(f4.dfdx(y).getF == -x^2/y^2),true);
+            testCase.verifyEqual(isAlways(f1.limit(x, 1).getF == y),true);
+            
+        end
+
+        % error in isConst - check where it is used then fix
+        function testInquiry (testCase)
+            x=sym('x');
+            y=sym('y');
+            f1 = functionF(x*y);
+            testCase.verifyEqual(f1.isPolynomial,true);
+            testCase.verifyEqual(f1.isQuad,true);
+            testCase.verifyEqual(f1.isLinear,false);
+            testCase.verifyEqual(f1.isConst,false);
+
+            f1 = functionF(x,y);
+            testCase.verifyEqual(f1.isPolynomial,false);
+            testCase.verifyEqual(f1.isQuad,false);
+            testCase.verifyEqual(f1.isLinear,false);
+            testCase.verifyEqual(f1.isConst,false);
+
+            f1 = functionF(x^3);
+            testCase.verifyEqual(f1.isPolynomial,true);
+            testCase.verifyEqual(f1.isQuad,false);
+            testCase.verifyEqual(f1.isLinear,false);
+            testCase.verifyEqual(f1.isConst,false);
+
+             f1 = functionF(x+7*y);
+            testCase.verifyEqual(f1.isPolynomial,true);
+            testCase.verifyEqual(f1.isQuad,false);
+            testCase.verifyEqual(f1.isLinear,true);
+            testCase.verifyEqual(f1.isConst,false);
+
+            f1 = functionF(7);
+            testCase.verifyEqual(f1.isPolynomial,true);
+            testCase.verifyEqual(f1.isQuad,false);
+            testCase.verifyEqual(f1.isLinear,false);
+            %testCase.verifyEqual(f1.isConst,true);
+        end
     end
   
 end

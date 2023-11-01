@@ -680,10 +680,11 @@ disp('test22')
 
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               %disp("maxconvexEnvelope1")
-              %return
+             % return
              % obj.print
-              obj = obj.unique();
-              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+             % check if unique is needed
+             % obj = obj.unique();
+             % obj = obj.maxEnvelopeWhenEqDomain([x,y]);
             %  disp("maxconvexEnvelope2")
             %  obj.print
               
@@ -703,12 +704,12 @@ disp('test22')
               
  %             end
               
- disp("b4 maxEnvelopeIntersect2")
+              disp("b4 maxEnvelopeIntersect2")
               obj = obj.maxEnvelopeIntersect([x,y]);
-              disp("maxEnvelopeIntersect2")
+              %disp("maxEnvelopeIntersect2")
               %obj.print
              
-              return
+              %return
               %for i=1:size(obj.envd,2)
               %    obj.envd(i) = obj.envd(i).getVertices();
               %end
@@ -716,7 +717,8 @@ disp('test22')
              %return
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope3")
+              disp("maxconvexEnvelope3")
+              return
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               disp("maxconvexEnvelope4")
               obj.print
@@ -3526,6 +3528,50 @@ disp('test22')
         % fix for multiple intersections
         % remove outside polytope ineqs
         function obj = maxEnvelopeWhenEqDomain (obj, vars)
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+          n = 0;
+          ia(1) = 1;
+          ja = [];
+          for i = 1:size(obj.envd,2)
+              marked(i) = false;
+          end
+
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(obj.envd,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              for j = i+1:size(obj.envd,2)
+                  if (obj.envd(i) == obj.envd(j))
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+
+
+          ia
+          ja
+          % No eq - just return
+          if (ia(n+1) == 1)
+              return
+          end 
+          disp("***************************************************************************************")
+          disp("Implement this")
+          disp("***************************************************************************************")
+          
+          returm
+          % Eq and clear max
+
+          % Eq and split
+          %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
             envdT = [];
             envfT = [];
             enveT = [];
@@ -3535,88 +3581,41 @@ disp('test22')
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
                     if (obj.envd(i) == obj.envd(j))
-                      %obj.envd(i).print  
-                      
-                      %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
                       [l0, f, index] = obj.envd(j).maximum( [obj.envf(i), obj.envf(j)]);
-                      %disp('max1')
-                      %i
-                      %j
-                      %l0
-                      %f
                       if ~l0
-                          
-                          % temporary fix
-                          %if obj.envd(j).nv > 3
-                          %  [fs, fe, ds] = obj.envd(j).splitMax( [obj.envf(i), obj.envf(j)],[obj.envExpr(i), obj.envExpr(j)]);
-                          %                      envdT = [envdT,ds];
-                          %  envfT = [envfT, fs];
-                          %  enveT = [enveT,fe];
-                          %  l(i) = 0;
-                          %  l(j) = 0;
-         
-                          %else  
-                          %obj.envf(i)
-                          %obj.envf(j)
-                          %obj.envd(i)
-                            ineqs = obj.envd(j).splitmax2 (obj.envf(i), obj.envf(j));
+                        ineqs = obj.envd(j).splitmax2 (obj.envf(i), obj.envf(j));
+                        for k = 1: size(obj.envd(j).ineqs,2)
+                          ineqs1(k) = obj.envd(j).ineqs(k).f;
+                        end
                             
-                            
-
-                            for k = 1: size(obj.envd(j).ineqs,2)
-                              ineqs1(k) = obj.envd(j).ineqs(k).f;
-                            end
-                            
-                            ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(1);
-                            %ineqs1
-                            d1 = region(ineqs1,obj.envd(j).vars);
-                            %d1.print
-                            d1 = d1.simplify(obj.envd(j).vars);
-                            %d1.getVertices
-
-                            envdT = [envdT,d1];
-                            envfT = [envfT, obj.envf(i)];
-                            enveT = [enveT,obj.envExpr(i)];
-                            for k = 1: size(obj.envd(j).ineqs,2)
-                              ineqs1(k) = obj.envd(j).ineqs(k).f;
-                            end
-                            ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(2);
-
-                            d1 = region(ineqs1,obj.envd(j).vars);
-                            d1 = d1.simplify(obj.envd(j).vars);
-                            %d1.getVertices
-                            envdT = [envdT,d1];
-                            envfT = [envfT, obj.envf(j)];
-                            enveT = [enveT,obj.envExpr(j)];
-                            
-                            l(i) = 0;
-                            l(j) = 0;
-                            
-%ineqs2= obj.ineqs;
-%          ineqs2(end+1) = ineq;
-          
-
-%                           l(i) = 0;
-%                             l(j) = 0;
-                          %  continue
-                          %else
-                          %  continue
-                          %end
-                      else
-                       %   continue
-                      % f
-                      % index
-                      %obj.envf(i)
-                      %  obj.envf(j)
-                      %  obj.envd(j).print
-                      % check when l is false
-                      envdT = [envdT,obj.envd(i)];
-                      envfT = [envfT, f]     ;
-                      if index == 1
+                        ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(1);
+                        %ineqs1
+                        d1 = region(ineqs1,obj.envd(j).vars);
+                        d1 = d1.simplify(obj.envd(j).vars);
+                        envdT = [envdT,d1];
+                        envfT = [envfT, obj.envf(i)];
                         enveT = [enveT,obj.envExpr(i)];
-                      else
+                        for k = 1: size(obj.envd(j).ineqs,2)
+                          ineqs1(k) = obj.envd(j).ineqs(k).f;
+                        end
+                        ineqs1(size(obj.envd(j).ineqs,2)+1) = ineqs(2);
+
+                        d1 = region(ineqs1,obj.envd(j).vars);
+                        d1 = d1.simplify(obj.envd(j).vars);
+                        envdT = [envdT,d1];
+                        envfT = [envfT, obj.envf(j)];
                         enveT = [enveT,obj.envExpr(j)];
-                      end
+                            
+                        l(i) = 0;
+                        l(j) = 0;
+                      else
+                        envdT = [envdT,obj.envd(i)];
+                        envfT = [envfT, f]     ;
+                        if index == 1
+                          enveT = [enveT,obj.envExpr(i)];
+                        else
+                          enveT = [enveT,obj.envExpr(j)];
+                        end
                       end 
                       l(i) = 0;
                       l(j) = 0;
@@ -3632,7 +3631,6 @@ disp('test22')
                     envfT = [envfT, obj.envf(i)];     
               end
             end
-            %envfT
             obj.envf = envfT;
             obj.envd = envdT;
             obj.envExpr = enveT;
@@ -3675,121 +3673,57 @@ disp('test22')
             %return
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
-                    %if (obj.envd(i) == obj.envd(j))
-                   % i
-                   % j
-                    %obj.envd(i).print
-                    %obj.envd(j).print
+                    %i,j
                     d = intersection(obj.envd(i),obj.envd(j));
+                    
                     if isempty(d)
                         continue;
                     end
-                    %disp('intersect')
-                    %d.print
                     
-                    %disp('b4 simplify')
-                    %d0 = d.simplify (vars,obj.envd(i));
+            %        disp('intersect')
+            %        i,j
+            %        obj.envd(i).print
+            %        obj.envd(j).print
+            %        d.print
+                    
                     d0 = d.simplify (vars ); %,obj.d.polygon);
-                    %disp('aft simplify')
-                   % disp("intersection")
-                   % obj.d.polygon.print
-                   % d.print
-                    
-                    %return
                     if isempty(d0)
                         continue;
                     end
-                    %obj.envd(i).print
-                    %obj.envd(j).print
-                    %d.print
-                    %disp('b4 max')
                     %d0.print
                     [l0, f, index] = d0.maximum( [obj.envf(i), obj.envf(j)]);
-                    %[index,f] = pointwise_max(obj.envf(i), obj.envf(j), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(j).ineqs, vars);
-                 %   disp('l0')
-                    %l0
-                    % put splitting code in else
                     if ~l0
+                        disp ("Add this")
                         continue
                     end
                     envdT = [envdT,d0];
-                    
                     envfT = [envfT, f]     ;
-                      if index == 1
-                        enveT = [enveT,obj.envExpr(i)];
-                      else
-                        enveT = [enveT,obj.envExpr(j)];
-                      end
-                      l(i) = 0;
-                      l(j) = 0;
+                    if index == 1
+                      enveT = [enveT,obj.envExpr(i)];
+                    else
+                      enveT = [enveT,obj.envExpr(j)];
+                    end
+                    l(i) = 0;
+                    l(j) = 0;
                     
 
-                    %setDifference = simplify(obj.envd(i) & ~d)
-                    %disp("i")
-                    %obj.envd(i).print
-                    %d0.print
-                    %disp('subtract here')
-                    %disp("j")
-                    
-                    %obj.envd(j).print
-                    %disp("i int j")
-                    
-                    %disp('d0')
-                    %d0.print
-                    %disp('d1')
                     d1 = obj.envd(i) - d0;
 
                     for id=1:size(d1,1)
+             %           d1(id).print
                         envdT = [envdT,d1(id)];
                         envfT = [envfT, obj.envf(i)]     ;
                         enveT = [enveT,obj.envExpr(i)];
                     end
-%                     if ~isempty(d1)
-%                     d1.print
-%                     
-%                     d1 = d1.simplify (vars); %,obj.d.polygon);
-%                     d1.print
-%                     
-%                     if d1.nv == 0
-%                         disp('nv 0 post minus 1')
-%                     end
-%                     %d1.print
-%                     %continue
-%                     
-%                         
-%                     
-%                     envdT = [envdT,d1];
-%                     envfT = [envfT, obj.envf(i)]     ;
-%                     enveT = [enveT,obj.envExpr(i)];
-%                     end
-%                     %disp('subtract2')
-                    
-                    %obj.envd(j).print
-                    %disp('d0')
-                    %d0.print
-                    %disp('d1')
+
                     d1 = obj.envd(j) - d0;
                     for id=1:size(d1,1)
+              %          d1(id).print
+                        
                         envdT = [envdT,d1(id)];
                         envfT = [envfT, obj.envf(i)]     ;
                         enveT = [enveT,obj.envExpr(i)];
                     end
-%                     if ~isempty(d1)
-%                     
-%                     %d1.print
-%                     d1 = d1.simplify (vars); %,obj.d.polygon);
-%                     if d1.nv == 0
-%                         disp('nv 0 post minus 2')
-%                     end
-%                     
-%                     %d1.print
-%                     %d1 = simplify(obj.envd(j) - d0)
-%                     envdT = [envdT,d1];
-%                     envfT = [envfT, obj.envf(j)]     ;
-%                     enveT = [enveT,obj.envExpr(j)];
-%                     end
-
-                    %end
                 end
               
               
@@ -3804,11 +3738,21 @@ disp('test22')
             %return
             
             %envfT
-            obj.envf = envfT;
-            obj.envd = envdT;
-            obj.envExpr = enveT;
-            %obj.print
-            obj = obj.unique;
+            obj.envf=functionF.empty();
+            obj.envExpr = convexExpr.empty();
+            obj.envd = region.empty();
+%             obj.envf = envfT;
+%             obj.envd = envdT;
+%             obj.envExpr = enveT;
+%             %obj.print
+%            obj = obj.unique;
+           for i = 1:size(envdT,2)
+              obj.envd(i) = envdT(i);
+              obj.envExpr(i) = enveT(i);
+              obj.envf(i) = envfT(i); 
+              
+            end
+ 
             return
 
         end
