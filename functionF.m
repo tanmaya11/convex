@@ -244,8 +244,8 @@ classdef functionF
                 l = false;
                 return
             end
-            cn = coeffs(obj.num,obj.vars)
-            cd = coeffs(obj.den,obj.vars)
+            cn = coeffs(obj.num,obj.vars);
+            cd = coeffs(obj.den,obj.vars);
             l = all(cn(2:end)==0) & all(cd(2:end)==0);
         end
     end
@@ -259,9 +259,10 @@ classdef functionF
         function c = getLinearCoeffs (obj,vars)
            cvars = obj.getVars;
            if (isempty(cvars))
+               
                c(1) = 0;
                c(2) = 0;
-               c(3) = 0;
+               c(3) = coeffs(obj.f,vars(1));
                return;
            end
            if size(cvars,2) == size(vars,2)

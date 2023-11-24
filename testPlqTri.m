@@ -138,7 +138,7 @@ classdef testPlqTri < matlab.unittest.TestCase
             %testCase.PS.pieces(i).print
             uNo = fopen('op','w');
             %testCase.PS.pieces(1).d.polygon.fprint(uNo)
-            for i = 1:2
+            for i = 11:11
               fprintf(uNo, "Piece " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
               fprintf(uNo, "convexEnvelope " + num2str(i) + "\n")
@@ -156,7 +156,7 @@ classdef testPlqTri < matlab.unittest.TestCase
               %end 
             end 
             
-            %return
+            return
 
             testCase.PS.nPieces=2;
             disp('maximumInPairs')

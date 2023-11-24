@@ -119,24 +119,26 @@ classdef testPlqTri2 < matlab.unittest.TestCase
             for i = 4:4
               fprintf(uNo, "Piece " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
-              %testCase.PS.pieces(i).print
-              return
+              testCase.PS.pieces(i).print
+              %return
               fprintf(uNo, "convexEnvelope " + num2str(i) + "\n")
                
               
               testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
+              testCase.PS.pieces(i).print
+              return
               fprintf(uNo, "conjugate " + num2str(i) + "\n")
-                 testCase.PS.pieces(i).print
-                testCase.PS.pieces(i).plot
-              continue
+             %    testCase.PS.pieces(i).print
+             %   testCase.PS.pieces(i).plot
+             % continue
               testCase.PS.pieces(i)=testCase.PS.pieces(i).intersectionConjugateDomain;
               fprintf(uNo, "intersectionConjugateDomain " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
               fprintf(uNo, "maximum " + num2str(i) + "\n")
               %if i == 3
-                testCase.PS.pieces(i).print
-                testCase.PS.pieces(i).plot
-                testCase.PS.pieces(i).plotRegion;
+               % testCase.PS.pieces(i).print
+               % testCase.PS.pieces(i).plot
+               % testCase.PS.pieces(i).plotRegion;
               %end 
             end 
             

@@ -2518,13 +2518,18 @@ disp('test22')
             if obj.envExpr(i).type == 1
               %disp('type 1')
               t = sym('t');
-              
+              disp("psi2 in conjugate")
+              obj.envExpr(i).vpsi2.print
+              obj.envExpr(i).vpsi2.isConst
               % [x, y, const]
               %psi2 = psi2(1)*x1+psi22*x2+psi20
               % hence use index 3 for psi20 terms
-              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars);
-              cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars);
-              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);
+              obj.envExpr(i).vpsi2.print
+              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars)
+              obj.envExpr(i).vpsi1.print
+              cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars)
+              obj.envExpr(i).vpsi0.print
+              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars)
               
               vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
@@ -2539,7 +2544,7 @@ disp('test22')
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
               
               % print normal cone for debugging %%%%%%%%%%%%%%%%%%%%%%
               %temp = [];
@@ -2555,13 +2560,13 @@ disp('test22')
               %obj.envd(i).plot;
               %temp.plotLIneq ([s1,s2],[-6,0]);
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
 
              % disp('subdE check')
-              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars);
+              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
               
@@ -2571,10 +2576,13 @@ disp('test22')
               %crs
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
 
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
-              expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
-
-            
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV)
+%               if obj.envExpr(i).vpsi2.isConst
+%                   expr = obj.conjugateExprEdgesT2 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
+%               else
+                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
+%               end 
+%             
             elseif obj.envExpr(i).type == 3   
 %                disp("here")
  %               i
@@ -2605,6 +2613,8 @@ disp('test22')
            % unR
            conjf=functionF.empty;
             conjd=region.empty;
+            undV
+            unR
             strt = size(obj.conjf,2)+1;
             for j = 1:obj.envd(i).nv
                 %obj.conjf = [obj.conjf,expr(j)];
@@ -2687,6 +2697,8 @@ disp('test22')
             end
             %disp('vertices')
             %size(conjf,2)
+            conjf
+            unR
             for j = 1:obj.envd(i).nv
                 if (unR(j))
                    % continue
@@ -2762,15 +2774,44 @@ disp('test22')
         %% T1 %%
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%         function expr = conjugateExprEdgesT2 (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
+%             for j = 1:obj.envd(i).nv
+%               expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
+%             end
+%         end
         function expr = conjugateExprEdgesT1 (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
             vars = obj.f.getVars;
             s1 = dualVars(1);
             s2 = dualVars(2);
             for j = 1:obj.envd(i).nv
                 no = edgeNo(j);
-                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
-                m = -mq(1)/mq(2);
-                q = -mq(3)/mq(2);
+                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars)
+                obj.envd(i).ineqs(no).print
+                psi2
+
+                if mq(2) == 0 
+                    disp('found it')
+                    edgeCoef = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
+                    c = -edgeCoef(3)
+                    c2 = psi2(3)/(2*psi1(2));
+                    c3 = -psi0(2)*c2;
+                    c7 = psi1(2)*c2;
+                    %c4 = -c3;
+                    d2 = -psi1(2)*psi0(2)*c2+psi1(3)+c*psi1(1);
+                    d3 = -psi0(2)^2*c2 + c*psi0(1) + psi0(3);
+                    c5 = c7^2/psi2(3);
+                    % document has c4 
+                    %c6 = 2*c7*d2/psi2(0) + c4;
+                    c6 = 2*c7*d2/psi2(3) - c3;
+                    d4 = d2^2/psi2(3)+d3;
+                    a = c2-c5;
+                    b = c3-c6; % can be simplified = c3 - (2*c7*d2/psi2(0) - c3)
+                    %d = -d4;
+                    expr(obj.envd(i).nv+j) = a*s2^2 + c*s1+b*s2-d4;
+                else
+                m = -mq(1)/mq(2)
+                q = -mq(3)/mq(2)
+                psi2(1) + m*psi2(2)
                 if psi2(1) + m*psi2(2) == 0
                 
                   t0 = (-psi0(1)-m*psi0(2))/(2*(psi1(1)+m*psi1(2)));
@@ -2802,11 +2843,12 @@ disp('test22')
               %    sqrt(si1_2)
               %    si1 / (zeta00 * sqrt(si1_2)) + si0
               %    simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
-                  expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0);
+                  expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
                  %   disp("To be implemented")
                   
                   
                   %expr(2*obj.envd(i).nv+1) = (si1 / (zeta00 * sqrt(si1_2))) + si0
+                end
                 end
             end
         end
@@ -2946,10 +2988,10 @@ disp('test22')
             subdV = sym(zeros(obj.envd(i).nv,3));
             undV = zeros(obj.envd(i).nv,1);
             vars = obj.f.getVars;
-            drx1 = obj.envf(i).dfdx(vars(1));
-            drx2 = obj.envf(i).dfdx(vars(2));
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
+            drx1 = obj.envf(i).dfdx(vars(1))
+            drx2 = obj.envf(i).dfdx(vars(2))
+            [ldrx1,limdrx1] = obj.limits (i, drx1, vars)
+            [ldrx2,limdrx2] = obj.limits (i, drx2, vars)
             
             for j = 1:obj.envd(i).nv
               if ~ldrx1(j)
@@ -2962,13 +3004,18 @@ disp('test22')
               end
               undV(j)=false;
               
-             
-              f = functionF(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
-              if (coef(2) == 0)
-                subdV(j,1) = dualVars(1)-limdrx1(j);
-                subdV(j,1) = coef(1)*subdV(j,1) ;
-              elseif (coef(2) < 0)
+              dualVars
+              f = functionF(NCV(j,1))
+              coef = f.getLinearCoeffs (dualVars)
+              % changed this on 11/11/23 - check 
+              % if (coef(2) == 0)
+              if (coef(1) == 0)
+                %subdV(j,1) = dualVars(1)-limdrx1(j);
+                j
+                limdrx1(j)
+                subdV(j,1) = dualVars(2)-limdrx2(j);
+                %subdV(j,1) = coef(1)*subdV(j,1) ;
+              elseif (coef(1) < 0)
                 m = double(diff(NCV(j,1),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
                 subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
@@ -2981,10 +3028,11 @@ disp('test22')
               
               f = functionF(NCV(j,2));
               coef = f.getLinearCoeffs (dualVars);
-              if (coef(2) == 0)
-                subdV(j,2) = dualVars(1)-limdrx1(j);
-                subdV(j,2) = coef(1)*subdV(j,2) ;
-              elseif (coef(2) < 0)
+              if (coef(1) == 0)
+                %subdV(j,2) = dualVars(1)-limdrx1(j);
+                subdV(j,2) = dualVars(2)-limdrx2(j);
+                %subdV(j,2) = coef(1)*subdV(j,2) ;
+              elseif (coef(1) < 0)
                 m = double(diff(NCV(j,2),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
@@ -3026,10 +3074,11 @@ disp('test22')
              
               f = functionF(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
-              if (coef(2) == 0)
-                subdV(j,1) = dualVars(1)-limdrx1(j);
-                subdV(j,1) = coef(1)*subdV(j,1) ;
-              elseif (coef(2) < 0)
+              if (coef(1) == 0)
+                %subdV(j,1) = dualVars(1)-limdrx1(j);
+                %subdV(j,1) = coef(1)*subdV(j,1) ;
+                subdV(j,1) = dualVars(2)-limdrx2(j);
+              elseif (coef(1) < 0)
                 m = double(diff(NCV(j,1),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
                 subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
@@ -3046,10 +3095,11 @@ disp('test22')
                   k = 1;
               end
               coef = f.getLinearCoeffs (dualVars);
-              if (coef(2) == 0)
-                subdV(j,2) = dualVars(1)-limdrx1(k);
-                subdV(j,2) = coef(1)*subdV(j,2) ;
-              elseif (coef(2) < 0)
+              if (coef(1) == 0)
+%                 subdV(j,2) = dualVars(1)-limdrx1(k);
+%                 subdV(j,2) = coef(1)*subdV(j,2) ;
+                 subdV(j,2) = dualVars(2)-limdrx2(k);
+              elseif (coef(1) < 0)
                 m = double(diff(NCV(j,2),dualVars(1)));
                 c = yIntercept(m, [limdrx1(k),limdrx2(k)]);
                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
