@@ -2518,18 +2518,18 @@ disp('test22')
             if obj.envExpr(i).type == 1
               %disp('type 1')
               t = sym('t');
-              disp("psi2 in conjugate")
-              obj.envExpr(i).vpsi2.print
-              obj.envExpr(i).vpsi2.isConst
+              %disp("psi2 in conjugate")
+              %obj.envExpr(i).vpsi2.print
+              %obj.envExpr(i).vpsi2.isConst
               % [x, y, const]
               %psi2 = psi2(1)*x1+psi22*x2+psi20
               % hence use index 3 for psi20 terms
-              obj.envExpr(i).vpsi2.print
-              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars)
-              obj.envExpr(i).vpsi1.print
-              cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars)
-              obj.envExpr(i).vpsi0.print
-              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars)
+              %obj.envExpr(i).vpsi2.print
+              cpsi2 = obj.envExpr(i).vpsi2.getLinearCoeffs (vars);
+              %obj.envExpr(i).vpsi1.print
+              cpsi1 = obj.envExpr(i).vpsi1.getLinearCoeffs (vars);
+              %obj.envExpr(i).vpsi0.print
+              cpsi0 = obj.envExpr(i).vpsi0.getLinearCoeffs (vars);
               
               vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
@@ -2544,7 +2544,7 @@ disp('test22')
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
 
-              NCV = obj.getNormalConeVertex(i, s1, s2)
+              NCV = obj.getNormalConeVertex(i, s1, s2);
               
               % print normal cone for debugging %%%%%%%%%%%%%%%%%%%%%%
               %temp = [];
@@ -2560,13 +2560,13 @@ disp('test22')
               %obj.envd(i).plot;
               %temp.plotLIneq ([s1,s2],[-6,0]);
               %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
 
              % disp('subdE check')
-              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
+              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars);
               %crs
               [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
               
@@ -2576,11 +2576,11 @@ disp('test22')
               %crs
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
 
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV)
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
 %               if obj.envExpr(i).vpsi2.isConst
 %                   expr = obj.conjugateExprEdgesT2 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
 %               else
-                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
+                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
 %               end 
 %             
             elseif obj.envExpr(i).type == 3   
@@ -2785,14 +2785,14 @@ disp('test22')
             s2 = dualVars(2);
             for j = 1:obj.envd(i).nv
                 no = edgeNo(j);
-                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars)
-                obj.envd(i).ineqs(no).print
-                psi2
+                mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
+                %obj.envd(i).ineqs(no).print
+                %psi2
 
                 if mq(2) == 0 
-                    disp('found it')
+                    %disp('found it')
                     edgeCoef = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
-                    c = -edgeCoef(3)
+                    c = -edgeCoef(3);
                     c2 = psi2(3)/(2*psi1(2));
                     c3 = -psi0(2)*c2;
                     c7 = psi1(2)*c2;
@@ -2809,9 +2809,9 @@ disp('test22')
                     %d = -d4;
                     expr(obj.envd(i).nv+j) = a*s2^2 + c*s1+b*s2-d4;
                 else
-                m = -mq(1)/mq(2)
-                q = -mq(3)/mq(2)
-                psi2(1) + m*psi2(2)
+                m = -mq(1)/mq(2);
+                q = -mq(3)/mq(2);
+                %psi2(1) + m*psi2(2)
                 if psi2(1) + m*psi2(2) == 0
                 
                   t0 = (-psi0(1)-m*psi0(2))/(2*(psi1(1)+m*psi1(2)));

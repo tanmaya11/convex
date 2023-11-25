@@ -42,7 +42,20 @@ classdef functionF
     end
     methods % display
         function print(obj)
-          fprintf(char(simplify(obj.f))); 
+          %fprintf(char(simplify(obj.f))); 
+          %fprintf("\n")
+          [coef,terms] = coeffs(obj.f);
+         
+          for i=1:length(terms)
+              if coef(i) ~= 1
+                fprintf(num2str(double(coef(i))));
+              end
+              fprintf(char(terms(i)));
+              if i == length(terms)
+                  break;
+              end
+              fprintf(" + ");
+          end
           fprintf("\n")
         end
 
