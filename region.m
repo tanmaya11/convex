@@ -1426,10 +1426,12 @@ classdef region
               end
           end
           l = true;
-          if all(sv1 <= sv2)
+          %sv1
+          %double(sv1)
+          if all(double(sv1) <= double(sv2))
               fmax = f2;
               index=2;
-          elseif all(sv2 <= sv1)
+          elseif all(double(sv2) <= double(sv1))
               fmax = f1;
               index=1;
           else
@@ -1921,10 +1923,10 @@ classdef region
            for i = 1:size(obj.ineqs,2)
                %subs ([obj.ineqs(i).f],vars,point)
                for j = 1:size(point,1)
-                %obj.ineqs(i).f
-                %point(j,:)
-               %double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
-               if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
+%                 obj.ineqs(i).f
+%                 point(j,:)
+%                double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
+                if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
                    l = false;
                    return
                end
@@ -2225,6 +2227,7 @@ classdef region
                    s.t1
                    continue;
                end
+               
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
                    for k = 1:size(s.t1,1)
                    obj.nv=obj.nv+1;

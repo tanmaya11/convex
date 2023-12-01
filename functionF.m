@@ -44,19 +44,28 @@ classdef functionF
         function print(obj)
           %fprintf(char(simplify(obj.f))); 
           %fprintf("\n")
+          %obj.f
+          if obj.isPolynomial
           [coef,terms] = coeffs(obj.f);
          
           for i=1:length(terms)
-              if coef(i) ~= 1
+              if double(coef(i)) ~= 1
                 fprintf(num2str(double(coef(i))));
               end
-              fprintf(char(terms(i)));
+              if terms(i) ~= 1
+                fprintf(char(terms(i)));
+              end
               if i == length(terms)
                   break;
               end
               fprintf(" + ");
           end
           fprintf("\n")
+          else
+              fprintf(char(simplify(obj.f))); 
+          fprintf("\n")
+          
+          end
         end
 
         function fprint(obj, uNo)
@@ -441,21 +450,49 @@ classdef functionF
             end 
         end
         
-        %obj2 double
         function res = lt(obj1,obj2)
+            
+            if isequal(class(obj2),'double')
+                
+                res = ltd(obj1,obj2);
+            else
+            res = false;
+            if (obj1.f<obj2.f)
+                res = true;
+            end 
+            end
+        end
+        
+        function res = gt(obj1,obj2)
+            if isequal(class(obj2),'double')
+                res = gtd(obj1,obj2);
+            else
+            res = false;
+            
+            if (obj1.f>obj2.f)
+                res = true;
+            end 
+            end
+        end
+        
+        
+        
+        %obj2 double
+        function res = ltd(obj1,obj2)
             res = false;
             if (obj1.f<obj2)
                 res = true;
             end 
         end
         
-        function res = gt(obj1,obj2)
+        function res = gtd(obj1,obj2)
             res = false;
             if (obj1.f>obj2)
                 res = true;
             end 
         end
         
+
         function [vx,vy] = solveF (f2)
             f1x = subs(obj.f, obj.vars,[x,y]);
             f2x = subs(f2.f, obj.vars,[x,y]);
