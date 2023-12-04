@@ -499,7 +499,7 @@ disp('test22')
              obj.envf(j).f = simplify(obj.envf(j).f);
              %figure;  
              %obj.envf(j).plot3d (limits);
-             figure;
+             %figure;
              %obj.d.plot;
              obj.envd(j).plot;
              obj.envd(j).plotRegion ("Env");
@@ -2630,7 +2630,7 @@ disp('test22')
 %               end 
 %             
             elseif obj.envExpr(i).type == 3   
-%                disp("here")
+                disp("here")
  %               i
   %              obj.envExpr(i).vpsi0
    %             obj.envExpr(i).vpsi1
@@ -2641,8 +2641,8 @@ disp('test22')
 
               %subdE = getSubDiffEdgeT3 (obj, i, edgeNo, dualVars)
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
 
               % on edge sub differential is a ray so skipped for now
@@ -3055,13 +3055,20 @@ disp('test22')
               coef = f.getLinearCoeffs (dualVars);
               % changed this on 11/11/23 - check 
               % if (coef(2) == 0)
-              if (coef(1) == 0)
+
+          if (coef(1) == 0)
                 %subdV(j,1) = dualVars(1)-limdrx1(j);
                 %j
                 %limdrx1(j)
-                subdV(j,1) = dualVars(2)-limdrx2(j);
-                %subdV(j,1) = coef(1)*subdV(j,1) ;
-              elseif (coef(1) < 0)
+                 if coef(2) > 0
+                 subdV(j,1) = dualVars(2)-limdrx2(j);
+                 else
+                     subdV(j,1) = -(dualVars(2)-limdrx2(j));
+                 end
+%                %subdV(j,1) = coef(1)*subdV(j,1) ;
+              elseif (coef(2) == 0) 
+                subdV(j,1) = coef(1)*(dualVars(1) - limdrx1(j));  
+              elseif (coef(2) < 0)
                 m = double(diff(NCV(j,1),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
                 subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
@@ -3078,7 +3085,14 @@ disp('test22')
                 %subdV(j,2) = dualVars(1)-limdrx1(j);
                 subdV(j,2) = dualVars(2)-limdrx2(j);
                 %subdV(j,2) = coef(1)*subdV(j,2) ;
-              elseif (coef(1) < 0)
+                 if coef(2) > 0
+                 subdV(j,2) = dualVars(2)-limdrx2(j);
+                 else
+                     subdV(j,2) = -(dualVars(2)-limdrx2(j));
+                 end
+              elseif (coef(2) == 0) 
+                subdV(j,2) = coef(1) * (dualVars(1) - limdrx1(j));  
+              elseif (coef(2) < 0)
                 m = double(diff(NCV(j,2),dualVars(1)));
                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
@@ -3088,6 +3102,52 @@ disp('test22')
                 subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
               end 
 
+              
+%               if (coef(1) == 0)
+%                 %subdV(j,1) = dualVars(1)-limdrx1(j);
+%                 %j
+%                 %limdrx1(j)
+%                 if coef(2) > 0
+%                 subdV(j,1) = dualVars(2)-limdrx2(j);
+%                 else
+%                     subdV(j,1) = -dualVars(2)-limdrx2(j);
+%                 end
+%                 %subdV(j,1) = coef(1)*subdV(j,1) ;
+%               elseif (coef(2) < 0)
+%                 m = double(diff(NCV(j,1),dualVars(1)));
+%                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+%                 subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+%                 
+%               else
+%                 m = -double(diff(NCV(j,1),dualVars(1)));
+%                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+%                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
+%                 
+%               end 
+% 
+%               
+%               f = functionF(NCV(j,2));
+%               coef = f.getLinearCoeffs (dualVars);
+%               if (coef(1) == 0)
+%                 %subdV(j,2) = dualVars(1)-limdrx1(j);
+%                 %subdV(j,2) = dualVars(2)-limdrx2(j);
+%                 if coef(2) > 0
+%                 subdV(j,2) = dualVars(2)-limdrx2(j);
+%                 else
+%                     subdV(j,2) = -dualVars(2)-limdrx2(j);
+%                 end
+%                 %subdV(j,2) = coef(1)*subdV(j,2) ;
+%               elseif (coef(2) < 0)
+%                 m = double(diff(NCV(j,2),dualVars(1)));
+%                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+%                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+%                
+%               else
+%                 m = -double(diff(NCV(j,2),dualVars(1)));
+%                 c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+%                 subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+%               end 
+% 
               
 
               

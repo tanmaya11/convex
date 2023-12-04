@@ -1299,7 +1299,6 @@ classdef region
             for i = 1:pts
                 cj = limitsy(1);
                 for j = 1:pts
-                  
                   if obj.ptFeasible (obj.vars,[ci,cj]);
                       n = n+1;
                       vx(n) = ci;
@@ -1361,6 +1360,8 @@ classdef region
             end
             c = colors(1+mod(obj.getGlobalParameter,6))
             if n == 0
+                obj.print 
+                obj.ptFeasible (obj.vars,[2,-9])
                 disp ('region not displayed')
             end
             avx = sum(vx)/n;

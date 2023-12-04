@@ -1,3 +1,12 @@
+ezplot('-x + y ')
+hold on
+ezplot('-x -3 + y ')
+hold on
+ezplot('-x^2 +1 +  y ')
+hold on
+ezplot('-x^2 -1 + y ')
+hold on
+return
 ezplot('x + y ')
 hold on
 ezplot('(5*y)/4 - x + 25/4')
