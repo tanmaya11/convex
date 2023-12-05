@@ -862,6 +862,7 @@ classdef region
             obj = obj.getVertices  ;
          end
 
+         
          function obj = regionWPts(obj, vx, vy, x, y)
              n = 0;
              for i = 1: size(vx,2)-1
@@ -923,10 +924,11 @@ classdef region
 
 
          function v = getEndpoints (obj, i)
+            % obj.print
              n = 0;
           %  disp('start')
              for j = 1:obj.nv
-           %      double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
+              %   double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
                if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
                    n = n + 1;
                    v(n,1) = obj.vx(j);
@@ -949,6 +951,9 @@ classdef region
              end     
             l = []; 
             for i = 1:size(obj1.ineqs,2)
+                %disp('i')
+                %i, size(obj1.ineqs,2)
+                %ep = obj1.getEndpoints(i)
                 v1(i,:,:) = obj1.getEndpoints(i);
                 l = [l,obj1.ineqs(i).f];
             end
@@ -1061,7 +1066,10 @@ classdef region
 
              for i = 1:obj1.nv
                for j = 1:obj2.nv
-                   if (obj1.vx(i) == obj2.vx(j)) & (obj1.vy(i) == obj2.vy(j))
+                   if l2(j)
+                       continue
+                   end
+                   if (abs(obj1.vx(i) - obj2.vx(j))<1.0d-15) & (abs(obj1.vy(i) - obj2.vy(j)) < 1.0d-15)
                        l1(i) = true;
                        l2(j) = true;
                        break;
@@ -1616,21 +1624,40 @@ classdef region
         
         function [lelim, obj] = deleteIneq (obj, vars)
           lelim = false;
+
           for i = 1:size(obj.ineqs,2)
               l(i) = obj.ineqs(i).f;
+              mark(i) = false;
+              %obj.ineqs(i).print
+              nPts = 0;
+
+              for j = 1:obj.nv
+                  if obj.ineqs(i).subsF(obj.vars,[obj.vx(j),obj.vy(j)]).isZero
+                      nPts = nPts+1;
+                  end
+              end
+              if nPts <= 1
+                  mark(i)=true;
+              end
+              %i,nPts
           end
          % l
 
           for i = 1:size(obj.ineqs,2)
+              if ~mark(i)
+                  continue
+              end
              l1 = l;
              l1(i) = [];
           %   l1
              r = region (l1,vars);
+           %  disp('in delete')
+           %  r.print
              if r.nv == 0
                  return
              end
              if obj.eqVertices(r)
-                 %disp('equal')
+            %     disp('equal')
                  lelim = true;
                  obj = r;
                  return;
@@ -1648,7 +1675,9 @@ classdef region
             [lelim, obj] = obj.deleteIneq (vars);
             %i
             %lelim
-            %obj.print
+            %disp("in simplify")
+            %r0.print
+            %obj = r0;
             if ~lelim
                 return
             end

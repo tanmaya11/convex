@@ -662,12 +662,20 @@ disp('test22')
               obj = convexEnvelope1 (obj,x,y);
               %return
               for i=1:size(obj.envd,2)
-                  obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
-                  %obj.envd(i) = obj.envd(i).getVertices();
+                  %obj.envd(i).print
+                  r = obj.envd(i).simplify (obj.envd(i).vars);
+                  %disp('outside')
+                  %r.print
+                  obj.envd(i) = r;
+                  %obj.envd(i).print
+               %   return
+               %if i == 2
+               %    return
+               %end
               end
-          %    return
-   %            disp("convexEnvelope1")
-    %           obj.print
+              %return
+          %     disp("convexEnvelope1")
+          %     obj.print
           %     return
 %              % obj.plot
               %[f,r] = obj.intersectionDomain;
@@ -710,7 +718,7 @@ disp('test22')
               
 %obj.print
              
-              %return
+            %  return
               %for i=1:size(obj.envd,2)
               %    obj.envd(i) = obj.envd(i).getVertices();
               %end
@@ -790,6 +798,8 @@ disp('test22')
             %disp("solve done")
             
             %return
+%             disp("Polygon")
+%             obj.d.polygon.print
             for i = 1:size(envfs,2)
                 %i
               %envfs(i)
@@ -819,6 +829,8 @@ disp('test22')
                   obj.envExpr = [obj.envExpr, envxs(i)];
                   %obj.envd = [obj.envd, r.removeDenominator];
                   obj.envd = [obj.envd, r];
+                  %disp("ce1")
+                  %r.print
               end
              
             end
@@ -3789,7 +3801,7 @@ disp('test22')
                   [l0, f, index] = obj.envd(i).maximum( [obj.envf(i), obj.envf(ja(j))]);
                   if ~l0
                      ineqs = obj.envd(i).splitmax2 (obj.envf(i), obj.envf(ja(j)));
-                     ineqs1 = region.empty;
+                     ineqs1 = sym.empty;
                      for k = 1: size(obj.envd(i).ineqs,2)
                         ineqs1(k) = obj.envd(i).ineqs(k).f;
                      end
@@ -3885,6 +3897,8 @@ disp('test22')
             for i = 1:size(obj.envd,2)
                 for j = i+1:size(obj.envd,2)
                     %i,j
+                    %obj.envd(i).print
+                    %obj.envd(j).print
                     d = intersection(obj.envd(i),obj.envd(j));
                     
                     if isempty(d)
@@ -3895,13 +3909,18 @@ disp('test22')
             %        i,j
             %        obj.envd(i).print
             %        obj.envd(j).print
-            %        d.print
-                    
+                %    disp('d')
+                %    d.print
+                     
                     d0 = d.simplify (vars ); %,obj.d.polygon);
+                %    disp('d0')
+                %    d0.print
+                %    continue
                     if isempty(d0)
                         continue;
                     end
                     %d0.print
+                    
                     [l0, f, index] = d0.maximum( [obj.envf(i), obj.envf(j)]);
                     if ~l0
                         disp ("Add this")
@@ -3919,7 +3938,7 @@ disp('test22')
                     
 
                     d1 = obj.envd(i) - d0;
-
+%continue
                     for id=1:size(d1,1)
              %           d1(id).print
                         envdT = [envdT,d1(id)];

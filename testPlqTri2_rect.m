@@ -1,4 +1,4 @@
-classdef testPlqTri2 < matlab.unittest.TestCase
+classdef testPlqTri2_rect < matlab.unittest.TestCase
 
     properties
         PS
@@ -11,12 +11,15 @@ classdef testPlqTri2 < matlab.unittest.TestCase
             x=sym('x');
             y=sym('y');
             f=functionF(x*y);
-            d(1)=domain([-5,-4;0,-4;-5,5],x,y);
-            d(2)=domain([-5,5;0,-4;1,3],x,y);
-            d(3)=domain([0,-4;2,1;1,3],x,y);
-            d(4)=domain([0,-4;2,0;2,1],x,y);
+            % Enter points in clockwise order 
+            d(1)=domain([-5,-4;0,-4;1,3;-5,5],x,y);
+           % d(1).print
+           
+            %d(2)=domain([-5,5;0,-4;1,3],x,y);
+            %d(3)=domain([0,-4;2,1;1,3],x,y);
+            %d(4)=domain([0,-4;2,0;2,1],x,y);
              
-            for i =1:4
+            for i =1:1
                 p(i)=plq_1piece(d(i),f);
             end
             testCase.PS = plq(p);
@@ -114,9 +117,10 @@ classdef testPlqTri2 < matlab.unittest.TestCase
 
 
         function testMax (testCase)
+             %return
             uNo = fopen('op','w');
             %testCase.PS.pieces(1).d.polygon.fprint(uNo)
-            for i = 1:4
+            for i = 1:1
               fprintf(uNo, "Piece " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
               %testCase.PS.pieces(i).print
@@ -136,13 +140,13 @@ classdef testPlqTri2 < matlab.unittest.TestCase
               testCase.PS.pieces(i)=testCase.PS.pieces(i).maximum;
              % fprintf(uNo, "maximum " + num2str(i) + "\n")
              % %if i == 3
-             %  % testCase.PS.pieces(i).print
+              testCase.PS.pieces(i).print
               %  testCase.PS.pieces(i).plot
               %  testCase.PS.pieces(i).plotRegion;
              % %end 
             end 
             
-            %return
+            return
 
             testCase.PS.nPieces=2;
             disp('maximumInPairs')

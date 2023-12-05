@@ -1,5 +1,20 @@
-ezplot('-x + y ')
+
+ezplot('- y - 4 +0*x ')
 hold on
+ezplot('x + (5*y)/9 + 20/9 ')
+hold on
+ezplot('x + 3*y - 10 ')
+hold on
+ezplot('x - (6*y)/7 + 11/7  ')
+hold on
+ezplot('x - y/7 - 4/7')
+hold on
+ezplot('- x - 5 +0*y')
+hold on
+%return
+%ezplot('-x + y ')
+hold on
+return
 ezplot('-x -3 + y ')
 hold on
 ezplot('-x^2 +1 +  y ')

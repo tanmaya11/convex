@@ -580,8 +580,8 @@ classdef plq
                  for k2 = 1:size(obj.pieces(j).maxd,1)
                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
                    if l
-                       %k1, k2
-                       %size(rf)
+                       k1, k2
+                       size(rf)
                        lc(i,k1) = true;
                        lc(j,k2) = true;
                        for irf=1:size(rf,2)
@@ -719,7 +719,7 @@ classdef plq
 
           n = 0;
           for i = 1:size(obj.maxf,1)
-              %i, obj.nmaxf(i)
+              i, obj.nmaxf(i)
                if obj.maxd(i,1).nv == 0
                    % complex variables were removed later hence some
                    % regions need to be removed
@@ -733,6 +733,15 @@ classdef plq
                  continue;
                end
                [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if i == 4
+                   obj.maxd(i).print
+                   fmax.print
+               end
+               if i == 9
+                   obj.maxd(i).print
+                   fmax.print
+               end
+               
                if l
                  n = n + 1;
                  maxf(n) = fmax;
