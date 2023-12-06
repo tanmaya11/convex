@@ -3556,7 +3556,7 @@ disp('test22')
                     
                     for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
                        
-                     if(k1 <= k2)
+                     %if(k1 <= k2)
                        %disp('Conjugate Domain Intersection')
                        %disp([k1,k2])
                        %if (k1 == 2  & k2 == 9)
@@ -3620,7 +3620,7 @@ disp('test22')
                        %disp('Conjugate Domain 2')
               
                        %obj.pieces(i2).conjd(k2).print
-                    end
+                    %end
                   end
                  end
               end

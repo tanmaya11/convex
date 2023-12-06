@@ -667,6 +667,7 @@ classdef plq
            %lc(2,:)
            disp('n')
            n
+           obj.maxf(3).print
            for i =1:size(obj.maxf,1)
                if lc(1,i) 
                  continue
@@ -720,6 +721,8 @@ classdef plq
           n = 0;
           for i = 1:size(obj.maxf,1)
               i, obj.nmaxf(i)
+              obj.maxf(i,1).print
+              obj.maxf(i,2).print
                if obj.maxd(i,1).nv == 0
                    % complex variables were removed later hence some
                    % regions need to be removed
@@ -813,7 +816,8 @@ classdef plq
           if n == 0
               return
           end
-%           disp('b4 merge' )
+           disp('b4 merge' )
+           maxf(3).print
 %           n
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            obj.maxf=functionF.empty();
@@ -895,12 +899,14 @@ classdef plq
           end
       end
 
+      % change merge to work when only one vertex - edge going to infinity
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
           disp('in merge')
           ia(1) = 1;
           n = 0;
           size(maxf,2)
           for i = 1:size(maxf,2)
+              %maxf(i).print
               marked(i) = false;
           end
 
@@ -927,8 +933,8 @@ classdef plq
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-         % ia
-         % ja
+        %  ia
+        %  ja
         %  return
         %  nmaxf= [];
         %  nmaxd= [];
@@ -945,8 +951,8 @@ classdef plq
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-               
-               
+               i
+               r.print
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -955,11 +961,11 @@ classdef plq
                    if marked(ja(j))
                        continue
                    end
-               
-         %          maxd(ja(j)).print
+                   ja(j)              
+                   maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
          %      if i == 10
-         %      l
+               l
          %      end
                    
                    if l
@@ -991,9 +997,12 @@ classdef plq
                nmaxd(m) = r;  
                    
             end
-          end
+        end
+        disp("m")
+        m
       end
 
-      end
+  end
+
 
 end

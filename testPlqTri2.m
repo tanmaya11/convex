@@ -116,7 +116,7 @@ classdef testPlqTri2 < matlab.unittest.TestCase
         function testMax (testCase)
             uNo = fopen('op','w');
             %testCase.PS.pieces(1).d.polygon.fprint(uNo)
-            for i = 1:4
+            for i = 1:2
               fprintf(uNo, "Piece " + num2str(i) + "\n")
               testCase.PS.pieces(i)=testCase.PS.pieces(i).convexEnvelope;
               %testCase.PS.pieces(i).print
@@ -125,8 +125,8 @@ classdef testPlqTri2 < matlab.unittest.TestCase
                
               %return
               testCase.PS.pieces(i)=testCase.PS.pieces(i).conjugate;
-             %testCase.PS.pieces(i).print
-              %return
+            % testCase.PS.pieces(i).print
+            %  return
              % fprintf(uNo, "conjugate " + num2str(i) + "\n")
              %    testCase.PS.pieces(i).print
              %   testCase.PS.pieces(i).plot
@@ -150,21 +150,31 @@ classdef testPlqTri2 < matlab.unittest.TestCase
             
  %           
             testCase.PS=testCase.PS.maximumP;
-            return
-            %testCase.PS.plotMaxd;
+            %% merge is reordering  %%
+            %% fix merge when only one vertex and edge going to infinity
+
+
+            %testCase.PS.pieces(1).print
+            %return
+            %testCase.PS.plotMaxd;                
             
 
 %             % write to file
 %             uNo = fopen('op','w');
-%              for i =1:size(testCase.PS.maxf,1)
+              for i =1:size(testCase.PS.maxf,1)
 %                     testCase.PS.maxf(i,1).fprint(uNo);
 %                     testCase.PS.maxd(i,1).fprint(uNo);
+                     i
+                     testCase.PS.maxf(i,1).print;
+                     testCase.PS.maxd(i,1).print;
+
 %                     testCase.PS.maxd(i,1).plot;
 %                    textR = "R"+num2str(i);
 %                    textR="";
 %                    testCase.PS.maxd(i,1).plotRegionC(textR,c);
 %                    
-%              end
+              end
+              return
               figure;
              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
               n = 0

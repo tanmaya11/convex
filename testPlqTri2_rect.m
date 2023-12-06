@@ -154,6 +154,7 @@ classdef testPlqTri2_rect < matlab.unittest.TestCase
             
  %           
             testCase.PS=testCase.PS.maximumP;
+             testCase.PS.pieces(i).print
             return
             %testCase.PS.plotMaxd;
             
