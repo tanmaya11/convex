@@ -1437,6 +1437,9 @@ classdef region
           l = true;
           %sv1
           %double(sv1)
+          if all(abs(double(sv1 - sv2))< 1.0d-14)
+              disp("FIX IN MAXIMUM")
+          end
           if all(double(sv1) <= double(sv2))
               fmax = f2;
               index=2;

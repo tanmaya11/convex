@@ -2653,8 +2653,8 @@ disp('test22')
 
               %subdE = getSubDiffEdgeT3 (obj, i, edgeNo, dualVars)
 
-              NCV = obj.getNormalConeVertex(i, s1, s2)
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              NCV = obj.getNormalConeVertex(i, s1, s2);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
 
               % on edge sub differential is a ray so skipped for now
@@ -3556,71 +3556,21 @@ disp('test22')
                     
                     for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
                        
-                     %if(k1 <= k2)
-                       %disp('Conjugate Domain Intersection')
-                       %disp([k1,k2])
-                       %if (k1 == 2  & k2 == 9)
-                       %  [l,r1] = intersection3(obj.pieces(i1).conjd(k1), obj.pieces(i2).conjd(k2), true);
-                       %else
-                           [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
-                       %end
-                       %if k2 == 9
-                       %    obj.pieces(i1).conjd(k1).print
-                       %    obj.pieces(i2).conjd(k2).print
-                       %    l
-                       %end
+                       [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
                        if l
-         %                  k1
-         %                  k2
-                      %   disp("Conjugate Intersection")
-                         % fill vertices of r
-                         %obj.pieces(i1).conjd(k1).print
-                         %obj.pieces(i2).conjd(k2).print
                          f1 = obj.conjf(k1);
                          f2 = obj.conjf(k2);
-                 %        size(r1,2)
                          for ir = 1:size(r1,2)
-                      %       disp('r1')
-                      %       r1(ir).print
                            r1(ir) = r1(ir).getVertices();  
-                       %    if k1 == 2 & k2 == 5
-                       %        r1(ir) = r1(ir).getVertices(true);  
-                       %        r1(ir).print
-                       %    end 
-                           % Removing regions which are points
                            if r1(ir).nv == 1            % problem detecting R2R1 in example1
                        %        continue;
                            end 
-                           %disp('Feasible region')
-                           %disp(n)
-                           %r1(ir).isFeasibleWBPts
                            n = n + 1;
-                       %    disp("k2k2")
-                       %    k1
-                       %    k2
                            obj.maxd(n,1) = r1(ir);
-                           %r(n) = r(n).getVertices();
-                    %       disp(n)
-                    %       r(n).print
-
                            obj.maxf(n,1) = f1;
                            obj.maxf(n,2) = f2;
-                           
-                           %return
                          end
-                         %return
-                         
-                       %if k1 == 2 & k2 == 5
-                       %    return
-                       %end
-
-                       end
-                       %return
-                       %obj.pieces(i1).conjd(k1).print
-                       %disp('Conjugate Domain 2')
-              
-                       %obj.pieces(i2).conjd(k2).print
-                    %end
+                     end
                   end
                  end
               end

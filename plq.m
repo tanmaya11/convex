@@ -580,8 +580,8 @@ classdef plq
                  for k2 = 1:size(obj.pieces(j).maxd,1)
                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
                    if l
-                       k1, k2
-                       size(rf)
+                      % k1, k2
+                      % size(rf)
                        lc(i,k1) = true;
                        lc(j,k2) = true;
                        for irf=1:size(rf,2)
@@ -632,8 +632,8 @@ classdef plq
             for k1 = 1:size(obj.pieces(ind).maxd,1)
                 lc(2,k1) = false;
             end
-            disp('size of p3')
-            size(obj.pieces(ind).maxd,1)
+            %disp('size of p3')
+            %size(obj.pieces(ind).maxd,1)
            n = 0;
            for k1=1:size(obj.maxf,1)
              for k2 = 1:size(obj.pieces(ind).maxd,1)
@@ -648,12 +648,8 @@ classdef plq
                   %obj.pieces(ind).maxd(k2).print
                   
                   for irf=1:size(rf,2)
-                    n = n + 1
+                    n = n + 1;
                     maxd(n,1) = rf(irf);
-                    if n == 56
-                        rf(irf).isFeasibleWBPts
-                   rf(irf).print
-                    end
                     maxf(n,1) = obj.maxf(k1);
                     maxf(n,2) = obj.pieces(ind).maxf(k2);
                     nmaxf(n) = 2;
@@ -665,9 +661,9 @@ classdef plq
            end
            %lc(1,:)
            %lc(2,:)
-           disp('n')
-           n
-           obj.maxf(3).print
+           %disp('n')
+           %n
+           %obj.maxf(3).print
            for i =1:size(obj.maxf,1)
                if lc(1,i) 
                  continue
@@ -736,11 +732,8 @@ classdef plq
                  continue;
                end
                [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
-               if i == 4
-                   obj.maxd(i).print
-                   fmax.print
-               end
-               if i == 9
+               if i == 6
+                   disp("i6")
                    obj.maxd(i).print
                    fmax.print
                end
@@ -816,17 +809,25 @@ classdef plq
           if n == 0
               return
           end
-           disp('b4 merge' )
-           maxf(3).print
+        %   disp('b4 merge' )
+        %   maxf(3).print
 %           n
+           disp("In maximumP")
+           
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            obj.maxf=functionF.empty();
           obj.maxd = region.empty();
           %size(nmaxf,2)
-%           for i =1:size(maxf,2)
+          for i =1:size(maxf,2)
+              i
+              maxf(i).print
+              maxd(i).print
 %             obj.maxf(i,1) = maxf(i);
 %             obj.maxd(i,1) = maxd(i);
-%           end
+          end
+          disp("after")
+          nmaxf(3).print
+          nmaxf(8).print
           for i =1:size(nmaxf,2)
             obj.maxf(i,1) = nmaxf(i);
             obj.maxd(i,1) = nmaxd(i);
@@ -901,10 +902,10 @@ classdef plq
 
       % change merge to work when only one vertex - edge going to infinity
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
-          disp('in merge')
+          %disp('in merge')
           ia(1) = 1;
           n = 0;
-          size(maxf,2)
+          %size(maxf,2)
           for i = 1:size(maxf,2)
               %maxf(i).print
               marked(i) = false;
@@ -951,8 +952,8 @@ classdef plq
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-               i
-               r.print
+           %    i
+           %    r.print
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -961,8 +962,8 @@ classdef plq
                    if marked(ja(j))
                        continue
                    end
-                   ja(j)              
-                   maxd(ja(j)).print
+            %       ja(j)              
+            %       maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
          %      if i == 10
                l
@@ -998,8 +999,8 @@ classdef plq
                    
             end
         end
-        disp("m")
-        m
+       % disp("m")
+       % m
       end
 
   end
