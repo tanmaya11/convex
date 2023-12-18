@@ -2675,44 +2675,24 @@ disp('test22')
             %unR
             strt = size(obj.conjf,2)+1;
             for j = 1:obj.envd(i).nv
-                %obj.conjf = [obj.conjf,expr(j)];
+                
                 if undV(j)
                   if j == obj.envd(i).nv
                     e0 = 1;
                   else    
                     e0 = j+1;
                   end  
-                  % this gives overlapping regions  
-                  % temp fix 
-                  %for k = 1: 2 %size (subdE,2)
-                  %  ts = - subdE(edgeNo(j),k);
-                  %  %ts = - subdE(j,k);
-                  %  if isAlways(ts == 0)
-                  %      continue;
-%                     end
-%                     obj.conjf = [obj.conjf,expr(j)];
-%                     obj.conjd = [obj.conjd, region([ts,-subdV(j,:)], dualVars)];
-%                     obj.conjd(end) = obj.conjd(end).getVertices()
-%                   end    
-%                    obj.conjf = [obj.conjf,expr(j)];
-%                    obj.conjd = [obj.conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
-%                    obj.conjd(end) = obj.conjd(end).getVertices();
-
-
+                  conjf = [conjf,expr(j)];
+                  conjd = [conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
                    %%%%%%%%%%%%%
-                   conjf = [conjf,expr(j)];
-                   conjd = [conjd, region([subdE(e0,1:2),-subdE(e0,3)], dualVars)];
-                   conjd(end) = conjd(end).getVertices();
-                   %%%%%%%%%%%%%
-                   r = subdV(e0,:);
-                   r(2) = -r(2);
+                  r = subdV(e0,:);
+                  r(2) = -r(2);
 %                    obj.conjf = [obj.conjf,expr(j)];
 %                    obj.conjd = [obj.conjd, region(r, dualVars)];
 %                    obj.conjd(end) = obj.conjd(end).getVertices();
                    %%%%%%%%%%%%%%%%%%%
                    conjf = [conjf,expr(j)];
                    conjd = [conjd, region(r, dualVars)];
-                   conjd(end) = conjd(end).getVertices();
                    %%%%%%%%%%%%%%%%%%%
 
 
@@ -2731,7 +2711,6 @@ disp('test22')
                    %%%%%%%%%%%%%%%%%
                    conjf = [conjf,expr(j)];
                    conjd = [conjd, region(r, dualVars)];
-                   conjd(end) = conjd(end).getVertices();
                    %%%%%%%%%%%%%%%%%
 
 
@@ -2749,7 +2728,6 @@ disp('test22')
                   %%%%%%%%%%%%%%%%%
                   conjf = [conjf,expr(j)];  
                   conjd = [conjd, region(subdV(j,:), dualVars)];
-                  conjd(end) = conjd(end).getVertices();
                   %%%%%%%%%%%%%%%%%
                 end
             end
@@ -2757,6 +2735,8 @@ disp('test22')
             %size(conjf,2)
             %conjf
             %unR
+            %disp("sconjf")
+            %size(conjf)
             for j = 1:obj.envd(i).nv
                 if (unR(j))
                    % continue
@@ -2769,18 +2749,20 @@ disp('test22')
                 
                 conjf = [conjf,expr(obj.envd(i).nv+j)];
                 conjd = [conjd, region(subdE(j,:), dualVars)];
-                conjd(end) = conjd(end).getVertices();
                   %%%%%%%%%%%%%%%%%
                 
                 end
                 %obj.conjd(end).print
             end
+            %disp("sconjf")
+            %size(conjf)
             
             %obj.conjf =  obj.conjf+conjf;
             %obj.conjd =  obj.conjd+conjd;
             % merge wont work due to union vs intersection
             %[conjf,conjd] = obj.merge(conjf,conjd);
             for i = 1:size(conjf,2)
+             %   conjf(i).print
                 obj.conjf = [obj.conjf, conjf(i)];
             end
             for i = 1:size(conjf,2)
@@ -2915,8 +2897,16 @@ disp('test22')
             vars = obj.f.getVars;
             %subdE = sym(zeros(obj.envd(i).nv));
             for j = 1:obj.envd(i).nv
+                %j, unV(j)
+                %obj.f
+                %obj.envf(i)
+                
                 if unV(j)
-                    expr(j) = obj.envd(i).vx(j)*dualVars(1) + obj.envd(i).vy(j)*dualVars(2) - obj.f.subsF(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f;
+                    %obj.envd(i).vx(j)
+                    %obj.envd(i).vy(j)
+                    %obj.envf(i).limit ( vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f
+                    %expr(j) = obj.envd(i).vx(j)*dualVars(1) + obj.envd(i).vy(j)*dualVars(2) - obj.f.subsF(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f;
+                    expr(j) = obj.envd(i).vx(j)*dualVars(1) + obj.envd(i).vy(j)*dualVars(2) - obj.envf(i).limit ( vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f;
                 else
                     expr(j) = obj.envd(i).vx(j)*dualVars(1) + obj.envd(i).vy(j)*dualVars(2) - obj.envf(i).subsF(vars,[obj.envd(i).vx(j),obj.envd(i).vy(j)]).f;
                 end

@@ -1436,9 +1436,77 @@ classdef region
           end
           l = true;
           %sv1
-          %double(sv1)
+          obj.print
+          double(sv1)
+          double(sv2)
           if all(abs(double(sv1 - sv2))< 1.0d-14)
               disp("FIX IN MAXIMUM")
+              size(sv1)
+              if size(sv1) == 1
+                  disp("Singleton")
+                  fmax = f1;
+                  index=1;
+                  return
+              end
+              nx = 0;
+              for iv = 1:obj.nv
+                  if (abs(obj.vx(iv))==intmax|abs(obj.vy(iv))==intmax)
+                      continue
+                  end
+                  nx = nx + 1;
+                  vx0(nx) = obj.vx(iv);
+                  vy0(nx) = obj.vy(iv);
+              end
+              nx
+              if nx > 1
+                sx = mean(vx0)
+                sy = mean(vy0)
+                [l,fmax,index] = maxFromPt(obj, [sx,sy], [f1,f2])
+                if l 
+                    return
+                end
+              else
+                  % use slope mid pt to get directions
+                px = vx0(1) + 0.1
+                py = vy0(1)
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+                px = vx0(1) - 0.1
+                py = vy0(1)
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+                px = vx0(1) 
+                py = vy0(1)+ 0.1
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+                px = vx0(1) 
+                py = vy0(1) - 0.1
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+                px = vx0(1) + 0.1
+                py = vy0(1) + 0.1
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+                px = vx0(1) - 2/9
+                py = vy0(1) - 1/9
+                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
+                if l 
+                  return
+                end
+              end
+              disp("NOT FIXED IN MAXIMUM")
+              f1.print
+              f2.print
           end
           if all(double(sv1) <= double(sv2))
               fmax = f2;
@@ -1454,6 +1522,31 @@ classdef region
          
         end
         
+        function [l,fmax,index] = maxFromPt(obj, s, f)
+          l = false;
+          fmax = f(1);
+          index=1;
+          if obj.ptFeasible(obj.vars,s)
+            fv01 = f(1).subsF(obj.vars,s).f
+            fv02 = f(2).subsF(obj.vars,s).f
+          else
+              return;
+          end
+          l = true;
+          if abs(double(fv01 - fv02))> 1.0d-14
+            if double(fv01) < double(fv02)
+              fmax = f(1);
+              index=1;
+            else
+              fmax = f(2);
+              index=2;
+            end
+            return
+          end
+          l = false;
+          fmax = f(1);
+          index=1;
+        end
 
         function [r] = splitmax2 (obj, f1, f2) 
            % disp('splitmax2')
@@ -1570,7 +1663,7 @@ classdef region
           vars
           f.print
           for i = 1:size(fv1,2)
-              if (double(fv1(i).f) > double(fv2(i).f))
+              if (double(fv1(i).f) >= double(fv2(i).f))
                   if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) <= 0
                     r = [ineq,-ineq];
                     return
@@ -2518,7 +2611,12 @@ classdef region
           %obj.print
           %f(1).print
           %f(2).print
-          
+          if f(1)==f(2)
+              l = true;
+              maxf = f(1)
+              index = 1
+              return
+          end
           [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
      end
 

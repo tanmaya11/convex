@@ -580,12 +580,14 @@ classdef plq
                  for k2 = 1:size(obj.pieces(j).maxd,1)
                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
                    if l
-                      % k1, k2
+                       k1, k2
+                       %obj.pieces(i).maxf(k1)
+                       %obj.pieces(j).maxf(k2)
                       % size(rf)
                        lc(i,k1) = true;
                        lc(j,k2) = true;
                        for irf=1:size(rf,2)
-                         %  rf(i).print
+                           rf(i).print
                          n = n + 1;
                          obj.maxd(n,1) = rf(irf);
                          obj.maxf(n,1) = obj.pieces(i).maxf(k1);
@@ -640,7 +642,7 @@ classdef plq
                 [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), false);
                 
                 if l
-                   % k1, k2
+                    %k1, k2
                   lc(1,k1) = true;
                   lc(2,k2) = true;
                   %size(rf)
@@ -650,6 +652,7 @@ classdef plq
                   for irf=1:size(rf,2)
                     n = n + 1;
                     maxd(n,1) = rf(irf);
+                    %maxd(n,1).print
                     maxf(n,1) = obj.maxf(k1);
                     maxf(n,2) = obj.pieces(ind).maxf(k2);
                     nmaxf(n) = 2;
@@ -670,6 +673,7 @@ classdef plq
                end  
                n = n + 1;
                maxd(n,1) = obj.maxd(i);
+               %maxd(n,1).print
                maxf(n,1) = obj.maxf(i);
                nmaxf(n) = 1;
                
@@ -681,6 +685,7 @@ classdef plq
                end
                n = n + 1;
                maxd(n,1) = obj.pieces(ind).maxd(k1);
+               %maxd(n,1).print
                maxf(n,1) = obj.pieces(ind).maxf(k1);
                nmaxf(n) = 1;
                 
@@ -732,12 +737,7 @@ classdef plq
                  continue;
                end
                [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
-               if i == 6
-                   disp("i6")
-                   obj.maxd(i).print
-                   fmax.print
-               end
-               
+               l
                if l
                  n = n + 1;
                  maxf(n) = fmax;

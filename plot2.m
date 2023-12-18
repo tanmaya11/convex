@@ -6,6 +6,10 @@ ezplot('(9*y)/5 - x + 5 ')
 hold on
 ezplot('148*x - 196*y + (x + 7*y)^2 - 684 ')
 hold on
+ezplot('y/3 - x + 14/3 ')
+hold on
+
+s2/3 - s1 + 14/3
 return
 
 
