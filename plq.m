@@ -384,7 +384,11 @@ classdef plq
              % [l, fmax] = r2(i).maxArray (f1, f2) ;
 %%%%
 
-              [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+              [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+              if lSing
+                   continue
+               end
+               
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -722,11 +726,17 @@ classdef plq
           n = 0;
           for i = 1:size(obj.maxf,1)
               i, obj.nmaxf(i)
+              %if i == 7
+              %    return
+              %end
               obj.maxf(i,1).print
               obj.maxf(i,2).print
+              obj.maxd(i,1).print
                if obj.maxd(i,1).nv == 0
                    % complex variables were removed later hence some
                    % regions need to be removed
+                   disp("nv zero")
+                   obj.maxd(i,1).print
                    continue
                end
                % check size of obj.maxf(i,:) and fix
@@ -736,8 +746,13 @@ classdef plq
                  maxd(n) = obj.maxd(i,1);
                  continue;
                end
-               [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if lSing
+                   continue
+               end
+               
                l
+               fmax
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -769,7 +784,7 @@ classdef plq
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
                  d1 = d1.simplify(obj.maxd(i,1).vars);
                  d1.print
-                 n = n + 1
+                 n = n + 1;
                  maxf(n) = obj.maxf(i,1);
                  %maxf(n).print
                  maxd(n) = d1;
@@ -789,7 +804,7 @@ classdef plq
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
                  d1 = d1.simplify(obj.maxd(i,1).vars);
                  d1.print
-                 n = n + 1
+                 n = n + 1;
                  maxf(n) = obj.maxf(i,2);
                  maxd(n) = d1;
                  %maxd(n).print
@@ -813,21 +828,23 @@ classdef plq
         %   maxf(3).print
 %           n
            disp("In maximumP")
-           
-           [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            obj.maxf=functionF.empty();
           obj.maxd = region.empty();
-          %size(nmaxf,2)
+%          size(nmaxf,2)
           for i =1:size(maxf,2)
-              i
-              maxf(i).print
-              maxd(i).print
-%             obj.maxf(i,1) = maxf(i);
-%             obj.maxd(i,1) = maxd(i);
+          %    i
+          %    maxf(i).print
+          %    maxd(i).print
+           %  obj.maxf(i,1) = maxf(i);
+           %  obj.maxd(i,1) = maxd(i);
           end
-          disp("after")
-          nmaxf(3).print
-          nmaxf(8).print
+          %return
+          %disp("after")
+          size(maxf)
+           [nmaxf,nmaxd] = obj.merge(maxf,maxd);
+           
+          %nmaxf(3).print
+          %nmaxf(8).print
           for i =1:size(nmaxf,2)
             obj.maxf(i,1) = nmaxf(i);
             obj.maxd(i,1) = nmaxd(i);

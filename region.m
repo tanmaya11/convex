@@ -1418,35 +1418,48 @@ classdef region
              fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
          end
         
+         function m = slopes (obj)
+           n = 0 ;  
+           for i = 1:size(obj.ineqs,2)
+              if obj.ineqs(i).isLinear
+                  c = obj.ineqs(i).getLinearCoeffs (obj.vars);
+                  n = n + 1;
+                  m(n) = -c(1)/c(2);
+              end
+           end
+         end
          % max over a region
-         function [l, fmax, index] = maxArray (obj, f1, f2) 
-            
+         function [l, fmax, index, lsing] = maxArray (obj, f1, f2) 
+          lsing = false;  
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
+          %obj.print
+          %disp("Slopes")
+          m = obj.slopes();
           for i = 1:size(fv1,2)
               sv1(i) = fv1(i).f;
               sv2(i) = fv2(i).f;
-              if (isnan(sv1(i)))
-                  sv1(i) = 0;
-                  sv2(i) = 0;
-              elseif (isnan(sv2(i)))
-                  sv1(i) = 0;
-                  sv2(i) = 0;
-              end
+              %if (isnan(sv1(i)))
+              %    sv1(i) = 0;
+              %    sv2(i) = 0;
+              %elseif (isnan(sv2(i)))
+              %    sv1(i) = 0;
+              %    sv2(i) = 0;
+              %end
           end
           l = true;
           %sv1
-          obj.print
-          double(sv1)
-          double(sv2)
+          %obj.print;
+          %double(sv1);
+          %double(sv2);
           if all(abs(double(sv1 - sv2))< 1.0d-14)
               disp("FIX IN MAXIMUM")
-              size(sv1)
+              %size(sv1)
               if size(sv1) == 1
                   disp("Singleton")
                   fmax = f1;
                   index=1;
-                  return
+                %  return
               end
               nx = 0;
               for iv = 1:obj.nv
@@ -1457,57 +1470,104 @@ classdef region
                   vx0(nx) = obj.vx(iv);
                   vy0(nx) = obj.vy(iv);
               end
-              nx
+              
               if nx > 1
-                sx = mean(vx0)
-                sy = mean(vy0)
-                [l,fmax,index] = maxFromPt(obj, [sx,sy], [f1,f2])
+                sx = mean(vx0);
+                sy = mean(vy0);
+                [l,fmax,index] = maxFromPt(obj, [sx,sy], [f1,f2]);
                 if l 
                     return
                 end
-              else
-                  % use slope mid pt to get directions
-                px = vx0(1) + 0.1
-                py = vy0(1)
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
-                end
-                px = vx0(1) - 0.1
-                py = vy0(1)
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
-                end
-                px = vx0(1) 
-                py = vy0(1)+ 0.1
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
-                end
-                px = vx0(1) 
-                py = vy0(1) - 0.1
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
-                end
-                px = vx0(1) + 0.1
-                py = vy0(1) + 0.1
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
-                end
-                px = vx0(1) - 2/9
-                py = vy0(1) - 1/9
-                [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2])
-                if l 
-                  return
+              end
+              disp("Here")
+              % use slope mid pt to get directions
+              for i = 1:size(m,2)
+                
+                for j = i+1: size(m,2)
+                  if (abs(m(i))~= inf) & (abs(m(j))~= inf)
+                  d =  (m(i)+m(j) )/2
+                  else
+                      disp('infinity')
+                  if (abs(m(i))==inf)
+                        d = tan((pi/2 + atan(m(j)))/2)
+                    else
+                        d = tan((pi/2 + atan(m(i)))/2)
+                  end
+                  end
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  double(px),double(py)
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  double(px),double(py)
+                %  obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  l
+                  if l 
+                    return
+                  end
+                  
                 end
               end
-              disp("NOT FIXED IN MAXIMUM")
-              f1.print
-              f2.print
-          end
+
+                  
+%                  px = vx0(1) + 0.1
+%                  py = vy0(1)
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1)
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) 
+%                  py = vy0(1)+ 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) 
+%                  py = vy0(1) - 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) + 0.1
+%                  py = vy0(1) + 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1) - 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 2/9
+%                  py = vy0(1) - 1/9
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%               
+              disp("SINGLETON REGION")
+              lsing = true;
+              
+              end
+              sv1
+              sv2
+              
           if all(double(sv1) <= double(sv2))
               fmax = f2;
               index=2;
@@ -1527,18 +1587,20 @@ classdef region
           fmax = f(1);
           index=1;
           if obj.ptFeasible(obj.vars,s)
-            fv01 = f(1).subsF(obj.vars,s).f
-            fv02 = f(2).subsF(obj.vars,s).f
+            fv01 = f(1).subsF(obj.vars,s).f;
+            fv02 = f(2).subsF(obj.vars,s).f;
+            
           else
               return;
           end
           l = true;
+          %abs(double(fv01 - fv02))
           if abs(double(fv01 - fv02))> 1.0d-14
             if double(fv01) < double(fv02)
-              fmax = f(1);
+              fmax = f(2);
               index=1;
             else
-              fmax = f(2);
+              fmax = f(1);
               index=2;
             end
             return
@@ -2049,9 +2111,9 @@ classdef region
            for i = 1:size(obj.ineqs,2)
                %subs ([obj.ineqs(i).f],vars,point)
                for j = 1:size(point,1)
-%                 obj.ineqs(i).f
-%                 point(j,:)
-%                double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
+%                  obj.ineqs(i).f
+%                  point(j,:)
+%                 double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
                 if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
                    l = false;
                    return
@@ -2600,24 +2662,36 @@ classdef region
      
      % return function values at vertices
      function fv = funcVertices (obj, f)
-         
+         n = 0;
          for i =1:obj.nv
-             fv(i) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
+             if (abs(obj.vx(i))==intmax)
+                 continue
+             end
+             if (abs(obj.vy(i))==intmax)
+                 continue
+             end
+             n = n + 1;
+             fv(n) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
+             if (isnan(fv(n).f))
+                 fv(n) = f.limit(obj.vars,[obj.vx(i),obj.vy(i)]);
+             end
          end
      end
 
 
-     function [l, maxf, index] = maximum(obj, f)
+     function [l, maxf, index, lSing] = maximum(obj, f)
           %obj.print
           %f(1).print
           %f(2).print
+          
           if f(1)==f(2)
               l = true;
+              lSing = false;
               maxf = f(1)
               index = 1
               return
           end
-          [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
+          [l,  maxf, index, lSing] = obj.maxArray (f(1), f(2)) ;
      end
 
      function [f2, fe, d] = splitMax(obj, f, expr)

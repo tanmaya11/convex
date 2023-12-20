@@ -3583,12 +3583,22 @@ disp('test22')
 
           n = 0;
           for i = 1:size(obj.maxd,1)
-
+               i
+               
                % check size of obj.maxf(i,:) and fix
                if size(obj.maxf(i,:),2) == 1
                    continue;
                end
-               [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+               obj.maxf(i,1)
+               obj.maxf(i,2)
+               obj.maxd(i).print
+               
+               [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if lSing
+                   continue
+               end
+               l
+               fmax
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -3602,6 +3612,7 @@ disp('test22')
           if n == 0
               return
           end
+%          [nmaxf,nmaxd] = obj.merge(maxf,maxd);
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
           for i =1:n
@@ -3738,7 +3749,7 @@ disp('test22')
             
           for i = 1:n
               for j = ia(i):ia(i+1)-1
-                  [l0, f, index] = obj.envd(i).maximum( [obj.envf(i), obj.envf(ja(j))]);
+                  [l0, f, index, lSing] = obj.envd(i).maximum( [obj.envf(i), obj.envf(ja(j))]);
                   if ~l0
                      ineqs = obj.envd(i).splitmax2 (obj.envf(i), obj.envf(ja(j)));
                      ineqs1 = sym.empty;
@@ -3808,7 +3819,7 @@ disp('test22')
                     continue;
                 end
                 %obj.envd(i).print
-                [l, p, ind] = obj.envd(i).maximum( [obj.envf(i), obj.envf(li)]);
+                [l, p, ind, lSing] = obj.envd(i).maximum( [obj.envf(i), obj.envf(li)]);
                 %[ind,p] = pointwise_max(obj.envf(i), obj.envf(li), obj.d.polygon.vx, obj.d.polygon.vy, obj.envd(i).ineqs, vars);
                 p
                 obj.envf(i)
@@ -3861,7 +3872,7 @@ disp('test22')
                     end
                     %d0.print
                     
-                    [l0, f, index] = d0.maximum( [obj.envf(i), obj.envf(j)]);
+                    [l0, f, index, lSing] = d0.maximum( [obj.envf(i), obj.envf(j)]);
                     if ~l0
                         disp ("Add this")
                         continue

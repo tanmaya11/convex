@@ -1,9 +1,12 @@
-ezplot('- x - 7*y - 4 ')
-hold on
-ezplot('x + 7*y - 10 ')
-hold on
 ezplot('(9*y)/5 - x + 5 ')
 hold on
+%ezplot('x + 7*y - 10 ')
+%hold on
+
+ezplot('- x - 7*y - 4 ')
+hold on
+return
+
 ezplot('148*x - 196*y + (x + 7*y)^2 - 684 ')
 hold on
 ezplot('y/3 - x + 14/3 ')

@@ -38,9 +38,18 @@ classdef testMaxTriRect < matlab.unittest.TestCase
               %testCase.PTri.pieces(i).print
             end 
             testCase.PTri.nPieces=2;
-            testCase.PTri = testCase.PTri.maximumInFirstPairs
+            testCase.PTri = testCase.PTri.maximumInFirstPairs%
             
-            %testCase.PTri=testCase.PTri.maximumP;
+            testCase.PTri=testCase.PTri.maximumP;
+           % return
+            size(testCase.PTri.maxf)
+            disp("tri")
+            for i = 1:size(testCase.PTri.maxf)
+                i
+            testCase.PTri.maxd(i).print
+            testCase.PTri.maxf(i)
+            end
+            
             return
             %% merge is reordering  %%
             %% fix merge when only one vertex and edge going to infinity
@@ -52,6 +61,17 @@ classdef testMaxTriRect < matlab.unittest.TestCase
             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).conjugate;
             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).intersectionConjugateDomain;
             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).maximum;
+            disp("rect")
+%             testCase.PRect.pieces(i).maxd(1).print
+%             testCase.PRect.pieces(i).maxf(1)
+%             testCase.PRect.pieces(i).maxd(7).print
+%             testCase.PRect.pieces(i).maxf(7)
+            for i = 1:size(testCase.PRect.pieces(i).maxf,1)
+                i
+            testCase.PRect.pieces(1).maxd(i).print
+            testCase.PRect.pieces(1).maxf(i)
+           end
+%return            
             
             
             % temp code in case something merges
@@ -59,79 +79,80 @@ classdef testMaxTriRect < matlab.unittest.TestCase
             
             % Currently merge needs to be fixed so checking directly 
 
-
-            testCase.verifyEqual(size(testCase.PRect.pieces(i).maxf,1)==size(testCase.PTri.maxf,1), true);
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-                mark1(i) = false;
-                mark2(i) = false;
-            end
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-              if mark1(i)
-                  continue;
-              end
-              for j = 1: size(testCase.PRect.pieces(1).maxf,1)
-                  if mark2(j)
-                    continue;
-                  end
-                  if ~ (testCase.PRect.pieces(1).maxf(i) == testCase.PTri.maxf(j))
-                      continue
-                  end
-                  if ~ (testCase.PRect.pieces(1).maxd(i) == testCase.PTri.maxd(j))
-                      continue
-                  end
-                  mark1(i) = true;
-                  mark2(j) = true;
-              end
-            end
-            nSingleton = 0;
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-                if mark1(i)
-                    continue
-                end
-                if (testCase.PRect.pieces(1).maxd(i).nv==1)
-                    nSingleton = nSingleton + 1;
-                    mark1(i)=true;
-                end
-            end
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-                if mark2(i)
-                    continue
-                end
-                if (testCase.PTri.maxd(i).nv==1)
-                    nSingleton = nSingleton - 1;
-                    mark2(i)=true;
-                end
-            end
-            testCase.verifyEqual(nSingleton==0, true);
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-                if mark1(i)
-                    continue
-                end
-                 i, 1
-                 testCase.PRect.pieces(1).maxf(i).print
-                 testCase.PRect.pieces(1).maxd(i).print
-                
-            end
-            for i = 1: size(testCase.PRect.pieces(1).maxf,1)
-                 if mark2(i)
-                     continue
-                 end
-                 i, 2
-
-                 testCase.PTri.maxf(i).print
-                testCase.PTri.maxd(i).print
-                
-            end
-%return
-             mark1
-             mark2
-            testCase.verifyEqual(all(mark1)&all(mark2), true);
-            return
-            for i =1:size(testCase.PTri.maxf,1)
-                testCase.PTri.maxf(i).print
-                testCase.PTri.maxd(i).print
-            end
-            return
+            size(testCase.PRect.pieces(1).maxf,1)
+            size(testCase.PTri.maxf,1)
+            %testCase.verifyEqual(size(testCase.PRect.pieces(1).maxf,1)==size(testCase.PTri.maxf,1), true);
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                 mark1(i) = false;
+%                 mark2(i) = false;
+%             end
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%               if mark1(i)
+%                   continue;
+%               end
+%               for j = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                   if mark2(j)
+%                     continue;
+%                   end
+%                   if ~ (testCase.PRect.pieces(1).maxf(i) == testCase.PTri.maxf(j))
+%                       continue
+%                   end
+%                   if ~ (testCase.PRect.pieces(1).maxd(i) == testCase.PTri.maxd(j))
+%                       continue
+%                   end
+%                   mark1(i) = true;
+%                   mark2(j) = true;
+%               end
+%             end
+%             nSingleton = 0;
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                 if mark1(i)
+%                     continue
+%                 end
+%                 if (testCase.PRect.pieces(1).maxd(i).nv==1)
+%                     nSingleton = nSingleton + 1;
+%                     mark1(i)=true;
+%                 end
+%             end
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                 if mark2(i)
+%                     continue
+%                 end
+%                 if (testCase.PTri.maxd(i).nv==1)
+%                     nSingleton = nSingleton - 1;
+%                     mark2(i)=true;
+%                 end
+%             end
+%             testCase.verifyEqual(nSingleton==0, true);
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                 if mark1(i)
+%                     continue
+%                 end
+%                  i, 1
+%                  testCase.PRect.pieces(1).maxf(i).print
+%                  testCase.PRect.pieces(1).maxd(i).print
+%                 
+%             end
+%             for i = 1: size(testCase.PRect.pieces(1).maxf,1)
+%                  if mark2(i)
+%                      continue
+%                  end
+%                  i, 2
+% 
+%                  testCase.PTri.maxf(i).print
+%                 testCase.PTri.maxd(i).print
+%                 
+%             end
+% %return
+%              mark1
+%              mark2
+%             %testCase.verifyEqual(all(mark1)&all(mark2), true);
+%             %return
+%             for i =1:size(testCase.PTri.maxf,1)
+%                 testCase.PTri.maxf(i).print
+%                 testCase.PTri.maxd(i).print
+%             end
+            %return
               figure;
              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
               n = 0
