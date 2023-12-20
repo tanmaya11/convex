@@ -1567,7 +1567,7 @@ classdef region
               end
               sv1
               sv2
-              
+
           if all(double(sv1) <= double(sv2))
               fmax = f2;
               index=2;
@@ -1612,7 +1612,8 @@ classdef region
 
         function [r] = splitmax2 (obj, f1, f2) 
            % disp('splitmax2')
-
+          f1
+          f2
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           f = f1-f2;
@@ -1646,13 +1647,13 @@ classdef region
             fxy(n,1)= sx;
             fxy(n,2)= sy;
           end
-          %fxy
+          fxy
           fxy = unique(fxy,"rows");
           fx = fxy(:,1);
           fy = fxy(:,2);
           %f1
           %f2
-          %size(fx)
+          size(fx)
           if size(fx,1) == 2
               m = (fy(2)-fy(1))/(fx(2)-fx(1));
               c = fy(1) - m*fx(1);
