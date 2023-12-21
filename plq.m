@@ -582,49 +582,64 @@ classdef plq
              for k1 = 1:size(obj.pieces(i).maxd,1)
                for j=i+1:2
                  for k2 = 1:size(obj.pieces(j).maxd,1)
-                   [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
-                   if l
-                       k1, k2
-                       %obj.pieces(i).maxf(k1)
-                       %obj.pieces(j).maxf(k2)
-                      % size(rf)
-                       lc(i,k1) = true;
-                       lc(j,k2) = true;
-                       for irf=1:size(rf,2)
-                           rf(i).print
-                         n = n + 1;
-                         obj.maxd(n,1) = rf(irf);
-                         obj.maxf(n,1) = obj.pieces(i).maxf(k1);
-                         obj.maxf(n,2) = obj.pieces(j).maxf(k2);
-                         obj.nmaxf(n) = 2;
-                         if n == 5
-                         %    return
-                         end
-
-                       end
-
-                       
-                       
-                   end
+                     %disp('rf')
+                     rf = obj.pieces(i).maxd(k1) + obj.pieces(j).maxd(k2);
+                     %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
+                     % move simplify inside +
+                     if ~ isempty(rf)
+                       rf = rf.simplify;  
+                       n = n + 1;
+                       obj.maxd(n,1) = rf; %(irf);
+                       obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+                       obj.maxf(n,2) = obj.pieces(j).maxf(k2);
+                       obj.nmaxf(n) = 2;
+%                        lc(i,k1) = true;
+%                        lc(j,k2) = true;
+                     end
+                     %21 dec
+%                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
+%                    if l
+%                        k1, k2
+%                        %obj.pieces(i).maxf(k1)
+%                        %obj.pieces(j).maxf(k2)
+%                       % size(rf)
+%                        lc(i,k1) = true;
+%                        lc(j,k2) = true;
+%                        for irf=1:size(rf,2)
+%                            rf(i).print
+%                          n = n + 1;
+%                          obj.maxd(n,1) = rf(irf);
+%                          obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+%                          obj.maxf(n,2) = obj.pieces(j).maxf(k2);
+%                          obj.nmaxf(n) = 2;
+%                          if n == 5
+%                          %    return
+%                          end
+% 
+%                        end
+% 
+%                        
+%                        
+%                    end
 %               if ~l
 %                   continue
                  end
                end
              end
            end
-           for i=1:2
-              for k1 = 1:size(obj.pieces(i).maxd,1)
-                if lc(i,k1)
-                    continue;
-                end
-                n = n + 1;
-                obj.maxd(n,1) = obj.pieces(i).maxd(k1);
-                obj.maxf(n,1) = obj.pieces(i).maxf(k1);
-                obj.nmaxf(n) = 1;
-                         
-              end
-           end
-           
+%            for i=1:2
+%               for k1 = 1:size(obj.pieces(i).maxd,1)
+%                 if lc(i,k1)
+%                     continue;
+%                 end
+%                 n = n + 1;
+%                 obj.maxd(n,1) = obj.pieces(i).maxd(k1);
+%                 obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+%                 obj.nmaxf(n) = 1;
+%                          
+%               end
+%            end
+%            
            
        end
 

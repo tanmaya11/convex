@@ -1785,6 +1785,7 @@ classdef region
           lelim = false;
 
           for i = 1:size(obj.ineqs,2)
+              %obj.ineqs(i).f
               l(i) = obj.ineqs(i).f;
               mark(i) = false;
               %obj.ineqs(i).print
@@ -1827,11 +1828,11 @@ classdef region
         end
 
 
-        function obj = simplify (obj, vars)
+        function obj = simplify (obj) %, vars)
             %disp('in simplify')
             %obj.print
           for i = 1:size(obj.ineqs,2)
-            [lelim, obj] = obj.deleteIneq (vars);
+            [lelim, obj] = obj.deleteIneq (obj.vars);
             %i
             %lelim
             %disp("in simplify")
@@ -2274,17 +2275,19 @@ classdef region
              %disp('removeParallel')
              %    l.printL
              %end
-             [notF,l] = l.removeSum(lprint);
-             if notF
-                 linter = false  ;
-                 %disp("Not feasible 2")
-           
-                 return
-             end
-             if lprint
-             disp('removeSum')
-             l.printL
-             end
+
+             % 21 DEC commenting next few lines to check 
+%              [notF,l] = l.removeSum(lprint);
+%              if notF
+%                  linter = false  ;
+%                  %disp("Not feasible 2")
+%            
+%                  return
+%              end
+%              if lprint
+%              disp('removeSum')
+%              l.printL
+%              end
              l2 =[];
              for i = 1:size(l,2)
                  l2 = [l2,l(i).f];
@@ -2302,6 +2305,8 @@ classdef region
              %disp('aft simplify')
              %lR.print;
              
+             % this can be removed - check
+             % check for empty region instead - basically clean up
              if size(lR.ineqs,2) == 0
                  linter = false  ;
                 % disp("Infeasible 3")

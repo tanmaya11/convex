@@ -497,10 +497,10 @@ disp('test22')
              end
              
              obj.envf(j).f = simplify(obj.envf(j).f);
-             %figure;  
-             %obj.envf(j).plot3d (limits);
-             %figure;
-             %obj.d.plot;
+             figure;  
+             obj.envf(j).plot3d (limits);
+             figure;
+             obj.d.plot;
              obj.envd(j).plot;
              obj.envd(j).plotRegion ("Env");
              if (size(obj.conjfia,1) > 0)
@@ -518,8 +518,8 @@ disp('test22')
                %obj.conjd(k).vx
                %obj.conjd(k).vy
                %limits
-               %figure;
-               %obj.conjf(k).plot3d (limits);
+               figure;
+               obj.conjf(k).plot3d (limits);
              end
              figure;
                
@@ -649,8 +649,6 @@ disp('test22')
         end
 
         function obj = convexEnvelope(obj)
-            %disp("in convexEnvelope")
-            %for i = 1:size(obj.f,2)
               vars = obj.f.getVars;
               if (size(vars,2)==2)
                   x = vars(1);
@@ -660,113 +658,17 @@ disp('test22')
                   return
               end
               obj = convexEnvelope1 (obj,x,y);
-              %return
               for i=1:size(obj.envd,2)
-                  %obj.envd(i).print
-                  r = obj.envd(i).simplify (obj.envd(i).vars);
-                  %disp('outside')
-                  %r.print
+                  r = obj.envd(i).simplify;% (obj.envd(i).vars);
                   obj.envd(i) = r;
-                  %obj.envd(i).print
-               %   return
-               %if i == 2
-               %    return
-               %end
               end
-              %return
-          %     disp("convexEnvelope1")
-          %     obj.print
-          %     return
-%              % obj.plot
-              %[f,r] = obj.intersectionDomain;
-
-              %for i = 1:size(r,2)
-              %    r(i).print
-              %end
-              %return
-
-
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope1")
-             % return
-             % obj.print
-             % check if unique is needed
-             % obj = obj.unique();
-             % obj = obj.maxEnvelopeWhenEqDomain([x,y]);
- %             disp("maxconvexEnvelope2")
-  %            obj.print
-              
-            %  return
-              
-          %    li = obj.entireRegion ();
-          %    if li > 0
-          %      obj = obj.removeNMax (li,[x,y]);
-          %    end
-          %   disp("removeconvexEnvelope1")
-          %   obj.print
-          %  return  
-              
-%for j=1:size(obj.envd,2)
-        %         figure;
-        %        obj.envd(j).plot;
-              
- %             end
-              
-              %disp("b4 maxEnvelopeIntersect2")
               obj = obj.maxEnvelopeIntersect([x,y]);
-              %disp("maxEnvelopeIntersect2")
-              
-%obj.print
-             
-            %  return
-              %for i=1:size(obj.envd,2)
-              %    obj.envd(i) = obj.envd(i).getVertices();
-              %end
-              
-             %return
-              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope3")
-              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %disp("maxconvexEnvelope4")
-              
-
-              % put in  a loop 
               obj = obj.maxEnvelopeIntersect([x,y]);
-              
-              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              %return
-              
-              %obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              
-              %obj.print
-              %disp("max2")
-              
-              %obj = obj.unique();
-              %disp("b4 vertices")
-              %size(obj.envd,2)
-              %for j=1:size(obj.envd,2)
-              %  obj.envd(j) = obj.envd(j).getVertices();
-              %end
-            %end
-            %disp("finalconvexEnvelope1")
-            % obj.print
-             %for j=1:size(obj.envd,2)
-                % figure;
-                %obj.envd(j).plot;
-              
-             %end
             [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr);
-            %obj.envd(1).print;
-            %size(obj.envd(1).ineqs,2)
-            %for i = 1:size(obj.envd(1).ineqs,2)
-                
-            %  [nv, vx,vy] = obj.envd(1).vertexOfEdge(i)
-            %end
-            %disp("merge")
-              %obj.print
               
             return
             
@@ -2570,7 +2472,7 @@ disp('test22')
             dualVars = [s1,s2];
             %obj.envd(i) = obj.envd(i).normalizeEdge;  
             %obj.envd(i).print
-            obj.envd(i) = obj.envd(i).simplify (obj.envd(i).vars);
+            obj.envd(i) = obj.envd(i).simplify; % (obj.envd(i).vars);
            % disp("in conjugateFunction")
             %obj.envExpr(i).type
             if obj.envExpr(i).type == 1
@@ -3873,7 +3775,7 @@ disp('test22')
                 %    disp('d')
                 %    d.print
                      
-                    d0 = d.simplify (vars ); %,obj.d.polygon);
+                    d0 = d.simplify; % (vars ); %,obj.d.polygon);
                 %    disp('d0')
                 %    d0.print
                 %    continue
