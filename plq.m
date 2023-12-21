@@ -729,9 +729,9 @@ classdef plq
               %if i == 7
               %    return
               %end
-              obj.maxf(i,1).print
-              obj.maxf(i,2).print
-              obj.maxd(i,1).print
+%              obj.maxf(i,1).print
+%              obj.maxf(i,2).print
+%              obj.maxd(i,1).print
                if obj.maxd(i,1).nv == 0
                    % complex variables were removed later hence some
                    % regions need to be removed

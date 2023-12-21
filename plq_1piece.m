@@ -2867,14 +2867,14 @@ disp('test22')
                   zeta01 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00)))/((psi2(3)+q*psi2(2))) - m*psi0(2)*gamma01 - psi0(1)*gamma01 + m*gamma00+q;
                   zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00))^2/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00);
                   expr(obj.envd(i).nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00);
-                  disp('checking conjugate') 
-                  obj.envd(i).nv+j
-                  zeta11
-                  zeta12
-                  zeta22
-                  zeta10
-                  zeta01
-                  zeta00
+%                   disp('checking conjugate') 
+%                   obj.envd(i).nv+j
+%                   zeta11
+%                   zeta12
+%                   zeta22
+%                   zeta10
+%                   zeta01
+%                   zeta00
                   
 
                 else
@@ -3593,16 +3593,16 @@ disp('test22')
 
           n = 0;
           for i = 1:size(obj.maxd,1)
-               i
+              % i
                
                % check size of obj.maxf(i,:) and fix
                if size(obj.maxf(i,:),2) == 1
                    continue;
                end
-               obj.maxf(i,1)
-               obj.maxf(i,2)
-               obj.maxd(i).print
-               
+%                obj.maxf(i,1)
+%                obj.maxf(i,2)
+%                obj.maxd(i).print
+%                
                [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
                if lSing
                    continue

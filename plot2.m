@@ -1,3 +1,15 @@
+
+%X = [-5,0,-5,-5];
+%Y = [-4,-4,5,-4];
+% X = [-5,0,1,-5];
+% Y = [5,-4,3,5];
+ X = [-5,-5,0,1,-5];
+ Y = [5,-4,-4,3,5];
+
+plot(X,Y);
+xlim([-6, 2]); % Set x-axis range from 0 to 6
+ylim([-5, 6]); % Set y-axis range from 0 to 6
+return
 ezplot('(9*y)/5 - x + 5 ')
 hold on
 %ezplot('x + 7*y - 10 ')
