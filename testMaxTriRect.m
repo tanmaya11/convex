@@ -36,10 +36,11 @@ classdef testMaxTriRect < matlab.unittest.TestCase
               testCase.PTri.pieces(i)=testCase.PTri.pieces(i).intersectionConjugateDomain;
               testCase.PTri.pieces(i)=testCase.PTri.pieces(i).maximum;
               testCase.PTri.pieces(i).print
+              %testCase.PTri.pieces(i).plot
             end 
             %return
             testCase.PTri.nPieces=2;
-            testCase.PTri = testCase.PTri.maximumInFirstPairs%
+            testCase.PTri = testCase.PTri.maximumInFirstPairs;
             
             testCase.PTri=testCase.PTri.maximumP;
            % return
@@ -51,7 +52,7 @@ classdef testMaxTriRect < matlab.unittest.TestCase
             testCase.PTri.maxf(i)
             end
             
- %           return
+            return
             %% merge is reordering  %%
             %% fix merge when only one vertex and edge going to infinity
    
@@ -72,7 +73,7 @@ classdef testMaxTriRect < matlab.unittest.TestCase
             testCase.PRect.pieces(1).maxd(i).print
             testCase.PRect.pieces(1).maxf(i)
            end
-%return            
+return            
             
             
             % temp code in case something merges

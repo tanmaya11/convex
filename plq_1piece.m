@@ -3480,8 +3480,7 @@ disp('test22')
             end
            
           
-          
-          
+            
           
           %         obj.conjd(k1).intersection2(obj.conjd(k2))
           
@@ -3525,12 +3524,14 @@ disp('test22')
           if n == 0
               return
           end
+          [mf,md] = maxd.mergeL(maxf);
+          size(mf)
 %          [nmaxf,nmaxd] = obj.merge(maxf,maxd);
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
-          for i =1:n
-            obj.maxf(i,1) = maxf(i);
-            obj.maxd(i,1) = maxd(i);
+          for i =1:size(mf,2)
+            obj.maxf(i,1) = mf(i);
+            obj.maxd(i,1) = md(i);
           
           end
           
