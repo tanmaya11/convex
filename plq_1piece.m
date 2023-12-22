@@ -2536,11 +2536,11 @@ disp('test22')
               %crs
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
 
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV)
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
 %               if obj.envExpr(i).vpsi2.isConst
 %                   expr = obj.conjugateExprEdgesT2 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
 %               else
-                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr)
+                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
 %               end 
 %             
             elseif obj.envExpr(i).type == 3   
@@ -3672,14 +3672,14 @@ disp('test22')
                      ineqs1(size(obj.envd(i).ineqs,2)+1) = ineqs(1);
                         %ineqs1
                      d1 = region(ineqs1,obj.envd(i).vars);
-                     d1 = d1.simplify(obj.envd(i).vars);
+                     d1 = d1.simplify; %(obj.envd(i).vars);
                      envdT = [envdT,d1];
                      envfT = [envfT, obj.envf(i)];
                      enveT = [enveT,obj.envExpr(i)];
                      
                      ineqs1(size(obj.envd(i).ineqs,2)+1) = ineqs(2);
                      d1 = region(ineqs1,obj.envd(i).vars);
-                     d1 = d1.simplify(obj.envd(i).vars);
+                     d1 = d1.simplify; %(obj.envd(i).vars);
                      envdT = [envdT,d1];
                      envfT = [envfT, obj.envf(ja(j))];
                      enveT = [enveT,obj.envExpr(ja(j))];

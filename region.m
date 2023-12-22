@@ -860,6 +860,7 @@ classdef region
             %obj = obj.removeDenominator;
             %disp('b4 get vertices')
             obj = obj.getVertices  ;
+            % put simplify in here
          end
 
          
@@ -997,13 +998,15 @@ classdef region
 %            f0.print
             %f0.nv
             if f0.nv >= 3
-              f = [f0.simplify(obj1.vars)];
+              %f = [f0.simplify(obj1.vars)];
+              f = [f0.simplify];
               return
             else  
               f1 = f0.divideRegions(obj1);
               f = [];
               for i = 1: size(f1,2)
-                  f0 = f1(i).simplify(obj1.vars);
+                  %f0 = f1(i).simplify(obj1.vars);
+                  f0 = f1(i).simplify;
                   if f0 == obj1
                       continue
                   end
@@ -1453,10 +1456,10 @@ classdef region
           %double(sv1);
           %double(sv2);
           if all(abs(double(sv1 - sv2))< 1.0d-14)
-              disp("FIX IN MAXIMUM")
+              %disp("FIX IN MAXIMUM")
               %size(sv1)
               if size(sv1) == 1
-                  disp("Singleton")
+                  %disp("Singleton")
                   fmax = f1;
                   index=1;
                 %  return
@@ -1479,37 +1482,37 @@ classdef region
                     return
                 end
               end
-              disp("Here")
+              %disp("Here")
               % use slope mid pt to get directions
               for i = 1:size(m,2)
                 
                 for j = i+1: size(m,2)
                   if (abs(m(i))~= inf) & (abs(m(j))~= inf)
-                  d =  (m(i)+m(j) )/2
+                  d =  (m(i)+m(j) )/2;
                   else
                       disp('infinity')
                   if (abs(m(i))==inf)
-                        d = tan((pi/2 + atan(m(j)))/2)
+                        d = tan((pi/2 + atan(m(j)))/2);
                     else
-                        d = tan((pi/2 + atan(m(i)))/2)
+                        d = tan((pi/2 + atan(m(i)))/2);
                   end
                   end
                   c = vy0(1) - d * vx0(1);
                   px = vx0(1) + 0.1;
                   py = d*px+c;
-                  double(px),double(py)
+                  %double(px),double(py)
                   [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
-                  l
+                  %l
                   if l 
                     return
                   end
                   px = vx0(1) - 0.1;
                   py = d*px+c;
                   
-                  double(px),double(py)
+                  %double(px),double(py)
                 %  obj.ptFeasible(obj.vars, [px,py])
                   [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
-                  l
+                 % l
                   if l 
                     return
                   end
@@ -1565,8 +1568,7 @@ classdef region
               lsing = true;
               
               end
-              sv1
-              sv2
+              
 
           if all(double(sv1) <= double(sv2))
               fmax = f2;
@@ -2301,7 +2303,7 @@ classdef region
              lR.plot;
              end
              %size(lR.ineqs,2)
-             lR = lR.simplify (vars);
+             lR = lR.simplify;  %(vars);
              %disp('aft simplify')
              %lR.print;
              
@@ -2346,7 +2348,7 @@ classdef region
              objR.print
              disp("objR")
              
-             objR = objR.simplify (objR.vars)
+             objR = objR.simplify; % (objR.vars)
              objR.print
          end
          
@@ -2757,16 +2759,29 @@ classdef region
          markj = [];
          for i =1:size(obj.ineqs,2)
            for j =1:size(obj2.ineqs,2)
+               %j
              if obj.ineqs(i) == -obj2.ineqs(j)
                  [nvi, vxi, vyi] = obj.vertexOfEdge(i);
                  [nvj, vxj, vyj] = obj2.vertexOfEdge(j);
-                 if nvi ~= 2
-                     continue
-                 end
+              %   obj.ineqs(i)
+              %   nvi,nvj
                  if nvi ~= nvj
                      continue
                  end
-
+%                  if nvi ~= 2
+%                      continue
+%                  end
+                  if nvi == 1
+                     
+                       l = true;
+                       n = n + 1;
+                       marki(n) = i;
+                       markj(n) = j;
+                       break;
+                     
+                 end
+                 if nvi == 2
+                 
                  [tvxi, sortedIndices] = sort(abs(vxi));
                  vxi = vxi(sortedIndices);
                  vyi = vyi(sortedIndices);
@@ -2858,15 +2873,16 @@ classdef region
                  end  
              end
            end
+         end
          if l
           % obj.print;
           % obj2.print;
-          % marki
-          % markj
+           marki
+           markj
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
            obj = obj+obj2;
-          % obj.print
+           obj.print
          end
          
          end
