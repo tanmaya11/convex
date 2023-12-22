@@ -2662,13 +2662,14 @@ disp('test22')
             %obj.conjf =  obj.conjf+conjf;
             %obj.conjd =  obj.conjd+conjd;
             % merge wont work due to union vs intersection
-            %[conjf,conjd] = obj.merge(conjf,conjd);
-            for i = 1:size(conjf,2)
+            %[mconjf,mconjd] = obj.merge(conjf,conjd);
+            [mconjf,mconjd] = conjd.mergeL(conjf);
+            for i = 1:size(mconjf,2)
              %   conjf(i).print
-                obj.conjf = [obj.conjf, conjf(i)];
+                obj.conjf = [obj.conjf, mconjf(i)];
             end
-            for i = 1:size(conjf,2)
-                obj.conjd = [obj.conjd, conjd(i)];
+            for i = 1:size(mconjf,2)
+                obj.conjd = [obj.conjd, mconjd(i)];
             end
             
             

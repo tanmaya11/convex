@@ -932,8 +932,9 @@ classdef plq
           end
       end
 
-      % change merge to work when only one vertex - edge going to infinity
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+          [nmaxf,nmaxd] =  maxd.mergeL(maxf)
+          return
           %disp('in merge')
           ia(1) = 1;
           n = 0;

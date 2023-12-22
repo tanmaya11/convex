@@ -2901,6 +2901,108 @@ classdef region
          l = false;
      end
 
+     function [nmaxf,nmaxd] = mergeL(maxd,maxf)  % (obj,maxf,maxd)
+          %disp('in merge')
+          ia(1) = 1;
+          n = 0;
+          %size(maxf,2)
+          for i = 1:size(maxf,2)
+              %maxf(i).print
+              marked(i) = false;
+          end
+
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(maxf,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(maxf,2)
+                  
+                  if isAlways(maxf(i).f == maxf(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          %nmaxf = [];
+          %nmaxd = [];
+          m = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+        %  ia
+        %  ja
+        %  return
+        %  nmaxf= [];
+        %  nmaxd= [];
+        for i = 1:size(maxf,2)
+            i
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1)) 
+                m = m + 1;
+                nmaxf(m) = maxf(i);
+                nmaxd(m) = maxd(i);
+            else
+                % get common boundary and merge
+                % make groups and add 
+               r = maxd(i);
+           %    i
+           %    r.print
+               lmerge = true;
+               while lmerge
+                 lmerge = false;
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+            %       ja(j)              
+            %       maxd(ja(j)).print
+                   [l,r] = r.merge (maxd(ja(j)));
+         %      if i == 10
+               l
+         %      end
+                   
+                   if l
+                     marked(ja(j)) = true;
+                     lmerge = true;
+                   end
+%                    if ~l
+%                      m = m + 1;
+%                      nmaxf(m) = maxf(i);
+%                      nmaxe(m) = maxe(i);
+%                      nmaxd(m) = maxd(ja(j));  
+%                    end
+                 end
+               end
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+                   marked(ja(j)) = true;
+                   m = m + 1;
+                   nmaxf(m) = maxf(i);
+                   nmaxd(m) = maxd(ja(j));  
+                 end
+               
+               m = m + 1;
+               nmaxf(m) = maxf(i);
+               %r = r.getVertices();
+               nmaxd(m) = r;  
+                   
+            end
+        end
+       % disp("m")
+       % m
+      end
+
      end
 
      
