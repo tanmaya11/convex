@@ -38,7 +38,7 @@ classdef testMaxTriRect < matlab.unittest.TestCase
               testCase.PTri.pieces(i).print
               %testCase.PTri.pieces(i).plot
             end 
-            %return
+        %    return
             testCase.PTri.nPieces=2;
             testCase.PTri = testCase.PTri.maximumInFirstPairs;
             

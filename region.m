@@ -965,6 +965,7 @@ classdef region
               ladd = true;  
               for j = 1:size(obj1.ineqs,2)
                 if (obj2.ineqs(i) == obj1.ineqs(j)) 
+                    % replace with all
                     lv = true;
                     for i1 = 1:size(v1,2)
                         for i2 = 1:size(v1,3)
@@ -995,7 +996,7 @@ classdef region
             f0 = region(l,obj1.vars);
             f0 = f0.getVertices;
 %            disp('here')
-%            f0.print
+            %f0.print
             %f0.nv
             if f0.nv >= 3
               %f = [f0.simplify(obj1.vars)];
@@ -1005,8 +1006,17 @@ classdef region
               f1 = f0.divideRegions(obj1);
               f = [];
               for i = 1: size(f1,2)
+                  if f1(i).nv <= 2
+                      continue
+                  end
+                  
                   %f0 = f1(i).simplify(obj1.vars);
+                  %disp('divided region')
+                  %f1(i).print
                   f0 = f1(i).simplify;
+                  %disp('divided region after simplify')
+                  %f0.vars
+                  %f0.print
                   if f0 == obj1
                       continue
                   end
@@ -2542,7 +2552,10 @@ classdef region
          t1 = sym('t1');
          t2 = sym('t2');
          varsTemp = [t1,t2];
-         ir = 0
+         ir = 0;
+         % in this loop we are getting all points of intersection of pair
+         % of ineqs.
+         % remove duplicate points 
          for i = 1:size(obj.ineqs,2)  
            f1 = obj.ineqs(i);
            f1 = f1.subsF (obj.vars,varsTemp);
@@ -2558,12 +2571,23 @@ classdef region
                elseif isempty(s.t2)
                    continue;
                end
+               lpt = false;
+               for k  = 1:ir
+                   if all(points(k,:) == [s.t1,s.t2])
+                       lpt = true;
+                       break;
+                   end
+               end
+               if lpt
+                   continue
+               end
                if ~obj2.ptFeasible (obj2.vars,[s.t1,s.t2])
                  continue
                end
                
                ir = ir + 1;
                index(ir) = 0;
+               points(ir,1:2) = [s.t1,s.t2]; 
                for k = 1:size(obj.ineqs,2)  
                  if double(subs ([obj.ineqs(k).f],obj.vars,[s.t1,s.t2])) < 1.0e-12
                      index(ir) = index(ir)+1;
@@ -2577,14 +2601,17 @@ classdef region
          % at this point r(ir) corresponds to satisfying ineqs for each
          % possible vertex
 
-%          ir
-%          index
-%          for i = 1:ir
-%              disp('list')
-%              for j = 1:index(ir)
-%                  r(i,j)
-%              end
-%          end
+          %ir
+          %index
+          %for i = 1:ir
+          %    points(i,:)
+          %end
+%           for i = 1:ir
+%               disp('list')
+%               for j = 1:index(ir)
+%                   r(i,j)
+%               end
+%           end
           is = 0;
          s = r;
          for i=1:ir
@@ -2695,8 +2722,8 @@ classdef region
           if f(1)==f(2)
               l = true;
               lSing = false;
-              maxf = f(1)
-              index = 1
+              maxf = f(1);
+              index = 1;
               return
           end
           [l,  maxf, index, lSing] = obj.maxArray (f(1), f(2)) ;
@@ -2940,7 +2967,7 @@ classdef region
         %  nmaxf= [];
         %  nmaxd= [];
         for i = 1:size(maxf,2)
-            i
+            
             if  marked(i)
                 continue
             end

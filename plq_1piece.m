@@ -662,8 +662,16 @@ disp('test22')
                   r = obj.envd(i).simplify;% (obj.envd(i).vars);
                   obj.envd(i) = r;
               end
+              
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              
               obj = obj.maxEnvelopeIntersect([x,y]);
+%               for i = 1:size(obj.envd,2)
+%                 obj.envd(i).vars
+%               end
+         %     return
+
+                            
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               obj = obj.maxEnvelopeIntersect([x,y]);
@@ -3509,8 +3517,8 @@ disp('test22')
                if lSing
                    continue
                end
-               l
-               fmax
+              % l
+              % fmax
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -3774,9 +3782,8 @@ disp('test22')
             %        i,j
             %        obj.envd(i).print
             %        obj.envd(j).print
-                %    disp('d')
-                %    d.print
-                     
+                   
+                    %    d.print
                     d0 = d.simplify; % (vars ); %,obj.d.polygon);
                 %    disp('d0')
                 %    d0.print
@@ -3804,7 +3811,22 @@ disp('test22')
 
                     d1 = obj.envd(i) - d0;
 %continue
-                    for id=1:size(d1,1)
+    %disp('d1')
+                    
+              %      disp("divisions")
+              %      size(d1,2)
+
+                    for id=1:size(d1,2)
+               %         if d1(id).nv == 1
+               %             disp("R1")
+               %             obj.envd(i).print
+               %             disp("R2")
+                            
+               %             d0.print
+               %             size(d1,1)
+               %             disp("diff")
+               %             d1(id).print
+               %         end
              %           d1(id).print
                         envdT = [envdT,d1(id)];
                         envfT = [envfT, obj.envf(i)]     ;
@@ -3814,7 +3836,7 @@ disp('test22')
                     d1 = obj.envd(j) - d0;
                     for id=1:size(d1,1)
               %          d1(id).print
-                        
+                  %      d1(id).nv
                         envdT = [envdT,d1(id)];
                         envfT = [envfT, obj.envf(j)]     ;
                         enveT = [enveT,obj.envExpr(j)];

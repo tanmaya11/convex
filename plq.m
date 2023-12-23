@@ -722,9 +722,9 @@ classdef plq
              end
            end
            
-           size(maxf)
-           size(obj.maxf)
-           size(obj.nmaxf)
+%            size(maxf)
+%            size(obj.maxf)
+%            size(obj.nmaxf)
 
            
        end
@@ -740,7 +740,7 @@ classdef plq
 
           n = 0;
           for i = 1:size(obj.maxf,1)
-              i, obj.nmaxf(i)
+           %   i, obj.nmaxf(i)
               %if i == 7
               %    return
               %end
@@ -766,8 +766,8 @@ classdef plq
                    continue
                end
                
-               l
-               fmax
+              % l
+              % fmax
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -797,7 +797,7 @@ classdef plq
                  end
                  ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(1).f;
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
-                 d1 = d1.simplify(obj.maxd(i,1).vars);
+                 d1 = d1.simplify %(obj.maxd(i,1).vars);
                  d1.print
                  n = n + 1;
                  maxf(n) = obj.maxf(i,1);
@@ -817,7 +817,7 @@ classdef plq
                  ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2).f;
                  %ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2);
                  d1 = region(ineqs1,obj.maxd(i,1).vars);
-                 d1 = d1.simplify(obj.maxd(i,1).vars);
+                 d1 = d1.simplify; %(obj.maxd(i,1).vars);
                  d1.print
                  n = n + 1;
                  maxf(n) = obj.maxf(i,2);
@@ -855,7 +855,7 @@ classdef plq
           end
           %return
           %disp("after")
-          size(maxf)
+          %size(maxf)
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            
           %nmaxf(3).print
@@ -933,7 +933,7 @@ classdef plq
       end
 
       function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
-          [nmaxf,nmaxd] =  maxd.mergeL(maxf)
+          [nmaxf,nmaxd] =  maxd.mergeL(maxf);
           return
           %disp('in merge')
           ia(1) = 1;
