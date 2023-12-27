@@ -497,12 +497,12 @@ disp('test22')
              end
              
              obj.envf(j).f = simplify(obj.envf(j).f);
-             figure;  
-             obj.envf(j).plot3d (limits);
-             figure;
-             obj.d.plot;
-             obj.envd(j).plot;
-             obj.envd(j).plotRegion ("Env");
+%              figure;  
+%              obj.envf(j).plot3d (limits);
+%              figure;
+%              obj.d.plot;
+%              obj.envd(j).plot;
+%              obj.envd(j).plotRegion ("Env");
              if (size(obj.conjfia,1) > 0)
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                %disp("Conjugate Expr")
@@ -518,40 +518,40 @@ disp('test22')
                %obj.conjd(k).vx
                %obj.conjd(k).vy
                %limits
-               figure;
-               obj.conjf(k).plot3d (limits);
+%                figure;
+%                obj.conjf(k).plot3d (limits);
              end
              figure;
                
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
                limits = [min(obj.conjd(k).vx),max(obj.conjd(k).vx),min(obj.conjd(k).vy),max(obj.conjd(k).vy)];
-               for i = 1:4
-                 if limits(i) > 6
-                     limits(i) = 6;
-                 end
-                 if limits(i) < -6
-                     limits(i) = -6;
-                 end
-               end
-               %disp('Conjugate Domain')
+%                for i = 1:4
+%                  if limits(i) > 6
+%                      limits(i) = 6;
+%                  end
+%                  if limits(i) < -6
+%                      limits(i) = -6;
+%                  end
+%                end
+%                %disp('Conjugate Domain')
                %obj.conjd(k).plotByVertex;
                
-               obj.conjd(k).plot;
-               obj.conjd(k).plotRegion ("Conj");
+         %      obj.conjd(k).plot;
+         %      obj.conjd(k).plotRegion ("Conj");
                
              end
              
              
              end
            end
-           disp("Maximum conjugate")
-           figure;
-           for i = 1:size(obj.maxf,1)
-             disp(i)
-             obj.maxd(i).plot;
-             obj.maxd(i).plotRegion("M"+num2str(i));
-           end
-           
+%            disp("Maximum conjugate")
+            figure;
+            for i = 1:size(obj.maxf,1)
+              disp(i)
+              obj.maxd(i).plot;
+              obj.maxd(i).plotRegion("M"+num2str(i));
+            end
+%            
          end
 
          function plotDomain(obj)
@@ -822,7 +822,7 @@ disp('test22')
               c(2) = etaR(1)-etaR(3);
             elseif ixd == 3
                 nc = 1;
-              c(1) = etaR(3)-etaR(1)
+              c(1) = etaR(3)-etaR(1);
               
             end
             for i = 1:nc
@@ -848,7 +848,7 @@ disp('test22')
             % Get a in terms of b 
             if (isempty(av))
                 lSol = false;
-                disp('returning')
+                %disp('returning')
                 return;
             end
             lSol = true;
@@ -1520,7 +1520,7 @@ disp('test22')
            %mlb
            %mub
               if double(mlb) >= double(mub)
-                  disp('infeasible')
+            %      disp('infeasible')
                   return
               else
        %           disp('here')
@@ -2001,11 +2001,8 @@ disp('test22')
 %           disp("ix")
 %           size(ix,2)
           for i=1:size(ix,2)
-       %      i
+            % i
              i00 = size(envfs,2);
-             if i ~= 9
-                % continue
-             end
              lV = []; 
              for j = 1:size(etaV,2)
                lV(j) = false;
@@ -2039,17 +2036,13 @@ disp('test22')
              % jx(i)
              % ixd(i)
              % jxd(i)
-             % size(envfs)
-              if size(envfs,2) > 0
-              %  envfs(end).print
-              end
               if (etah == etaw)
                   continue;
               end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
               if (degreeh==0 & degreew==1)
-                    %disp("const-lin")
+             %       disp("const-lin")
             %        continue
                     obj0 = etah + functionF(a*x+b*y);
                     if ixd(i) == 0
@@ -2070,7 +2063,7 @@ disp('test22')
               end 
 
               if (degreeh==1 & degreew==0)
-                    %disp("const-lin")
+              %      disp("const-lin")
             %        continue
                     obj0 = etah + functionF(a*x+b*y);
                     if ixd(i) == 0
@@ -2091,7 +2084,7 @@ disp('test22')
               end 
 
               if (degreeh==1 & degreew==1)
-                   % disp("lin-lin")
+               %     disp("lin-lin")
                    % continue
                     %objective function set here as we can exchange a and b
                     %if required
@@ -2128,21 +2121,21 @@ disp('test22')
                   etaRj = etaR(jx(i),:);
                 end
                 if (degreeh==2 & degreew==1)
-               %     disp("quad-lin")
+                    %disp("quad-lin")
                     %continue;
                     
                     [envfs, envxs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaRi, ixd(i), etaRj, jxd(i), etaV, lV, etaE, lE, ix(i), envfs, envxs,envds);
             % flipping a,b gives same answer
                 end
                 if (degreeh==2 & degreew==0)
-                    %disp("const-quad")
+                %    disp("const-quad")
                     
                     [envfs, envxs, envds] = solveQuadLinear1 (obj, mh, a, b, x, y, etah, etaw, etaRi, ixd(i), etaRj, jxd(i), etaV, lV, etaE, lE, ix(i), envfs, envxs,envds);
                     
                 end
                 
                 if (degreeh==1 & degreew==2)
-                    %disp("lin-quad")
+                 %   disp("lin-quad")
                     %continue;
                 
 
@@ -2152,14 +2145,14 @@ disp('test22')
                 end
 
                 if (degreeh==0 & degreew==2)
-                    %disp("const-quad")
+                  %  disp("const-quad")
                     
                     [envfs, envxs, envds] = solveQuadLinear1 (obj, mw, a, b, x, y, etaw, etah, etaRj, jxd(i), etaRi, ixd(i), etaV, lV, etaE, lE, jx(i), envfs, envxs,envds);
                     
                 end
                             
                 if (degreeh==2 & degreew==2)
-        %            disp("quad-quad")
+                   % disp("quad-quad")
         %            etah.print
         %            etaw.print
         %            mh
@@ -2671,7 +2664,16 @@ disp('test22')
             %obj.conjd =  obj.conjd+conjd;
             % merge wont work due to union vs intersection
             %[mconjf,mconjd] = obj.merge(conjf,conjd);
+%             disp("b4 merge")
+%             for i = 1:size(conjd,2)
+%                 conjd(i).print;
+%             end
             [mconjf,mconjd] = conjd.mergeL(conjf);
+%             disp("aft merge")
+%             for i = 1:size(mconjf,2)
+%                 mconjd(i).print;
+%             end
+            
             for i = 1:size(mconjf,2)
              %   conjf(i).print
                 obj.conjf = [obj.conjf, mconjf(i)];
@@ -3466,22 +3468,39 @@ disp('test22')
                   for j2 = j1+1:size(obj.conjfia,2)-1
                     
                     for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
-                       
-                       [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
-                       if l
-                         f1 = obj.conjf(k1);
-                         f2 = obj.conjf(k2);
-                         for ir = 1:size(r1,2)
-                           r1(ir) = r1(ir).getVertices();  
-                           if r1(ir).nv == 1            % problem detecting R2R1 in example1
-                       %        continue;
-                           end 
-                           n = n + 1;
-                           obj.maxd(n,1) = r1(ir);
-                           obj.maxf(n,1) = f1;
-                           obj.maxf(n,2) = f2;
-                         end
-                     end
+                        % make this a routine 
+                      rf = obj.conjd(k1) + obj.conjd(k2);
+                     %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
+                     % move simplify inside +
+                      if ~ isempty(rf)
+%                           k1,k2
+%                           rf.print
+                       rf = rf.simplify;  
+                       n = n + 1;
+                       obj.maxd(n,1) = rf; %(irf);
+                       obj.maxf(n,1) = obj.conjf(k1);
+                       obj.maxf(n,2) = obj.conjf(k2);
+                      end
+% 
+%                        [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
+%                        if l
+%                          f1 = obj.conjf(k1);
+%                          f2 = obj.conjf(k2);
+%                          for ir = 1:size(r1,2)
+%                            r1(ir) = r1(ir).getVertices();  
+%                            if r1(ir).nv == 1            % problem detecting R2R1 in example1
+%                        %        continue;
+%                            end 
+%                            n = n + 1;
+%                            obj.maxd(n,1) = r1(ir);
+%                            obj.maxf(n,1) = f1;
+%                            obj.maxf(n,2) = f2;
+%                            k1,k2
+%                            r1(ir).print
+%                            f1
+%                            f2
+%                          end
+%                      end
                   end
                  end
               end
@@ -3509,10 +3528,10 @@ disp('test22')
                if size(obj.maxf(i,:),2) == 1
                    continue;
                end
-%                obj.maxf(i,1)
-%                obj.maxf(i,2)
-%                obj.maxd(i).print
-%                
+%                 obj.maxf(i,1)
+%                 obj.maxf(i,2)
+%                 obj.maxd(i).print
+% %                
                [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
                if lSing
                    continue
@@ -3533,7 +3552,7 @@ disp('test22')
               return
           end
           [mf,md] = maxd.mergeL(maxf);
-          size(mf)
+%           size(mf)
 %          [nmaxf,nmaxd] = obj.merge(maxf,maxd);
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
@@ -3615,8 +3634,8 @@ disp('test22')
            if (ia(n+1) == 1)
               return
            end 
-           disp("***************************************************************************************")
-           disp("Implement this")
+          % disp("***************************************************************************************")
+          % disp("Implement this")
            % loop1
            % remove if equal and update ia,ja
           

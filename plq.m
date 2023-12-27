@@ -571,7 +571,7 @@ classdef plq
       end
 
       function obj = maximumInFirstPairs(obj)
-           
+           disp('FMAX')
            for i=1:2
               for k1 = 1:size(obj.pieces(i).maxd,1)
                 lc(i,k1) = false;
@@ -589,12 +589,12 @@ classdef plq
                      if ~ isempty(rf)
                        rf = rf.simplify;  
                        n = n + 1;
+                       k1, k2
+                       rf.print
                        obj.maxd(n,1) = rf; %(irf);
                        obj.maxf(n,1) = obj.pieces(i).maxf(k1);
                        obj.maxf(n,2) = obj.pieces(j).maxf(k2);
                        obj.nmaxf(n) = 2;
-%                        lc(i,k1) = true;
-%                        lc(j,k2) = true;
                      end
                      %21 dec
 %                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
@@ -839,7 +839,7 @@ classdef plq
           if n == 0
               return
           end
-        %   disp('b4 merge' )
+           disp('b4 merge' )
         %   maxf(3).print
 %           n
            disp("In maximumP")
@@ -847,20 +847,22 @@ classdef plq
           obj.maxd = region.empty();
 %          size(nmaxf,2)
           for i =1:size(maxf,2)
-          %    i
-          %    maxf(i).print
-          %    maxd(i).print
-           %  obj.maxf(i,1) = maxf(i);
-           %  obj.maxd(i,1) = maxd(i);
+              i
+              maxf(i).print
+              maxd(i).print
+             obj.maxf(i,1) = maxf(i);
+             obj.maxd(i,1) = maxd(i);
           end
-          %return
-          %disp("after")
+          return
+          disp("after")
           %size(maxf)
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            
           %nmaxf(3).print
           %nmaxf(8).print
           for i =1:size(nmaxf,2)
+              nmaxf(i).print
+              nmaxd(i).print
             obj.maxf(i,1) = nmaxf(i);
             obj.maxd(i,1) = nmaxd(i);
           end

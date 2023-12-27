@@ -860,6 +860,9 @@ classdef region
             %obj = obj.removeDenominator;
             %disp('b4 get vertices')
             obj = obj.getVertices  ;
+            if obj.nv == 0
+                obj = region.empty;
+            end
             % put simplify in here
          end
 
@@ -993,8 +996,15 @@ classdef region
             end
 
             % original code
+%             for i = size(l,2)
+%                 l(i)
+%             end
             f0 = region(l,obj1.vars);
-            f0 = f0.getVertices;
+            if isempty(f0)
+                f = [f0];
+                return
+            end
+%            f0 = f0.getVertices;
 %            disp('here')
             %f0.print
             %f0.nv
@@ -1825,9 +1835,12 @@ classdef region
              r = region (l1,vars);
            %  disp('in delete')
            %  r.print
-             if r.nv == 0
+             if isempty(r)
                  return
              end
+%              if r.nv == 0
+%                  return
+%              end
              if obj.eqVertices(r)
             %     disp('equal')
                  lelim = true;
@@ -2222,12 +2235,15 @@ classdef region
              end
          end 
          obj = region(l, obj1.vars);
+         if isempty(obj)
+             return
+         end
          %obj.print
          if (isFeasible(obj))
              %disp('feasible')
              obj = obj.unique;
              if obj.nv <= 2
-                 disp('degenerate ');
+                 %disp('degenerate ');
                  obj = region.empty;
              else
                  if obj.nv == 0
@@ -2771,10 +2787,71 @@ classdef region
      % wont work cause of intersection vs union
      function [l,obj] = merge (obj, obj2)
          l = false;
-         n = 0;
-
+         n = 0; 
+%          lQuad = false;
+%          for i =1:size(obj.ineqs,2)
+%               if obj.ineqs(i).isQuad
+%                   lQuad = true;
+%                   %return
+%               end
+%          end
+%          for i =1:size(obj2.ineqs,2)
+%               if obj2.ineqs(i).isQuad
+%                   lQuad = true;
+%                   %return
+%               end
+%          end
+          
+         % to be tested and added
+         lQuad1 = false;
+         nmq1 = 0;
+         for i =1:size(obj.ineqs,2)
+             if obj.ineqs(i).isQuad
+                 lQuad1 = true
+                 nmq1 = nmq1 + 1;
+                 mq1(nmq1) = i;
+             end
+         end
+         lQuad2 = false;
+         nmq2 = 0;
+         
+         for i =1:size(obj2.ineqs,2)
+             if obj2.ineqs(i).isQuad
+                 lQuad2 = true
+                 nmq2 = nmq2 + 1;
+                 mq2(nmq2) = i;
+               
+             end
+         end
+         lQuad1
+         lQuad2
+         if (lQuad1 & lQuad2)
+             disp("Quad merge")
+             obj.print
+             obj2.print
+             for i = 1:nmq1
+               for j = 1:nmq2
+                   if obj.ineqs(mq1(i)) == -obj.ineqs(mq2(j))
+                       n = n + 1;
+                       marki(n) = mq1(i);
+                       markj(n) = mq2(j);
+                   end
+               end
+             end
+             l = true;
+             obj.ineqs(marki) = []; 
+             obj2.ineqs(markj) = [];
+             obj = obj+obj2;
+             return
+%          elseif lQuad1
+%              return
+%          elseif lQuad2
+%              return
+          end
+         lQuad = lQuad1 | lQuad2;
          % cant do + as it returns empty due to contadictory ineqs
          %obj = obj + obj2;
+         % hence remove those then do +
          %obj.print;
        %  disp('in merge')
        %  obj.print
@@ -2798,7 +2875,7 @@ classdef region
 %                  if nvi ~= 2
 %                      continue
 %                  end
-                  if nvi == 1
+                  if nvi == 1 & (~lQuad)
                      
                        l = true;
                        n = n + 1;
@@ -2904,12 +2981,12 @@ classdef region
          if l
           % obj.print;
           % obj2.print;
-           marki
-           markj
+          % marki
+          % markj
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
            obj = obj+obj2;
-           obj.print
+           %obj.print
          end
          
          end
@@ -2961,8 +3038,8 @@ classdef region
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-        %  ia
-        %  ja
+          ia
+%          ja
         %  return
         %  nmaxf= [];
         %  nmaxd= [];
@@ -2979,8 +3056,6 @@ classdef region
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
-           %    i
-           %    r.print
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -2989,25 +3064,16 @@ classdef region
                    if marked(ja(j))
                        continue
                    end
-            %       ja(j)              
-            %       maxd(ja(j)).print
                    [l,r] = r.merge (maxd(ja(j)));
-         %      if i == 10
-               l
-         %      end
                    
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
                    end
-%                    if ~l
-%                      m = m + 1;
-%                      nmaxf(m) = maxf(i);
-%                      nmaxe(m) = maxe(i);
-%                      nmaxd(m) = maxd(ja(j));  
-%                    end
                  end
                end
+               % fix here to combine others - currently combining only with
+               % first
                  for j=ia(i):ia(i+1)-1
                    
                    if marked(ja(j))
