@@ -1,3 +1,17 @@
+figure;
+ ezplot('4 - 2*y - x ')
+ hold on
+ ezplot('-x -2* y - 4 ') 
+ hold on
+ezplot('2*y-x-15 ')
+hold on
+ezplot('8*x+24*y-(x+2*y)^2-32 ')
+hold on
+ezplot('x + (5*y)/2 - 1 ')
+hold on
+xlim([-40,40])
+ylim([-40,40])
+return
 
 %X = [-5,0,-5,-5];
 %Y = [-4,-4,5,-4];

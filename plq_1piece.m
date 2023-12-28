@@ -521,6 +521,7 @@ disp('test22')
 %                figure;
 %                obj.conjf(k).plot3d (limits);
              end
+             disp("plot conj domain")
              figure;
                
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
@@ -536,8 +537,8 @@ disp('test22')
 %                %disp('Conjugate Domain')
                %obj.conjd(k).plotByVertex;
                
-         %      obj.conjd(k).plot;
-         %      obj.conjd(k).plotRegion ("Conj");
+               obj.conjd(k).plot;
+               obj.conjd(k).plotRegion ("Conj");
                
              end
              
@@ -548,8 +549,8 @@ disp('test22')
             figure;
             for i = 1:size(obj.maxf,1)
               disp(i)
-              obj.maxd(i).plot;
-              obj.maxd(i).plotRegion("M"+num2str(i));
+              %obj.maxd(i).plot;
+              %obj.maxd(i).plotRegion("M"+num2str(i));
             end
 %            
          end
@@ -2467,6 +2468,7 @@ disp('test22')
         end
 
         function obj = conjugateFunction (obj,i)
+            disp("in conjugateF")
             vars = obj.f.getVars;
             s1 = sym('s1');
             s2 = sym('s2');
@@ -2896,6 +2898,10 @@ disp('test22')
 
         function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, subdE, edgeNo, unDV, crs, dualvars)
             %subdE = sym(zeros(obj.envd(i).nv,4));
+                vars =  obj.envd(i).vars
+                drx1 = obj.envf(i).dfdx(vars(1))
+                drx2 = obj.envf(i).dfdx(vars(2))
+
             unR = zeros(obj.envd(i).nv,1);
             for j = 1:obj.envd(i).nv-1
                 if unDV(j)
@@ -2912,12 +2918,28 @@ disp('test22')
                 %subdE(j,1) = NCE(j,1);
                 %subdE(j,2) = NCE(j,2);
 
-                mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
-                mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+%                 mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(j+1)) /2;
+%                 mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(j+1)) /2;
+%                 disp("crs")
+%                 subs(crs,dualvars,[mdPtx,mdPty])
+%                 if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+%                   crs = -crs;
+%                 end
+%                 subdE(j,3) = crs;
+
+                dv11 = subs(drx1.f,vars,[obj.envd(i).vx(j),obj.envd(i).vx(j+1)]);
+                dv12 = subs(drx2.f,vars,[obj.envd(i).vx(j),obj.envd(i).vx(j+1)]);
+                dv21 = subs(drx1.f,vars,[obj.envd(i).vy(j),obj.envd(i).vy(j+1)]);
+                dv22 = subs(drx2.f,vars,[obj.envd(i).vy(j),obj.envd(i).vy(j+1)]);
+                
+                %subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2])
+                %subs(crs,dualvars,[mdPtx,mdPty])
+                %if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+                if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
                   crs = -crs;
                 end
                 subdE(j,3) = crs;
+
             end    
             j = obj.envd(i).nv;
             if unDV(obj.envd(i).nv)
@@ -2945,11 +2967,26 @@ disp('test22')
 
 
 
+%                 vars =  obj.envd(i).vars
+%                 drx1 = obj.envf(i).dfdx(vars(1))
+%                 drx2 = obj.envf(i).dfdx(vars(2))
+                
 
-
-            mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
-                mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
-                if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+            
+                %mdPtx = (obj.envd(i).vx(j) + obj.envd(i).vx(1)) /2;
+                %mdPty = (obj.envd(i).vy(j) + obj.envd(i).vy(1)) /2;
+                %disp("crs")
+                %vars
+                %mdPtx,mdPty
+                dv11 = subs(drx1.f,vars,[obj.envd(i).vx(j),obj.envd(i).vx(1)]);
+                dv12 = subs(drx2.f,vars,[obj.envd(i).vx(j),obj.envd(i).vx(1)]);
+                dv21 = subs(drx1.f,vars,[obj.envd(i).vy(j),obj.envd(i).vy(1)]);
+                dv22 = subs(drx2.f,vars,[obj.envd(i).vy(j),obj.envd(i).vy(1)]);
+                
+                %subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2])
+                %subs(crs,dualvars,[mdPtx,mdPty])
+                %!if subs(crs,dualvars,[mdPtx,mdPty]) < 0
+                if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
                   crs = -crs;
                 end
                 subdE(j,3) = crs;
@@ -3468,16 +3505,25 @@ disp('test22')
                   for j2 = j1+1:size(obj.conjfia,2)-1
                     
                     for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
-                        % make this a routine 
+                        % make this a routine
+                        obj.conjd(k1).print
+                        obj.conjd(k2).print
                       rf = obj.conjd(k1) + obj.conjd(k2);
+                      rf.print
                      %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
                      % move simplify inside +
                       if ~ isempty(rf)
-%                           k1,k2
-%                           rf.print
-                       rf = rf.simplify;  
-                       n = n + 1;
+                           k1,k2
+                           rf.print
+                           obj.conjf(k1)
+                           obj.conjf(k2)
+
+                       rf = rf.simplify;
+
+                       rf.print
+                       n = n + 1
                        obj.maxd(n,1) = rf; %(irf);
+                       obj.maxd(n,1).print
                        obj.maxf(n,1) = obj.conjf(k1);
                        obj.maxf(n,2) = obj.conjf(k2);
                       end
@@ -3545,18 +3591,25 @@ disp('test22')
                  maxd(n) = obj.maxd(i);
                  continue
                else  
+                 disp("************************************************************" ) 
                  disp('maximum : check if it reaches here')
+                 disp("************************************************************")  
                end  
           end
           if n == 0
               return
           end
+          maxd(1).print
+          maxd(2).print
+          maxd(3).print
           [mf,md] = maxd.mergeL(maxf);
 %           size(mf)
 %          [nmaxf,nmaxd] = obj.merge(maxf,maxd);
           obj.maxf=functionF.empty();
           obj.maxd = region.empty();
           for i =1:size(mf,2)
+              i
+              md(i).print
             obj.maxf(i,1) = mf(i);
             obj.maxd(i,1) = md(i);
           

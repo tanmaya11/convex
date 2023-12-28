@@ -923,6 +923,7 @@ classdef region
                    l = [l,obj2.ineqs(i).f];
                end
             end 
+            
             f = region(l,obj1.vars);
          end
 
@@ -1239,6 +1240,10 @@ classdef region
          end
 
          function print(obj)
+             if isempty(obj)
+                 disp("Empty region")
+                 return
+             end
              disp("Variables")
              obj.vars
              disp(["nVertices = ", num2str(obj.nv)]);
@@ -1278,15 +1283,15 @@ classdef region
          function plot (obj)
              
              l1 = min(min(obj.vx),min(obj.vy));
-             if l1 < -10
-                 l1 = -10;
+             if l1 < -25
+                 l1 = -25;
              end
              l2 = max(max(obj.vx),max(obj.vy));
-             if l2 > 10
-                 l2 = 10;
+             if l2 > 20
+                 l2 = 20;
              end
-             l1 = -10;
-             l2 = 10;
+             l1 = -25;
+             l2 = 20;
            obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
 
          end
@@ -1316,7 +1321,7 @@ classdef region
          end
 
          function [vx,vy] = plotRegionC (obj, textR, c)
-            limitsx = [-6,6];
+            limitsx = [-25,17];
             limitsy = [-15,20];
             
             pts = 75;
@@ -1367,6 +1372,8 @@ classdef region
          function [vx,vy] = plotRegion (obj, textR)
             limitsx = [-6,6];
             limitsy = [-15,20];
+            limitsx = [-25,17];
+            limitsy = [-6,11];
             
             pts = 75;
             colors = ['b', 'r', 'g', 'm', 'c', 'y'];
@@ -1828,6 +1835,9 @@ classdef region
           for i = 1:size(obj.ineqs,2)
               if ~mark(i)
                   continue
+              end
+              if obj.ineqs(i).isQuad
+                  continue;
               end
              l1 = l;
              l1(i) = [];
@@ -2823,12 +2833,14 @@ classdef region
                
              end
          end
-         lQuad1
-         lQuad2
+         %lQuad1
+         %lQuad2
          if (lQuad1 & lQuad2)
              disp("Quad merge")
              obj.print
              obj2.print
+             marki = [];
+             markj = [];
              for i = 1:nmq1
                for j = 1:nmq2
                    if obj.ineqs(mq1(i)) == -obj.ineqs(mq2(j))
@@ -2838,11 +2850,13 @@ classdef region
                    end
                end
              end
-             l = true;
-             obj.ineqs(marki) = []; 
-             obj2.ineqs(markj) = [];
-             obj = obj+obj2;
-             return
+             if n > 0
+               l = true;
+               obj.ineqs(marki) = []; 
+               obj2.ineqs(markj) = [];
+               obj = obj+obj2;
+               return
+             end
 %          elseif lQuad1
 %              return
 %          elseif lQuad2
@@ -3011,10 +3025,11 @@ classdef region
           n = 0;
           %size(maxf,2)
           for i = 1:size(maxf,2)
-              %maxf(i).print
+              i
+              maxf(i).print
               marked(i) = false;
           end
-
+          ja = [];
           % ja has indices of all equal functions , ia by col no
           for i = 1:size(maxf,2)
               if (marked(i))
@@ -3038,11 +3053,13 @@ classdef region
           for i = 1:size(maxf,2)
               marked(i) = false;
           end
-          ia
+%          ia
 %          ja
         %  return
         %  nmaxf= [];
         %  nmaxd= [];
+        ia
+        ja
         for i = 1:size(maxf,2)
             
             if  marked(i)
@@ -3052,10 +3069,12 @@ classdef region
                 m = m + 1;
                 nmaxf(m) = maxf(i);
                 nmaxd(m) = maxd(i);
+                
             else
                 % get common boundary and merge
                 % make groups and add 
                r = maxd(i);
+               % try with diff r
                lmerge = true;
                while lmerge
                  lmerge = false;

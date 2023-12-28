@@ -226,6 +226,7 @@ return
                    fprintf(uNo, "\n")
                  end
              end
+
              fclose(uNo)
              %return
              figure;
