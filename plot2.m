@@ -1,16 +1,27 @@
+x = sym('x')
+y = sym('y')
+subs(4 - 2*y - x,[x,y],[-20,13])
+subs(x-2*y+44,[x,y],[-20,13])
+return
+
 figure;
- ezplot('4 - 2*y - x ')
+ezplot('8*x+24*y-(x+2*y)^2-32 ')
+hold on
+ezplot('x + (5*y)/2 - 1 ')
+hold on
+return
+
+
+
+ezplot('4 - 2*y - x ')
  hold on
  ezplot('-x -2* y - 4 ') 
  hold on
 ezplot('2*y-x-15 ')
 hold on
-ezplot('8*x+24*y-(x+2*y)^2-32 ')
-hold on
-ezplot('x + (5*y)/2 - 1 ')
-hold on
-xlim([-40,40])
-ylim([-40,40])
+
+
+
 return
 
 %X = [-5,0,-5,-5];

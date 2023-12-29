@@ -40,7 +40,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
              %testCase.PRect.pieces(i).plot
 
             end
-%             return
+           %  return
 %             figure;
 %              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
 %               n = 0

@@ -3506,21 +3506,21 @@ disp('test22')
                     
                     for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
                         % make this a routine
-                        obj.conjd(k1).print
-                        obj.conjd(k2).print
+%                         obj.conjd(k1).print
+%                         obj.conjd(k2).print
                       rf = obj.conjd(k1) + obj.conjd(k2);
-                      rf.print
+%                       rf.print
                      %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
                      % move simplify inside +
                       if ~ isempty(rf)
                            k1,k2
-                           rf.print
-                           obj.conjf(k1)
-                           obj.conjf(k2)
+%                            rf.print
+%                            obj.conjf(k1)
+%                            obj.conjf(k2)
 
-                       rf = rf.simplify;
+             %          rf = rf.simplify;
 
-                       rf.print
+%                        rf.print
                        n = n + 1
                        obj.maxd(n,1) = rf; %(irf);
                        obj.maxd(n,1).print
@@ -3599,9 +3599,9 @@ disp('test22')
           if n == 0
               return
           end
-          maxd(1).print
-          maxd(2).print
-          maxd(3).print
+%           maxd(1).print
+%           maxd(2).print
+%           maxd(3).print
           [mf,md] = maxd.mergeL(maxf);
 %           size(mf)
 %          [nmaxf,nmaxd] = obj.merge(maxf,maxd);

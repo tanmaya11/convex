@@ -1515,9 +1515,9 @@ classdef region
                 
                 for j = i+1: size(m,2)
                   if (abs(m(i))~= inf) & (abs(m(j))~= inf)
-                  d =  (m(i)+m(j) )/2;
+                    d =  (m(i)+m(j) )/2;
                   else
-                      disp('infinity')
+                     % disp('infinity')
                   if (abs(m(i))==inf)
                         d = tan((pi/2 + atan(m(j)))/2);
                     else
@@ -1544,12 +1544,85 @@ classdef region
                     return
                   end
                   
+                  %%%%%%%%%%%%%%%%%%%%%
+                  %disp("perpen")
+                  
+                  if d == 0
+                      px = vx0(1); 
+                      py = vy0(1)+ 0.1;
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  
+                      [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                      px = vx0(1); 
+                      py = vy0(1)- 0.1;
+                      %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  
+                      [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  
+                  else
+                      d = -1/d;
+                  
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                 % l
+                  if l 
+                    return
+                  end
+                  end
+                  %%%%%%%%%%%%%%%%%%%%%
                 end
               end
-
+              %disp('slope size')
+              %size(m,2)
+              if size(m,2) == 1
+                  d = -1/m(1)
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                 % l
+                  if l 
+                    return
+                  end
+                  
+              % make loop
                   
 %                  px = vx0(1) + 0.1
 %                  py = vy0(1)
+%                  
 %                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
 %                  if l 
 %                    return
@@ -1568,6 +1641,9 @@ classdef region
 %                  end
 %                  px = vx0(1) 
 %                  py = vy0(1) - 0.1
+%                  obj.ptFeasible(obj.vars,[px,py])
+%                  fv01 = f1.subsF(obj.vars,[px,py])
+%                  fv02 = f2.subsF(obj.vars,[px,py])
 %                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
 %                  if l 
 %                    return
@@ -1584,6 +1660,19 @@ classdef region
 %                  if l 
 %                    return
 %                  end
+%                    px = vx0(1) + 0.1
+%                  py = vy0(1) - 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1) + 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+              end
 %                  px = vx0(1) - 2/9
 %                  py = vy0(1) - 1/9
 %                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
@@ -1592,6 +1681,8 @@ classdef region
 %                  end
 %               
               disp("SINGLETON REGION")
+              obj.print
+              
               lsing = true;
               
               end
@@ -2863,6 +2954,9 @@ classdef region
 %              return
           end
          lQuad = lQuad1 | lQuad2;
+         if lQuad1 & lQuad2
+             lQuad= false;
+         end
          % cant do + as it returns empty due to contadictory ineqs
          %obj = obj + obj2;
          % hence remove those then do +
@@ -3020,7 +3114,7 @@ classdef region
      end
 
      function [nmaxf,nmaxd] = mergeL(maxd,maxf)  % (obj,maxf,maxd)
-          %disp('in merge')
+          disp('in mergeL')
           ia(1) = 1;
           n = 0;
           %size(maxf,2)
@@ -3065,10 +3159,15 @@ classdef region
             if  marked(i)
                 continue
             end
-            if (ia(i) == ia(i+1)) 
-                m = m + 1;
+            if (ia(i) == ia(i+1))
+                if marked(i)
+                   continue
+                end
+                 
+                m = m + 1
                 nmaxf(m) = maxf(i);
                 nmaxd(m) = maxd(i);
+                maxd(i).print
                 
             else
                 % get common boundary and merge
@@ -3091,23 +3190,58 @@ classdef region
                    end
                  end
                end
+               m = m + 1
+               nmaxf(m) = maxf(i);
+               nmaxd(m) = r; 
+               r.print
+               marked
+               
                % fix here to combine others - currently combining only with
                % first
-                 for j=ia(i):ia(i+1)-1
-                   
-                   if marked(ja(j))
-                       continue
-                   end
-                   marked(ja(j)) = true;
-                   m = m + 1;
-                   nmaxf(m) = maxf(i);
-                   nmaxd(m) = maxd(ja(j));  
+               % try with diff r
+               for j=ia(i):ia(i+1)-1
+                 if marked(ja(j))
+                   continue
                  end
+                 r = maxd(ja(j));
+                 lmerge = true;
+                 while lmerge
+                   lmerge = false;
+                   for k=j+1:ia(i+1)-1
+                     if marked(ja(k))
+                       continue
+                     end
+                     [l,r] = r.merge (maxd(ja(k)));
+                     if l
+                       marked(ja(k)) = true;
+                       lmerge = true;
+                     end
+                   end
+                 end
+                 m = m + 1
+                 nmaxf(m) = maxf(i);
+                 nmaxd(m) = r; 
+                 marked(ja(j)) = true;
+                 r.print
+                 marked
                
-               m = m + 1;
-               nmaxf(m) = maxf(i);
-               %r = r.getVertices();
-               nmaxd(m) = r;  
+               end
+
+%                  for j=ia(i):ia(i+1)-1
+%                    
+%                    if marked(ja(j))
+%                        continue
+%                    end
+%                    marked(ja(j)) = true;
+%                    m = m + 1;
+%                    nmaxf(m) = maxf(i);
+%                    nmaxd(m) = maxd(ja(j));  
+%                  end
+               
+%                m = m + 1;
+%                nmaxf(m) = maxf(i);
+%                %r = r.getVertices();
+%                nmaxd(m) = r;  
                    
             end
         end
