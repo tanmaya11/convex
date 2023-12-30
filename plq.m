@@ -785,8 +785,8 @@ classdef plq
                 % obj.maxd(i,1).plotRegion;
                 % end
                  %continue
-                 %obj.maxd(i,1).print
-                 %obj.maxf(i,:).printL
+                 obj.maxd(i,1).print
+                 obj.maxf(i,:).printL
                  %%%%%%%%%%
 
                           
@@ -847,22 +847,22 @@ classdef plq
           obj.maxd = region.empty();
 %          size(nmaxf,2)
           for i =1:size(maxf,2)
-              i
-              maxf(i).print
-              maxd(i).print
-             obj.maxf(i,1) = maxf(i);
-             obj.maxd(i,1) = maxd(i);
+         %     i
+         %     maxf(i).print
+         %     maxd(i).print
+         %    obj.maxf(i,1) = maxf(i);
+         %    obj.maxd(i,1) = maxd(i);
           end
-          return
-          disp("after")
+         % return
+         % disp("after")
           %size(maxf)
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            
           %nmaxf(3).print
           %nmaxf(8).print
           for i =1:size(nmaxf,2)
-              nmaxf(i).print
-              nmaxd(i).print
+          %    nmaxf(i).print
+          %    nmaxd(i).print
             obj.maxf(i,1) = nmaxf(i);
             obj.maxd(i,1) = nmaxd(i);
           end

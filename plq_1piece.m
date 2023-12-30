@@ -3511,6 +3511,7 @@ disp('test22')
                       rf = obj.conjd(k1) + obj.conjd(k2);
 %                       rf.print
                      %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
+                     
                      % move simplify inside +
                       if ~ isempty(rf)
                            k1,k2
@@ -3519,8 +3520,11 @@ disp('test22')
 %                            obj.conjf(k2)
 
              %          rf = rf.simplify;
-
-%                        rf.print
+                         rf.print 
+                         rf = rf.simplifyOpenRegion
+                         %return
+                         disp('aft')
+                        rf.print
                        n = n + 1
                        obj.maxd(n,1) = rf; %(irf);
                        obj.maxd(n,1).print

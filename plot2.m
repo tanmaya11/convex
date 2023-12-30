@@ -1,3 +1,7 @@
+ezplot('(9*y)/5 - x + 5 ')
+hold on
+return
+
 x = sym('x')
 y = sym('y')
 subs(4 - 2*y - x,[x,y],[-20,13])

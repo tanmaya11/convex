@@ -1696,6 +1696,8 @@ classdef region
               index=1;
           else
               l = false;
+              sv1
+              sv2
               fmax = 0;
               index=0;
           end
@@ -1953,7 +1955,196 @@ classdef region
 
         end
 
+        function obj = simplifyOpenRegion1 (obj, nP, px, py)
+            % remove ineqs that dont go through a vertex
+            n = 0;
+            mark = [];
+            for i = 1:size(obj.ineqs,2)
+                l = false;
+                for j = 1:nP
+                    if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) < 1.0d-8)
+                        l = true;
+                        break
+                    end
+                end
+                if l
+                    continue;
+                end
+                n = n + 1;
+                mark(n) = i;
+            end
+            obj.ineqs(mark) = [];
+           
+        end
 
+        function obj = simplifyOpenRegion (obj)
+            % remove ineqs that dont go through a vertex
+            nP = 0;
+            for j = 1:obj.nv
+              if abs(obj.vx(j)) == intmax
+                continue
+              end
+              if abs(obj.vy(j)) == intmax
+                continue
+              end
+              nP = nP+1;
+              px(nP) = obj.vx(j);
+              py(nP) = obj.vy(j);
+            end
+%             nP
+%             px
+%             py
+            obj = obj.simplifyOpenRegion1 (nP, px, py);
+            disp('inside')
+            obj.print
+            
+            % get point and line info
+            for i = 1:size(obj.ineqs,2)
+                nline(i) = 0;
+            end
+            for j = 1:nP
+                nPoint(j) = 0;
+            end
+            for i = 1:size(obj.ineqs,2)
+                for j = 1:nP
+                    
+                    if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) > 1.0d-8)
+                        continue;
+                    end
+                    nPoint(j)=nPoint(j)+1;
+                    point(j,nPoint(j)) = i;
+                    if obj.ineqs(i).isQuad
+                        continue
+                    end
+                    nline(i) = nline(i)+1;
+                    line(i,nline(i)) = j;
+                end
+            end
+            nPoint
+            point
+           % line
+            if all(nPoint) == 2
+                return;
+            end
+            m0 = obj.slopes;
+            n0 = 0;
+            n1 = 0;
+            
+            for i = 1:size(obj.ineqs,2)
+               if obj.ineqs(i).isQuad
+                n0 = n0+1;
+                m(n0) = intmax;
+               else
+                n0 = n0+1;
+                n1 = n1+1;
+                m(n0) = m0(n1);
+               end
+            end
+            if n0 > 0
+                return
+            end
+            %m
+            markF = [];
+            for ip = 1:nP
+                sx = px(ip);
+                sy = py(ip);
+                pi0 = point(ip,1:nPoint(ip));
+                mark = [];
+                for j = 1:nPoint(ip)
+                    if obj.ineqs(pi0(j)).isQuad
+                        mark = [mark,j];
+                    end
+                end
+                
+                pi0(mark) = [];
+                pi0
+                mp = m(pi0);
+                [sorted_m, indices] = sort(mp)
+              for i = 1:size(indices,2)
+                m1 = sorted_m(i);
+                if i == size(indices,2)
+                    m2 = sorted_m(1);
+                else
+                    m2 = sorted_m(i+1);
+                end
+                if (abs(m1)~= inf) & (abs(m2)~= inf)
+                  d =  (m1+m2 )/2;
+                else
+                  % disp('infinity')
+                  if (abs(m1)==inf)
+                    d = tan((pi/2 + atan(m2))/2);
+                  else
+                      
+                    d = tan((pi/2 + atan(m1))/2);
+                  end
+                end
+                if i == size(indices,2)
+                    d = -d;
+                end
+                c = sy - d * sx;
+                tx = sx + 0.1;
+                ty = d*tx+c;       
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                   lm = false;
+                   continue
+                end
+                tx = sx - 0.1;
+                ty = d*tx+c;       
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                  lm = false;
+                  continue
+                end
+
+
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if i == 1
+                    m2 = sorted_m(size(indices,2));
+                else
+                    m2 = sorted_m(i-1);
+                end
+                if (abs(m1)~= inf) & (abs(m2)~= inf)
+                  d =  (m1+m2 )/2;
+                else
+                  % disp('infinity')
+                  if (abs(m1)==inf)
+                    d = tan((pi/2 + atan(m2))/2);
+                  else
+                      
+                    d = tan((pi/2 + atan(m1))/2);
+                  end
+                end
+                if i == 1
+                    d = -d;
+                end
+                c = sy - d * sx;
+                tx = sx + 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                   lm = false;
+                   continue
+                end
+                tx = sx - 0.1;
+                ty = d*tx+c;       
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                  lm = false;
+                  continue
+                end
+                markF = [markF,pi0(indices(i))];
+                %indices
+                %pi0
+
+                
+              end
+            end
+            markF
+            obj.ineqs(markF) = [];    
+        end
+            
+            
         function obj = simplify (obj) %, vars)
             %disp('in simplify')
             %obj.print
@@ -2906,6 +3097,7 @@ classdef region
          % to be tested and added
          lQuad1 = false;
          nmq1 = 0;
+         size(obj.ineqs,2)
          for i =1:size(obj.ineqs,2)
              if obj.ineqs(i).isQuad
                  lQuad1 = true
@@ -2934,7 +3126,7 @@ classdef region
              markj = [];
              for i = 1:nmq1
                for j = 1:nmq2
-                   if obj.ineqs(mq1(i)) == -obj.ineqs(mq2(j))
+                   if obj.ineqs(mq1(i)) == -obj2.ineqs(mq2(j))
                        n = n + 1;
                        marki(n) = mq1(i);
                        markj(n) = mq2(j);
@@ -3183,7 +3375,7 @@ classdef region
                        continue
                    end
                    [l,r] = r.merge (maxd(ja(j)));
-                   
+                   r.print
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
