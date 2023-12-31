@@ -587,7 +587,7 @@ classdef plq
                      %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
                      % move simplify inside +
                      if ~ isempty(rf)
-                       %rf = rf.simplify;  
+                       rf = rf.simplifyOpenRegion;  
                        n = n + 1;
                        k1, k2
                        rf.print
@@ -856,6 +856,10 @@ classdef plq
          % return
          % disp("after")
           %size(maxf)
+          disp('b4 merge')
+          maxd(17).print
+          maxd(18).print
+          maxd(24).print
            [nmaxf,nmaxd] = obj.merge(maxf,maxd);
            
           %nmaxf(3).print

@@ -1,3 +1,18 @@
+figure;
+ezplot('x + 2*y - 4  ')
+hold on
+ezplot('- x - 2*y - 4 ')
+hold on
+ezplot('(x + 2*y)^2 - 24*y - 8*x + 32  ')
+hold on
+ezplot('x - 2*y + 12  ')
+hold on
+ezplot('46 - 7*y - x  ')
+hold on
+return
+
+
+
 ezplot('(9*y)/5 - x + 5 ')
 hold on
 return

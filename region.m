@@ -3100,7 +3100,7 @@ classdef region
          size(obj.ineqs,2)
          for i =1:size(obj.ineqs,2)
              if obj.ineqs(i).isQuad
-                 lQuad1 = true
+                 lQuad1 = true;
                  nmq1 = nmq1 + 1;
                  mq1(nmq1) = i;
              end
@@ -3110,7 +3110,7 @@ classdef region
          
          for i =1:size(obj2.ineqs,2)
              if obj2.ineqs(i).isQuad
-                 lQuad2 = true
+                 lQuad2 = true;
                  nmq2 = nmq2 + 1;
                  mq2(nmq2) = i;
                
@@ -3119,9 +3119,9 @@ classdef region
          %lQuad1
          %lQuad2
          if (lQuad1 & lQuad2)
-             disp("Quad merge")
-             obj.print
-             obj2.print
+             %disp("Quad merge")
+             %obj.print
+             %obj2.print
              marki = [];
              markj = [];
              for i = 1:nmq1
@@ -3135,9 +3135,16 @@ classdef region
              end
              if n > 0
                l = true;
+               obj3 = obj;
                obj.ineqs(marki) = []; 
                obj2.ineqs(markj) = [];
                obj = obj+obj2;
+               disp("returning from quad")
+               if isempty(obj)
+                   disp('reverting')
+                   l = false;
+                   obj=obj3;
+               end
                return
              end
 %          elseif lQuad1
@@ -3162,6 +3169,7 @@ classdef region
          marki = [];
          markj = [];
          for i =1:size(obj.ineqs,2)
+             
            for j =1:size(obj2.ineqs,2)
                %j
              if obj.ineqs(i) == -obj2.ineqs(j)
@@ -3176,7 +3184,7 @@ classdef region
 %                      continue
 %                  end
                   if nvi == 1 & (~lQuad)
-                     
+              %         disp('here')  
                        l = true;
                        n = n + 1;
                        marki(n) = i;
@@ -3277,15 +3285,25 @@ classdef region
                  end  
              end
            end
+           %if l
+           %    break
+           %end
          end
          if l
-          % obj.print;
-          % obj2.print;
-          % marki
-          % markj
+           obj.print;
+           obj2.print;
+           marki
+           markj
+           obj3 = obj;
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
            obj = obj+obj2;
+           if isempty(obj)
+               disp('empty')
+               l = false;
+               obj = obj3;
+               obj.print
+           end
            %obj.print
          end
          
@@ -3347,7 +3365,10 @@ classdef region
         ia
         ja
         for i = 1:size(maxf,2)
-            
+            if i >= 9
+            disp("outer loop")
+            i
+            end
             if  marked(i)
                 continue
             end
@@ -3359,6 +3380,7 @@ classdef region
                 m = m + 1
                 nmaxf(m) = maxf(i);
                 nmaxd(m) = maxd(i);
+                marked(i) = true;
                 maxd(i).print
                 
             else
@@ -3375,7 +3397,9 @@ classdef region
                        continue
                    end
                    [l,r] = r.merge (maxd(ja(j)));
-                   r.print
+                   if i >= 9
+                   j,l
+                   end
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
@@ -3385,8 +3409,12 @@ classdef region
                m = m + 1
                nmaxf(m) = maxf(i);
                nmaxd(m) = r; 
+               marked(i) = true;
+               if i >= 9
                r.print
+               disp("marked after first loop")
                marked
+               end
                
                % fix here to combine others - currently combining only with
                % first
@@ -3396,6 +3424,11 @@ classdef region
                    continue
                  end
                  r = maxd(ja(j));
+                 if i >= 9
+                 disp('in loop')
+                 j
+                 end
+                 %r.print
                  lmerge = true;
                  while lmerge
                    lmerge = false;
@@ -3404,6 +3437,9 @@ classdef region
                        continue
                      end
                      [l,r] = r.merge (maxd(ja(k)));
+                     if i >= 9
+                     ja(j),ja(k),l
+                     end
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
@@ -3414,8 +3450,11 @@ classdef region
                  nmaxf(m) = maxf(i);
                  nmaxd(m) = r; 
                  marked(ja(j)) = true;
-                 r.print
+                 %r.print
+                 if i >= 9
+                 disp("marked in loop")
                  marked
+                 end
                
                end
 
