@@ -24,9 +24,12 @@ classdef functionF
               obj.num=num;
               obj.den=den;
             end
-            obj.f= obj.num/obj.den;
+            if nargin ~= 0
+            
+            obj.f= obj.num / obj.den;
             obj.vars = symvar(obj.f);
             obj.nv = size(obj.vars,2);
+            end
         end
         
         function f = getF(obj)
@@ -371,11 +374,11 @@ classdef functionF
             %y = yv;
             if (subs(obj.den, vars, vals) == 0)
                 if (subs(obj.num, vars, vals) == 0)
-                  f = functionF(nan,1);  
+                  f = functionF(sym(nan),1);  
                 elseif (subs(obj.num, vars, vals) > 0)    
-                  f = functionF(intmax,1);
+                  f = functionF(sym(intmax),1);
                 else
-                  f = functionF(-intmax,1);
+                  f = functionF(sym(-intmax),1);
                 end  
                 return;
             end

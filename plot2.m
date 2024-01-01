@@ -1,13 +1,9 @@
 figure;
-ezplot('x + 2*y - 4  ')
+ezplot('1-5/2*y-x  ')
 hold on
 ezplot('- x - 2*y - 4 ')
 hold on
-ezplot('(x + 2*y)^2 - 24*y - 8*x + 32  ')
-hold on
-ezplot('x - 2*y + 12  ')
-hold on
-ezplot('46 - 7*y - x  ')
+ezplot('x - 2*y +44  ')
 hold on
 return
 

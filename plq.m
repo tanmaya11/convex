@@ -587,14 +587,19 @@ classdef plq
                      %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
                      % move simplify inside +
                      if ~ isempty(rf)
+                       k1, k2
+                       rf.print
+                       
                        rf = rf.simplifyOpenRegion;  
                        n = n + 1;
-                       k1, k2
                        rf.print
                        obj.maxd(n,1) = rf; %(irf);
                        obj.maxf(n,1) = obj.pieces(i).maxf(k1);
                        obj.maxf(n,2) = obj.pieces(j).maxf(k2);
                        obj.nmaxf(n) = 2;
+                     end
+                     if k1 == 2 & k2 == 9
+                         return
                      end
                      %21 dec
 %                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);

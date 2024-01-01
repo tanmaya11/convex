@@ -3525,6 +3525,9 @@ disp('test22')
                          %return
                          disp('aft')
                         rf.print
+                        if isempty(rf)
+                            continue
+                        end
                        n = n + 1
                        obj.maxd(n,1) = rf; %(irf);
                        obj.maxd(n,1).print
@@ -3572,7 +3575,7 @@ disp('test22')
 
           n = 0;
           for i = 1:size(obj.maxd,1)
-              % i
+               i,size(obj.maxd,1)
                
                % check size of obj.maxf(i,:) and fix
                if size(obj.maxf(i,:),2) == 1
@@ -3580,7 +3583,7 @@ disp('test22')
                end
 %                 obj.maxf(i,1)
 %                 obj.maxf(i,2)
-%                 obj.maxd(i).print
+                 obj.maxd(i).print
 % %                
                [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
                if lSing

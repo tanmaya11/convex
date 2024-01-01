@@ -1956,12 +1956,14 @@ classdef region
         end
 
         function obj = simplifyOpenRegion1 (obj, nP, px, py)
-            % remove ineqs that dont go through a vertex
+            % remove ineqs that dont goobj.ineqs(i). through a vertex
             n = 0;
             mark = [];
             for i = 1:size(obj.ineqs,2)
                 l = false;
+                %obj.ineqs(i)
                 for j = 1:nP
+                    obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f
                     if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) < 1.0d-8)
                         l = true;
                         break
@@ -1991,17 +1993,14 @@ classdef region
               px(nP) = obj.vx(j);
               py(nP) = obj.vy(j);
             end
-%             nP
-%             px
-%             py
+             nP
+             px
+             py
             obj = obj.simplifyOpenRegion1 (nP, px, py);
             disp('inside')
             obj.print
-            
-            % get point and line info
-            for i = 1:size(obj.ineqs,2)
-                nline(i) = 0;
-            end
+               
+            % get point  info
             for j = 1:nP
                 nPoint(j) = 0;
             end
@@ -2016,15 +2015,19 @@ classdef region
                     if obj.ineqs(i).isQuad
                         continue
                     end
-                    nline(i) = nline(i)+1;
-                    line(i,nline(i)) = j;
+                    
                 end
             end
             nPoint
             point
-           % line
+          
             if all(nPoint) == 2
                 return;
+            end
+            for i = 1:size(obj.ineqs,2)
+               if obj.ineqs(i).isQuad
+                   return
+               end
             end
             m0 = obj.slopes;
             n0 = 0;
@@ -2033,15 +2036,13 @@ classdef region
             for i = 1:size(obj.ineqs,2)
                if obj.ineqs(i).isQuad
                 n0 = n0+1;
+                % replace by slope of tangent and keep it
                 m(n0) = intmax;
                else
                 n0 = n0+1;
                 n1 = n1+1;
                 m(n0) = m0(n1);
                end
-            end
-            if n0 > 0
-                return
             end
             %m
             markF = [];
@@ -2067,6 +2068,7 @@ classdef region
                 else
                     m2 = sorted_m(i+1);
                 end
+                m1,m2
                 if (abs(m1)~= inf) & (abs(m2)~= inf)
                   d =  (m1+m2 )/2;
                 else
@@ -2082,16 +2084,16 @@ classdef region
                     d = -d;
                 end
                 c = sy - d * sx;
-                tx = sx + 0.1;
-                ty = d*tx+c;       
-                %obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx + 0.1
+                ty = d*tx+c       
+                obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                    lm = false;
                    continue
                 end
-                tx = sx - 0.1;
-                ty = d*tx+c;       
-                %obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx - 0.1
+                ty = d*tx+c       
+                obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                   lm = false;
                   continue
@@ -2119,21 +2121,21 @@ classdef region
                     d = -d;
                 end
                 c = sy - d * sx;
-                tx = sx + 0.1;
-                ty = d*tx+c   ;    
-                %obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx + 0.1
+                ty = d*tx+c       
+                obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                    lm = false;
                    continue
                 end
-                tx = sx - 0.1;
-                ty = d*tx+c;       
-                %obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx - 0.1
+                ty = d*tx+c       
+                obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                   lm = false;
                   continue
                 end
-                markF = [markF,pi0(indices(i))];
+                markF = [markF,pi0(indices(i))]
                 %indices
                 %pi0
 
@@ -2141,7 +2143,14 @@ classdef region
               end
             end
             markF
-            obj.ineqs(markF) = [];    
+            if size(markF,2) == size(obj.ineqs,2)
+                obj = region.empty
+                disp("Singleton")
+                return
+                
+            end
+            obj.ineqs(markF) = [];
+
         end
             
             
