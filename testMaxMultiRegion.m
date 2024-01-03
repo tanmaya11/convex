@@ -26,7 +26,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
     methods (Test)
 
         function testMax (testCase)
-            for i=2:2
+            for i=1:2
                 i
             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).convexEnvelope;
             disp("ConvexEnvelopw")
@@ -41,31 +41,31 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
              %testCase.PRect.pieces(i).plot
 
             end
-           %  return
-            figure;
-             colors = ['b', 'r', 'g', 'm', 'c', 'y'];
-              n = 0
-              ii = 2
-              f = testCase.PRect.pieces(ii).maxf(1)
-              c = colors(mod(n,6)+1)
-
-               for i =1:size(testCase.PRect.pieces(ii).maxf,1)
-                     i
-                   if (f.f ~= testCase.PRect.pieces(ii).maxf(i).f)  
-                       n = n + 1
-                       c = colors(mod(n,6)+1)
-                       f = testCase.PRect.pieces(ii).maxf(i)
-                   end
-%                    testCase.PRect.maxf(i,1).print;
-%                    testCase.PRect.maxd(i,1).print;
-                   testCase.PRect.pieces(ii).maxd(i).plot;
-                   textR = "R"+num2str(i);
-                   textR="";
-                   testCase.PRect.pieces(ii).maxd(i).plotRegionC(textR,c);
-
-
-%           
-             end
+             return
+%             figure;
+%              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+%               n = 0
+%               ii = 2
+%               f = testCase.PRect.pieces(ii).maxf(1)
+%               c = colors(mod(n,6)+1)
+% 
+%                for i =1:size(testCase.PRect.pieces(ii).maxf,1)
+%                      i
+%                    if (f.f ~= testCase.PRect.pieces(ii).maxf(i).f)  
+%                        n = n + 1
+%                        c = colors(mod(n,6)+1)
+%                        f = testCase.PRect.pieces(ii).maxf(i)
+%                    end
+% %                    testCase.PRect.maxf(i,1).print;
+% %                    testCase.PRect.maxd(i,1).print;
+%                    testCase.PRect.pieces(ii).maxd(i).plot;
+%                    textR = "R"+num2str(i);
+%                    textR="";
+%                    testCase.PRect.pieces(ii).maxd(i).plotRegionC(textR,c);
+% 
+% 
+% %           
+%              end
 % 
 %            return
 %            disp("rect")
@@ -74,9 +74,10 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 %             testCase.PRect.pieces(i).maxd(7).print
 %             testCase.PRect.pieces(i).maxf(7)
 %             testCase.PRect.nPieces=2;
-%             testCase.PRect = testCase.PRect.maximumInFirstPairs;
-             return
+             testCase.PRect = testCase.PRect.maximumInFirstPairs;
+%             return
 %             
+             disp('b4 max') 
              testCase.PRect=testCase.PRect.maximumP;
 %            % return
 %             size(testCase.PRect.maxf)
@@ -86,6 +87,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             testCase.PRect.maxd(i).print
             testCase.PRect.maxf(i)
             end
+%            return
             figure;
              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
               n = 0

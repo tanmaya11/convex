@@ -1963,7 +1963,7 @@ classdef region
                 l = false;
                 %obj.ineqs(i)
                 for j = 1:nP
-                    obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f
+                    %obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f
                     if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) < 1.0d-8)
                         l = true;
                         break
@@ -1993,12 +1993,12 @@ classdef region
               px(nP) = obj.vx(j);
               py(nP) = obj.vy(j);
             end
-             nP
-             px
-             py
+             % nP
+             % px
+             % py
             obj = obj.simplifyOpenRegion1 (nP, px, py);
-            disp('inside')
-            obj.print
+            % disp('inside')
+            % obj.print
                
             % get point  info
             for j = 1:nP
@@ -2018,8 +2018,8 @@ classdef region
                     
                 end
             end
-            nPoint
-            point
+            % nPoint
+            % point
           
             if all(nPoint) == 2
                 return;
@@ -2032,8 +2032,9 @@ classdef region
             m0 = obj.slopes;
             n0 = 0;
             n1 = 0;
-            
+            markF0 = [];
             for i = 1:size(obj.ineqs,2)
+                markF0(i) = i;
                if obj.ineqs(i).isQuad
                 n0 = n0+1;
                 % replace by slope of tangent and keep it
@@ -2045,6 +2046,7 @@ classdef region
                end
             end
             %m
+            
             markF = [];
             for ip = 1:nP
                 sx = px(ip);
@@ -2058,9 +2060,9 @@ classdef region
                 end
                 
                 pi0(mark) = [];
-                pi0
+                %pi0
                 mp = m(pi0);
-                [sorted_m, indices] = sort(mp)
+                [sorted_m, indices] = sort(mp);
               for i = 1:size(indices,2)
                 m1 = sorted_m(i);
                 if i == size(indices,2)
@@ -2068,7 +2070,7 @@ classdef region
                 else
                     m2 = sorted_m(i+1);
                 end
-                m1,m2
+             %   m1,m2
                 if (abs(m1)~= inf) & (abs(m2)~= inf)
                   d =  (m1+m2 )/2;
                 else
@@ -2084,16 +2086,16 @@ classdef region
                     d = -d;
                 end
                 c = sy - d * sx;
-                tx = sx + 0.1
-                ty = d*tx+c       
-                obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx + 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                    lm = false;
                    continue
                 end
-                tx = sx - 0.1
-                ty = d*tx+c       
-                obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx - 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                   lm = false;
                   continue
@@ -2121,35 +2123,47 @@ classdef region
                     d = -d;
                 end
                 c = sy - d * sx;
-                tx = sx + 0.1
-                ty = d*tx+c       
-                obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx + 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                    lm = false;
                    continue
                 end
-                tx = sx - 0.1
-                ty = d*tx+c       
-                obj.ptFeasible (obj.vars,[tx,ty])
+                tx = sx - 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
                 if obj.ptFeasible (obj.vars,[tx,ty])
                   lm = false;
                   continue
                 end
-                markF = [markF,pi0(indices(i))]
+                markF = [markF,pi0(indices(i))];
                 %indices
                 %pi0
 
                 
               end
+            
+            %markF
+            markF1 = [];
+            for i = 1: size(markF0,1)
+              for j = 1: size(markF,1)
+                 if markF(j)==markF0(i)
+                     markF1 = [markF1,markF(j)];
+                     break;
+                 end
+              end
+
             end
-            markF
-            if size(markF,2) == size(obj.ineqs,2)
+            markF0 = markF1;
+            end
+            if size(markF0,2) == size(obj.ineqs,2)
                 obj = region.empty
                 disp("Singleton")
                 return
                 
             end
-            obj.ineqs(markF) = [];
+            obj.ineqs(markF0) = [];
 
         end
             
@@ -3338,8 +3352,8 @@ classdef region
           n = 0;
           %size(maxf,2)
           for i = 1:size(maxf,2)
-              i
-              maxf(i).print
+              %i
+              %maxf(i).print
               marked(i) = false;
           end
           ja = [];
@@ -3374,10 +3388,10 @@ classdef region
         ia
         ja
         for i = 1:size(maxf,2)
-            if i >= 9
-            disp("outer loop")
-            i
-            end
+            %if i >= 9
+            %disp("outer loop")
+            %i
+            %end
             if  marked(i)
                 continue
             end
@@ -3406,9 +3420,9 @@ classdef region
                        continue
                    end
                    [l,r] = r.merge (maxd(ja(j)));
-                   if i >= 9
-                   j,l
-                   end
+                   % if i >= 9
+                   % j,l
+                   % end
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
@@ -3419,12 +3433,12 @@ classdef region
                nmaxf(m) = maxf(i);
                nmaxd(m) = r; 
                marked(i) = true;
-               if i >= 9
-               r.print
-               disp("marked after first loop")
-               marked
-               end
-               
+               % if i >= 9
+               % r.print
+               % disp("marked after first loop")
+               % marked
+               % end
+               % 
                % fix here to combine others - currently combining only with
                % first
                % try with diff r
@@ -3433,10 +3447,10 @@ classdef region
                    continue
                  end
                  r = maxd(ja(j));
-                 if i >= 9
-                 disp('in loop')
-                 j
-                 end
+                 % if i >= 9
+                 % disp('in loop')
+                 % j
+                 % end
                  %r.print
                  lmerge = true;
                  while lmerge
@@ -3446,9 +3460,9 @@ classdef region
                        continue
                      end
                      [l,r] = r.merge (maxd(ja(k)));
-                     if i >= 9
-                     ja(j),ja(k),l
-                     end
+                     % if i >= 9
+                     % ja(j),ja(k),l
+                     % end
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
@@ -3460,10 +3474,10 @@ classdef region
                  nmaxd(m) = r; 
                  marked(ja(j)) = true;
                  %r.print
-                 if i >= 9
-                 disp("marked in loop")
-                 marked
-                 end
+                 % if i >= 9
+                 % disp("marked in loop")
+                 % marked
+                 % end
                
                end
 

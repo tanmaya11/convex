@@ -1,4 +1,33 @@
 figure;
+ezplot('x + 0*y + 4 ') 
+hold on
+ezplot('0*x + y + 5  ') 
+hold on
+
+
+ezplot('9*y/5-x+5')
+hold on
+return
+
+
+
+ezplot('x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+ezplot('x + 0*y + 1 ') 
+hold on
+ezplot('0*x + y + 1 ') 
+hold on
+ezplot('2* x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+%ezplot('x + 7*y - 46 <= 0') 
+%hold on
+return
+
+
 ezplot('1-5/2*y-x  ')
 hold on
 ezplot('- x - 2*y - 4 ')
