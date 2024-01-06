@@ -32,8 +32,9 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             disp("ConvexEnvelopw")
              testCase.PRect.pieces(i)=testCase.PRect.pieces(i).conjugate;
              disp("Conjugate")
-             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).intersectionConjugateDomain;
-             disp("domain intersection")
+             testCase.PRect.pieces(i) = testCase.PRect.pieces(i).maximumConjugate
+             %testCase.PRect.pieces(i)=testCase.PRect.pieces(i).intersectionConjugateDomain;
+             %disp("domain intersection")
              return
              testCase.PRect.pieces(i)=testCase.PRect.pieces(i).maximum;
              disp("max")

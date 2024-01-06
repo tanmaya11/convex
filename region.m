@@ -1458,6 +1458,43 @@ classdef region
               end
            end
          end
+
+         function m = slopes2 (obj)
+           n = 0 ;  
+           % l = false;
+           for i = 1:size(obj.ineqs,2)
+              if obj.ineqs(i).isLinear
+                  c = obj.ineqs(i).getLinearCoeffs (obj.vars);
+                  n = n + 1;
+                  m(n) = -c(1)/c(2);
+              else
+                  vars =  obj.vars;
+                  
+                  for j = 1:obj.nv
+                      if abs(obj.ineqs(i).subsF(vars,[obj.vx(j),obj.vy(j)]).f) < 1.0d-8
+                          pt = [obj.vx(j),obj.vy(j)];
+                          break;
+                      end
+                  end
+                  drx1 = obj.ineqs(i).dfdx(vars(1));
+                  drx2 = obj.ineqs(i).dfdx(vars(2));
+                  m0 = drx1.f/drx2.f;
+                  n = n + 1;
+                  %disp("Slope of tangent")
+                  %pt
+                  % l = true;
+                  m(n) = subs(m0,vars,pt);
+
+              end
+              % if l
+              %      disp("Slope of tangent")
+              %      pt
+              %      m
+              % end
+
+           end
+         end
+
          % max over a region
          function [l, fmax, index, lsing] = maxArray (obj, f1, f2) 
           lsing = false;  
@@ -1465,7 +1502,7 @@ classdef region
           fv2 = obj.funcVertices (f2);
           %obj.print
           %disp("Slopes")
-          m = obj.slopes();
+          m = obj.slopes2();
           for i = 1:size(fv1,2)
               sv1(i) = fv1(i).f;
               sv2(i) = fv2(i).f;
@@ -1560,7 +1597,7 @@ classdef region
                   end
                       px = vx0(1); 
                       py = vy0(1)- 0.1;
-                      %double(px),double(py)
+                   %   double(px),double(py)
                   %obj.ptFeasible(obj.vars, [px,py])
                   
                       [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
@@ -1595,7 +1632,7 @@ classdef region
                   end
                   %%%%%%%%%%%%%%%%%%%%%
                 end
-              end
+              end 
               %disp('slope size')
               %size(m,2)
               if size(m,2) == 1

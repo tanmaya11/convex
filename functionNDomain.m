@@ -13,6 +13,7 @@ classdef functionNDomain
          function print (obj)
              obj.f.printL
              obj.d.print
+             disp("")
          end
 
          function objL = mtimes (objL1, objL2)
@@ -36,5 +37,46 @@ classdef functionNDomain
              end
                       
          end
+
+         function objR = maximumP(objL) %, f, r2)
+           n = 0;
+           for i = 1:size(objL,2)
+             if size(objL(i).f,2) == 1
+               n = n + 1;
+               objR(n) = objL(i);
+               continue;
+             end
+             [l, fmax, ind, lSing] = objL(i).d.maximum(objL(i).f);
+             if lSing
+                continue
+             end
+             if l
+               n = n + 1;
+               objR(n) = functionNDomain([fmax],objL(i).d);
+               continue
+             end  
+                          
+             ineqs = objL(i).d.splitmax3 (objL(i).f(1),objL(i).f(2));
+             ineqs1 = sym.empty ;          
+             for k = 1: size(objL(i).d.ineqs,2)
+               ineqs1(k) = objL(i).d.ineqs(k).f;
+             end
+             ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
+             d1 = region(ineqs1,objL(i).d.vars);
+             d1 = d1.simplifyOpenRegion;
+             n = n + 1;
+             objR(n) = functionNDomain([objL(i).f(1)],d1)
+             ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
+             d1 = region(ineqs1,objL(i).d.vars);
+             d1 = d1.simplifyOpenRegion;
+             n = n + 1;
+             objR(n) = functionNDomain([objL(i).f(2)],d1)
+           end
+           if n == 0
+              return
+           end
+          % add merge here
+            
+         end 
      end
 end 

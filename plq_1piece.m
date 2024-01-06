@@ -3429,74 +3429,27 @@ disp('test22')
         for i = 1:size(obj.maxConjugate,2)
             obj.maxConjugate(i).print
         end
-        return
-        % fix to have one pair and then add 
-        for j1 = 1:size(obj.conjfia,2)-1
-           for k1 = obj.conjfia(j1):obj.conjfia(j1+1)-1
-              
-                  for j2 = j1+1:size(obj.conjfia,2)-1
-                    
-                    for k2 = obj.conjfia(j2):obj.conjfia(j2+1)-1
-                        % make this a routine
-%                         obj.conjd(k1).print
-%                         obj.conjd(k2).print
-                      rf = obj.conjd(k1) + obj.conjd(k2);
-%                       rf.print
-                     %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
-                     
-                     % move simplify inside +
-                      if ~ isempty(rf)
-                           k1,k2
-%                            rf.print
-%                            obj.conjf(k1)
-%                            obj.conjf(k2)
+          
+      end
 
-             %          rf = rf.simplify;
-                         rf.print 
-                         rf = rf.simplifyOpenRegion
-                         %return
-                         disp('aft')
-                        rf.print
-                        if isempty(rf)
-                            continue
-                        end
-                       n = n + 1
-                       obj.maxd(n,1) = rf; %(irf);
-                       obj.maxd(n,1).print
-                       obj.maxf(n,1) = obj.conjf(k1);
-                       obj.maxf(n,2) = obj.conjf(k2);
-                      end
-% 
-%                        [l,r1] = intersection3(obj.conjd(k1), obj.conjd(k2), false);
-%                        if l
-%                          f1 = obj.conjf(k1);
-%                          f2 = obj.conjf(k2);
-%                          for ir = 1:size(r1,2)
-%                            r1(ir) = r1(ir).getVertices();  
-%                            if r1(ir).nv == 1            % problem detecting R2R1 in example1
-%                        %        continue;
-%                            end 
-%                            n = n + 1;
-%                            obj.maxd(n,1) = r1(ir);
-%                            obj.maxf(n,1) = f1;
-%                            obj.maxf(n,2) = f2;
-%                            k1,k2
-%                            r1(ir).print
-%                            f1
-%                            f2
-%                          end
-%                      end
-                  end
-                 end
+      function obj = maximumConjugate(obj)
+           for k = obj.conjfia(1):obj.conjfia(2)-1 
+             obj.maxConjugate(k) = obj.conjugates(k);
+           end
+          for i = 2:size(obj.conjfia,2)-1
+              obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
+              for i = 1:size(obj.maxConjugate,2)
+                obj.maxConjugate(i).print
               end
-            end
-           
-          
-            
-          
-          %         obj.conjd(k1).intersection2(obj.conjd(k2))
-          
-        end
+              obj.maxConjugate = obj.maxConjugate.maximumP;
+              disp("Max")
+              for i = 1:size(obj.maxConjugate,2)
+                obj.maxConjugate(i).print
+              end
+              
+              % put maximum here
+          end
+      end
     end
 
     methods % max
