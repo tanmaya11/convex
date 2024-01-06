@@ -2,6 +2,9 @@ classdef plq
   properties
       nPieces = 0;
       pieces = plq_1piece.empty();
+      nmaxf
+      maxf=functionF.empty();
+      maxd = region.empty();
   end
   methods
       function obj = plq(ps)
@@ -12,6 +15,7 @@ classdef plq
           end
       end
 
+      % io
       function print(obj)
           disp("")
           disp("")
@@ -30,12 +34,178 @@ classdef plq
             end
       end
 
-      function plot(obj)
+      function obj = rdMaxfd (obj, uNo)
+            s1 = sym('s1');
+            s2 = sym('s2');
+            n = 0;
+            line = fgetl(uNo);
+            lfunc = 0;
+            lregion = 0;
+            nV = 0;
+            
+            while (ischar(line))
+                if strfind(line, "Max Piece") 
+                    lfunc = 1;
+                else if lfunc == 1
+                    n = n + 1;
+                    obj.maxf(n,1) = functionF(str2sym(line));
+                    disp("Function")
+                    obj.maxf(n,1).print
+                    lfunc = 0;
+                    
+               else if lregion == 1
+                       
+                  if nV == 0
+                      nV = str2num(line);
+                      iV = 0;
+                      nEq = 0;
+                  else if (iV < nV)
+                          iV = iV + 1;
+                  else if isempty(line)
+                      r = region(ineq, [s1,s2]);
+                      obj.maxd(n,1) = r; 
+                      lregion = 0;
+                      nEq = 0;
+                      ineq = sym.empty;
+                      nV = 0;
+                      %r.print
+                  else
+                      nEq = nEq+1;
+                      ineq(nEq) = str2sym(line);
+                  end
+                  end
+                        
+                  end
+                else if isempty(line)
+                   lregion = 1;
+                end
+                end
+                end
+                
+                end
+                line = fgetl(uNo);
+                
+                
+                %expr = sym(exprString)
+            end
+            disp('out')
+           % r = region(ineq, [s1,s2]);
+           % obj.maxd(n,1) = r; 
+           % r.print
+           n
+           size(obj.maxd)
+            
+            
+        end
+
+      function obj = rdMaxfd2 (obj, uNo)
+            s1 = sym('s1');
+            s2 = sym('s2');
+            %uNo = fopen('../data/max3d.m','r')
+            n = 0;
+            line = fgetl(uNo);
+            lfunc = 0;
+            lregion = 0;
+            nV = 0;
+            
+            while (ischar(line))
+                if strfind(line, "Max Piece") 
+                    lfunc = 1;
+                else if lfunc == 1
+                    nf = str2num(line);
+                    n = n + 1;
+                    obj.nmaxf(n) = nf;
+                    for i = 1:nf
+                      line = fgetl(uNo);  
+                      obj.maxf(n,i) = functionF(str2sym(line));
+                      %disp("Function")
+                      %obj.maxf(n,i).print
+                    end
+                    lfunc = 0;
+                    
+               else if lregion == 1
+                       
+                  if nV == 0
+                      nV = str2num(line);
+                      iV = 0;
+                      nEq = 0;
+                  else if (iV < nV)
+                      iV = iV + 1;
+                  else if isempty(line)
+                      r = region(ineq, [s1,s2]);
+                      obj.maxd(n,1) = r; 
+                      lregion = 0;
+                      nEq = 0;
+                      ineq = sym.empty;
+                      nV = 0;
+                      %r.print
+                  else
+                      nEq = nEq+1;
+                      ineq(nEq) = str2sym(line);
+                  end
+                  end
+                        
+                  end
+                else if isempty(line)
+                   lregion = 1;
+                end
+                end
+                end
+                
+                end
+                line = fgetl(uNo);
+                
+                
+                %expr = sym(exprString)
+            end
+
+          
+            %obj.maxf(n,1).print
+            %obj.maxd(n,1).print
+
+            if nEq ~= 0
+              r = region(ineq, [s1,s2]);
+              obj.maxd(n,1) = r; 
+              r.print
+            end
+
+
+            
+            fclose(uNo);
+            return
+            size(obj.maxf,1)
+            size(obj.maxd,1)
+            rm = [];
+            for i = 1:size(obj.maxf,1)
+              if obj.maxd(i,1).hasNegativeIneqs
+                  obj.maxd(i,1).print
+                  
+                  rm = [rm,i]
+              end
+            end
+            rm
+            %size(obj.maxf)
+            obj.maxf(rm,:) = [];
+            obj.maxd(rm,:) = [];
+            obj.nmaxf(rm) = [];
+            %obj.maxd(18,1).print
+            
+            %size(obj.maxf)
+        end
+
+        
+        function plot(obj)
            for i = 1:obj.nPieces
                obj.pieces(i).plot
            end
       end
 
+      function plotMaxd(obj)
+          figure;
+          for i =1:size(obj.maxf,1)
+            obj.maxd(i,1).plotRegion;
+          end
+      end
       function plotDomain(obj)
            %figure;
            for i = 1:obj.nPieces
@@ -214,7 +384,11 @@ classdef plq
              % [l, fmax] = r2(i).maxArray (f1, f2) ;
 %%%%
 
-              [l, fmax, ind] = obj.maxd(i).maximum(obj.maxf(i,:));
+              [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+              if lSing
+                   continue
+               end
+               
                if l
                  n = n + 1;
                  maxf(n) = fmax;
@@ -396,22 +570,317 @@ classdef plq
           
       end
 
-       function obj = maximumInPairs(obj)
-           for i=1:obj.nPieces
-               lc(i) = false;
+      function obj = maximumInFirstPairs(obj)
+           disp('FMAX')
+           for i=1:2
+              for k1 = 1:size(obj.pieces(i).maxd,1)
+                lc(i,k1) = false;
+              end
            end
-%           for i=1:obj.nPieces
+           n = 0;
+           for i=1:2
+             for k1 = 1:size(obj.pieces(i).maxd,1)
+               for j=i+1:2
+                 for k2 = 1:size(obj.pieces(j).maxd,1)
+                     %disp('rf')
+                     rf = obj.pieces(i).maxd(k1) + obj.pieces(j).maxd(k2);
+                     %rf = rf.simplify; % (obj.pieces(i).maxd(k1).vars);
+                     % move simplify inside +
+                     if ~ isempty(rf)
+                       k1, k2
+                      % rf.print
+                       
+                       rf = rf.simplifyOpenRegion;  
+                       n = n + 1;
+                      % rf.print
+                       obj.maxd(n,1) = rf; %(irf);
+                       obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+                       obj.maxf(n,2) = obj.pieces(j).maxf(k2);
+                       obj.nmaxf(n) = 2;
+                     end
+                     if k1 == 2 & k2 == 9
+                     %    return
+                     end
+                     %21 dec
+%                    [l,rf] = intersection3(obj.pieces(i).maxd(k1), obj.pieces(j).maxd(k2), false);
+%                    if l
+%                        k1, k2
+%                        %obj.pieces(i).maxf(k1)
+%                        %obj.pieces(j).maxf(k2)
+%                       % size(rf)
+%                        lc(i,k1) = true;
+%                        lc(j,k2) = true;
+%                        for irf=1:size(rf,2)
+%                            rf(i).print
+%                          n = n + 1;
+%                          obj.maxd(n,1) = rf(irf);
+%                          obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+%                          obj.maxf(n,2) = obj.pieces(j).maxf(k2);
+%                          obj.nmaxf(n) = 2;
+%                          if n == 5
+%                          %    return
+%                          end
 % 
-%               for j=i+1:obj.nPieces
-%               [l,rf] = intersection3(obj.maxd(i), obj.maxd(j), false);
+%                        end
+% 
+%                        
+%                        
+%                    end
 %               if ~l
 %                   continue
+                 end
+               end
+             end
+           end
+%            for i=1:2
+%               for k1 = 1:size(obj.pieces(i).maxd,1)
+%                 if lc(i,k1)
+%                     continue;
+%                 end
+%                 n = n + 1;
+%                 obj.maxd(n,1) = obj.pieces(i).maxd(k1);
+%                 obj.maxf(n,1) = obj.pieces(i).maxf(k1);
+%                 obj.nmaxf(n) = 1;
+%                          
 %               end
-%           end
+%            end
+%            
+           
+       end
+
+        
+        function obj = maximumInPairsAddi(obj, ind)
+
+            for i =1:size(obj.maxf,1)
+               lc(1,i) = false;
+            end
+           
+            for k1 = 1:size(obj.pieces(ind).maxd,1)
+                lc(2,k1) = false;
+            end
+            %disp('size of p3')
+            %size(obj.pieces(ind).maxd,1)
+           n = 0;
+           for k1=1:size(obj.maxf,1)
+             for k2 = 1:size(obj.pieces(ind).maxd,1)
+                [l,rf] = intersection3(obj.maxd(k1,1), obj.pieces(ind).maxd(k2), false);
+                
+                if l
+                    %k1, k2
+                  lc(1,k1) = true;
+                  lc(2,k2) = true;
+                  %size(rf)
+                  %obj.maxd(k1,1).print
+                  %obj.pieces(ind).maxd(k2).print
+                  
+                  for irf=1:size(rf,2)
+                    n = n + 1;
+                    maxd(n,1) = rf(irf);
+                    %maxd(n,1).print
+                    maxf(n,1) = obj.maxf(k1);
+                    maxf(n,2) = obj.pieces(ind).maxf(k2);
+                    nmaxf(n) = 2;
+                    
+                  end
+                  %return
+                end
+              end
+           end
+           %lc(1,:)
+           %lc(2,:)
+           %disp('n')
+           %n
+           %obj.maxf(3).print
+           for i =1:size(obj.maxf,1)
+               if lc(1,i) 
+                 continue
+               end  
+               n = n + 1;
+               maxd(n,1) = obj.maxd(i);
+               %maxd(n,1).print
+               maxf(n,1) = obj.maxf(i);
+               nmaxf(n) = 1;
+               
+           end
+           
+            for k1 = 1:size(obj.pieces(ind).maxd,1)
+               if lc(2,k1) 
+                 continue
+               end
+               n = n + 1;
+               maxd(n,1) = obj.pieces(ind).maxd(k1);
+               %maxd(n,1).print
+               maxf(n,1) = obj.pieces(ind).maxf(k1);
+               nmaxf(n) = 1;
+                
+            end
+           %Put explicit copy and check 
+           obj.maxf=functionF.empty();
+           obj.maxd = region.empty();
+           obj.nmaxf = []
+
+           for i = 1:n
+             obj.nmaxf(i) = nmaxf(i);
+             obj.maxd(i,1) = maxd(i,1);
+             for k = 1:nmaxf(i)
+               obj.maxf(i,k) = maxf(i,k);
+             end
+           end
+           
+%            size(maxf)
+%            size(obj.maxf)
+%            size(obj.nmaxf)
+
+           
        end
 
 
-      function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+      
+
+
+       % other part implemented - need to be integrated here and for
+       % conjugate
+       function obj = maximumP(obj) %, f, r2)
+          
+
+          n = 0;
+          for i = 1:size(obj.maxf,1)
+           %   i, obj.nmaxf(i)
+              %if i == 7
+              %    return
+              %end
+%              obj.maxf(i,1).print
+%              obj.maxf(i,2).print
+%              obj.maxd(i,1).print
+               if obj.maxd(i,1).nv == 0
+                   % complex variables were removed later hence some
+                   % regions need to be removed
+                   disp("nv zero")
+                   obj.maxd(i,1).print
+                   continue
+               end
+               % check size of obj.maxf(i,:) and fix
+               if obj.nmaxf(i) == 1
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i);
+                 maxd(n) = obj.maxd(i,1);
+                 continue;
+               end
+               [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+               if lSing
+                   continue
+               end
+               
+              % l
+              % fmax
+               if l
+                 n = n + 1;
+                 maxf(n) = fmax;
+                 %maxd(n) = r2(i);
+                 maxd(n) = obj.maxd(i,1);
+                 continue
+               else  
+                 disp('maximum : check if it reaches here')
+                 i
+                 % temp code
+                 %if n == 4
+                % figure;
+                % obj.maxd(i,1).print;
+                % obj.maxd(i,1).plot;
+                % obj.maxd(i,1).plotRegion;
+                % end
+                 %continue
+                 obj.maxd(i,1).print
+                 obj.maxf(i,:).printL
+                 %%%%%%%%%%
+
+                          
+                 ineqs = obj.maxd(i,1).splitmax3 (obj.maxf(i,1), obj.maxf(i,2));
+                 ineqs1 = sym.empty ;          
+                 for k = 1: size(obj.maxd(i,1).ineqs,2)
+                   ineqs1(k) = obj.maxd(i).ineqs(k).f;
+                 end
+                 ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(1).f;
+                 d1 = region(ineqs1,obj.maxd(i,1).vars);
+                 %d1 = d1.simplify %(obj.maxd(i,1).vars);
+                 d1.print
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i,1);
+                 %maxf(n).print
+                 maxd(n) = d1;
+
+                 %if n == 5
+                 %figure;
+                 %d1.print;
+                 %d1.plot;
+                 %d1.plotRegion;
+                 %end
+                 %maxd(n).print
+                 %maxf(n).print
+
+
+                 ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2).f;
+                 %ineqs1(size(obj.maxd(i,1).ineqs,2)+1) = ineqs(2);
+                 d1 = region(ineqs1,obj.maxd(i,1).vars);
+                 %d1 = d1.simplify; %(obj.maxd(i,1).vars);
+                 d1.print
+                 n = n + 1;
+                 maxf(n) = obj.maxf(i,2);
+                 maxd(n) = d1;
+                 %maxd(n).print
+                 %maxf(n).print
+                 %if n == 6
+                 %figure;
+                 %d1.print;
+                 %d1.plot;
+                 %d1.plotRegion;
+                 %return
+                 %end
+                 
+                 
+                 
+               end
+          end
+          if n == 0
+              return
+          end
+           disp('b4 merge' )
+        %   maxf(3).print
+%           n
+           disp("In maximumP")
+           obj.maxf=functionF.empty();
+          obj.maxd = region.empty();
+%          size(nmaxf,2)
+          for i =1:size(maxf,2)
+         %     i
+         %     maxf(i).print
+         %     maxd(i).print
+             obj.maxf(i,1) = maxf(i);
+             obj.maxd(i,1) = maxd(i);
+          end
+          return
+         % disp("after")
+          %size(maxf)
+          disp('b4 merge')
+          maxd(17).print
+          maxd(18).print
+          maxd(24).print
+           [nmaxf,nmaxd] = obj.merge(maxf,maxd);
+           
+          %nmaxf(3).print
+          %nmaxf(8).print
+          for i =1:size(nmaxf,2)
+          %    nmaxf(i).print
+          %    nmaxd(i).print
+            obj.maxf(i,1) = nmaxf(i);
+            obj.maxd(i,1) = nmaxd(i);
+          end
+%           
+      end 
+
+      
+
+      function [nmaxf,nmaxd] = merge0(obj,maxf,maxd)
           ia(1) = 1;
           n = 0;
           for i = 1:size(maxf,2)
@@ -473,6 +942,112 @@ classdef plq
             end
           end
       end
+
+      function [nmaxf,nmaxd] = merge(obj,maxf,maxd)
+          [nmaxf,nmaxd] =  maxd.mergeL(maxf);
+          return
+          %disp('in merge')
+          ia(1) = 1;
+          n = 0;
+          %size(maxf,2)
+          for i = 1:size(maxf,2)
+              %maxf(i).print
+              marked(i) = false;
+          end
+
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(maxf,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(maxf,2)
+                  
+                  if isAlways(maxf(i).f == maxf(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          %nmaxf = [];
+          %nmaxd = [];
+          m = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+        %  ia
+        %  ja
+        %  return
+        %  nmaxf= [];
+        %  nmaxd= [];
+        for i = 1:size(maxf,2)
+            i
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1)) 
+                m = m + 1;
+                nmaxf(m) = maxf(i);
+                nmaxd(m) = maxd(i);
+            else
+                % get common boundary and merge
+                % make groups and add 
+               r = maxd(i);
+           %    i
+           %    r.print
+               lmerge = true;
+               while lmerge
+                 lmerge = false;
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+            %       ja(j)              
+            %       maxd(ja(j)).print
+                   [l,r] = r.merge (maxd(ja(j)));
+         %      if i == 10
+               l
+         %      end
+                   
+                   if l
+                     marked(ja(j)) = true;
+                     lmerge = true;
+                   end
+%                    if ~l
+%                      m = m + 1;
+%                      nmaxf(m) = maxf(i);
+%                      nmaxe(m) = maxe(i);
+%                      nmaxd(m) = maxd(ja(j));  
+%                    end
+                 end
+               end
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+                   marked(ja(j)) = true;
+                   m = m + 1;
+                   nmaxf(m) = maxf(i);
+                   nmaxd(m) = maxd(ja(j));  
+                 end
+               
+               m = m + 1;
+               nmaxf(m) = maxf(i);
+               %r = r.getVertices();
+               nmaxd(m) = r;  
+                   
+            end
+        end
+       % disp("m")
+       % m
       end
+
+  end
+
 
 end

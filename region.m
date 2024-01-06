@@ -851,14 +851,22 @@ classdef region
             end
             % add code to get unique ineqs
             obj.vars = vars;  
+            %disp('b4')
             %obj.print
-            obj = obj.normalize1; 
+            obj = obj.normalize1;
+            obj = obj.unique;
+            %disp('aft')
             %obj.print
             %obj = obj.removeDenominator;
             %disp('b4 get vertices')
-            obj = obj.getVertices ;
+            obj = obj.getVertices  ;
+            if obj.nv == 0
+                obj = region.empty;
+            end
+            % put simplify in here
          end
 
+         
          function obj = regionWPts(obj, vx, vy, x, y)
              n = 0;
              for i = 1: size(vx,2)-1
@@ -898,9 +906,9 @@ classdef region
             for i = 1:size(obj1.ineqs,2)
               l = [l,obj1.ineqs(i).f];
             end
-            obj2 = obj2.removeDenominator;
+            %obj2 = obj2.removeDenominator;
             for i = 1:size(obj2.ineqs,2)
-                lunique = true;
+               lunique = true;
                for j = 1:size(obj1.ineqs,2)
                  if (obj1.ineqs(j) == obj2.ineqs(i))
                      lunique = false;
@@ -915,15 +923,17 @@ classdef region
                    l = [l,obj2.ineqs(i).f];
                end
             end 
+            
             f = region(l,obj1.vars);
          end
 
 
          function v = getEndpoints (obj, i)
+            % obj.print
              n = 0;
           %  disp('start')
              for j = 1:obj.nv
-           %      double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
+              %   double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))
                if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
                    n = n + 1;
                    v(n,1) = obj.vx(j);
@@ -946,6 +956,9 @@ classdef region
              end     
             l = []; 
             for i = 1:size(obj1.ineqs,2)
+                %disp('i')
+                %i, size(obj1.ineqs,2)
+                %ep = obj1.getEndpoints(i)
                 v1(i,:,:) = obj1.getEndpoints(i);
                 l = [l,obj1.ineqs(i).f];
             end
@@ -956,6 +969,7 @@ classdef region
               ladd = true;  
               for j = 1:size(obj1.ineqs,2)
                 if (obj2.ineqs(i) == obj1.ineqs(j)) 
+                    % replace with all
                     lv = true;
                     for i1 = 1:size(v1,2)
                         for i2 = 1:size(v1,3)
@@ -983,19 +997,37 @@ classdef region
             end
 
             % original code
+%             for i = size(l,2)
+%                 l(i)
+%             end
             f0 = region(l,obj1.vars);
-            f0 = f0.getVertices;
-            %disp('here')
+            if isempty(f0)
+                f = [f0];
+                return
+            end
+%            f0 = f0.getVertices;
+%            disp('here')
+            %f0.print
             %f0.nv
             if f0.nv >= 3
-              f = [f0.simplify(obj1.vars)];
+              %f = [f0.simplify(obj1.vars)];
+              f = [f0.simplify];
               return
             else  
               f1 = f0.divideRegions(obj1);
-              size(f1)
               f = [];
               for i = 1: size(f1,2)
-                  f0 = f1(i).simplify(obj1.vars);
+                  if f1(i).nv <= 2
+                      continue
+                  end
+                  
+                  %f0 = f1(i).simplify(obj1.vars);
+                  %disp('divided region')
+                  %f1(i).print
+                  f0 = f1(i).simplify;
+                  %disp('divided region after simplify')
+                  %f0.vars
+                  %f0.print
                   if f0 == obj1
                       continue
                   end
@@ -1058,7 +1090,10 @@ classdef region
 
              for i = 1:obj1.nv
                for j = 1:obj2.nv
-                   if (obj1.vx(i) == obj2.vx(j)) & (obj1.vy(i) == obj2.vy(j))
+                   if l2(j)
+                       continue
+                   end
+                   if (abs(obj1.vx(i) - obj2.vx(j))<1.0d-15) & (abs(obj1.vy(i) - obj2.vy(j)) < 1.0d-15)
                        l1(i) = true;
                        l2(j) = true;
                        break;
@@ -1085,6 +1120,7 @@ classdef region
 
          function obj = unique(obj)
              n = 0;
+             
             duplicates = [];
             for i = 1:size(obj.ineqs,2)
                 for j = i+1:size(obj.ineqs,2)
@@ -1095,12 +1131,23 @@ classdef region
                     end
                 end
 
-            end 
+            end
+           
             obj.ineqs(duplicates) = [];
          end
 
          function m = slope (obj,i,j)
           m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
+         end
+
+         function m = slopeIneq(obj,i)
+             if obj.ineqs(i).isLinear
+                 c = obj.ineqs(i).getLinearCoeffs (obj.vars);
+                 m = -c(1);
+             else
+                 m = -intmax;
+                 disp("to be implemented in slopeIneq")
+             end
          end
 
           function c = yIntercept (obj,i,m)
@@ -1193,6 +1240,10 @@ classdef region
          end
 
          function print(obj)
+             if isempty(obj)
+                 disp("Empty region")
+                 return
+             end
              disp("Variables")
              obj.vars
              disp(["nVertices = ", num2str(obj.nv)]);
@@ -1216,18 +1267,31 @@ classdef region
          %    disp(obj.vy)
          end
 
+         function fprint(obj, uNo)
+
+             %fprintf(uNo, obj.vars);
+             fprintf(uNo, num2str(obj.nv)+"\n");
+             for i = 1:obj.nv
+               fprintf(uNo, num2str(obj.vx(i)) + "  " + num2str(obj.vy(i)) + "\n")  
+             end
+             %fprintf(uNo, num2str(obj.vx));
+             %fprintf(uNo, num2str(obj.vy));
+             obj.ineqs.fprintLIneq(uNo);
+         end
+
+         
          function plot (obj)
              
              l1 = min(min(obj.vx),min(obj.vy));
-             if l1 < -10
-                 l1 = -10;
+             if l1 < -25
+                 l1 = -25;
              end
              l2 = max(max(obj.vx),max(obj.vy));
-             if l2 > 10
-                 l2 = 10;
+             if l2 > 20
+                 l2 = 20;
              end
-             l1 = -10;
-             l2 = 10;
+             l1 = -25;
+             l2 = 20;
            obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
 
          end
@@ -1249,19 +1313,70 @@ classdef region
  %           value = icolor
              persistent icolor;
             if isempty (icolor)
-                icolor=1
+                icolor=1;
             else
-                icolor=icolor+1
+                icolor=icolor+1;
             end
-            value = icolor
+            value = icolor;
          end
 
+         function [vx,vy] = plotRegionC (obj, textR, c)
+            limitsx = [-25,17];
+            limitsy = [-15,20];
+            
+            pts = 75;
+            colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+            stepx = (limitsx(2)-limitsx(1))/pts;
+            stepy = (limitsy(2)-limitsy(1))/pts;
+            n = 0;
+            vx = [];
+            vy = [];
+            ci = limitsx(1);
+            for i = 1:pts
+                cj = limitsy(1);
+                for j = 1:pts
+                  if obj.ptFeasible (obj.vars,[ci,cj]);
+                      n = n+1;
+                      vx(n) = ci;
+                      vy(n) = cj;
+                  end
+                  cj = cj+stepy;    
+                end
+                ci = ci+stepx;    
+            end
+            %c = colors(1+mod(obj.getGlobalParameter,6))
+            if n == 0
+                disp ('region not displayed')
+            end
+            avx = sum(vx)/n;
+            avy = sum(vy)/n;
+            m = 0;
+            for i = 1:n
+                if (abs(vx(i) -avx)<0.1 & abs(vy(i) -avy)<0.1)
+                    continue
+                end    
+                m = m+1;
+                vx1(m) = vx(i);
+                vy1(m) = vy(i);
+            end
+            %text = "R";
+            text(avx,avy,textR,'FontSize',12, 'FontWeight', 'bold','Color', 'k')
+            if m==0
+                fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            else
+                fill(vx1, vy1, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            end
+            
+         end
 
-         function [vx,vy] = plotRegion (obj)
+         function [vx,vy] = plotRegion (obj, textR)
             limitsx = [-6,6];
             limitsy = [-15,20];
+            limitsx = [-25,17];
+            limitsy = [-6,11];
+            
             pts = 75;
-            colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
+            colors = ['b', 'r', 'g', 'm', 'c', 'y'];
             stepx = (limitsx(2)-limitsx(1))/pts;
             stepy = (limitsy(2)-limitsy(1))/pts;
             n = 0;
@@ -1281,11 +1396,31 @@ classdef region
                 end
                 ci = ci+stepx;    
             end
-            c = colors(1+mod(obj.getGlobalParameter,7))
+            c = colors(1+mod(obj.getGlobalParameter,6))
             if n == 0
+                obj.print 
+                obj.ptFeasible (obj.vars,[2,-9])
                 disp ('region not displayed')
             end
-            fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            avx = sum(vx)/n;
+            avy = sum(vy)/n;
+            m = 0;
+            for i = 1:n
+                if (abs(vx(i) -avx)<0.1 & abs(vy(i) -avy)<0.1)
+                    continue
+                end    
+                m = m+1;
+                vx1(m) = vx(i);
+                vy1(m) = vy(i);
+            end
+            %text = "R";
+            text(avx,avy,textR,'FontSize',12, 'FontWeight', 'bold','Color', 'k')
+            if m==0
+                fill(vx, vy, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            else
+                fill(vx1, vy1, c, 'FaceAlpha', 0.9, 'EdgeColor', c);
+            end
+            
          end
 
          function plotByVertex (obj)
@@ -1313,47 +1448,301 @@ classdef region
              fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
          end
         
+         function m = slopes (obj)
+           n = 0 ;  
+           for i = 1:size(obj.ineqs,2)
+              if obj.ineqs(i).isLinear
+                  c = obj.ineqs(i).getLinearCoeffs (obj.vars);
+                  n = n + 1;
+                  m(n) = -c(1)/c(2);
+              end
+           end
+         end
          % max over a region
-         function [l, fmax, index] = maxArray (obj, f1, f2) 
+         function [l, fmax, index, lsing] = maxArray (obj, f1, f2) 
+          lsing = false;  
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
+          %obj.print
+          %disp("Slopes")
+          m = obj.slopes();
           for i = 1:size(fv1,2)
               sv1(i) = fv1(i).f;
               sv2(i) = fv2(i).f;
-              if (isnan(sv1(i)))
-                  sv1(i) = 0;
-                  sv2(i) = 0;
-              elseif (isnan(sv2(i)))
-                  sv1(i) = 0;
-                  sv2(i) = 0;
-              end
+              %if (isnan(sv1(i)))
+              %    sv1(i) = 0;
+              %    sv2(i) = 0;
+              %elseif (isnan(sv2(i)))
+              %    sv1(i) = 0;
+              %    sv2(i) = 0;
+              %end
           end
           l = true;
-          if all(sv1 <= sv2)
+          %sv1
+          %obj.print;
+          %double(sv1);
+          %double(sv2);
+          if all(abs(double(sv1 - sv2))< 1.0d-14)
+              %disp("FIX IN MAXIMUM")
+              %size(sv1)
+              if size(sv1) == 1
+                  %disp("Singleton")
+                  fmax = f1;
+                  index=1;
+                %  return
+              end
+              nx = 0;
+              for iv = 1:obj.nv
+                  if (abs(obj.vx(iv))==intmax|abs(obj.vy(iv))==intmax)
+                      continue
+                  end
+                  nx = nx + 1;
+                  vx0(nx) = obj.vx(iv);
+                  vy0(nx) = obj.vy(iv);
+              end
+              
+              if nx > 1
+                sx = mean(vx0);
+                sy = mean(vy0);
+                [l,fmax,index] = maxFromPt(obj, [sx,sy], [f1,f2]);
+                if l 
+                    return
+                end
+              end
+              %disp("Here")
+              % use slope mid pt to get directions
+              for i = 1:size(m,2)
+                
+                for j = i+1: size(m,2)
+                  if (abs(m(i))~= inf) & (abs(m(j))~= inf)
+                    d =  (m(i)+m(j) )/2;
+                  else
+                     % disp('infinity')
+                  if (abs(m(i))==inf)
+                        d = tan((pi/2 + atan(m(j)))/2);
+                    else
+                        d = tan((pi/2 + atan(m(i)))/2);
+                  end
+                  end
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  %double(px),double(py)
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  %double(px),double(py)
+                %  obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                 % l
+                  if l 
+                    return
+                  end
+                  
+                  %%%%%%%%%%%%%%%%%%%%%
+                  %disp("perpen")
+                  
+                  if d == 0
+                      px = vx0(1); 
+                      py = vy0(1)+ 0.1;
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  
+                      [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                      px = vx0(1); 
+                      py = vy0(1)- 0.1;
+                      %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  
+                      [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  
+                  else
+                      d = -1/d;
+                  
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  %double(px),double(py)
+                  %obj.ptFeasible(obj.vars, [px,py])
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                 % l
+                  if l 
+                    return
+                  end
+                  end
+                  %%%%%%%%%%%%%%%%%%%%%
+                end
+              end
+              %disp('slope size')
+              %size(m,2)
+              if size(m,2) == 1
+                  d = -1/m(1)
+                  c = vy0(1) - d * vx0(1);
+                  px = vx0(1) + 0.1;
+                  py = d*px+c;
+                  
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                  %l
+                  if l 
+                    return
+                  end
+                  px = vx0(1) - 0.1;
+                  py = d*px+c;
+                  
+                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+                 % l
+                  if l 
+                    return
+                  end
+                  
+              % make loop
+                  
+%                  px = vx0(1) + 0.1
+%                  py = vy0(1)
+%                  
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1)
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) 
+%                  py = vy0(1)+ 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) 
+%                  py = vy0(1) - 0.1
+%                  obj.ptFeasible(obj.vars,[px,py])
+%                  fv01 = f1.subsF(obj.vars,[px,py])
+%                  fv02 = f2.subsF(obj.vars,[px,py])
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) + 0.1
+%                  py = vy0(1) + 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1) - 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                    px = vx0(1) + 0.1
+%                  py = vy0(1) - 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%                  px = vx0(1) - 0.1
+%                  py = vy0(1) + 0.1
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+              end
+%                  px = vx0(1) - 2/9
+%                  py = vy0(1) - 1/9
+%                  [l,fmax,index] = maxFromPt(obj, [px,py], [f1,f2]);
+%                  if l 
+%                    return
+%                  end
+%               
+              disp("SINGLETON REGION")
+              obj.print
+              
+              lsing = true;
+              
+              end
+              
+
+          if all(double(sv1) <= double(sv2))
               fmax = f2;
               index=2;
-          elseif all(sv2 <= sv1)
+          elseif all(double(sv2) <= double(sv1))
               fmax = f1;
               index=1;
           else
               l = false;
+              sv1
+              sv2
               fmax = 0;
               index=0;
           end
          
         end
         
+        function [l,fmax,index] = maxFromPt(obj, s, f)
+          l = false;
+          fmax = f(1);
+          index=1;
+          if obj.ptFeasible(obj.vars,s)
+            fv01 = f(1).subsF(obj.vars,s).f;
+            fv02 = f(2).subsF(obj.vars,s).f;
+            
+          else
+              return;
+          end
+          l = true;
+          %abs(double(fv01 - fv02))
+          if abs(double(fv01 - fv02))> 1.0d-14
+            if double(fv01) < double(fv02)
+              fmax = f(2);
+              index=1;
+            else
+              fmax = f(1);
+              index=2;
+            end
+            return
+          end
+          l = false;
+          fmax = f(1);
+          index=1;
+        end
 
         function [r] = splitmax2 (obj, f1, f2) 
            % disp('splitmax2')
-
+          %f1
+          %f2
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
           f = f1-f2;
           vars = f.getVars;
           x = sym('x');
           y = sym('y');
-          f = subs(f.f, vars ,[x,y])
+          f = subs(f.f, vars ,[x,y]);
           
           fx = [];
           fy = [];
@@ -1407,6 +1796,73 @@ classdef region
           
         end
 
+        function [r] = splitmax3 (obj, f1, f2) 
+           % disp('splitmax2')
+
+          fv1 = obj.funcVertices (f1);
+          fv2 = obj.funcVertices (f2);
+          f = f1-f2;
+           vars = f.getVars;
+%           x = sym('x');
+%           y = sym('y');
+%           f = subs(f.f, vars ,[x,y])
+%           
+%           fx = [];
+%           fy = [];
+%           n = 0;
+%           fxy = [];
+%           for i = 1:size(obj.ineqs,2)
+%             g = subs(obj.ineqs(i).f, vars,[x,y]);
+%             s = solve ([f==0,g==0],[x,y]);
+%             if isempty(s)
+%               continue;
+%             end
+%             
+%             if isempty(s.x)
+%               continue;
+%             end
+%             sx = double(s.x);
+%             sy = double(s.y);
+%             if ~obj.ptFeasible (vars,[sx,sy])
+%                 continue
+%             end
+%             fx = [fx,sx];
+%             fy = [fy,sy];
+%             n = n+1;
+%             fxy(n,1)= sx;
+%             fxy(n,2)= sy;
+%           end
+%           %fxy
+%           fxy = unique(fxy,"rows");
+%           fx = fxy(:,1);
+%           fy = fxy(:,2);
+%           %f1
+%           %f2
+%           %size(fx)
+%           if size(fx,1) == 2
+%               m = (fy(2)-fy(1))/(fx(2)-fx(1));
+%               c = fy(1) - m*fx(1);
+%               ineq = vars(2)-m*vars(1)-c;
+%           end
+          ineq = f;
+          vars
+          f.print
+          for i = 1:size(fv1,2)
+              if (double(fv1(i).f) >= double(fv2(i).f))
+                  if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) <= 0
+                    r = [ineq,-ineq];
+                    return
+                  else
+                    r = [-ineq,ineq];
+                    return  
+                  end
+              end
+
+          end
+          
+        end
+
+        
         function [nl, v1, v2] = splitmaxArray (obj, f1, f2) 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
@@ -1449,21 +1905,47 @@ classdef region
         
         function [lelim, obj] = deleteIneq (obj, vars)
           lelim = false;
+
           for i = 1:size(obj.ineqs,2)
+              %obj.ineqs(i).f
               l(i) = obj.ineqs(i).f;
+              mark(i) = false;
+              %obj.ineqs(i).print
+              nPts = 0;
+
+              for j = 1:obj.nv
+                  if obj.ineqs(i).subsF(obj.vars,[obj.vx(j),obj.vy(j)]).isZero
+                      nPts = nPts+1;
+                  end
+              end
+              if nPts <= 1
+                  mark(i)=true;
+              end
+              %i,nPts
           end
          % l
 
           for i = 1:size(obj.ineqs,2)
+              if ~mark(i)
+                  continue
+              end
+              if obj.ineqs(i).isQuad
+                  continue;
+              end
              l1 = l;
              l1(i) = [];
           %   l1
              r = region (l1,vars);
-             if r.nv == 0
+           %  disp('in delete')
+           %  r.print
+             if isempty(r)
                  return
              end
+%              if r.nv == 0
+%                  return
+%              end
              if obj.eqVertices(r)
-                 %disp('equal')
+            %     disp('equal')
                  lelim = true;
                  obj = r;
                  return;
@@ -1473,15 +1955,229 @@ classdef region
 
         end
 
+        function obj = simplifyOpenRegion1 (obj, nP, px, py)
+            % remove ineqs that dont goobj.ineqs(i). through a vertex
+            n = 0;
+            mark = [];
+            for i = 1:size(obj.ineqs,2)
+                l = false;
+                %obj.ineqs(i)
+                for j = 1:nP
+                    %obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f
+                    if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) < 1.0d-8)
+                        l = true;
+                        break
+                    end
+                end
+                if l
+                    continue;
+                end
+                n = n + 1;
+                mark(n) = i;
+            end
+            obj.ineqs(mark) = [];
+           
+        end
 
-        function obj = simplify (obj, vars)
+        function obj = simplifyOpenRegion (obj)
+            % remove ineqs that dont go through a vertex
+            nP = 0;
+            for j = 1:obj.nv
+              if abs(obj.vx(j)) == intmax
+                continue
+              end
+              if abs(obj.vy(j)) == intmax
+                continue
+              end
+              nP = nP+1;
+              px(nP) = obj.vx(j);
+              py(nP) = obj.vy(j);
+            end
+             % nP
+             % px
+             % py
+            obj = obj.simplifyOpenRegion1 (nP, px, py);
+            % disp('inside')
+            % obj.print
+               
+            % get point  info
+            for j = 1:nP
+                nPoint(j) = 0;
+            end
+            for i = 1:size(obj.ineqs,2)
+                for j = 1:nP
+                    
+                    if (abs(obj.ineqs(i).subsF(obj.vars,[px(j),py(j)]).f) > 1.0d-8)
+                        continue;
+                    end
+                    nPoint(j)=nPoint(j)+1;
+                    point(j,nPoint(j)) = i;
+                    if obj.ineqs(i).isQuad
+                        continue
+                    end
+                    
+                end
+            end
+            % nPoint
+            % point
+          
+            if all(nPoint) == 2
+                return;
+            end
+            for i = 1:size(obj.ineqs,2)
+               if obj.ineqs(i).isQuad
+                   return
+               end
+            end
+            m0 = obj.slopes;
+            n0 = 0;
+            n1 = 0;
+            markF0 = [];
+            for i = 1:size(obj.ineqs,2)
+                markF0(i) = i;
+               if obj.ineqs(i).isQuad
+                n0 = n0+1;
+                % replace by slope of tangent and keep it
+                m(n0) = intmax;
+               else
+                n0 = n0+1;
+                n1 = n1+1;
+                m(n0) = m0(n1);
+               end
+            end
+            %m
+            
+            markF = [];
+            for ip = 1:nP
+                sx = px(ip);
+                sy = py(ip);
+                pi0 = point(ip,1:nPoint(ip));
+                mark = [];
+                for j = 1:nPoint(ip)
+                    if obj.ineqs(pi0(j)).isQuad
+                        mark = [mark,j];
+                    end
+                end
+                
+                pi0(mark) = [];
+                %pi0
+                mp = m(pi0);
+                [sorted_m, indices] = sort(mp);
+              for i = 1:size(indices,2)
+                m1 = sorted_m(i);
+                if i == size(indices,2)
+                    m2 = sorted_m(1);
+                else
+                    m2 = sorted_m(i+1);
+                end
+             %   m1,m2
+                if (abs(m1)~= inf) & (abs(m2)~= inf)
+                  d =  (m1+m2 )/2;
+                else
+                  % disp('infinity')
+                  if (abs(m1)==inf)
+                    d = tan((pi/2 + atan(m2))/2);
+                  else
+                      
+                    d = tan((pi/2 + atan(m1))/2);
+                  end
+                end
+                if i == size(indices,2)
+                    d = -d;
+                end
+                c = sy - d * sx;
+                tx = sx + 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                   lm = false;
+                   continue
+                end
+                tx = sx - 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                  lm = false;
+                  continue
+                end
+
+
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                if i == 1
+                    m2 = sorted_m(size(indices,2));
+                else
+                    m2 = sorted_m(i-1);
+                end
+                if (abs(m1)~= inf) & (abs(m2)~= inf)
+                  d =  (m1+m2 )/2;
+                else
+                  % disp('infinity')
+                  if (abs(m1)==inf)
+                    d = tan((pi/2 + atan(m2))/2);
+                  else
+                      
+                    d = tan((pi/2 + atan(m1))/2);
+                  end
+                end
+                if i == 1
+                    d = -d;
+                end
+                c = sy - d * sx;
+                tx = sx + 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                   lm = false;
+                   continue
+                end
+                tx = sx - 0.1;
+                ty = d*tx+c   ;    
+                %obj.ptFeasible (obj.vars,[tx,ty])
+                if obj.ptFeasible (obj.vars,[tx,ty])
+                  lm = false;
+                  continue
+                end
+                markF = [markF,pi0(indices(i))];
+                %indices
+                %pi0
+
+                
+              end
+            
+            %markF
+            markF1 = [];
+            for i = 1: size(markF0,1)
+              for j = 1: size(markF,1)
+                 if markF(j)==markF0(i)
+                     markF1 = [markF1,markF(j)];
+                     break;
+                 end
+              end
+
+            end
+            markF0 = markF1;
+            end
+            if size(markF0,2) == size(obj.ineqs,2)
+                obj = region.empty
+                disp("Singleton")
+                return
+                
+            end
+            obj.ineqs(markF0) = [];
+
+        end
+            
+            
+        function obj = simplify (obj) %, vars)
             %disp('in simplify')
             %obj.print
           for i = 1:size(obj.ineqs,2)
-            [lelim, obj] = obj.deleteIneq (vars);
+            [lelim, obj] = obj.deleteIneq (obj.vars);
             %i
             %lelim
-            %obj.print
+            %disp("in simplify")
+            %r0.print
+            %obj = r0;
             if ~lelim
                 return
             end
@@ -1757,10 +2453,10 @@ classdef region
            for i = 1:size(obj.ineqs,2)
                %subs ([obj.ineqs(i).f],vars,point)
                for j = 1:size(point,1)
-                %obj.ineqs(i).f
-                %point(j,:)
-               %double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
-               if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
+%                  obj.ineqs(i).f
+%                  point(j,:)
+%                 double(subs ([obj.ineqs(i).f],vars,double(point(j,:))))
+                if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0e-12
                    l = false;
                    return
                end
@@ -1854,12 +2550,15 @@ classdef region
              end
          end 
          obj = region(l, obj1.vars);
+         if isempty(obj)
+             return
+         end
          %obj.print
          if (isFeasible(obj))
              %disp('feasible')
              obj = obj.unique;
              if obj.nv <= 2
-                 disp('degenerate ');
+                 %disp('degenerate ');
                  obj = region.empty;
              else
                  if obj.nv == 0
@@ -1919,17 +2618,19 @@ classdef region
              %disp('removeParallel')
              %    l.printL
              %end
-             [notF,l] = l.removeSum(lprint);
-             if notF
-                 linter = false  ;
-                 %disp("Not feasible 2")
-           
-                 return
-             end
-             if lprint
-             disp('removeSum')
-             l.printL
-             end
+
+             % 21 DEC commenting next few lines to check 
+%              [notF,l] = l.removeSum(lprint);
+%              if notF
+%                  linter = false  ;
+%                  %disp("Not feasible 2")
+%            
+%                  return
+%              end
+%              if lprint
+%              disp('removeSum')
+%              l.printL
+%              end
              l2 =[];
              for i = 1:size(l,2)
                  l2 = [l2,l(i).f];
@@ -1943,10 +2644,12 @@ classdef region
              lR.plot;
              end
              %size(lR.ineqs,2)
-             lR = lR.simplify (vars);
+             lR = lR.simplify;  %(vars);
              %disp('aft simplify')
              %lR.print;
              
+             % this can be removed - check
+             % check for empty region instead - basically clean up
              if size(lR.ineqs,2) == 0
                  linter = false  ;
                 % disp("Infeasible 3")
@@ -1986,7 +2689,7 @@ classdef region
              objR.print
              disp("objR")
              
-             objR = objR.simplify (objR.vars)
+             objR = objR.simplify; % (objR.vars)
              objR.print
          end
          
@@ -2033,9 +2736,12 @@ classdef region
          end
      end
      % wont work for degree > 2
-     function obj = getVertices(obj, lprint)
+     % removed complex vertices
+     function obj = getVertices(obj)
          
        obj.nv=0;
+       obj.vx=[];
+       obj.vy=[];
        t1 = sym('t1');
        t2 = sym('t2');
        varsTemp = [t1,t2];
@@ -2054,16 +2760,24 @@ classdef region
                elseif isempty(s.t2)
                    continue;
                end
+               if ~ isreal(s.t1)
+                   s.t1
+                   continue;
+               end
+               
                if (obj.ptFeasible(obj.vars, [s.t1,s.t2]))
-                   
+                   for k = 1:size(s.t1,1)
                    obj.nv=obj.nv+1;
-                   obj.vx(obj.nv) = s.t1;
-                   obj.vy(obj.nv) = s.t2;
+                   obj.vx(obj.nv) = double(s.t1(k));
+                   obj.vy(obj.nv) = double(s.t2(k));
+                   end 
                end
                
            end
            
        end
+
+         
        %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
 
        % putting intmax for inf to avoid Nans 
@@ -2097,7 +2811,7 @@ classdef region
        end
        for i = 1:n
            if nargin == 2
-               intmax,obj.vy(i)
+               %intmax,obj.vy(i)
                obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
            end
            if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
@@ -2141,13 +2855,38 @@ classdef region
        end
 
      end
-     function f = divideRegions(obj,obj2)
+
+
+
+      function [nv, vx, vy] = vertexOfEdge(obj,ind)
+              nv = 0;
+%              disp('in')
+%              ind
+%              obj.nv
+             % obj.vx
+%              disp('out')
+%              size(obj.vx)
+              vx = [];
+              vy = [];
+               for i = 1:obj.nv
+                 f1 = obj.ineqs(ind).subsF (obj.vars,[obj.vx(i),obj.vy(i)]);
+                 if f1.isZero
+                     nv = nv + 1;
+                     vx(nv) = obj.vx(i);
+                     vy(nv) = obj.vy(i);
+                 end
+               end
+          end
+      function f = divideRegions(obj,obj2)
          
        obj.nv=0;
          t1 = sym('t1');
          t2 = sym('t2');
          varsTemp = [t1,t2];
-         ir = 0
+         ir = 0;
+         % in this loop we are getting all points of intersection of pair
+         % of ineqs.
+         % remove duplicate points 
          for i = 1:size(obj.ineqs,2)  
            f1 = obj.ineqs(i);
            f1 = f1.subsF (obj.vars,varsTemp);
@@ -2163,12 +2902,23 @@ classdef region
                elseif isempty(s.t2)
                    continue;
                end
+               lpt = false;
+               for k  = 1:ir
+                   if all(points(k,:) == [s.t1,s.t2])
+                       lpt = true;
+                       break;
+                   end
+               end
+               if lpt
+                   continue
+               end
                if ~obj2.ptFeasible (obj2.vars,[s.t1,s.t2])
                  continue
                end
                
                ir = ir + 1;
                index(ir) = 0;
+               points(ir,1:2) = [s.t1,s.t2]; 
                for k = 1:size(obj.ineqs,2)  
                  if double(subs ([obj.ineqs(k).f],obj.vars,[s.t1,s.t2])) < 1.0e-12
                      index(ir) = index(ir)+1;
@@ -2182,14 +2932,17 @@ classdef region
          % at this point r(ir) corresponds to satisfying ineqs for each
          % possible vertex
 
-%          ir
-%          index
-%          for i = 1:ir
-%              disp('list')
-%              for j = 1:index(ir)
-%                  r(i,j)
-%              end
-%          end
+          %ir
+          %index
+          %for i = 1:ir
+          %    points(i,:)
+          %end
+%           for i = 1:ir
+%               disp('list')
+%               for j = 1:index(ir)
+%                   r(i,j)
+%               end
+%           end
           is = 0;
          s = r;
          for i=1:ir
@@ -2275,18 +3028,36 @@ classdef region
      
      % return function values at vertices
      function fv = funcVertices (obj, f)
+         n = 0;
          for i =1:obj.nv
-             fv(i) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
+             if (abs(obj.vx(i))==intmax)
+                 continue
+             end
+             if (abs(obj.vy(i))==intmax)
+                 continue
+             end
+             n = n + 1;
+             fv(n) = f.subsF(obj.vars,[obj.vx(i),obj.vy(i)]);
+             if (isnan(fv(n).f))
+                 fv(n) = f.limit(obj.vars,[obj.vx(i),obj.vy(i)]);
+             end
          end
      end
 
 
-     function [l, maxf, index] = maximum(obj, f)
+     function [l, maxf, index, lSing] = maximum(obj, f)
           %obj.print
           %f(1).print
           %f(2).print
           
-          [l,  maxf, index] = obj.maxArray (f(1), f(2)) ;
+          if f(1)==f(2)
+              l = true;
+              lSing = false;
+              maxf = f(1);
+              index = 1;
+              return
+          end
+          [l,  maxf, index, lSing] = obj.maxArray (f(1), f(2)) ;
      end
 
      function [f2, fe, d] = splitMax(obj, f, expr)
@@ -2312,33 +3083,426 @@ classdef region
        
      end
      
-     % wont work cause of intersection vs union
-     function [l,obj] = merge (obj, obj2)
-         %obj.print;
-         %obj2.print;
-         l = false;
-         n = 0;
-         obj = obj + obj2;
-         obj = obj.unique;
-         %disp("unique")
-         %obj.print;
-         mark = [];
-         for i =1:size(obj.ineqs,2)
-           for j =1:size(obj.ineqs,2)
-             if obj.ineqs(i) == obj.ineqs(j).unaryminus
-                 l = true;
-                 n = n + 1;
-                 mark(n) = i;
-                 n = n + 1;
-                 mark(n) = j;
-             end
-           end
-         
+     function e = getOtherEdgeAtVertex (obj, ind, vertex)
+         e = 0;
+         for i = 1:size(obj.ineqs,2)
+            if i == ind
+                continue
+            end
+            f1 = obj.ineqs(i).subsF (obj.vars,vertex);
+            if f1.isZero
+                
+                e = i;
+                break
+            end
+
          end
-         obj.ineqs(mark) = []; 
      end
 
-     
+     % wont work cause of intersection vs union
+     function [l,obj] = merge (obj, obj2)
+         l = false;
+         n = 0; 
+%          lQuad = false;
+%          for i =1:size(obj.ineqs,2)
+%               if obj.ineqs(i).isQuad
+%                   lQuad = true;
+%                   %return
+%               end
+%          end
+%          for i =1:size(obj2.ineqs,2)
+%               if obj2.ineqs(i).isQuad
+%                   lQuad = true;
+%                   %return
+%               end
+%          end
+          
+         % to be tested and added
+         lQuad1 = false;
+         nmq1 = 0;
+         size(obj.ineqs,2)
+         for i =1:size(obj.ineqs,2)
+             if obj.ineqs(i).isQuad
+                 lQuad1 = true;
+                 nmq1 = nmq1 + 1;
+                 mq1(nmq1) = i;
+             end
+         end
+         lQuad2 = false;
+         nmq2 = 0;
+         
+         for i =1:size(obj2.ineqs,2)
+             if obj2.ineqs(i).isQuad
+                 lQuad2 = true;
+                 nmq2 = nmq2 + 1;
+                 mq2(nmq2) = i;
+               
+             end
+         end
+         %lQuad1
+         %lQuad2
+         if (lQuad1 & lQuad2)
+             %disp("Quad merge")
+             %obj.print
+             %obj2.print
+             marki = [];
+             markj = [];
+             for i = 1:nmq1
+               for j = 1:nmq2
+                   if obj.ineqs(mq1(i)) == -obj2.ineqs(mq2(j))
+                       n = n + 1;
+                       marki(n) = mq1(i);
+                       markj(n) = mq2(j);
+                   end
+               end
+             end
+             if n > 0
+               l = true;
+               obj3 = obj;
+               obj.ineqs(marki) = []; 
+               obj2.ineqs(markj) = [];
+               obj = obj+obj2;
+               disp("returning from quad")
+               if isempty(obj)
+                   disp('reverting')
+                   l = false;
+                   obj=obj3;
+               end
+               return
+             end
+%          elseif lQuad1
+%              return
+%          elseif lQuad2
+%              return
+          end
+         lQuad = lQuad1 | lQuad2;
+         if lQuad1 & lQuad2
+             lQuad= false;
+         end
+         % cant do + as it returns empty due to contadictory ineqs
+         %obj = obj + obj2;
+         % hence remove those then do +
+         %obj.print;
+       %  disp('in merge')
+       %  obj.print
+       %  obj2.print
+         %obj = obj.unique;
+         %disp("unique")
+         %obj.print;
+         marki = [];
+         markj = [];
+         for i =1:size(obj.ineqs,2)
+             
+           for j =1:size(obj2.ineqs,2)
+               %j
+             if obj.ineqs(i) == -obj2.ineqs(j)
+                 [nvi, vxi, vyi] = obj.vertexOfEdge(i);
+                 [nvj, vxj, vyj] = obj2.vertexOfEdge(j);
+              %   obj.ineqs(i)
+              %   nvi,nvj
+                 if nvi ~= nvj
+                     continue
+                 end
+%                  if nvi ~= 2
+%                      continue
+%                  end
+                  if nvi == 1 & (~lQuad)
+              %         disp('here')  
+                       l = true;
+                       n = n + 1;
+                       marki(n) = i;
+                       markj(n) = j;
+                       break;
+                     
+                 end
+                 if nvi == 2
+                 
+                 [tvxi, sortedIndices] = sort(abs(vxi));
+                 vxi = vxi(sortedIndices);
+                 vyi = vyi(sortedIndices);
+                 
+                 [tvxj, sortedIndices] = sort(abs(vxj));
+                 vxj = vxj(sortedIndices);
+                 vyj = vyj(sortedIndices);
+                 
+                 % check same vertices and convex angles 
+                 if all(vxi == vxj) & all(vyi == vyj)
+                    
+                     edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(1),vyi(1)]);
+                     if edgeiNo == 0
+                         continue
+                     end
+                     if ~obj.ineqs(edgeiNo).isLinear 
+                         continue;
+                     end
+                     edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
+                     if edgejNo == 0
+                         continue
+                     end
+                     
+                     if ~obj2.ineqs(edgejNo).isLinear 
+                         continue;
+                     end
+                     
+                     mi = obj.slopeIneq(edgeiNo);
+                     a1 = atan(mi);
+                     %if a1 < 0
+                     %    a1 = a1 + 2*pi;
+                     %end
+                     mj = obj2.slopeIneq(edgejNo);
+                     a2 = atan(mi);
+                     %if a2 < 0
+                     %    a2 = a2 + 2*pi;
+                     %end
+                     
+                     if (a1+a2 > pi) | (a1+a2 < -pi)
+                         continue
+                     end
+
+%%%%%%%%%%%%%%%%
+                     
+                    if nvi == 2   
+                     
+                     edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(2),vyi(2)]);
+                     if edgeiNo == 0
+                         continue
+                     end
+                     
+                     if ~obj.ineqs(edgeiNo).isLinear 
+                         continue;
+                     end
+                     edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(2),vyi(2)]);
+                     if edgejNo == 0
+                         continue
+                     end
+                     
+                     if ~obj2.ineqs(edgejNo).isLinear 
+                         continue;
+                     end
+                     
+                     mi = obj.slopeIneq(edgeiNo);
+                     a1 = atan(mi);
+                     %if a1 < 0
+                     %    a1 = a1 + 2*pi;
+                     %end
+                     mj = obj2.slopeIneq(edgejNo);
+                     a2 = atan(mi);
+                     %if a2 < 0
+                     %    a2 = a2 + 2*pi;
+                     %end
+                     
+                     if (a1+a2 > pi) | (a1+a2 < -pi)
+                         continue
+                     end
+                    end
+                 
+%%%%%%%%%%%%%%%%%
+
+                         %atan(mi)+atan(mj)
+                       l = true;
+                       n = n + 1;
+                       marki(n) = i;
+                       markj(n) = j;
+                       break;
+                     end
+                 end  
+             end
+           end
+           %if l
+           %    break
+           %end
+         end
+         if l
+           obj.print;
+           obj2.print;
+           marki
+           markj
+           obj3 = obj;
+           obj.ineqs(marki) = []; 
+           obj2.ineqs(markj) = [];
+           obj = obj+obj2;
+           if isempty(obj)
+               disp('empty')
+               l = false;
+               obj = obj3;
+               obj.print
+           end
+           %obj.print
+         end
+         
+         end
+         
+      
+
+     function l = hasNegativeIneqs(obj)
+         l = true;
+         for i = 1:size(obj.ineqs,2)
+           for j = i+1:size(obj.ineqs,2)
+               if (obj.ineqs(i) == -obj.ineqs(j))
+                   return;
+               end
+           end
+         end
+         l = false;
+     end
+
+     function [nmaxf,nmaxd] = mergeL(maxd,maxf)  % (obj,maxf,maxd)
+          disp('in mergeL')
+          ia(1) = 1;
+          n = 0;
+          %size(maxf,2)
+          for i = 1:size(maxf,2)
+              %i
+              %maxf(i).print
+              marked(i) = false;
+          end
+          ja = [];
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(maxf,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(maxf,2)
+                  
+                  if isAlways(maxf(i).f == maxf(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          %nmaxf = [];
+          %nmaxd = [];
+          m = 0;
+          for i = 1:size(maxf,2)
+              marked(i) = false;
+          end
+%          ia
+%          ja
+        %  return
+        %  nmaxf= [];
+        %  nmaxd= [];
+        ia
+        ja
+        for i = 1:size(maxf,2)
+            %if i >= 9
+            %disp("outer loop")
+            %i
+            %end
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1))
+                if marked(i)
+                   continue
+                end
+                 
+                m = m + 1
+                nmaxf(m) = maxf(i);
+                nmaxd(m) = maxd(i);
+                marked(i) = true;
+                maxd(i).print
+                
+            else
+                % get common boundary and merge
+                % make groups and add 
+               r = maxd(i);
+               % try with diff r
+               lmerge = true;
+               while lmerge
+                 lmerge = false;
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+                   [l,r] = r.merge (maxd(ja(j)));
+                   % if i >= 9
+                   % j,l
+                   % end
+                   if l
+                     marked(ja(j)) = true;
+                     lmerge = true;
+                   end
+                 end
+               end
+               m = m + 1
+               nmaxf(m) = maxf(i);
+               nmaxd(m) = r; 
+               marked(i) = true;
+               % if i >= 9
+               % r.print
+               % disp("marked after first loop")
+               % marked
+               % end
+               % 
+               % fix here to combine others - currently combining only with
+               % first
+               % try with diff r
+               for j=ia(i):ia(i+1)-1
+                 if marked(ja(j))
+                   continue
+                 end
+                 r = maxd(ja(j));
+                 % if i >= 9
+                 % disp('in loop')
+                 % j
+                 % end
+                 %r.print
+                 lmerge = true;
+                 while lmerge
+                   lmerge = false;
+                   for k=j+1:ia(i+1)-1
+                     if marked(ja(k))
+                       continue
+                     end
+                     [l,r] = r.merge (maxd(ja(k)));
+                     % if i >= 9
+                     % ja(j),ja(k),l
+                     % end
+                     if l
+                       marked(ja(k)) = true;
+                       lmerge = true;
+                     end
+                   end
+                 end
+                 m = m + 1
+                 nmaxf(m) = maxf(i);
+                 nmaxd(m) = r; 
+                 marked(ja(j)) = true;
+                 %r.print
+                 % if i >= 9
+                 % disp("marked in loop")
+                 % marked
+                 % end
+               
+               end
+
+%                  for j=ia(i):ia(i+1)-1
+%                    
+%                    if marked(ja(j))
+%                        continue
+%                    end
+%                    marked(ja(j)) = true;
+%                    m = m + 1;
+%                    nmaxf(m) = maxf(i);
+%                    nmaxd(m) = maxd(ja(j));  
+%                  end
+               
+%                m = m + 1;
+%                nmaxf(m) = maxf(i);
+%                %r = r.getVertices();
+%                nmaxd(m) = r;  
+                   
+            end
+        end
+       % disp("m")
+       % m
+      end
+
      end
 
      

@@ -1,3 +1,215 @@
+figure;
+X = [-5,-5,1,0,-5,-5,1];
+Y = [5,-4,3,-4,-4,5,3];
+
+plot(X,Y);
+hold on;
+xlim([-6, 4]); % Set x-axis range from 0 to 6
+ylim([-5, 6]); % Set y-axis range from 0 to 6
+
+return
+X = [1,0,2,2,1];
+Y = [3,-4,0,1,3];
+plot(X,Y);
+hold on;
+
+return
+%d(1)=domain([-5,-4;0,-4;1,3;-5,5],x,y); 
+ %           d(2)=domain([0,-4;2,0;2,1;1,3],x,y); 
+
+figure;
+
+hold on
+
+ezplot('0*x + y + 5  ') 
+hold on
+
+
+ezplot('9*y/5-x+5')
+hold on
+return
+
+
+figure;
+ezplot('x + 0*y + 4 ') 
+hold on
+f = ezplot('- x/sqrt(2) - y - 7.824 ') 
+set(f, 'Color', 'r');
+
+hold on
+
+ezplot('0*x + y + 5  ') 
+hold on
+
+
+ezplot('9*y/5-x+5')
+hold on
+return
+
+
+
+ezplot('x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+ezplot('x + 0*y + 1 ') 
+hold on
+ezplot('0*x + y + 1 ') 
+hold on
+ezplot('2* x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+%ezplot('x + 7*y - 46 <= 0') 
+%hold on
+return
+figure;
+ezplot('1-5/2*y-x  ')
+hold on
+ezplot('- x - 2*y - 4 ')
+hold on
+ezplot('x - 2*y +44  ')
+hold on
+return
+
+
+
+
+
+ezplot('(9*y)/5 - x + 5 ')
+hold on
+return
+
+x = sym('x')
+y = sym('y')
+subs(4 - 2*y - x,[x,y],[-20,13])
+subs(x-2*y+44,[x,y],[-20,13])
+return
+
+figure;
+ezplot('8*x+24*y-(x+2*y)^2-32 ')
+hold on
+ezplot('x + (5*y)/2 - 1 ')
+hold on
+return
+
+
+
+ezplot('4 - 2*y - x ')
+ hold on
+ ezplot('-x -2* y - 4 ') 
+ hold on
+ezplot('2*y-x-15 ')
+hold on
+
+
+
+return
+
+%X = [-5,0,-5,-5];
+%Y = [-4,-4,5,-4];
+% X = [-5,0,1,-5];
+% Y = [5,-4,3,5];
+ X = [-5,-5,0,1,-5];
+ Y = [5,-4,-4,3,5];
+
+plot(X,Y);
+xlim([-6, 2]); % Set x-axis range from 0 to 6
+ylim([-5, 6]); % Set y-axis range from 0 to 6
+return
+ezplot('(9*y)/5 - x + 5 ')
+hold on
+%ezplot('x + 7*y - 10 ')
+%hold on
+
+ezplot('- x - 7*y - 4 ')
+hold on
+return
+
+ezplot('148*x - 196*y + (x + 7*y)^2 - 684 ')
+hold on
+ezplot('y/3 - x + 14/3 ')
+hold on
+
+s2/3 - s1 + 14/3
+return
+
+
+
+ezplot('- y - 4 +0*x ')
+hold on
+ezplot('x + (5*y)/9 + 20/9 ')
+hold on
+ezplot('x + 3*y - 10 ')
+hold on
+ezplot('x - (6*y)/7 + 11/7  ')
+hold on
+ezplot('x - y/7 - 4/7')
+hold on
+ezplot('- x - 5 +0*y')
+hold on
+%return
+%ezplot('-x + y ')
+hold on
+return
+ezplot('-x -3 + y ')
+hold on
+ezplot('-x^2 +1 +  y ')
+hold on
+ezplot('-x^2 -1 + y ')
+hold on
+return
+ezplot('x + y ')
+hold on
+ezplot('(5*y)/4 - x + 25/4')
+hold on
+ezplot('- x - (3*y)/2 - 3/2')
+hold on
+ezplot('27*x - (51*y)/2 + (x + (3*y)/2)^2 - 591/4 ')
+hold on
+ezplot('(9*y)/2 - 3*x + (x + (3*y)/2)^2 + 9/4')
+hold on
+return
+
+
+(9*y)/2 - 3*x + (x + (3*y)/2)^2 + 9/4 <= 0 
+
+
+ezplot('x+y-1')
+hold on
+ezplot('-x-y')
+hold on
+ezplot('y/3 - x - 1/6')
+hold on
+ezplot('x - (5*y)/4 - 25/4')
+hold on
+ezplot('(x + y)^2 - 8*x ')
+
+hold on
+ezplot('7*x - 5*y - 25')
+hold on
+
+return
+ezplot('x + y - 1  ')
+hold on
+ezplot('- x - y  ')
+
+hold on
+ezplot('x - y/3 + 1/6 ')
+hold on
+ezplot('y - x - 1  ')
+hold on
+ezplot('(x + y)^2 - 8*x  ')
+hold on
+ezplot('18*y - 18*x - (x + y)^2 + 99  ')
+
+
+hold on
+return
+
+
+
+return
 %ezplot('-y')
 %ezplot("-y")
 %hold on
@@ -8,7 +220,7 @@ return
 %ezplot('exp(-x^2)',[-1,1]  )
 %ezplot('sin(x)' ,[-1,1] )
 ezplot('abs(x*y)'  )
-return
+
 hold on
 
 %ezplot('x - 1' ) 
