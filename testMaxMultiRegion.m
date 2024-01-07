@@ -26,23 +26,27 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
     methods (Test)
 
         function testMax (testCase)
-            for i=1:1
-                i
-            testCase.PRect.pieces(i)=testCase.PRect.pieces(i).convexEnvelope;
-            disp("ConvexEnvelopw")
-             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).conjugate;
-             disp("Conjugate")
-             testCase.PRect.pieces(i) = testCase.PRect.pieces(i).maximumConjugate
-             %testCase.PRect.pieces(i)=testCase.PRect.pieces(i).intersectionConjugateDomain;
-             %disp("domain intersection")
-             return
-             testCase.PRect.pieces(i)=testCase.PRect.pieces(i).maximum;
-             disp("max")
-             testCase.PRect.pieces(i).print
-             %testCase.PRect.pieces(i).plot
-
-            end
-             return
+            %testCase.PRect.nPieces = 1;
+            testCase.PRect = testCase.PRect.maximum
+            return
+            % for i=1:1
+            %     i
+            % testCase.PRect.pieces(i)=testCase.PRect.pieces(i).convexEnvelope;
+            % disp("ConvexEnvelopw")
+            %  testCase.PRect.pieces(i)=testCase.PRect.pieces(i).conjugate;
+            %  disp("Conjugate")
+            %  testCase.PRect.pieces(i) = testCase.PRect.pieces(i).maximumConjugate
+            %  %testCase.PRect.pieces(i)=testCase.PRect.pieces(i).intersectionConjugateDomain;
+            %  %disp("domain intersection")
+            %  % return
+            %  % testCase.PRect.pieces(i)=testCase.PRect.pieces(i).maximum;
+            %  % disp("max")
+            %  testCase.PRect.pieces(i).print
+            %  testCase.PRect.pieces(i).plotMaxConjugateDomain
+            %  %testCase.PRect.pieces(i).plot
+            % 
+            % end
+            %  return
 %             figure;
 %              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
 %               n = 0

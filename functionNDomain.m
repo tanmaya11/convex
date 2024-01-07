@@ -11,9 +11,17 @@ classdef functionNDomain
          end
 
          function print (obj)
-             obj.f.printL
-             obj.d.print
-             disp("")
+             disp("Function")
+             obj.f.printL;
+             disp("Domain")
+             obj.d.print;
+            
+         end
+
+         function printL(objL)
+             for i = 1:size(objL,2)
+                 objL(i).print;
+             end
          end
 
          function objL = mtimes (objL1, objL2)
@@ -38,7 +46,7 @@ classdef functionNDomain
                       
          end
 
-         function objR = maximumP(objL) %, f, r2)
+         function objR2 = maximumP(objL) %, f, r2)
            n = 0;
            for i = 1:size(objL,2)
              if size(objL(i).f,2) == 1
@@ -65,18 +73,115 @@ classdef functionNDomain
              d1 = region(ineqs1,objL(i).d.vars);
              d1 = d1.simplifyOpenRegion;
              n = n + 1;
-             objR(n) = functionNDomain([objL(i).f(1)],d1)
+             objR(n) = functionNDomain([objL(i).f(1)],d1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
              d1 = d1.simplifyOpenRegion;
              n = n + 1;
-             objR(n) = functionNDomain([objL(i).f(2)],d1)
+             objR(n) = functionNDomain([objL(i).f(2)],d1);
            end
            if n == 0
               return
            end
           % add merge here
+          objR2 = mergeL(objR);
             
-         end 
+         end
+
+         function objL2 = mergeL(objL)  % (obj,maxf,maxd)
+          ia(1) = 1;
+          n = 0;
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+          ja = [];
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(objL,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(objL,2)
+                  
+                  if isAlways(objL(i).f.f == objL(j).f.f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          m = 0;
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+        ia
+        ja
+        for i = 1:size(objL,2)
+            if  marked(i)
+                continue
+            end
+            if (ia(i) == ia(i+1))
+                if marked(i)
+                   continue
+                end
+                 
+                m = m + 1;
+                objL2(m) = objL(i);
+                marked(i) = true;
+            else
+                % get common boundary and merge
+                % make groups and add 
+               r = objL(i).d;
+               lmerge = true;
+               while lmerge
+                 lmerge = false;
+                 for j=ia(i):ia(i+1)-1
+                   
+                   if marked(ja(j))
+                       continue
+                   end
+                   [l,r] = r.merge (objL(ja(j)).d);
+                   if l
+                     marked(ja(j)) = true;
+                     lmerge = true;
+                   end
+                 end
+               end
+               m = m + 1;
+               objL2(m) = functionNDomain([objL(i).f],r);
+               marked(i) = true;
+               for j=ia(i):ia(i+1)-1
+                 if marked(ja(j))
+                   continue
+                 end
+                 r = objL(ja(j)).d ;
+                 lmerge = true;
+                 while lmerge
+                   lmerge = false;
+                   for k=j+1:ia(i+1)-1
+                     if marked(ja(k))
+                       continue
+                     end
+                     [l,r] = r.merge (objL(ja(k)).d);
+                     
+                     if l
+                       marked(ja(k)) = true;
+                       lmerge = true;
+                     end
+                   end
+                 end
+                 m = m + 1;
+                 objL2(m) = functionNDomain([objL(i).f],r);
+                 marked(i) = true;
+                 marked(ja(j)) = true;
+
+                 
+               end
+
+            end
+        end
+      end
      end
 end 

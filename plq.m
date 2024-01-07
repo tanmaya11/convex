@@ -5,6 +5,7 @@ classdef plq
       nmaxf
       maxf=functionF.empty();
       maxd = region.empty();
+      maxConjugate = functionNDomain.empty();
   end
   methods
       function obj = plq(ps)
@@ -354,221 +355,264 @@ classdef plq
 %           
           %         obj.conjd(k1).intersection2(obj.conjd(k2))
           
+      end
+
+
+      function obj = maximum(obj)
+      
+        for i=1:obj.nPieces
+          i
+          obj.pieces(i)=obj.pieces(i).convexEnvelope;
+          disp("ConvexEnvelope")
+           obj.pieces(i)=obj.pieces(i).conjugate;
+           disp("Conjugate")
+           obj.pieces(i) = obj.pieces(i).maximumConjugate;
+           disp("MaxConjugate")
+          obj.pieces(i).print;
+         % obj.pieces(i).plotMaxConjugateDomain
         end
+        obj = obj.maximumConjugate;
+      end
 
-      function obj = maximum(obj) %, f, r2)
-
-
-
-          for i=1:obj.nPieces
-              obj.pieces(i) = obj.pieces(i).maximum;
+      function obj = maximumConjugate(obj)
+          if obj.nPieces < 1
+              return;
           end
-          return
-          % 1 - eq constant
-          % 2 - linear ineq const
-          % 3 - linear
-
-
-          % not used quadratic ineq - check that
-          n = 0;
-          for i = 1:size(obj.maxd,2)
-
-              % do this if functions are linear
-             disp(["i", num2str(i)])
-             %r2(i).print
-
-% check this
-
-             %f1 = f(i,1);
-             %f2 = f(i,2);
-             % [l, fmax] = r2(i).maxArray (f1, f2) ;
-%%%%
-
-              [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
-              if lSing
-                   continue
-               end
-               
-               if l
-                 n = n + 1;
-                 maxf(n) = fmax;
-                 %maxd(n) = r2(i);
-                 maxd(n) = obj.maxd(i);
-                 continue
-               end  
-
-
-
-             if f1.isConst & f2.isConst  
-                 disp('cc')
-                 disp ('should never come here')
-             elseif f1.isConst & f2.isLinear
-                disp('cl')
-               
-             elseif f1.isLinear & f2.isConst
-                disp('lc')
-               
-
-             elseif f1.isLinear() & f2.isLinear() 
-                disp('ll')
-               
-               % Find intersection point
-               %[vx,vy] = solveF (f1, f2);
-             elseif f1.isConst & f2.isQuad   
-
-                 disp('cq')
-               
-               
-             elseif f1.isQuad & f2.isConst
-                 disp('qc')
-               
-               
-             elseif f1.isLinear & f2.isQuad   
-                 disp('lq')
-               
-               
-             elseif f1.isQuad & f2.isLinear
-                 disp('ql')
-               
-               
-             elseif f1.isQuad & f2.isQuad
-             disp('qq')  
-               
-             end 
-
-             disp('reached here')
-
-%               p1 = 0; 
-%               p2 = 0;
-%           
-%               
-%               if f1.isConst
-%                   p1 = 1;
-%               end
-%               if f2.isConst
-%                   
-%                   p2 = 1;
-%               end
-%               
-%               % 2. check f with ineq for obvious results
-% 
-%               if p1 == 0
-%                   [l1,less,fIneq1, nf] = r2(i).funcIneq (f1)
-%                   if l1 
-%                   if nf
-%                       p1 = 3;
-%                   else    
-%                       p1 = 2;
-%                   end
-%                   end
-%               end
-%               if p2 == 0
-%                   [l2,less,fIneq1, nf] = r2(i).funcIneq (f2)
-%                   if l2
-%                       if nf
-%                           p2 = 3;
-%                       else
-%                         p2 = 2;
-%                       end
-%                   end
-%               end
-%               disp(["p1", num2str(p1)])
-%               disp(["p2", num2str(p2)])
-%               
-%               if (p1 == 1 & p2 == 1)
-%                   n = n + 1;
-%                   if (double(f1.f) < double(f2.f))
-%                     maxf(n) = f2
-%                     maxd(n) = r2(i)
-%                   else
-%                     maxf(n) = f1
-%                     maxd(n) = r2(i)
-%                   end
-%                   return
-%               elseif (p1 == 1 & p2 == 2)
-%                   n = n + 1;
-%                   if (double(f1.f) < fIneq1)
-%                     maxf(n) = f2
-%                     maxd(n) = r2(i)
-%                   else
-%                     maxf(n) = f1
-%                     maxd(n) = r2(i)
-%                   end
-%               elseif (p1 == 2 & p2 == 3)
-%                   fv1 = fIneq1;
-%                   fv2 = r2(i).funcVertices (f2);
-%                   lg = true;
-%                   for i = 1:size(fv2,2)
-%                       if (fv2(i) < fv1)
-%                           lg = false;
-%                           break
-%                       end 
-%                   end
-%                   lg = true;
-%                   if l1 & lg
-%                       n = n + 1;
-%                       disp('f2')
-%                       maxf(n) = f2
-%                       maxd(n) = r2(i);
-%                   end
-%                   for i = 1:size(fv2,2)
-%                       if (fv2(i) > fv1)
-%                           lg = false;
-%                           break
-%                       end 
-%                   end
-%                   
-%                   if ~l1 & lg
-%                       n = n + 1;
-%                       maxf(n) = f1
-%                       maxd(n) = r2(i);
-%                   end
-%               elseif (p1 == 3 & p2 == 3)    
-%                 fv1 = r2(i).funcVertices (f1);
-%                 fv2 = r2(i).funcVertices (f2);
-%                 lg = true;
-%                 for i = 1:size(fv2,2)
-%                    
-%                   if fv2(i).f < fv1(i).f
-%                     lg = false;
-%                     break
-%                   end 
-%                 end
-%                 if lg
-%                   n = n + 1;
-%                   f2
-%                   maxf(n) = f2;
-%                   maxd(n) = r2(i);
-%                 else
-%                 lg = true;
-%                 for i = 1:size(fv2,2)
-%                   if fv1(i).f < fv2(i).f
-%                     lg = false;
-%                     break
-%                   end 
-%                 end
-%                 if lg
-%                   n = n + 1;
-%                   f1
-%                   maxf(n) = f1;
-%                   maxd(n) = r2(i);
-%                 end
-%                 
-% 
-%                   % Evaluate f2 at vertices
-%                   % If all max or min resolve
-%               end
-% 
-% 
-%               % if all vertices have same max f
-%                             % check pointwise if one function is max
-%                             % get intersection of functions in domain   
-%                             
-%                          
-%           end
+          for k = 1:size(obj.pieces(1).maxConjugate,2) 
+             obj.maxConjugate(k) = obj.pieces(1).maxConjugate(k);
           end
           
+          for j = 2:obj.nPieces
+              obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
+              disp('max conj domain')
+               for i = 1:size(obj.maxConjugate,2)
+                   i
+                 obj.maxConjugate(i).print
+              end
+              obj.maxConjugate = obj.maxConjugate.maximumP;
+               disp("Max f")
+               for i = 1:size(obj.maxConjugate,2)
+                   i
+                 obj.maxConjugate(i).print
+               end
+
+
+          end
       end
+
+%       function obj = maximum(obj) %, f, r2)
+% 
+% 
+% 
+%           for i=1:obj.nPieces
+%               obj.pieces(i) = obj.pieces(i).maximum;
+%           end
+%           return
+%           % 1 - eq constant
+%           % 2 - linear ineq const
+%           % 3 - linear
+% 
+% 
+%           % not used quadratic ineq - check that
+%           n = 0;
+%           for i = 1:size(obj.maxd,2)
+% 
+%               % do this if functions are linear
+%              disp(["i", num2str(i)])
+%              %r2(i).print
+% 
+% % check this
+% 
+%              %f1 = f(i,1);
+%              %f2 = f(i,2);
+%              % [l, fmax] = r2(i).maxArray (f1, f2) ;
+% %%%%
+% 
+%               [l, fmax, ind, lSing] = obj.maxd(i).maximum(obj.maxf(i,:));
+%               if lSing
+%                    continue
+%                end
+% 
+%                if l
+%                  n = n + 1;
+%                  maxf(n) = fmax;
+%                  %maxd(n) = r2(i);
+%                  maxd(n) = obj.maxd(i);
+%                  continue
+%                end  
+% 
+% 
+% 
+%              if f1.isConst & f2.isConst  
+%                  disp('cc')
+%                  disp ('should never come here')
+%              elseif f1.isConst & f2.isLinear
+%                 disp('cl')
+% 
+%              elseif f1.isLinear & f2.isConst
+%                 disp('lc')
+% 
+% 
+%              elseif f1.isLinear() & f2.isLinear() 
+%                 disp('ll')
+% 
+%                % Find intersection point
+%                %[vx,vy] = solveF (f1, f2);
+%              elseif f1.isConst & f2.isQuad   
+% 
+%                  disp('cq')
+% 
+% 
+%              elseif f1.isQuad & f2.isConst
+%                  disp('qc')
+% 
+% 
+%              elseif f1.isLinear & f2.isQuad   
+%                  disp('lq')
+% 
+% 
+%              elseif f1.isQuad & f2.isLinear
+%                  disp('ql')
+% 
+% 
+%              elseif f1.isQuad & f2.isQuad
+%              disp('qq')  
+% 
+%              end 
+% 
+%              disp('reached here')
+% 
+% %               p1 = 0; 
+% %               p2 = 0;
+% %           
+% %               
+% %               if f1.isConst
+% %                   p1 = 1;
+% %               end
+% %               if f2.isConst
+% %                   
+% %                   p2 = 1;
+% %               end
+% %               
+% %               % 2. check f with ineq for obvious results
+% % 
+% %               if p1 == 0
+% %                   [l1,less,fIneq1, nf] = r2(i).funcIneq (f1)
+% %                   if l1 
+% %                   if nf
+% %                       p1 = 3;
+% %                   else    
+% %                       p1 = 2;
+% %                   end
+% %                   end
+% %               end
+% %               if p2 == 0
+% %                   [l2,less,fIneq1, nf] = r2(i).funcIneq (f2)
+% %                   if l2
+% %                       if nf
+% %                           p2 = 3;
+% %                       else
+% %                         p2 = 2;
+% %                       end
+% %                   end
+% %               end
+% %               disp(["p1", num2str(p1)])
+% %               disp(["p2", num2str(p2)])
+% %               
+% %               if (p1 == 1 & p2 == 1)
+% %                   n = n + 1;
+% %                   if (double(f1.f) < double(f2.f))
+% %                     maxf(n) = f2
+% %                     maxd(n) = r2(i)
+% %                   else
+% %                     maxf(n) = f1
+% %                     maxd(n) = r2(i)
+% %                   end
+% %                   return
+% %               elseif (p1 == 1 & p2 == 2)
+% %                   n = n + 1;
+% %                   if (double(f1.f) < fIneq1)
+% %                     maxf(n) = f2
+% %                     maxd(n) = r2(i)
+% %                   else
+% %                     maxf(n) = f1
+% %                     maxd(n) = r2(i)
+% %                   end
+% %               elseif (p1 == 2 & p2 == 3)
+% %                   fv1 = fIneq1;
+% %                   fv2 = r2(i).funcVertices (f2);
+% %                   lg = true;
+% %                   for i = 1:size(fv2,2)
+% %                       if (fv2(i) < fv1)
+% %                           lg = false;
+% %                           break
+% %                       end 
+% %                   end
+% %                   lg = true;
+% %                   if l1 & lg
+% %                       n = n + 1;
+% %                       disp('f2')
+% %                       maxf(n) = f2
+% %                       maxd(n) = r2(i);
+% %                   end
+% %                   for i = 1:size(fv2,2)
+% %                       if (fv2(i) > fv1)
+% %                           lg = false;
+% %                           break
+% %                       end 
+% %                   end
+% %                   
+% %                   if ~l1 & lg
+% %                       n = n + 1;
+% %                       maxf(n) = f1
+% %                       maxd(n) = r2(i);
+% %                   end
+% %               elseif (p1 == 3 & p2 == 3)    
+% %                 fv1 = r2(i).funcVertices (f1);
+% %                 fv2 = r2(i).funcVertices (f2);
+% %                 lg = true;
+% %                 for i = 1:size(fv2,2)
+% %                    
+% %                   if fv2(i).f < fv1(i).f
+% %                     lg = false;
+% %                     break
+% %                   end 
+% %                 end
+% %                 if lg
+% %                   n = n + 1;
+% %                   f2
+% %                   maxf(n) = f2;
+% %                   maxd(n) = r2(i);
+% %                 else
+% %                 lg = true;
+% %                 for i = 1:size(fv2,2)
+% %                   if fv1(i).f < fv2(i).f
+% %                     lg = false;
+% %                     break
+% %                   end 
+% %                 end
+% %                 if lg
+% %                   n = n + 1;
+% %                   f1
+% %                   maxf(n) = f1;
+% %                   maxd(n) = r2(i);
+% %                 end
+% %                 
+% % 
+% %                   % Evaluate f2 at vertices
+% %                   % If all max or min resolve
+% %               end
+% % 
+% % 
+% %               % if all vertices have same max f
+% %                             % check pointwise if one function is max
+% %                             % get intersection of functions in domain   
+% %                             
+% %                          
+% %           end
+%           end
+% 
+%       end
 
       function obj = maximumInFirstPairs(obj)
            disp('FMAX')

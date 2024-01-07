@@ -5,11 +5,8 @@ classdef plq_1piece
         envf=functionF.empty();
         envExpr = convexExpr.empty();
         envd = region.empty();
-        conjf=functionF.empty();
-        conjd = region.empty();
+        
         conjfia = [];
-        maxf=functionF.empty();
-        maxd = region.empty();
         conjugates = functionNDomain.empty();
         maxConjugate = functionNDomain.empty();
     end
@@ -459,27 +456,55 @@ disp('test22')
              %disp("Conjugate Expr")
              %obj.conjf.printL(obj.conjfia(j),obj.conjfia(j+1)-1)
              if (size(obj.conjfia,1) > 0)
+                 obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printL
              for k = obj.conjfia(j):obj.conjfia(j+1)-1
-               disp("Conjugate Expr")
-               obj.conjf(k).print
-               disp('Conjugate Domain')
-               obj.conjd(k).print
+               %disp("Conjugate Expr")
+               %obj.conjugates(k).print
+               %obj.conjf(k).print
+               %disp('Conjugate Domain')
+               %obj.conjd(k).print
              end
              end
            end
            fprintf("\n\n\n\n\n")
            disp("Maximum conjugate")
-           size(obj.maxf,2)
-           for i = 1:size(obj.maxf,1)
-             disp(i)
-             obj.maxf(i).print
-             obj.maxd(i).print
-           end
-           %disp("Conjugate Expr")
+           obj.maxConjugate.printL
+
+           % size(obj.maxf,2)
+           % for i = 1:size(obj.maxf,1)
+           %   disp(i)
+           %   obj.maxf(i).print
+           %   obj.maxd(i).print
+           % end
+           % %disp("Conjugate Expr")
             % obj.conjf.printL
             % disp('Conjugate Domain')
              %obj.conjd(j).print
 
+         end
+
+         function plotMaxConjugateDomain(obj)
+             
+             figure;
+         
+         
+             colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+             n = 0
+             f = obj.maxConjugate (1).f
+             c = colors(mod(n,6)+1)
+
+             for i =1:size(obj.maxConjugate,2)
+                i
+                if (f.f ~= obj.maxConjugate (i).f.f)
+                  n = n + 1
+                  c = colors(mod(n,6)+1)
+                  f = obj.maxConjugate (i).f
+                end
+                obj.maxConjugate (i).d.plot;
+                textR = "R"+num2str(i);
+                textR="";
+                obj.maxConjugate (i).d.plotRegionC(textR,c);
+             end
          end
 
          function plot(obj)
@@ -2463,7 +2488,7 @@ disp('test22')
               %    continue
               %end
               obj = obj.conjugateFunction(i);
-              obj.conjfia(i+1) = size(obj.conjf,2)+1;
+              obj.conjfia(i+1) = size(obj.conjugates,2)+1;
               %conjd = obj.envd(i).conjugate;
           end
           %obj.conjfia
@@ -2575,7 +2600,7 @@ disp('test22')
             end
            conjf=functionF.empty;
             conjd=region.empty;
-            strt = size(obj.conjf,2)+1;
+           
             for j = 1:obj.envd(i).nv
                 
                 if undV(j)
@@ -2613,13 +2638,13 @@ disp('test22')
             end
             [mconjf,mconjd] = conjd.mergeL(conjf);
             
+            % for i = 1:size(mconjf,2)
+            %     obj.conjf = [obj.conjf, mconjf(i)];
+            % 
+            % end
             for i = 1:size(mconjf,2)
-                obj.conjf = [obj.conjf, mconjf(i)];
-                
-            end
-            for i = 1:size(mconjf,2)
-                obj.conjd = [obj.conjd, mconjd(i)];
-                obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))]
+%                obj.conjd = [obj.conjd, mconjd(i)];
+                obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))];
             end
             
             
@@ -3410,27 +3435,27 @@ disp('test22')
     end
 
     methods % intersection
-      function obj = intersectionConjugateDomain (obj)
-        n = 0;
-        %disp('intersectionConjugateDomain')
-        
-        if size(obj.conjfia,2) == 2
-           for k = obj.conjfia(1):obj.conjfia(2)-1 
-             obj.maxd(k,1) = obj.conjd(k);
-             obj.maxf(k,1) = obj.conjf(k);
-             obj.maxConjugate(k) = obj.conjugates(k);
-           end
-           
-           return
-        end
-        obj.conjfia
-        size(obj.conjugates)
-        obj.maxConjugate = obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1) * obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1);
-        for i = 1:size(obj.maxConjugate,2)
-            obj.maxConjugate(i).print
-        end
-          
-      end
+      % function obj = intersectionConjugateDomain (obj)
+      %   n = 0;
+      %   %disp('intersectionConjugateDomain')
+      % 
+      %   if size(obj.conjfia,2) == 2
+      %      for k = obj.conjfia(1):obj.conjfia(2)-1 
+      %        obj.maxd(k,1) = obj.conjd(k);
+      %        obj.maxf(k,1) = obj.conjf(k);
+      %        obj.maxConjugate(k) = obj.conjugates(k);
+      %      end
+      % 
+      %      return
+      %   end
+      %   obj.conjfia
+      %   size(obj.conjugates)
+      %   obj.maxConjugate = obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1) * obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1);
+      %   for i = 1:size(obj.maxConjugate,2)
+      %       obj.maxConjugate(i).print
+      %   end
+      % 
+      % end
 
       function obj = maximumConjugate(obj)
            for k = obj.conjfia(1):obj.conjfia(2)-1 
@@ -3438,16 +3463,16 @@ disp('test22')
            end
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              for i = 1:size(obj.maxConjugate,2)
-                obj.maxConjugate(i).print
-              end
+              % for i = 1:size(obj.maxConjugate,2)
+              %   obj.maxConjugate(i).print
+              % end
               obj.maxConjugate = obj.maxConjugate.maximumP;
-              disp("Max")
-              for i = 1:size(obj.maxConjugate,2)
-                obj.maxConjugate(i).print
-              end
+              % disp("Max")
+              % for i = 1:size(obj.maxConjugate,2)
+              %   obj.maxConjugate(i).print
+              % end
               
-              % put maximum here
+             
           end
       end
     end

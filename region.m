@@ -3157,7 +3157,7 @@ classdef region
          % to be tested and added
          lQuad1 = false;
          nmq1 = 0;
-         size(obj.ineqs,2)
+         %size(obj.ineqs,2)
          for i =1:size(obj.ineqs,2)
              if obj.ineqs(i).isQuad
                  lQuad1 = true;
@@ -3350,10 +3350,10 @@ classdef region
            %end
          end
          if l
-           obj.print;
-           obj2.print;
-           marki
-           markj
+           % obj.print;
+           % obj2.print;
+           % marki
+           % markj
            obj3 = obj;
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
@@ -3362,7 +3362,7 @@ classdef region
                disp('empty')
                l = false;
                obj = obj3;
-               obj.print
+               % obj.print
            end
            %obj.print
          end
