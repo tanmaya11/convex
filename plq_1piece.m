@@ -3466,6 +3466,7 @@ disp('test22')
               % for i = 1:size(obj.maxConjugate,2)
               %   obj.maxConjugate(i).print
               % end
+              %return
               obj.maxConjugate = obj.maxConjugate.maximumP;
               % disp("Max")
               % for i = 1:size(obj.maxConjugate,2)

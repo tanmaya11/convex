@@ -35,7 +35,10 @@ classdef functionNDomain
                  if isempty(rf)
                    continue
                  end
+                 %rf.print
                  rf = rf.simplifyOpenRegion;
+                 %rf.print
+                 %return
                  if isempty(rf)
                    continue
                  end
@@ -84,8 +87,11 @@ classdef functionNDomain
               return
            end
           % add merge here
+          disp("b4 merge")
+          objR.printL
           objR2 = mergeL(objR);
-            
+          disp("aft merge")
+          objR2.printL
          end
 
          function objL2 = mergeL(objL)  % (obj,maxf,maxd)

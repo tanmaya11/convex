@@ -368,7 +368,8 @@ classdef plq
            disp("Conjugate")
            obj.pieces(i) = obj.pieces(i).maximumConjugate;
            disp("MaxConjugate")
-          obj.pieces(i).print;
+           return
+          %obj.pieces(i).print;
          % obj.pieces(i).plotMaxConjugateDomain
         end
         obj = obj.maximumConjugate;
@@ -384,17 +385,17 @@ classdef plq
           
           for j = 2:obj.nPieces
               obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
-              disp('max conj domain')
-               for i = 1:size(obj.maxConjugate,2)
-                   i
-                 obj.maxConjugate(i).print
-              end
+              % disp('max conj domain')
+              %  for i = 1:size(obj.maxConjugate,2)
+              %      i
+              %    obj.maxConjugate(i).print
+              % end
               obj.maxConjugate = obj.maxConjugate.maximumP;
-               disp("Max f")
-               for i = 1:size(obj.maxConjugate,2)
-                   i
-                 obj.maxConjugate(i).print
-               end
+               % disp("Max f")
+               % for i = 1:size(obj.maxConjugate,2)
+               %     i
+               %   obj.maxConjugate(i).print
+               % end
 
 
           end

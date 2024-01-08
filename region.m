@@ -2041,6 +2041,10 @@ classdef region
             for j = 1:nP
                 nPoint(j) = 0;
             end
+            keep = [];
+            for i = 1:size(obj.ineqs,2)
+                keep(i) = false;
+            end
             for i = 1:size(obj.ineqs,2)
                 for j = 1:nP
                     
@@ -2057,7 +2061,7 @@ classdef region
             end
             % nPoint
             % point
-          
+            % 
             if all(nPoint) == 2
                 return;
             end
@@ -2089,6 +2093,7 @@ classdef region
                 sx = px(ip);
                 sy = py(ip);
                 pi0 = point(ip,1:nPoint(ip));
+                
                 mark = [];
                 for j = 1:nPoint(ip)
                     if obj.ineqs(pi0(j)).isQuad
@@ -2175,25 +2180,31 @@ classdef region
                   continue
                 end
                 markF = [markF,pi0(indices(i))];
+                
                 %indices
                 %pi0
 
                 
               end
-            
-            %markF
-            markF1 = [];
-            for i = 1: size(markF0,1)
-              for j = 1: size(markF,1)
-                 if markF(j)==markF0(i)
-                     markF1 = [markF1,markF(j)];
-                     break;
-                 end
+              for i = 1:size(obj.ineqs,2)
+                  keep0(i) = false;
               end
-
+              for i = 1:size(pi0,2)
+                  keep0(pi0(i)) = true;
+              end
+              for i = 1:size(markF,2)
+                  keep0(markF(i)) = false;
+              end
+              keep = keep | keep0; 
             end
-            markF0 = markF1;
+            markF0 = [];
+            for i = 1:size(pi0,2)
+                if keep(pi0(i))
+                    continue
+                end
+                markF0 = [markF0,pi0(i)];
             end
+            
             if size(markF0,2) == size(obj.ineqs,2)
                 obj = region.empty
                 disp("Singleton")
