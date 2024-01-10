@@ -2636,19 +2636,28 @@ disp('test22')
                 conjd = [conjd, region(subdE(j,:), dualVars)];
                 end
             end
-            [mconjf,mconjd] = conjd.mergeL(conjf);
+            %[mconjf,mconjd] = conjd.mergeL(conjf);
             
             % for i = 1:size(mconjf,2)
             %     obj.conjf = [obj.conjf, mconjf(i)];
             % 
             % end
-            for i = 1:size(mconjf,2)
+            conjugates = functionNDomain.empty;
+            %for i = 1:size(mconjf,2)
+            %start = size(obj.conjugates,2)
+            for i = 1:size(conjf,2)
 %                obj.conjd = [obj.conjd, mconjd(i)];
-                obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))];
+                %obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))];
+                %obj.conjugates = [obj.conjugates,functionNDomain([conjf(i)],conjd(i))];
+                conjugates = [conjugates,functionNDomain([conjf(i)],conjd(i))];
             end
-            
-            
+            conjugates = conjugates.mergeL;
 
+            for i = 1:size(conjugates,2)
+                obj.conjugates = [obj.conjugates,conjugates(i)];
+            end
+%           
+            
             return 
 
         end
@@ -2848,8 +2857,8 @@ disp('test22')
         function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, subdE, edgeNo, unDV, crs, dualvars)
             %subdE = sym(zeros(obj.envd(i).nv,4));
                 vars =  obj.envd(i).vars
-                drx1 = obj.envf(i).dfdx(vars(1))
-                drx2 = obj.envf(i).dfdx(vars(2))
+                drx1 = obj.envf(i).dfdx(vars(1));
+                drx2 = obj.envf(i).dfdx(vars(2));
 
             unR = zeros(obj.envd(i).nv,1);
             for j = 1:obj.envd(i).nv-1
@@ -3458,9 +3467,17 @@ disp('test22')
       % end
 
       function obj = maximumConjugate(obj)
+          % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).printL
+          % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).printL
+          % % 
+          %  obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).plotDomain
+          %  obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).plotDomain
+          %  return
            for k = obj.conjfia(1):obj.conjfia(2)-1 
              obj.maxConjugate(k) = obj.conjugates(k);
+              
            end
+
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
               % for i = 1:size(obj.maxConjugate,2)
@@ -3476,6 +3493,8 @@ disp('test22')
              
           end
       end
+
+      
     end
 
     methods % max

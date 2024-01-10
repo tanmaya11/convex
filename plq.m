@@ -368,11 +368,14 @@ classdef plq
            disp("Conjugate")
            obj.pieces(i) = obj.pieces(i).maximumConjugate;
            disp("MaxConjugate")
-           return
-          %obj.pieces(i).print;
-         % obj.pieces(i).plotMaxConjugateDomain
+          % return
+         % obj.pieces(i).print;
+     %     obj.pieces(i).maxConjugate.plotDomain
+%          obj.pieces(i).plotConjugateDomain
         end
+ %       return
         obj = obj.maximumConjugate;
+        obj.plotMaxConjugateDomain;
       end
 
       function obj = maximumConjugate(obj)
@@ -385,11 +388,11 @@ classdef plq
           
           for j = 2:obj.nPieces
               obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
-              % disp('max conj domain')
-              %  for i = 1:size(obj.maxConjugate,2)
-              %      i
-              %    obj.maxConjugate(i).print
-              % end
+               % disp('max conj domain')
+               %  for i = 1:size(obj.maxConjugate,2)
+               %      i
+               %    obj.maxConjugate(i).print
+               % end
               obj.maxConjugate = obj.maxConjugate.maximumP;
                % disp("Max f")
                % for i = 1:size(obj.maxConjugate,2)
@@ -401,6 +404,29 @@ classdef plq
           end
       end
 
+      function plotMaxConjugateDomain(obj)
+             
+             figure;
+         
+         
+             colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+             n = 0
+             f = obj.maxConjugate (1).f
+             c = colors(mod(n,6)+1)
+
+             for i =1:size(obj.maxConjugate,2)
+                i
+                if (f.f ~= obj.maxConjugate (i).f.f)
+                  n = n + 1
+                  c = colors(mod(n,6)+1)
+                  f = obj.maxConjugate (i).f
+                end
+                obj.maxConjugate (i).d.plot;
+                textR = "R"+num2str(i);
+                textR="";
+                obj.maxConjugate (i).d.plotRegionC(textR,c);
+             end
+         end
 %       function obj = maximum(obj) %, f, r2)
 % 
 % 

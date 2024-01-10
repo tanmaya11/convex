@@ -24,22 +24,49 @@ classdef functionNDomain
              end
          end
 
+          function plotDomain(obj)
+             
+             figure;
+         
+         
+             colors = ['b', 'r', 'g', 'm', 'c', 'y'];
+             n = 0
+             f = obj (1).f
+             c = colors(mod(n,6)+1)
+
+             for i =1:size(obj,2)
+                i
+                if (f.f ~= obj (i).f.f)
+                  n = n + 1
+                  c = colors(mod(n,6)+1)
+                  f = obj (i).f
+                end
+                obj (i).d.plot;
+                textR = "R"+num2str(i);
+                textR="";
+                obj (i).d.plotRegionC(textR,c);
+             end
+         end
          function objL = mtimes (objL1, objL2)
              
              
              
              n = 0;
+             objL=functionNDomain.empty();
              for i = 1:size(objL1,2)
                for j = 1:size(objL2,2)
                  rf = objL1(i).d + objL2(j).d;
                  if isempty(rf)
                    continue
                  end
-                 %rf.print
+                  % disp('b4 simplify')
+                  % rf.print
                  rf = rf.simplifyOpenRegion;
-                 %rf.print
+                 % disp('aft simplify')
+                 % rf.print
                  %return
                  if isempty(rf)
+                     disp("empty")
                    continue
                  end
                  n = n + 1;
@@ -86,12 +113,13 @@ classdef functionNDomain
            if n == 0
               return
            end
+         %  return
           % add merge here
-          disp("b4 merge")
-          objR.printL
+           disp("b4 merge")
+           objR.printL
           objR2 = mergeL(objR);
-          disp("aft merge")
-          objR2.printL
+           disp("aft merge")
+           objR2.printL
          end
 
          function objL2 = mergeL(objL)  % (obj,maxf,maxd)
@@ -140,6 +168,10 @@ classdef functionNDomain
                 % get common boundary and merge
                 % make groups and add 
                r = objL(i).d;
+               if i == 4
+                   disp("4")
+                   r.print
+               end
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -152,6 +184,12 @@ classdef functionNDomain
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
+                     if i == 4
+                         disp("in1")
+                         ja(j)
+                         objL(ja(j)).d.print
+                         r.print
+                     end
                    end
                  end
                end
@@ -163,6 +201,11 @@ classdef functionNDomain
                    continue
                  end
                  r = objL(ja(j)).d ;
+                 if i == 4
+                         disp("in2")
+                         ja(j)
+                         r.print
+                     end
                  lmerge = true;
                  while lmerge
                    lmerge = false;
@@ -175,6 +218,12 @@ classdef functionNDomain
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
+                       if i == 4
+                         disp("in3")
+                         ja(j)
+                         objL(ja(k)).d.print
+                         r.print
+                     end
                      end
                    end
                  end

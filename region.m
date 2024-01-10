@@ -2034,8 +2034,8 @@ classdef region
              % px
              % py
             obj = obj.simplifyOpenRegion1 (nP, px, py);
-            % disp('inside')
-            % obj.print
+             % % disp('inside')
+             % % obj.print
                
             % get point  info
             for j = 1:nP
@@ -2061,8 +2061,9 @@ classdef region
             end
             % nPoint
             % point
+            % all(nPoint==2)
             % 
-            if all(nPoint) == 2
+            if all(nPoint == 2)
                 return;
             end
             for i = 1:size(obj.ineqs,2)
@@ -2195,9 +2196,11 @@ classdef region
               for i = 1:size(markF,2)
                   keep0(markF(i)) = false;
               end
+              % keep0
               keep = keep | keep0; 
             end
             markF0 = [];
+            % keep
             for i = 1:size(pi0,2)
                 if keep(pi0(i))
                     continue
@@ -2206,7 +2209,7 @@ classdef region
             end
             
             if size(markF0,2) == size(obj.ineqs,2)
-                obj = region.empty
+                obj = region.empty;
                 disp("Singleton")
                 return
                 
@@ -3226,6 +3229,9 @@ classdef region
          lQuad = lQuad1 | lQuad2;
          if lQuad1 & lQuad2
              lQuad= false;
+         end
+         if lQuad
+             return
          end
          % cant do + as it returns empty due to contadictory ineqs
          %obj = obj + obj2;
