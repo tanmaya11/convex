@@ -17,16 +17,12 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             p(1) = plq_1piece(d(1),f);
             p(2) = plq_1piece(d(2),f);
             testCase.PRect = plq(p);
-
-  %          testCase.PS.plotDomain
-%             
        end
     end
 
     methods (Test)
 
         function testMax (testCase)
-            testCase.PRect.nPieces = 1;
             testCase.PRect = testCase.PRect.maximum
             return
             % for i=1:1

@@ -41,7 +41,9 @@ classdef functionNDomain
                 textR="";
                 obj (i).d.plotRegionC(textR,c);
              end
-         end
+          end
+
+          % will work only when entire R2 is covered
          function objL = mtimes (objL1, objL2)
              n = 0;
              objL=functionNDomain.empty();
@@ -51,12 +53,7 @@ classdef functionNDomain
                  if isempty(rf)
                    continue
                  end
-                  % disp('b4 simplify')
-                  % rf.print
                  rf = rf.simplifyOpenRegion;
-                 % disp('aft simplify')
-                 % rf.print
-                 %return
                  if isempty(rf)
                      disp("empty")
                    continue
@@ -104,14 +101,14 @@ classdef functionNDomain
            if n == 0
               return
            end
-           disp("b4 merge")
-           objR.printL
-          objR2 = mergeL(objR);
-           disp("aft merge")
-           objR2.printL
+           % disp("b4 merge")
+           % objR.printL
+           objR2 = mergeL(objR);
+           % disp("aft merge")
+           % objR2.printL
          end
 
-         function objL2 = mergeL(objL)  % (obj,maxf,maxd)
+         function objL2 = mergeL(objL)  
           ia(1) = 1;
           n = 0;
           for i = 1:size(objL,2)
@@ -139,9 +136,7 @@ classdef functionNDomain
           for i = 1:size(objL,2)
               marked(i) = false;
           end
-        % ia
-        % ja
-        for i = 1:size(objL,2)
+          for i = 1:size(objL,2)
             if  marked(i)
                 continue
             end
