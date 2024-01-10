@@ -11,14 +11,8 @@ classdef functionF
         f = sym('f') ;
     end
 
-    methods  % testing
-        function l = checkPiece1 (obj)
-            x = sym('x');
-            y = sym('y');
-            l = isAlways(obj.f==x*y);
-        end
-    end
-    methods  % init + display
+   
+    methods  % init 
         function obj = functionF(num, den)
             if nargin == 0
               obj.num=0;
@@ -30,11 +24,17 @@ classdef functionF
               obj.num=num;
               obj.den=den;
             end
-            obj.f= obj.num/obj.den;
+            if nargin ~= 0
+            
+            obj.f= obj.num / obj.den;
             obj.vars = symvar(obj.f);
             obj.nv = size(obj.vars,2);
+            end
         end
         
+        function f = getF(obj)
+            f = obj.f;
+        end  
         function num = getNum(obj)
             num = obj.num;
         end   
@@ -42,10 +42,38 @@ classdef functionF
             den = obj.den;
         end   
         
+    end
+    methods % display
         function print(obj)
-          fprintf(char(simplify(obj.f))); 
+          %fprintf(char(simplify(obj.f))); 
+          %fprintf("\n")
+          %obj.f
+          if obj.isPolynomial
+          [coef,terms] = coeffs(obj.f);
+         
+          for i=1:length(terms)
+              if double(coef(i)) ~= 1
+                fprintf(num2str(double(coef(i))));
+              end
+              if terms(i) ~= 1
+                fprintf(char(terms(i)));
+              end
+              if i == length(terms)
+                  break;
+              end
+              fprintf(" + ");
+          end
           fprintf("\n")
-            
+          else
+              fprintf(char(simplify(obj.f))); 
+          fprintf("\n")
+          
+          end
+        end
+
+        function fprint(obj, uNo)
+          fprintf(uNo, char(simplify(obj.f))); 
+          fprintf(uNo, "\n")
         end
 
         function plot3d(obj, limits)
@@ -57,28 +85,8 @@ classdef functionF
                 limits(3) = limits(3)-30;
                 limits(4) = limits(4)+30;
             end
-            
             ezsurf(obj.f, limits);
         end
-
-%         function [vx,vy] = getPoints (obj, vars, limits)
-%             start = limits(1);
-%             step = (limits(2)-limits(1))/100;
-%             n = 0;
-%             ci = start;
-%             for i = 1:100
-%                 cj = start;
-%                 for j = 1:100
-%                   cj = cj+step;    
-%                   if (subs(obj.f,vars,[ci,cj]) <= 0)
-%                       n = n+1;
-%                       vx(n) = ci;
-%                       vy(n) = cj;
-%                   end
-%                 end
-%                 ci = ci+step;    
-%             end
-%         end
 
         function plot(obj, vars, limits)
             colors = ['b', 'r', 'g', 'm', 'c', 'y', 'k'];
@@ -120,7 +128,7 @@ classdef functionF
         function printL (l, first, last)
 
             if nargin == 1
-            size(l)
+            
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).print;
@@ -141,6 +149,15 @@ classdef functionF
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).printIneq;
+                end
+            end
+        end
+
+        function fprintLIneq (l,uNo)
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).fprint(uNo);
                 end
             end
         end
@@ -174,9 +191,17 @@ classdef functionF
         function f = minus(obj1,obj2)
             f = functionF(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
         end
+
+        % to be disabled
         function f = unaryminus(obj)
             f = functionF(-obj.num,obj.den);
         end
+
+        function f = uminus(obj)
+            f = functionF(-obj.num,obj.den);
+        end
+
+        
         function f = mtimes(f1,f2)
             num = f1.num * f2.num;
             den = f1.den * f2.den;
@@ -190,7 +215,6 @@ classdef functionF
     methods % derivatives
 
          function f = dfdx (obj,x)
-            
             f = functionF(simplify(diff(obj.f,x)));
          end 
 
@@ -238,9 +262,10 @@ classdef functionF
           end
         end
 
+        % fix this
         function l = isConst(obj)
-            v = obj.getVars;
-            if size(v,2) > 0
+
+            if size(obj.vars,2) > 0
                 l = false;
                 return
             end
@@ -251,9 +276,6 @@ classdef functionF
     end
     
     methods
-
-        
-        
         function vars = getVars(obj)
             vars = obj.vars;
         end
@@ -262,9 +284,10 @@ classdef functionF
         function c = getLinearCoeffs (obj,vars)
            cvars = obj.getVars;
            if (isempty(cvars))
+               
                c(1) = 0;
                c(2) = 0;
-               c(3) = 0;
+               c(3) = coeffs(obj.f,vars(1));
                return;
            end
            if size(cvars,2) == size(vars,2)
@@ -323,12 +346,15 @@ classdef functionF
         
 
         % not for rational functions
-        function obj = normalize1 (obj,vars)
+        function obj = normalize1 (obj)
             if obj.den ~= 1
                 disp('Rational in normalize1')
             end
-          c = coeffs(obj.f);
-          obj = functionF((1/abs(c(end)))*obj.num, obj.den);
+            %obj.f
+            %obj.vars
+            
+          c = coeffs(obj.f,obj.vars);
+          obj = functionF(simplify((1/abs(c(end)))*obj.num), obj.den);
           
         end
 
@@ -348,14 +374,15 @@ classdef functionF
             %y = yv;
             if (subs(obj.den, vars, vals) == 0)
                 if (subs(obj.num, vars, vals) == 0)
-                  f = functionF(nan,1);  
+                  f = functionF(sym(nan),1);  
                 elseif (subs(obj.num, vars, vals) > 0)    
-                  f = functionF(intmax,1);
+                  f = functionF(sym(intmax),1);
                 else
-                  f = functionF(-intmax,1);
+                  f = functionF(sym(-intmax),1);
                 end  
                 return;
             end
+            
             f = functionF(subs(obj.f, vars, vals));
         end    
 
@@ -364,14 +391,21 @@ classdef functionF
             %disp("isZero")
             %obj.vars
             %obj.f
-            if size(coeffs(obj.num,obj.vars)) > 0
-                l = false;
-            else
-                l = true;
+            l = false;
+            if obj.den ~= 1
+                return
             end
             
-            %l = isAlways(obj.f==0);
-           
+            c = coeffs(obj.num,obj.vars);
+
+            n = size(c,2);
+            for i = 1:n
+                if (abs(double(c(i))) > 1.0e-6)
+                    return
+                end
+            end
+            l = true;
+            
         end
         
         function f = subsVarsPartial (obj,vars,varVals)
@@ -419,21 +453,49 @@ classdef functionF
             end 
         end
         
-        %obj2 double
         function res = lt(obj1,obj2)
+            
+            if isequal(class(obj2),'double')
+                
+                res = ltd(obj1,obj2);
+            else
+            res = false;
+            if (obj1.f<obj2.f)
+                res = true;
+            end 
+            end
+        end
+        
+        function res = gt(obj1,obj2)
+            if isequal(class(obj2),'double')
+                res = gtd(obj1,obj2);
+            else
+            res = false;
+            
+            if (obj1.f>obj2.f)
+                res = true;
+            end 
+            end
+        end
+        
+        
+        
+        %obj2 double
+        function res = ltd(obj1,obj2)
             res = false;
             if (obj1.f<obj2)
                 res = true;
             end 
         end
         
-        function res = gt(obj1,obj2)
+        function res = gtd(obj1,obj2)
             res = false;
             if (obj1.f>obj2)
                 res = true;
             end 
         end
         
+
         function [vx,vy] = solveF (f2)
             f1x = subs(obj.f, obj.vars,[x,y]);
             f2x = subs(f2.f, obj.vars,[x,y]);
