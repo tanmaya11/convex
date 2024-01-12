@@ -339,7 +339,21 @@ classdef region
              obj.ineqs.fprintLIneq(uNo);
          end
 
-         
+          function plot (obj)
+             
+             l1 = min(min(obj.vx),min(obj.vy));
+             if l1 < -25
+                 l1 = -25;
+             end
+             l2 = max(max(obj.vx),max(obj.vy));
+             if l2 > 20
+                 l2 = 20;
+             end
+             l1 = -25;
+             l2 = 20;
+           obj.ineqs.plotLIneq (obj.vars, [l1,l2])   ;
+
+         end
 
 
          function [vx,vy] = plotRegionC (obj, textR, c)
@@ -1539,6 +1553,14 @@ classdef region
           end
          lQuad = lQuad1 | lQuad2;
          if lQuad1 & lQuad2
+             for i = 1:nmq1
+               for j = 1:nmq2
+                   if obj.ineqs(mq1(i)).f ~= obj2.ineqs(mq2(j)).f
+                       return;
+                   end
+               end
+             end
+             
              lQuad= false;
          end
          if lQuad

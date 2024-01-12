@@ -1,6 +1,38 @@
 figure;
 ezplot('- x - 7*y - 4  ')
 hold on
+ezplot('x + 2*y + 4 ') 
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+ezplot('0*x + y + 5  ') 
+hold on
+
+return
+
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('x +7*y - 10  ')
+hold on
+ezplot('x + 2*y + 4 ') 
+hold on
+return
+
+
+% - s1 - 7*s2 - 4 <= 0 
+% s1 + 7*s2 - 10 <= 0 
+% s1 + 2*s2 + 4 <= 0 
+% 
+% s1 + 7*s2 + 4 <= 0 
+% s1 - (9*s2)/5 - 5 <= 0 
+% - s2 - 5 <= 0 
+% s1 + 2*s2 + 4 <= 0 
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
 ezplot('(9*y)/5 - x + 5  ')
 hold on
 ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184') 

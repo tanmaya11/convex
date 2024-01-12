@@ -101,11 +101,11 @@ classdef functionNDomain
            if n == 0
               return
            end
-           % disp("b4 merge")
-           % objR.printL
+            disp("b4 merge")
+            objR.printL
            objR2 = mergeL(objR);
-           % disp("aft merge")
-           % objR2.printL
+            disp("aft merge")
+            objR2.printL
          end
 
          function objL2 = mergeL(objL)  
@@ -132,6 +132,8 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
+          ia
+          ja
           m = 0;
           for i = 1:size(objL,2)
               marked(i) = false;
@@ -145,13 +147,16 @@ classdef functionNDomain
                    continue
                 end
                  
-                m = m + 1;
+                m = m + 1
+                objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
             else
                 % get common boundary and merge
                 % make groups and add 
                r = objL(i).d;
+               disp ('first r')
+               r.print
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -164,17 +169,24 @@ classdef functionNDomain
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
+                     ja(j)
+                     objL(ja(j)).d.print
+                     r.print
                    end
                  end
                end
-               m = m + 1;
+               m = m + 1
                objL2(m) = functionNDomain([objL(i).f],r);
+               r.print
                marked(i) = true;
                for j=ia(i):ia(i+1)-1
                  if marked(ja(j))
                    continue
                  end
                  r = objL(ja(j)).d ;
+                 disp('r2')
+                 ja(j)
+                 r.print
                  lmerge = true;
                  while lmerge
                    lmerge = false;
@@ -187,10 +199,14 @@ classdef functionNDomain
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
+                       ja(k)
+                       objL(ja(k)).d.print
+                       r.print
                      end
                    end
                  end
-                 m = m + 1;
+                 m = m + 1
+                 r.print
                  objL2(m) = functionNDomain([objL(i).f],r);
                  marked(i) = true;
                  marked(ja(j)) = true;

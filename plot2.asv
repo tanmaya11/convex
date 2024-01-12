@@ -1,10 +1,150 @@
 figure;
-ezplot('x + 4 <= 0 
-ezplot('y + 5 <= 0 
-x + 2*y + 4 <= 0 
-x + 7*y - 46 <= 0 
+ezplot('- x - 7*y - 4  ')
+hold on
 
 
+
+% - s1 - 7*s2 - 4 <= 0 
+% s1 + 7*s2 - 10 <= 0 
+% s1 + 2*s2 + 4 <= 0 
+% 
+% s1 + 7*s2 + 4 <= 0 
+% s1 - (9*s2)/5 - 5 <= 0 
+% - s2 - 5 <= 0 
+% s1 + 2*s2 + 4 <= 0 
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184') 
+hold on
+ezplot('x + 2*y - 4 ') 
+hold on
+ezplot('x + 2*y + 4 ') 
+hold on
+return
+
+
+
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('148*x - 196*y + (x + 7*y)^2 - 684 ')
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184') 
+hold on
+ezplot('x + 2*y - 4 ') 
+hold on
+return
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('x + 2*y + 4 ') 
+hold on
+ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184') 
+hold on
+ezplot('x + 2*y - 4 ') 
+hold on
+
+return
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+ezplot('x + 2*y + 4 ') 
+hold on
+ezplot('x + 2*y - 4 ') 
+hold on
+return
+
+
+figure;
+ezplot('- x - 7*y - 4  ')
+hold on
+ezplot('148*x - 196*y + (x + 7*y)^2 - 684 ')
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+X = [3.1591,3.1591,3.0591,3.2591,3.0591,3.2591];
+Y = [-1.1227,-0.9227,-1.0227,-1.0227,-0.5381,-1.5073];
+plot(X,Y);
+hold on;
+
+return
+figure;
+X = [-5,-5,1,0,-5,-5,1];
+Y = [5,-4,3,-4,-4,5,3];
+
+plot(X,Y);
+hold on;
+xlim([-6, 4]); % Set x-axis range from 0 to 6
+ylim([-5, 6]); % Set y-axis range from 0 to 6
+
+return
+X = [1,0,2,2,1];
+Y = [3,-4,0,1,3];
+plot(X,Y);
+hold on;
+
+return
+%d(1)=domain([-5,-4;0,-4;1,3;-5,5],x,y); 
+ %           d(2)=domain([0,-4;2,0;2,1;1,3],x,y); 
+
+figure;
+
+hold on
+
+ezplot('0*x + y + 5  ') 
+hold on
+
+
+ezplot('9*y/5-x+5')
+hold on
+return
+
+
+figure;
+ezplot('x + 0*y + 4 ') 
+hold on
+f = ezplot('- x/sqrt(2) - y - 7.824 ') 
+set(f, 'Color', 'r');
+
+hold on
+
+ezplot('0*x + y + 5  ') 
+hold on
+
+
+ezplot('9*y/5-x+5')
+hold on
+return
+
+
+
+ezplot('x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+ezplot('x + 0*y + 1 ') 
+hold on
+ezplot('0*x + y + 1 ') 
+hold on
+ezplot('2* x + y + 2')
+
+%ezplot('x + 2*y + 4 <= 0') 
+hold on
+%ezplot('x + 7*y - 46 <= 0') 
+%hold on
+return
+figure;
 ezplot('1-5/2*y-x  ')
 hold on
 ezplot('- x - 2*y - 4 ')
@@ -12,6 +152,8 @@ hold on
 ezplot('x - 2*y +44  ')
 hold on
 return
+
+
 
 
 

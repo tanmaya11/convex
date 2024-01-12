@@ -54,13 +54,13 @@ classdef plq
           obj.pieces(i) = obj.pieces(i).maximumConjugate;
           disp("MaxConjugate")
           % return
-         % obj.pieces(i).print;
+          obj.pieces(i).print;
          % obj.pieces(i).maxConjugate.plotDomain
           
         end
        %return
         obj = obj.maximumConjugate;
-       % obj.plotMaxConjugateDomain;
+        obj.plotMaxConjugateDomain;
       end
 
       function obj = maximumConjugate(obj)

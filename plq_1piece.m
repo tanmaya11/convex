@@ -3467,30 +3467,14 @@ disp('test22')
       % end
 
       function obj = maximumConjugate(obj)
-          % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).printL
-          % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).printL
-          % % 
-          %  obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).plotDomain
-          %  obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).plotDomain
-          %  return
-           for k = obj.conjfia(1):obj.conjfia(2)-1 
+          for k = obj.conjfia(1):obj.conjfia(2)-1 
              obj.maxConjugate(k) = obj.conjugates(k);
               
            end
 
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              % for i = 1:size(obj.maxConjugate,2)
-              %   obj.maxConjugate(i).print
-              % end
-              %return
               obj.maxConjugate = obj.maxConjugate.maximumP;
-              % disp("Max")
-              % for i = 1:size(obj.maxConjugate,2)
-              %   obj.maxConjugate(i).print
-              % end
-              
-             
           end
       end
 
