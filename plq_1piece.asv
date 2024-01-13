@@ -483,6 +483,42 @@ disp('test22')
 
          end
 
+         function Mprint(obj)
+         
+           disp("Convex Envelope")
+           size(obj.envf)
+           fprintf("inequal({");
+             
+             
+           for j=1:size(obj.envf,2)-1 
+             
+             obj.envd(j).printMaple
+           
+             
+             fprintf(",");
+           end
+           obj.envd(size(obj.envf,2)).printMaple
+
+           fprintf("},x=-5..5,y=-5..5,color=[red,blue,yellow,green]) \n")
+           
+            for j=1:size(obj.envf,2) 
+
+           if (size(obj.conjfia,1) > 0)
+                 obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printL
+              
+           end
+           end
+           
+           for j=1:size(obj.envf,2) 
+
+           if (size(obj.conjfia,1) > 0)
+                  obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printM
+             
+           end
+           end
+           
+         end
+
          function plotMaxConjugateDomain(obj)
              
              figure;
@@ -2636,22 +2672,28 @@ disp('test22')
                 conjd = [conjd, region(subdE(j,:), dualVars)];
                 end
             end
-            [mconjf,mconjd] = conjd.mergeL(conjf);
+            %[mconjf,mconjd] = conjd.mergeL(conjf);
             
             % for i = 1:size(mconjf,2)
             %     obj.conjf = [obj.conjf, mconjf(i)];
             % 
             % end
-            conjugates = [];
-            for i = 1:size(mconjf,2)
-            %for i = 1:size(conjf,2)
+            conjugates = functionNDomain.empty;
+            %for i = 1:size(mconjf,2)
+            %start = size(obj.conjugates,2)
+            for i = 1:size(conjf,2)
 %                obj.conjd = [obj.conjd, mconjd(i)];
-                obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))];
+                %obj.conjugates = [obj.conjugates,functionNDomain([mconjf(i)],mconjd(i))];
                 %obj.conjugates = [obj.conjugates,functionNDomain([conjf(i)],conjd(i))];
+                conjugates = [conjugates,functionNDomain([conjf(i)],conjd(i))];
             end
-            
-            %obj.conjugates = obj.conjugates.mergeL
+            conjugates = conjugates.mergeL;
 
+            for i = 1:size(conjugates,2)
+                obj.conjugates = [obj.conjugates,conjugates(i)];
+            end
+%           
+            
             return 
 
         end
@@ -3461,30 +3503,14 @@ disp('test22')
       % end
 
       function obj = maximumConjugate(obj)
-          % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).printL
-          % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).printL
-          % % 
-          %  obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1).plotDomain
-          %  obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1).plotDomain
-          %  return
-           for k = obj.conjfia(1):obj.conjfia(2)-1 
+          for k = obj.conjfia(1):obj.conjfia(2)-1 
              obj.maxConjugate(k) = obj.conjugates(k);
               
            end
 
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              % for i = 1:size(obj.maxConjugate,2)
-              %   obj.maxConjugate(i).print
-              % end
-              %return
               obj.maxConjugate = obj.maxConjugate.maximumP;
-              % disp("Max")
-              % for i = 1:size(obj.maxConjugate,2)
-              %   obj.maxConjugate(i).print
-              % end
-              
-             
           end
       end
 

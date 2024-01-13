@@ -45,7 +45,7 @@ classdef plq
 
       function obj = maximum(obj)
       
-        for i=1:obj.nPieces
+        for i=1:1 %obj.nPieces
           i
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
           disp("ConvexEnvelope")
@@ -55,10 +55,11 @@ classdef plq
           disp("MaxConjugate")
           % return
           obj.pieces(i).print;
+          obj.pieces(i).Mprint;
          % obj.pieces(i).maxConjugate.plotDomain
           
         end
-       %return
+       return
         obj = obj.maximumConjugate;
         obj.plotMaxConjugateDomain;
       end

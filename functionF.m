@@ -125,6 +125,11 @@ classdef functionF
             fprintf(" <= 0 \n")
         end
 
+        function printIneqM(obj)
+            fprintf(char(obj.f));
+            fprintf(" <= 0 ")
+        end
+
         function printL (l, first, last)
 
             if nargin == 1
@@ -153,6 +158,17 @@ classdef functionF
             end
         end
 
+         function printLIneqM (l)
+            
+             fprintf("{")
+                for j = 1: size(l,2)-1
+                    l(j).printIneqM;
+                    fprintf(",");
+                end
+                l(size(l,2)).printIneqM;
+                    fprintf("}");
+            
+        end
         function fprintLIneq (l,uNo)
             
             for i = 1: size(l,1)

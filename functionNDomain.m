@@ -23,6 +23,42 @@ classdef functionNDomain
              end
          end
 
+         function printM(objL)
+             colorList = ["red","blue","yellow","green","purple","cyan"];
+             fprintf("display(inequal({");
+             f = objL(1).f.f;
+             j = 1;
+             for i = 1:size(objL,2)
+                 if objL(i).f.f == f
+                   objL(i).d.printMaple;
+                   fprintf(",");
+                   
+                 else
+                   fprintf("},x=-15..15,y=-15..15,color=[");
+                   fprintf(colorList(j)) ;
+                   fprintf(",");
+                   fprintf(colorList(j)); 
+                   fprintf(",");
+                   fprintf(colorList(j)); 
+                   fprintf("],nolines),inequal({")  ;
+                   f = objL(i).f.f;
+                   j = j+1;
+                   objL(i).d.printMaple;
+                   fprintf(","); 
+                 end
+                 
+             end
+             fprintf("},x=-15..15,y=-15..15,color=[");
+                   fprintf(colorList(j)) ;
+                   fprintf(",");
+                   fprintf(colorList(j)); 
+                   fprintf(",");
+                   fprintf(colorList(j)); 
+                   fprintf("],nolines))")  ;
+             fprintf("\n");
+             
+         end
+
           function plotDomain(obj)
              figure;
              colors = ['b', 'r', 'g', 'm', 'c', 'y'];

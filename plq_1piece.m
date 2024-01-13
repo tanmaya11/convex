@@ -483,6 +483,42 @@ disp('test22')
 
          end
 
+         function Mprint(obj)
+         
+           disp("Convex Envelope")
+           size(obj.envf)
+           fprintf("inequal({");
+             
+             
+           for j=1:size(obj.envf,2)-1 
+             
+             obj.envd(j).printMaple
+           
+             
+             fprintf(",");
+           end
+           obj.envd(size(obj.envf,2)).printMaple
+
+           fprintf("},x=-5..5,y=-5..5,color=[red,blue,yellow,green]) \n")
+           
+            for j=1:size(obj.envf,2) 
+
+           if (size(obj.conjfia,1) > 0)
+                 obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printL
+              
+           end
+           end
+           
+           for j=1:size(obj.envf,2) 
+
+           if (size(obj.conjfia,1) > 0)
+                  obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printM
+             
+           end
+           end
+           obj.maxConjugate.printM;
+         end
+
          function plotMaxConjugateDomain(obj)
              
              figure;

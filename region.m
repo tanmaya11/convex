@@ -331,6 +331,13 @@ classdef region
                obj.ineqs.printLIneq;
          end
 
+         function printMaple(obj)
+             obj = obj.subsF;
+             
+             obj.ineqs.printLIneqM;
+             
+         end
+
          function fprint(obj, uNo)
              fprintf(uNo, num2str(obj.nv)+"\n");
              for i = 1:obj.nv
@@ -484,6 +491,13 @@ classdef region
          %     fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
          % end
         
+         function obj = subsF(obj)
+             x= sym('x');
+             y= sym('y');
+             for i = 1:size(obj.ineqs,2)
+                 obj.ineqs(i) = obj.ineqs(i).subsF(obj.vars,[x,y]);
+             end
+         end
          function m = slopes (obj)
            n = 0 ;  
            for i = 1:size(obj.ineqs,2)
