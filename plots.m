@@ -5,8 +5,14 @@ syms x y
 %z = x*y;
 %z = (90*x - 65*y - 3*x*y + 15*x^2 + 10*y^2 + 75)/(3*x - 2*y + 25)
 %z = (30*x - 30*y - x*y + 5*x^2 + 5*y^2 + 25)/(x - y + 10)
-%z = abs(x*y)
+z = x*y
+ezsurf(x,y,z,[-5 5 -5 5]);
+return
+
+
 z = -exp(-x^2 ) + exp(x+0.25)
+z = (336*x+672*y-12432)/sqrt(3*(-x-2*y+37))
+z = (336*x+672*y-12432)/sqrt(3*(-x-2*y+37))
 %ezsurf(x,y,z,[0 2 0 2]);
 %ezsurf(x,y,z,[-5 1 -4 5]);
 ezsurf(x,y,z,[-5 5 -5 5]);

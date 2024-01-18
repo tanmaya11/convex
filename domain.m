@@ -149,7 +149,11 @@ classdef domain
             %[obj.vx,obj.vy] = poly2cw(v(:,1),v(:,2));
 
             obj.polygon.nv=size(v,1) ;
-            [obj.polygon.vx,obj.polygon.vy] = poly2cw(v(:,1),v(:,2));
+            % Fix order to clockwise
+            %[obj.polygon.vx,obj.polygon.vy] = v(:,1),v(:,2));
+            obj.polygon.vx = v(:,1);
+            obj.polygon.vy = v(:,2);
+            
             obj.polygon.vars = [x,y];
           end
           %obj.nVertices

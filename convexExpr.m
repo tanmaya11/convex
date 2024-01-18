@@ -165,7 +165,7 @@ classdef convexExpr
                 obj.expr= obj.zeta * obj.psi1 + obj.psi0;
                 obj.vpsi0=functionF(s0);  
                 obj.vpsi1=functionF(s1);
-                obj.vzeta =functionF(s2);
+                obj.vzeta =functionF(sym(s2));
             elseif type ==4
                 % zeta = dl, du
                 obj.expr= - obj.zeta^2 * obj.psi2 + 2 * obj.zeta * obj.psi1 + obj.psi0;
