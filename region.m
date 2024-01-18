@@ -793,6 +793,7 @@ classdef region
             fxy(n,1)= sx;
             fxy(n,2)= sy;
           end
+          fxy
           fxy = unique(fxy,"rows");
           fx = fxy(:,1);
           fy = fxy(:,2);

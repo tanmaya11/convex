@@ -52,9 +52,9 @@ classdef functionF
           [coef,terms] = coeffs(obj.f);
          
           for i=1:length(terms)
-              if double(coef(i)) ~= 1
+              %if double(coef(i)) ~= 1
                 fprintf(num2str(double(coef(i))));
-              end
+              %end
               if terms(i) ~= 1
                 fprintf(char(terms(i)));
               end

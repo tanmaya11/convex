@@ -322,20 +322,25 @@ classdef functionNDomain
                  
                  
                else
-                 ineqs = objL(i).d.splitmax2 (objL(i).f, objL(ja(j)).f);
+                   objL(i).d.print
+                   objL(i).f
+                   objL(i).f.print
+                   objL(ja(j)).f.print
+                 %ineqs = objL(i).d.splitmax2 (objL(i).f, objL(ja(j)).f);
+                 ineqs = objL(i).d.splitmax3 (objL(i).f,objL(ja(j)).f);
                  ineqs1 = sym.empty;
                  for k = 1: size(objL(i).d.ineqs,2)
                     ineqs1(k) = objL(i).d.ineqs(k).f;
                  end
                             
-                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1);
+                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
                  d1 = region(ineqs1,objL(i).d.vars);
                  d1 = d1.simplify; 
                  m = m + 1;
                  objL2(m) = functionNDomain(objL(i).f,d1);
                  index(m) = i;
                  
-                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2);
+                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
                  d1 = region(ineqs1,objL(i).d.vars);
                  d1 = d1.simplify; 
                  m = m + 1;

@@ -138,9 +138,10 @@ classdef functionNDomain
           end
 
 
-          function [index2,objR2] = maximumPC(objL, index, lmerge) %, f, r2)
+          function [objR,index2] = maximumPC(objL, index) %, f, r2)
            n = 0;
            for i = 1:size(objL,2)
+               i,size(objL(i).f,2)
              if size(objL(i).f,2) == 1
                n = n + 1;
                objR(n) = objL(i);
@@ -151,6 +152,7 @@ classdef functionNDomain
              if lSing
                 continue
              end
+             l
              if l
                n = n + 1;
                objR(n) = functionNDomain([fmax],objL(i).d);
@@ -164,36 +166,23 @@ classdef functionNDomain
              end
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             d1.print
-             d1 = d1.simplifyOpenRegion;
-             disp("Further subdivision")
-             objL(i).f(1).print
-             objL(i).f(2).print
-             d1.print
-             d1.printMaple
+             d1 = d1.simplify;
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(1)],d1);
+             index2(n) = index(i,1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             d1.print
-             d1 = d1.simplifyOpenRegion;
-             d1.print
-             d1.printMaple
+             d1 = d1.simplify;
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(2)],d1);
+             index2(n) = index(i,2);
            end
            if n == 0
+               objR = functionNDomain.empty();
               return
            end
-           if ~lmerge
-               objR2 = jSort(objR);
-               return
-            end
-            % disp("b4 merge")
-            % objR.printL
-           objR2 = mergeL(objR);
-            % disp("aft merge")
-            % objR.printL
+           return
+           
          end
           % will work only when entire R2 is covered
          function objL = mtimes (objL1, objL2)
@@ -333,6 +322,8 @@ classdef functionNDomain
                  
                  
                else
+                   objL(i).d.print
+                   objL(i).f.print
                  ineqs = objL(i).d.splitmax2 (objL(i).f, objL(ja(j)).f);
                  ineqs1 = sym.empty;
                  for k = 1: size(objL(i).d.ineqs,2)
@@ -410,7 +401,7 @@ classdef functionNDomain
              
           end
           
-         function objL2 = mergeL(objL)  
+          function [objL2,index] = mergeL(objL)  
           ia(1) = 1;
           n = 0;
           for i = 1:size(objL,2)
@@ -453,6 +444,7 @@ classdef functionNDomain
            %     objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
+                index(m) = i;
             else
                 % get common boundary and merge
                 % make groups and add 
@@ -481,6 +473,7 @@ classdef functionNDomain
                objL2(m) = functionNDomain([objL(i).f],r);
               % r.print
                marked(i) = true;
+               index(m) = i;
                for j=ia(i):ia(i+1)-1
                  if marked(ja(j))
                    continue
@@ -511,6 +504,7 @@ classdef functionNDomain
                 % r.print
                  objL2(m) = functionNDomain([objL(i).f],r);
                  marked(i) = true;
+                 index(m) = i;
                  marked(ja(j)) = true;
 
                  

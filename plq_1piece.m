@@ -801,14 +801,14 @@ disp('test22')
                 obj.envelopeExpr = expr(index); 
               end  
               
-              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+%              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               % obj.print
 
               [objL2,index2] = obj.envelope .* obj.envelope
               [obj.envelope,index] = objL2.maximumPC(index2) 
               expr = obj.envelopeExpr;
               obj.envelopeExpr = expr(index); 
-              obj = obj.maxEnvelopeIntersect([x,y]);
+              %obj = obj.maxEnvelopeIntersect([x,y]);
               
 
               lCh = true;
