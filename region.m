@@ -351,7 +351,7 @@ classdef region
                  end
                  n = n + 1;
              end
-             fprintf("\\]\n\\[\\textbf{nVertices = }")
+             fprintf("\\]\n\\[\\text{Number of Vertices = }")
              fprintf(num2str(n));
              
              fprintf("\\]\n\\[v =  ")

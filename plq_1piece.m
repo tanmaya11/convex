@@ -5,7 +5,8 @@ classdef plq_1piece
         envf=functionF.empty();
         envExpr = convexExpr.empty();
         envd = region.empty();
-        
+        envelope = functionNDomain.empty();
+        envelopeExpr = convexExpr.empty();
         conjfia = [];
         conjugates = functionNDomain.empty();
         maxConjugate = functionNDomain.empty();
@@ -440,6 +441,7 @@ disp('test22')
            obj.d.print
            fprintf("\n")
            disp("Function")
+           obj.f.f = simplifyFraction(obj.f.f);
            obj.f.print
            fprintf("\n\n\n")
               
@@ -447,6 +449,7 @@ disp('test22')
            size(obj.envf)
            for j=1:size(obj.envf,2) 
              disp('Function')  
+             obj.envf(j).f = simplifyFraction(obj.envf(j).f);
              obj.envf(j).print
              disp("Expr")
              obj.envExpr(j).print
@@ -784,9 +787,46 @@ disp('test22')
                   r = obj.envd(i).simplify;% (obj.envd(i).vars);
                   obj.envd(i) = r;
               end
+
+              for i=1:size(obj.envd,2)
+                  obj.envelope(i) = functionNDomain(obj.envf(i), obj.envd(i));
+                  obj.envelopeExpr(i) = obj.envExpr(i);
+              end
+
+              
+              lCh = true;
+              while lCh
+                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
+                expr = obj.envelopeExpr;
+                obj.envelopeExpr = expr(index); 
+              end  
               
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+              % obj.print
+
+              [objL2,index2] = obj.envelope .* obj.envelope
+              [obj.envelope,index] = objL2.maximumPC(index2) 
+              expr = obj.envelopeExpr;
+              obj.envelopeExpr = expr(index); 
+              obj = obj.maxEnvelopeIntersect([x,y]);
               
+
+              lCh = true;
+              while lCh
+                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
+                expr = obj.envelopeExpr;
+                obj.envelopeExpr = expr(index); 
+              end  
+
+              [obj.envelope, index] = obj.envelope.mergeL;
+              expr = obj.envelopeExpr;
+              obj.envelopeExpr = expr(index); 
+              
+              disp("aft")
+              obj.envelope.printL
+              obj.envelopeExpr.printL
+              
+              return
               obj = obj.maxEnvelopeIntersect([x,y]);
 %               for i = 1:size(obj.envd,2)
 %                 obj.envd(i).vars

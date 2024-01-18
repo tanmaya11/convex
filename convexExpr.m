@@ -197,5 +197,13 @@ classdef convexExpr
             obj.vzeta
 
         end
+
+        function printL(objL)
+            
+            for i = 1: size(objL,2)
+                objL(i).print;
+            end
+
+        end
     end
 end

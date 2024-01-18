@@ -95,7 +95,7 @@ classdef functionF
               if i == length(terms)
                   break;
               end
-              if double(coef(i)) > 0
+              if double(coef(i+1)) > 0
                 fprintf(" + ");
               else  
                 fprintf(" - ");  
@@ -222,12 +222,14 @@ classdef functionF
             
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
+                    l(i,j).f = simplifyFraction(l(i,j).f);
                     l(i,j).print;
                 end
             end
             else
                 for i = 1: size(l,1)
                 for j = first: last
+                    l(i,j).f = simplifyFraction(l(i,j).f);
                     l(i,j).print;
                 end
             end
