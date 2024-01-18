@@ -331,6 +331,34 @@ classdef region
                obj.ineqs.printLIneq;
          end
 
+         function printLatex(obj)
+             disp("Variables")
+             fprintf("\\[")
+             for i = 1: size(obj.vars,2)
+               fprintf(char(obj.vars(i)) );
+               if i == size(obj.vars,2)
+                 break;
+               end
+               fprintf(",");
+             end
+             fprintf("\\]\n\\[\\textbf{nVertices = }")
+             fprintf(num2str(obj.nv));
+             
+             fprintf("\\]\n\\[v =  ")
+             for i = 1: obj.nv
+             fprintf("(" + num2str(obj.vx(i)) + ","+num2str(obj.vy(i))+")");
+             if i == obj.nv
+                 break;
+             end
+             fprintf(",");
+             end
+             fprintf("\\]\n")
+             
+               disp("Intersection of following ineqs")
+               obj.ineqs.printLIneqLatex;
+         end
+
+         
          function printMaple(obj)
              obj = obj.subsF;
              

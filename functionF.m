@@ -71,11 +71,88 @@ classdef functionF
           end
         end
 
+        function printLatexWB(obj)
+          %fprintf(char(simplify(obj.f))); 
+          %fprintf("\n")
+          %obj.f
+          if obj.isPolynomial
+          [coef,terms] = coeffs(obj.f);
+          
+          for i=1:length(terms)
+              if abs(double(coef(i))-1) > 1.0d-8
+                  
+                [n,d] = numden(coef(i));
+                if  double(d) == 1
+                  fprintf(num2str(abs(double(coef(i)))));
+                else
+                  fprintf("\\frac{" + num2str(abs(double(n)))+"}{"+ num2str(double(d))+"}");  
+                end
+              end
+              if terms(i) ~= 1
+                fprintf(char(terms(i)));
+                
+              end
+              if i == length(terms)
+                  break;
+              end
+              if double(coef(i)) > 0
+                fprintf(" + ");
+              else  
+                fprintf(" - ");  
+              end
+          end
+          else
+              [n,d] = numden(obj.f);
+              fprintf("\\frac{" + char(n)+"}{"+ char(d)+"}");  
+              %fprintf(char(simplify(obj.f))); 
+          
+          end
+        end
+
+        function printLatex(obj)
+          %fprintf(char(simplify(obj.f))); 
+          %fprintf("\n")
+          %obj.f
+          %if obj.isPolynomial
+          %[coef,terms] = coeffs(obj.f);
+          
+          fprintf("\\[");
+          obj.printLatexWB;
+          % for i=1:length(terms)
+          %     if double(coef(i)) ~= 1
+          % 
+          %         [n,d] = numden(coef(i));
+          %       if  double(d) == 1
+          %         fprintf(num2str(double(coef(i))));
+          %       else
+          %         fprintf("\\frac{" + num2str(double(n))+"}{"+ num2str(double(d))+"}");  
+          %       end
+          %     end
+          %     if terms(i) ~= 1
+          %       fprintf(char(terms(i)));
+          % 
+          %     end
+          %     if i == length(terms)
+          %         break;
+          %     end
+          %     fprintf(" + ");
+          % end
+          % fprintf("\\]\n")
+          % else
+          %     [n,d] = numden(obj.f);
+          %     fprintf("\\[\\frac{" + char(n)+"}{"+ char(d)+"}");  
+          %     %fprintf(char(simplify(obj.f))); 
+          fprintf("\\]\n")
+          
+         % end
+        end
+
         function fprint(obj, uNo)
           fprintf(uNo, char(simplify(obj.f))); 
           fprintf(uNo, "\n")
         end
 
+        
         function plot3d(obj, limits)
             if limits(1) == limits(2)
                 limits(1) = limits(1)-30;
@@ -125,6 +202,15 @@ classdef functionF
             fprintf(" <= 0 \n")
         end
 
+        function printIneqLatex(obj)
+            fprintf("\\[")
+            obj.printLatexWB
+            %fprintf(char(obj.f));
+            fprintf(" \\le 0")
+            fprintf("\\] ")
+            fprintf("\n")
+        end
+
         function printIneqM(obj)
             fprintf(char(obj.f));
             fprintf(" <= 0 ")
@@ -149,11 +235,39 @@ classdef functionF
             end
         end
 
+        function printLLatex (l, first, last)
+
+            if nargin == 1
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).printLatex;
+                end
+            end
+            else
+                for i = 1: size(l,1)
+                for j = first: last
+                    l(i,j).printLatex;
+                end
+            end
+            
+            end
+        end
+
         function printLIneq (l)
             
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
                     l(i,j).printIneq;
+                end
+            end
+        end
+
+        function printLIneqLatex (l)
+            
+            for i = 1: size(l,1)
+                for j = 1: size(l,2)
+                    l(i,j).printIneqLatex;
                 end
             end
         end

@@ -483,8 +483,64 @@ disp('test22')
 
          end
 
+         function printLatex(obj)
+         
+           disp("Domain")
+           %obj.d.printLatex
+           obj.d.polygon.printLatex
+           fprintf("\n")
+           disp("Function")
+           obj.f.printLatex
+           fprintf("\n\n\n")
+              
+           disp("Convex Envelope")
+           disp(" ")
+           for j=1:size(obj.envf,2) 
+             disp('Function')  
+             obj.envf(j).f = simplifyFraction(obj.envf(j).f);
+             obj.envf(j).printLatex
+             %disp("Expr")
+             %obj.envExpr(j).printLatex
+             disp('Domain')
+             disp(" ")
+             obj.envd(j).printLatex
+           
+             %disp("Conjugate Expr")
+             %obj.conjf.printL(obj.conjfia(j),obj.conjfia(j+1)-1)
+             if (size(obj.conjfia,1) > 0)
+                 obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).printLLatex
+             for k = obj.conjfia(j):obj.conjfia(j+1)-1
+               %disp("Conjugate Expr")
+               %obj.conjugates(k).print
+               %obj.conjf(k).print
+               %disp('Conjugate Domain')
+               %obj.conjd(k).print
+             end
+             end
+           end
+           fprintf("\n\n\n\n\n")
+           disp("Maximum conjugate")
+           obj.maxConjugate.printLLatex
+
+           % size(obj.maxf,2)
+           % for i = 1:size(obj.maxf,1)
+           %   disp(i)
+           %   obj.maxf(i).print
+           %   obj.maxd(i).print
+           % end
+           % %disp("Conjugate Expr")
+            % obj.conjf.printL
+            % disp('Conjugate Domain')
+             %obj.conjd(j).print
+
+         end
+
+
+         
          function Mprint(obj)
          
+           obj.d.polygon.printMaple
+           %return
            disp("Convex Envelope")
            size(obj.envf)
            fprintf("inequal({");
@@ -516,7 +572,7 @@ disp('test22')
              
            end
            end
-           
+           obj.maxConjugate.printM;
          end
 
          function plotMaxConjugateDomain(obj)
@@ -722,6 +778,8 @@ disp('test22')
                   return
               end
               obj = convexEnvelope1 (obj,x,y);
+              %obj.print
+              %return
               for i=1:size(obj.envd,2)
                   r = obj.envd(i).simplify;% (obj.envd(i).vars);
                   obj.envd(i) = r;
@@ -740,6 +798,7 @@ disp('test22')
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
               obj = obj.maxEnvelopeIntersect([x,y]);
               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
+             % obj.print
             [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr);
               
             return
@@ -769,6 +828,7 @@ disp('test22')
             %disp("feasiblePairs") 
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solve (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
+            
             %disp("solve done")
             
             %return
@@ -1051,14 +1111,14 @@ disp('test22')
               if (mub == inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(eta1, [x,y]) ];
+                envds = [envds, obj.d.polygon + region(eta1, [x,y]) ];
   %              disp("inf")
   %              envfs(end).print 
   %              envfs(end).print
               elseif (mlb == -inf)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-eta1, [x,y]) ];
+                envds = [envds, obj.d.polygon + region(-eta1, [x,y]) ];
    %             disp("-inf")
    %             mub
    %             obj0.print
@@ -1066,12 +1126,12 @@ disp('test22')
               elseif (mlb ~= mub)
                 envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
-                envds = [envds, region(eta1, [x,y]) ];
+                envds = [envds, obj.d.polygon + region(eta1, [x,y]) ];
     %          disp("notinf1")
      %           envfs(end).print
                 envfs = [envfs, obj0.subsVarsPartial([b],[mub])];
                 envxs = [envxs, convexExpr(3,eta0,eta1,mub)];
-                envds = [envds, region(-eta1, [x,y]) ];
+                envds = [envds, obj.d.polygon + region(-eta1, [x,y]) ];
       %          disp("notinf2")
       %          envfs(end).print
               
@@ -1289,18 +1349,28 @@ disp('test22')
             %for i = 1:size(lb,2)
             
           if positivePsi (obj,-psi2,x,y)==1
-            disp("-psi2 +ve")
+            disp("-psi2 +ve check this")
+            mlb,mub,psi2,psi0
            % psi1
            % psi2
-            f0 = simplify(psi1/psi2);
-            f1 = etaR(ix,3).f;
-            
-            r0 = simplify(psi1 - etaR(ix,3).f*psi2);
-            envfs = [envfs, functionF(f0)];
-            envds = [envds, region(r0,[x,y])];
-            r0 = -simplify(psi1 - etaR(ix,3).f*psi2);
-            envfs = [envfs, functionF(f1)];
-            envds = [envds, region(r0, [x,y])];
+           if mlb < mub
+            f0 = -mub^2*psi2 +2*mub*psi1+psi0 
+              r0 = simplify(psi2);
+              envfs = [envfs, functionF(f0)];
+              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
+              
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
+
+
+              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0
+              r0 = simplify(psi2);
+              envfs = [envfs, functionF(f0)];
+              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
+              envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
+              
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
+           end
           else
           
 %           mlb = min(lb);
@@ -1344,7 +1414,7 @@ disp('test22')
               %envfs
               envfs = [envfs, f0];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
-              envds = [envds, region([r0,r1], [x,y])];
+              envds = [envds, obj.d.polygon + region([r0,r1], [x,y])];
               %envfs = [envfs, functionF(f0)];
               %envds = [envds, region(r1)];
               
@@ -1355,7 +1425,7 @@ disp('test22')
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
               
-              envds = [envds, region(r0, [x,y])];
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
 
 
               f0 = -mlb^2*psi2 +2*mlb*psi1+psi0;
@@ -1364,7 +1434,7 @@ disp('test22')
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
               
-              envds = [envds, region(r0, [x,y])];
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
               %size(envds)
             end
            % end
@@ -1598,7 +1668,7 @@ disp('test22')
 
               %rx = region([r0,r1], [x,y])
 
-              envds = [envds, region([r0,r1], [x,y])];
+              envds = [envds, obj.d.polygon + region([r0,r1], [x,y])];
               envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
 
              % size(envfs)
@@ -1613,7 +1683,7 @@ disp('test22')
               r0 = simplify(psi1-mlb*psi2);
 
               envfs = [envfs, functionF(f0)];
-              envds = [envds, region(r0, [x,y])];
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mlb)];
               %size(envfs)
               %size(envds)
@@ -1627,7 +1697,7 @@ disp('test22')
               f0 = simplify(-mub^2*psi2 + 2*mub*psi1 + psi0);
               r0 = simplify(mub*psi2-psi1);
               envfs = [envfs, functionF(f0)];
-              envds = [envds, region(r0, [x,y])];
+              envds = [envds, obj.d.polygon + region(r0, [x,y])];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mub)];
               %size(envfs)
               %size(envds)
@@ -2533,8 +2603,8 @@ disp('test22')
         function obj = conjugateFunction (obj,i)
             disp("in conjugateF")
             vars = obj.f.getVars;
-            s1 = sym('s1');
-            s2 = sym('s2');
+            s1 = sym('s_1');
+            s2 = sym('s_2');
             dualVars = [s1,s2];
             %obj.envd(i) = obj.envd(i).normalizeEdge;  
             %obj.envd(i).print
@@ -2775,7 +2845,9 @@ disp('test22')
                   zeta10 = -2*(psi1(1)*gamma01+m*psi1(2)*gamma10)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00))/(psi2(3)+q*psi2(2)) - m*psi0(2)*gamma10 + gamma00 - psi0(1)*gamma10;
                   zeta01 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00)))/((psi2(3)+q*psi2(2))) - m*psi0(2)*gamma01 - psi0(1)*gamma01 + m*gamma00+q;
                   zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00))^2/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00);
-                  expr(obj.envd(i).nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00);
+                  i, m, q
+                  obj.envd(i).nv+j
+                  expr(obj.envd(i).nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00)
 %                   disp('checking conjugate') 
 %                   obj.envd(i).nv+j
 %                   zeta11
@@ -2802,7 +2874,8 @@ disp('test22')
 %                   sqrt(si1_2)
 %                   si1 / (zeta00 * sqrt(si1_2)) + si0
 %                   simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
-                  expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0);
+i, m, q
+                  expr(obj.envd(i).nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0)
                  %   disp("To be implemented")
                   
                   
@@ -3510,7 +3583,7 @@ disp('test22')
 
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              obj.maxConjugate = obj.maxConjugate.maximumP;
+              obj.maxConjugate = obj.maxConjugate.maximumP(true);
           end
       end
 
