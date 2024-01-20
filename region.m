@@ -111,6 +111,18 @@ classdef region
              v = sortrows(v);
          end
 
+         function n = getN(obj)
+             n = 0;
+             for i = 1: obj.nv
+                 if abs(obj.vx(i)) == intmax
+                     continue
+                 end
+                 if abs(obj.vy(i)) == intmax
+                     continue
+                 end
+                 n = n + 1;
+             end
+         end
 
          function f = minus(obj1,obj2)
              if (obj1 == obj2)
@@ -126,7 +138,8 @@ classdef region
             rm = [];
             for i = 1:size(obj2.ineqs,2)
               v2(i,:,:) = obj2.getEndpoints(i);
-              ladd = true;  
+              ladd = true;
+              lsub = false;
               for j = 1:size(obj1.ineqs,2)
                 if (obj2.ineqs(i) == obj1.ineqs(j)) 
                     lv = true;
@@ -137,25 +150,120 @@ classdef region
                     end
                     if lv
                       rm = [rm,j];
+                      ladd = false;
+                    else 
+                      ladd = false;  
+                      lsub = true;  
                     end  
-                    ladd = false;
+                %f = [f0.simplify];
+                    
                     break;
                 end
               end
               if ladd
                   l2 = [l2,obj2.ineqs(i).f];
+                 
               end
+              % if lsub
+              %     l2 = [l2,-obj2.ineqs(i).f];
+              % 
+              % end
             end
             l(rm) = [];
+            % l
+            % l2
             for i = 1: size(l2,2)
                 l = [l,-l2(i)];
             end
-            if (size(l,2)) == 0
+            % l
+            % size(l)
+            if size(l,2) <= 2
                 f = [region.empty];
                 return
             end
+            % disp('here')
+            f0 = region(l,obj1.vars);
+            % f0.print
+            %f0.getN
+            if ~isempty (f0) & f0.getN > 2 
+                f = [f0];
+                return
+            end
+            % disp('here2')
+            rL = region.empty();
+            
+            for i = 1:size(l,2)
+                
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                        l0 = [l(i),l(j),l(k)];
+                        f0 = region(l0,obj1.vars);
+                        % i,j,k
+                         % f0.print
+                         
+                        if isempty(f0)
+                            continue;
+                        end
+                        if f0.getN < 3
+                             continue;
+                        end
+                        rL = [rL,f0.simplify]; 
+                    end
+
+                end
+
+            end
+            % disp('triple')
+            % for i = 1:size(rL,2)
+            %     rL(i).print
+            % end
+            for i = 1:size(l,2)
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                       for il = k+1:size(l,2)
+                        l0 = [l(i),l(j),l(k),l(il)];
+                        f0 = region(l0,obj1.vars);
+                        if isempty(f0)
+                            continue;
+                        end
+                                   if f0.getN < 3
+                             continue;
+                        end
+             
+                        rL = [rL,f0.simplify]; 
+                       end 
+                    end
+
+                end
+
+            end
+
+            if (size(l,2) > 5)
+                disp('minus to implement ')
+            end
+
+            if size(rL,2) > 0
+                f = rL.uniqueL;
+            end
+            rm = [];
+            for i = 1:size(f,2)
+             if f(i) == obj1
+                 rm = [rm,i];
+             end
+            end
+            
+            
+            f(rm) = [];
+             % disp('finak')
+             % for i = 1:size(f,2)
+             % f(i).print
+             % end
+            return
 
             f0 = region(l,obj1.vars);
+            disp('in minus')
+            l
+            f0.print
             if isempty(f0)
                 f = [f0];
                 return
@@ -243,6 +351,7 @@ classdef region
                    end
                end
              end
+             
              if (all(l1)==true )
                  l = true;
              else
@@ -279,6 +388,24 @@ classdef region
             obj.ineqs(duplicates) = [];
          end
 
+
+         function obj = uniqueL(obj)
+             n = 0;
+             
+            duplicates = [];
+            for i = 1:size(obj,2)
+                for j = i+1:size(obj,2)
+                    if (obj(i) == obj(j))
+                        n = n + 1;
+                        duplicates(n) = j;
+                        
+                    end
+                end
+
+            end
+           
+            obj(duplicates) = [];
+         end
          function m = slope (obj,i,j)
           m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
          end
