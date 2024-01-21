@@ -549,7 +549,7 @@ disp('test22')
            fprintf("inequal({");
              
              
-           for j=1:size(obj.envf,2)-1 
+           for j=1:size(obj.envelope,2)-1 
              
              obj.envelope(j).d.printMaple
            
