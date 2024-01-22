@@ -64,7 +64,7 @@ classdef plq
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
           disp("ConvexEnvelope")
       %    obj.pieces(i).print
-    %      return
+       %   return
              obj.pieces(i)=obj.pieces(i).conjugate;
               disp("Conjugate")
             % % return

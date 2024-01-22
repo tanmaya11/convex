@@ -124,9 +124,9 @@ classdef functionNDomain
                   rf = rf.simplify;
                  markedi(i) = true;
                  markedi(j) = true;
-                 i,j
-                 rf.print
-                 n = n + 1
+                 % i,j
+                 % rf.print
+                 n = n + 1;
                  objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
                  index(n,1:2) = [i,j];
 
@@ -147,18 +147,25 @@ classdef functionNDomain
                          continue
                      end
                      
-                     n = n + 1  
+                     n = n + 1;  
                      
-                         disp("t1")
-                         r(k).print
+                         % disp("t1")
+                         % r(k).print
                      
                      objL(n) = functionNDomain([objL1(i).f(1)],r(k));
                      index(n,1) = [i];
                    end
                  end
-
+                 
                  r = objL2(j).d - rf;
-                  r
+                 % if i == 1 & j == 5
+                 %     i,j
+                 % objL2(j).d.print
+                 % rf.print
+                 % 
+                 % 
+                 %   r
+                 % end
                  %r.print
                  
                  if ~ isempty(r)
@@ -170,10 +177,10 @@ classdef functionNDomain
                          continue
                      end
                  
-                     n = n + 1  
+                     n = n + 1  ;
                      
-                         disp("t2")
-                         r(k).print
+                         % disp("t2")
+                         % r(k).print
                      
                      objL(n) = functionNDomain([objL2(j).f(1)],r(k));
                      index(n,1) = [j];
@@ -185,10 +192,10 @@ classdef functionNDomain
                  if markedi(i) 
                      continue
                  end
-                 disp('in times')
-                 i
-                 n = n + 1
-                 objL1(i).print
+                 % disp('in times')
+                 % i
+                 n = n + 1;
+                 % objL1(i).print
                  objL(n) = objL1(i);
                  index(n,1) = [i];
 
@@ -205,8 +212,8 @@ classdef functionNDomain
              if size(objL(i).f,2) == 1
                n = n + 1
                objR(n) = objL(i);
-               disp("orig")
-               objR(n).print
+               %disp("orig")
+               %objR(n).print
                index2(n) = index(i);
                continue;
              end
@@ -216,10 +223,10 @@ classdef functionNDomain
              end
              %l
              if l
-                 disp("l1")
+                % disp("l1")
                n = n + 1
                objR(n) = functionNDomain([fmax],objL(i).d);
-               objR(n).print
+               %objR(n).print
                index2(n) = index(i,ind);
                continue
              end  
@@ -232,10 +239,10 @@ classdef functionNDomain
              d1 = region(ineqs1,objL(i).d.vars);
              d1 = d1.simplify;
              if ~ isempty(d1)
-             n = n + 1
-             disp("l2")
+             n = n + 1;
+             %disp("l2")
              objR(n) = functionNDomain([objL(i).f(1)],d1);
-             objR(n).print
+             %objR(n).print
              
              index2(n) = index(i,1);
              end
@@ -243,11 +250,11 @@ classdef functionNDomain
              d1 = region(ineqs1,objL(i).d.vars);
              d1 = d1.simplify;
              if ~ isempty(d1)
-             n = n + 1
+             n = n + 1;
              objR(n) = functionNDomain([objL(i).f(2)],d1);
              index2(n) = index(i,2);
-             disp("l3")
-             objR(n).print
+             %disp("l3")
+             %objR(n).print
              
              end
            end
@@ -352,11 +359,7 @@ classdef functionNDomain
               end
               
               for j = i+1:size(objL,2)
-                   i
-                   objL(i).d.print
-                   j
-                   objL(j).d.print
-                   isAlways(objL(i).d == objL(j).d)
+                  
                   if isAlways(objL(i).d == objL(j).d)
                       n = n+1;
                       ja(n) = j;
@@ -365,14 +368,14 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
             end
-            ia
-            ja
+            %ia
+            %ja
             for i = 1:size(objL,2)
               marked(i) = false;
             end
             m = 0;
             for i = 1:size(objL,2)
-                i, marked(i), m
+               % i, marked(i), m
               if marked(i)
                 continue;
               end
@@ -387,7 +390,7 @@ classdef functionNDomain
               
               for j=ia(i):ia(i+1)-1
                 [l, fmax, ind, lSing] = objL(i).d.maximum([objL(i).f, objL(ja(j)).f]);
-                l
+                %l
                 lCh = true;
                 marked(i) = true;
                 marked(ja(j)) = true;
@@ -429,8 +432,8 @@ classdef functionNDomain
                  
               end
             end
-            disp('list size')
-            m 
+            %disp('list size')
+            %m 
           end
           
       

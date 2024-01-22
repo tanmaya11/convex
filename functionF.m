@@ -18,8 +18,10 @@ classdef functionF
               obj.num=0;
               obj.den=1;
             elseif nargin == 1
-              obj.num=num;  
-              obj.den=1;  
+
+%              [obj.num,obj.den] = numden(num);
+               obj.num=num;  
+               obj.den=1;  
             elseif nargin == 2
               obj.num=num;
               obj.den=den;
@@ -80,10 +82,14 @@ classdef functionF
           
           for i=1:length(terms)
               if abs(double(coef(i))-1) > 1.0d-8
-                  
+                if i == 1 & double(coef(i)) < 0
+                      fprintf(" - ")
+                  end
+                    
                 [n,d] = numden(coef(i));
                 if  double(d) == 1
                   fprintf(num2str(abs(double(coef(i)))));
+                  
                 else
                   fprintf("\\frac{" + num2str(abs(double(n)))+"}{"+ num2str(double(d))+"}");  
                 end

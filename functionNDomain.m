@@ -6,6 +6,9 @@ classdef functionNDomain
 
      methods
          function obj = functionNDomain(f, d)
+             % disp('in')
+             % f
+             % d
              obj.f = f;
              obj.d = d;
          end
@@ -313,19 +316,19 @@ classdef functionNDomain
              d1 = region(ineqs1,objL(i).d.vars);
              d1.print
              d1 = d1.simplifyOpenRegion;
-             disp("Further subdivision")
-             objL(i).f(1).print
-             objL(i).f(2).print
-             d1.print
-             d1.printMaple
+             %disp("Further subdivision")
+             %objL(i).f(1).print
+             %objL(i).f(2).print
+             %d1.print
+             %d1.printMaple
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(1)],d1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             d1.print
+             %d1.print
              d1 = d1.simplifyOpenRegion;
-             d1.print
-             d1.printMaple
+             %d1.print
+             %d1.printMaple
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(2)],d1);
            end
@@ -359,13 +362,7 @@ classdef functionNDomain
               end
               
               for j = i+1:size(objL,2)
-                  if i == 2 & j == 5
-                   i
-                   objL(i).d.print
-                   j
-                   objL(j).d.print
-                   isAlways(objL(i).d == objL(j).d)
-                  end
+                  
                   if isAlways(objL(i).d == objL(j).d)
                       n = n+1;
                       ja(n) = j;
@@ -374,8 +371,8 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
             end
-            ia
-            ja
+            %ia
+            %ja
             for i = 1:size(objL,2)
               marked(i) = false;
             end

@@ -948,11 +948,13 @@ classdef region
 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
-          f = f1-f2;
+          f = f1-f2
            vars = f.getVars;
           ineq = f;
           for i = 1:size(fv1,2)
               if (double(fv1(i).f) >= double(fv2(i).f))
+                  ineq.f
+                  subs(ineq.f,vars,[obj.vx(i),obj.vy(i)])
                   if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) <= 0
                     r = [ineq,-ineq];
                     return
