@@ -1,11 +1,14 @@
 classdef functionNDomain
     properties
-      f = functionF.empty();
+      f = symbolicFunction.empty();
       d = region.empty();
     end
 
      methods
          function obj = functionNDomain(f, d)
+             % disp('in')
+             % f
+             % d
              obj.f = f;
              obj.d = d;
          end
@@ -39,7 +42,7 @@ classdef functionNDomain
              end
          end
          function printM(objL)
-             colorList = ["red","blue","yellow","green","purple","cyan","orange","brown","crimson", "pink","tan","aquamarine","navy", "PaleGreen"];
+             colorList = ["red","blue","yellow","green","purple","cyan","orange","brown","crimson", "pink","tan","aquamarine","navy", "palegreen"];
              fprintf("display(inequal({");
              f = objL(1).f.f;
              j = 1;
@@ -74,6 +77,39 @@ classdef functionNDomain
              
          end
 
+         function printM2(objL)
+             colorList = ["red","blue","yellow","green","purple","cyan","orange","brown","crimson", "pink","tan","aquamarine","navy", "palegreen"];
+             fprintf("display(inequal({");
+             %f = objL(1).f.f;
+             j = 1;
+             for i = 1:size(objL,2)
+              %   if objL(i).f.f == f
+                   objL(i).d.printMaple;
+                   fprintf(",");
+                   
+              %   else
+                   fprintf("},x=-15..15,y=-15..15,color=[");
+                   fprintf(colorList(j)) ;
+                   if i == size(objL,2)
+                       fprintf("],nolines))")  ;
+                       break
+                   end
+                   fprintf("],nolines),inequal({")  ;
+                  % f = objL(i).f.f;
+                   j = j+1;
+                   if j > 14 
+                       j = 1;
+                   end
+                %   objL(i).d.printMaple;
+                 %  fprintf(","); 
+               %  end
+                 
+             end
+            
+             fprintf("\n");
+             
+         end
+
           function plotDomain(obj)
              figure;
              colors = ['b', 'r', 'g', 'm', 'c', 'y'];
@@ -94,6 +130,212 @@ classdef functionNDomain
              end
           end
 
+          % for closed regions and objL1 = objL2
+          function [objL,index] = times (objL1, objL2)
+             n = 0;
+             objL=functionNDomain.empty();
+             for i = 1:size(objL1,2)
+                 markedi(i) = false;
+             end
+             for i = 1:size(objL1,2)
+               for j = i+1:size(objL1,2)
+                 rf = objL1(i).d + objL2(j).d;
+                 if size(rf.ineqs,2) < 3
+                     rf = region.empty;
+                 end
+                  if isempty(rf)
+                   continue
+                 end
+                 
+                
+                 % disp('b4 simplify')
+                 % rf.print
+                 %rf = rf.simplify;
+                 if rf.nv <= 2
+                     rf = region.empty;
+                 end
+                  if isempty(rf)
+                   continue
+                  end
+                  rf = rf.simplify;
+                 markedi(i) = true;
+                 markedi(j) = true;
+                 % i,j
+                 % rf.print
+                 n = n + 1;
+                 objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
+                 index(n,1:2) = [i,j];
+
+                  % objL1(i).d.print
+                  % objL2(j).d.print
+                  % rf.print
+                  %disp('b4 minus')
+                 r = objL1(i).d - rf;
+                  %if ~ isempty(r)
+                  %     if size(r,2)  > 1
+                  % disp('minus output')
+                  % objL2(i).d.print
+                  % rf.print
+                  % 
+                  %   for k = 1:size(r,2)  
+                  %           if size(r(k).ineqs,2) < 3
+                  %         continue
+                  %           end
+                  %           if r(k).nv < 3
+                  %         continue
+                  %           end
+                  %           r(k).print
+                  %     end
+                  %     end
+                  % end
+                  % 
+                 % r
+                 %r.print
+                 if ~ isempty(r)
+                   for k = 1:size(r,2) 
+                     if size(r(k).ineqs,2) < 3
+                         continue
+                     end
+                     if r(k).nv < 3
+                         continue
+                     end
+                     
+                     n = n + 1;  
+                     
+                         % disp("t1")
+                         % r(k).print
+                     
+                     objL(n) = functionNDomain([objL1(i).f(1)],r(k));
+                     index(n,1) = [i];
+                   end
+                 end
+                  
+                  r = objL2(j).d - rf;
+                  % if ~ isempty(r)
+                  %     if size(r,2)  > 1
+                  % disp('minus output')
+                  % objL2(j).d.print
+                  % rf.print
+                  % 
+                  %   for k = 1:size(r,2)  
+                  %           if size(r(k).ineqs,2) < 3
+                  %         continue
+                  %           end
+                  %           if r(k).nv < 3
+                  %         continue
+                  %           end
+                  %           r(k).print
+                  %     end
+                  %     end
+                  % end
+                  % 
+                 % if i == 1 & j == 5
+                 %     i,j
+                 % objL2(j).d.print
+                 % rf.print
+                 % 
+                 % 
+                 %   r
+                 % end
+                 %r.print
+                 
+                 if ~ isempty(r)
+                   for k = 1:size(r,2)  
+                           if size(r(k).ineqs,2) < 3
+                         continue
+                     end
+                     if r(k).nv < 3
+                         continue
+                     end
+                 
+                     n = n + 1  ;
+                     
+                         % disp("t2")
+                         % r(k).print
+                     
+                     objL(n) = functionNDomain([objL2(j).f(1)],r(k));
+                     index(n,1) = [j];
+                   end
+                 end
+               end
+             end
+             for i = 1:size(objL1,2)
+                 if markedi(i) 
+                     continue
+                 end
+                 % disp('in times')
+                 % i
+                 n = n + 1;
+                 % objL1(i).print
+                 objL(n) = objL1(i);
+                 index(n,1) = [i];
+
+             end
+             
+                      
+          end
+
+
+          function [objR,index2] = maximumPC(objL, index) %, f, r2)
+           n = 0;
+           for i = 1:size(objL,2)
+          %     i,size(objL(i).f,2)
+             if size(objL(i).f,2) == 1
+               n = n + 1
+               objR(n) = objL(i);
+               %disp("orig")
+               %objR(n).print
+               index2(n) = index(i);
+               continue;
+             end
+             [l, fmax, ind, lSing] = objL(i).d.maximum(objL(i).f);
+             if lSing
+                continue
+             end
+             %l
+             if l
+                % disp("l1")
+               n = n + 1
+               objR(n) = functionNDomain([fmax],objL(i).d);
+               %objR(n).print
+               index2(n) = index(i,ind);
+               continue
+             end  
+             ineqs = objL(i).d.splitmax3 (objL(i).f(1),objL(i).f(2));
+             ineqs1 = sym.empty ;          
+             for k = 1: size(objL(i).d.ineqs,2)
+               ineqs1(k) = objL(i).d.ineqs(k).f;
+             end
+             ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
+             d1 = region(ineqs1,objL(i).d.vars);
+             d1 = d1.simplify;
+             if ~ isempty(d1)
+             n = n + 1;
+             %disp("l2")
+             objR(n) = functionNDomain([objL(i).f(1)],d1);
+             %objR(n).print
+             
+             index2(n) = index(i,1);
+             end
+             ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
+             d1 = region(ineqs1,objL(i).d.vars);
+             d1 = d1.simplify;
+             if ~ isempty(d1)
+             n = n + 1;
+             objR(n) = functionNDomain([objL(i).f(2)],d1);
+             index2(n) = index(i,2);
+             %disp("l3")
+             %objR(n).print
+             
+             end
+           end
+           if n == 0
+               objR = functionNDomain.empty();
+              return
+           end
+           return
+           
+         end
           % will work only when entire R2 is covered
          function objL = mtimes (objL1, objL2)
              n = 0;
@@ -142,19 +384,19 @@ classdef functionNDomain
              d1 = region(ineqs1,objL(i).d.vars);
              d1.print
              d1 = d1.simplifyOpenRegion;
-             disp("Further subdivision")
-             objL(i).f(1).print
-             objL(i).f(2).print
-             d1.print
-             d1.printMaple
+             %disp("Further subdivision")
+             %objL(i).f(1).print
+             %objL(i).f(2).print
+             %d1.print
+             %d1.printMaple
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(1)],d1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             d1.print
+             %d1.print
              d1 = d1.simplifyOpenRegion;
-             d1.print
-             d1.printMaple
+             %d1.print
+             %d1.printMaple
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(2)],d1);
            end
@@ -172,6 +414,101 @@ classdef functionNDomain
             % objR.printL
          end
 
+         function [objL2,index,lCh] = maxEqDom(objL)  
+           lCh = false;  
+           ia(1) = 1;
+           n = 0;
+           for i = 1:size(objL,2)
+              marked(i) = false;
+           end
+           ja = [];
+           % ja has indices of all equal functions , ia by col no
+           for i = 1:size(objL,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(objL,2)
+                  
+                  if isAlways(objL(i).d == objL(j).d)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+            end
+            %ia
+            %ja
+            for i = 1:size(objL,2)
+              marked(i) = false;
+            end
+            m = 0;
+            for i = 1:size(objL,2)
+               % i, marked(i), m
+              if marked(i)
+                continue;
+              end
+              if ia(i) == ia(i+1)
+                m = m + 1;
+                objL2(m) = objL(i);
+                index(m) = i;
+                marked(i) = true;
+                continue;    
+              end
+
+              
+              for j=ia(i):ia(i+1)-1
+                [l, fmax, ind, lSing] = objL(i).d.maximum([objL(i).f, objL(ja(j)).f]);
+                %l
+                lCh = true;
+                marked(i) = true;
+                marked(ja(j)) = true;
+               if l
+                 m = m + 1;
+                 objL2(m) = functionNDomain(fmax,objL(i).d);
+                 if ind == 1
+                   index(m) = i;
+                 else
+                   index(m) = ja(j);  
+                 end
+                 
+                 
+               else
+                   
+                 %ineqs = objL(i).d.splitmax2 (objL(i).f, objL(ja(j)).f);
+                 ineqs = objL(i).d.splitmax3 (objL(i).f,objL(ja(j)).f);
+                 ineqs1 = sym.empty;
+                 for k = 1: size(objL(i).d.ineqs,2)
+                    ineqs1(k) = objL(i).d.ineqs(k).f;
+                 end
+                            
+                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
+                 d1 = region(ineqs1,objL(i).d.vars);
+                 d1 = d1.simplify; 
+                 m = m + 1;
+                 objL2(m) = functionNDomain(objL(i).f,d1);
+                 index(m) = i;
+                 
+                 ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
+                 d1 = region(ineqs1,objL(i).d.vars);
+                 d1 = d1.simplify; 
+                 m = m + 1;
+                 objL2(m) = functionNDomain(objL(ja(j)).f,d1);
+                 index(m) = ja(j);
+                 
+               end  
+                  
+                 
+              end
+            end
+            %disp('list size')
+            %m 
+          end
+          
+      
+         
 
          function objL2 = jSort(objL)  
           ia(1) = 1;
@@ -219,7 +556,7 @@ classdef functionNDomain
              
           end
           
-         function objL2 = mergeL(objL)  
+          function [objL2,index] = mergeL(objL)  
           ia(1) = 1;
           n = 0;
           for i = 1:size(objL,2)
@@ -262,6 +599,7 @@ classdef functionNDomain
            %     objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
+                index(m) = i;
             else
                 % get common boundary and merge
                 % make groups and add 
@@ -290,6 +628,7 @@ classdef functionNDomain
                objL2(m) = functionNDomain([objL(i).f],r);
               % r.print
                marked(i) = true;
+               index(m) = i;
                for j=ia(i):ia(i+1)-1
                  if marked(ja(j))
                    continue
@@ -320,6 +659,7 @@ classdef functionNDomain
                 % r.print
                  objL2(m) = functionNDomain([objL(i).f],r);
                  marked(i) = true;
+                 index(m) = i;
                  marked(ja(j)) = true;
 
                  

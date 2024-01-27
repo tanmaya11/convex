@@ -1,3 +1,15 @@
+figure
+vertices_ineq1 = [2, 1; 4, 0; 6, 3];
+vertices_ineq2 = [6, 3; 3, 5; 2, 1];
+
+% Plot the inequalities
+figure;
+fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
+hold on;
+fill(vertices_ineq2(:, 1), vertices_ineq2(:, 2), 'r', 'FaceAlpha', 0.5);
+axis equal;
+return
+
 syms x y 
 %z = (15*x^2-3*x*y+10*y^2+90*x-65*y+75)/(3*x-2*y+25);
 %z = 2*y^2/(y+2-x);
@@ -5,8 +17,15 @@ syms x y
 %z = x*y;
 %z = (90*x - 65*y - 3*x*y + 15*x^2 + 10*y^2 + 75)/(3*x - 2*y + 25)
 %z = (30*x - 30*y - x*y + 5*x^2 + 5*y^2 + 25)/(x - y + 10)
+figure
 z = x*y
+z = (8*x + 6*y - 4*x*y - 2*x^2 + 2*y^2 - 8)/(y - 2*x + 3)
+z = - 4*x - 5*y - 20
+z = (155*x - 5*y + 4*x*y + 35*x^2 + 5*y^2 - 100)/(7*x - y + 40)
+z = (2*x^2-y^2-x*y)
 ezsurf(x,y,z,[-5 5 -5 5]);
+xlim([-5, 5]); % Set x-axis range from 0 to 6
+ylim([-4, 4]); % Set y-axis range from 0 to 6
 return
 
 

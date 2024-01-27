@@ -1,6 +1,122 @@
-figure;
-ezplot('2*x^3-24*x^2+90*x+7 ')
+figure
+ ezplot('0*x-y-4')  
+ hold on
+ezplot('-x+0*y-5')  
+hold on
+ezplot('x+5*y/9 + 20/9 ')
 return
+
+
+
+ezplot('x - y/2 - 2')
+hold on
+ezplot('x - 2 + 0*y')
+hold on
+ezplot('(2*y)/5 - x + 8/5') 
+xlim([-0.5, 2.5]); % Set x-axis range from 0 to 6
+ylim([-4.5, 1.5]); % Set y-axis range from 0 to 6
+%return
+
+
+
+figure
+ezplot('x + y/3 - 2')
+hold on
+ezplot('0*x -y')
+hold on
+ezplot('(2*y)/5 - x + 8/5') 
+xlim([-0.5, 2.5]); % Set x-axis range from 0 to 6
+ylim([-4.5, 1.5]); % Set y-axis range from 0 to 6
+%return
+
+figure
+ezplot('x - y/2 - 2')
+hold on
+ezplot('0*x -y')
+hold on
+ezplot('(2*y)/5 - x + 8/5') 
+xlim([-0.5, 2.5]); % Set x-axis range from 0 to 6
+ylim([-4.5, 1.5]); % Set y-axis range from 0 to 6
+
+%return
+
+figure
+ezplot('2 - y/3 - x')
+hold on
+ezplot('x - 2 + 0*y')
+hold on
+ezplot('(2*y)/5 - x + 8/5') 
+
+xlim([-0.5, 2.5]); % Set x-axis range from 0 to 6
+ylim([-4.5, 1.5]); % Set y-axis range from 0 to 6
+
+return
+
+
+% 
+% figure
+% y/7 - x + 4/7 <= 0 
+% x + y/3 - 2 <= 0 
+% -y <= 0 
+% Variables
+% 
+% ans =
+% 
+% [x, y]
+% 
+%     "nVertices = "    "4"
+% 
+% vx =  5.714286e-01  1  1.600000e+00  1.818182e+00  
+% vy =  0  3  0  5.454545e-01  
+% 
+% Intersection of following ineqs
+% y/7 - x + 4/7 <= 0 
+% x - (2*y)/5 - 8/5 <= 0 
+% -y <= 0 
+% x + y/3 - 2 <= 0 
+% Variables
+% 
+% ans =
+% 
+% [x, y]
+% 
+%     "nVertices = "    "3"
+% 
+% vx =  2  1.818182e+00  1.600000e+00  
+% vy =  0  5.454545e-01  0  
+% 
+% Intersection of following ineqs
+% x + y/3 - 2 <= 0 
+% -y <= 0 
+% (2*y)/5 - x + 8/5 <= 0 
+% return
+
+
+
+
+
+figure;
+ezplot(' x + y   ')
+hold on
+ezplot(' x - y   ')
+hold on
+ezplot(' 0.5 * x - y   ')
+hold on
+ezplot(' 0*x + y -1  ')
+hold on
+xlim([-2, 2]); % Set x-axis range from 0 to 6
+ylim([-1, 2]); % Set y-axis range from 0 to 6
+
+return
+
+
+ezplot('x + 2*y + 4 ') 
+hold on
+ezplot('(9*y)/5 - x + 5  ')
+hold on
+ezplot('0*x + y + 5  ') 
+hold on
+
 
 figure;
 ezplot('- x - 7*y - 4  ')
@@ -14,6 +130,9 @@ hold on
 
 return
 
+figure;
+ezplot('2*x^3-24*x^2+90*x+7 ')
+return
 
 figure;
 ezplot('- x - 7*y - 4  ')
