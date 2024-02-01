@@ -63,8 +63,10 @@ classdef plq
           i
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
           disp("ConvexEnvelope")
-      %    obj.pieces(i).print
-       %   return
+         % obj.pieces(i).envelopeExpr.printL
+          obj.pieces(i).envelope.printL
+         % continue
+          return
              obj.pieces(i)=obj.pieces(i).conjugate;
               disp("Conjugate")
 
@@ -74,7 +76,7 @@ classdef plq
             % 
             % 
         end
-        %return
+  %      return
         obj = obj.maximumConjugate;
      %   obj.maxConjugate.printM;
        % obj.plotMaxConjugateDomain;
@@ -99,9 +101,9 @@ classdef plq
           
           for j = 2:obj.nPieces
               obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
-              obj.maxConjugate.printM2
+              %obj.maxConjugate.printL
               obj.maxConjugate = obj.maxConjugate.maximumP(false);
-              obj.maxConjugate.printM2
+              %obj.maxConjugate.printM2
 
           end
       end

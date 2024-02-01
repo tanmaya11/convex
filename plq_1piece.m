@@ -269,127 +269,60 @@ classdef plq_1piece
     methods % convex
   
         function obj = convexEnvelope(obj)
-              vars = obj.f.getVars;
-              if (size(vars,2)==2)
-                  x = vars(1);
-                  y = vars(2);
-              else
-                  disp("not bivariate in 'plq.m'")
-                  return
-              end
-              obj = convexEnvelope1 (obj,x,y);
-              %obj.print
-              %return
-              % for i=1:size(obj.envd,2)
-              %     r = obj.envd(i).simplify;% (obj.envd(i).vars);
-              %     obj.envd(i) = r;
-              % end
-              % 
-              % for i=1:size(obj.envd,2)
-              %     obj.envelope(i) = functionNDomain(obj.envf(i), obj.envd(i));
-              %     obj.envelopeExpr(i) = obj.envExpr(i);
-              % end
-              % disp('first')
-             % obj.envelope.printL
-             %  return
-              
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-              % obj.envelopeExpr = expr(index); 
-           for ik = 1:2
-              lCh = true;
-              while lCh
-                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-                expr = obj.envelopeExpr;
-                obj.envelopeExpr = expr(index); 
-              end  
-
-             
-              %disp('second')
-               %  obj.envelope.printL
-            %    return
-%              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              % obj.print
-              
-              
-                   
-              [objL2,index2] = obj.envelope .* obj.envelope;
-            %  return
-             % disp('times')
-              %objL2(7).print
-              %return
-             %  objL2.printL
-             %  return
-              [obj.envelope,index] = objL2.maximumPC(index2) ;
-              %disp('max')
-              %disp('third')
-               %  obj.envelope.printL
-                % return
-              % obj.envelope(2).print
+          vars = obj.f.getVars;
+          if (size(vars,2)==2)
+            x = vars(1);
+            y = vars(2);
+          else
+            disp("not bivariate in 'plq.m'")
+            return
+          end
+          obj = convexEnvelope1 (obj,x,y);
+          % obj.print
+          % return
+          for ik = 1:5
+            lCh = true;
+            while lCh
+              [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
               expr = obj.envelopeExpr;
               obj.envelopeExpr = expr(index); 
-              %obj = obj.maxEnvelopeIntersect([x,y]);
-              %disp('MaxPC') 
-
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-              % obj.envelopeExpr = expr(index); 
-%return
-              lCh = true;
-              while lCh
-                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-                expr = obj.envelopeExpr;
-                obj.envelopeExpr = expr(index);
-              %  disp('in')
-              %  obj.envelope.printL
-              end  
-          %    return
-              %disp("b4 merge")
-        %         obj.envelope.printL
-          % end
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-           %   obj.envelopeExpr = expr(index); 
-
-           %   lCh = true;
-           %   while lCh
-           %     [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-           %     expr = obj.envelopeExpr;
-           %     obj.envelopeExpr = expr(index); 
-              %end  
+              
+            end  
+           %  if ik == 3
+           %  disp('check1')
+           %     lCh
+           % obj.envelope.printL
+           % return
+           %    end
+   % if ik == 2
+   %         disp('b4 check')
+   % end
+            [objL2,index2] = obj.envelope .* obj.envelope;
            
-     end
-      [obj.envelope, index] = obj.envelope.mergeL;
-               expr = obj.envelopeExpr;
-               obj.envelopeExpr = expr(index); 
-                              obj.envelope.printL
+              
+            [obj.envelope,index] = objL2.maximumPC(index2) ;
+            expr = obj.envelopeExpr;
+            obj.envelopeExpr = expr(index); 
+           
+             
+            lCh = true;
+            while lCh
+              [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
+              expr = obj.envelopeExpr;
+              obj.envelopeExpr = expr(index);
+               
+          
+            end  
+          %return 
+          end
+          %disp('check this')
+          %obj.envelope.printL
+          %return
+          [obj.envelope, index] = obj.envelope.mergeL;
+          expr = obj.envelopeExpr;
+          obj.envelopeExpr = expr(index); 
+          
         end
-%               
-%    % disp("aft")
-
-% 
-% 
-%               % obj.envelope.printL
-%               % obj.envelopeExpr.printL
-% 
-%               return
-%               obj = obj.maxEnvelopeIntersect([x,y]);
-% %               for i = 1:size(obj.envd,2)
-% %                 obj.envd(i).vars
-% %               end
-%          %     return
-% 
-% 
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%               obj = obj.maxEnvelopeIntersect([x,y]);
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%              % obj.print
-%             [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr);
-% 
-%             return
-% 
-%         end
 
         function obj = convexEnvelope1 (obj,x,y)
             a=sym('a');
@@ -400,56 +333,24 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
-          %       etaV.printL();
-          %      disp("etaE")
-          %    etaE.printL();
-          %    disp("etaR")
-          %    etaR.printL();
-          %    return
-%             % put a check that eta are only polynomials 
-
-             % (vix, vjx) is the pair :  1 for edge else 0 
-            %disp("feasiblePairs") 
+            obj.d.V
+            obj.d.E
+            etaV.printL
+            etaE.printL
+            etaR.printL
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             
  
             for i = 1:size(envfs,2)
               r = envds(i).simplify;
-              %i, size(envfs,2)
               if (r.isFeasible & r.nv > 2)  % added on 29 oct
-                   % obj.envf = [obj.envf, envfs(i)];
-                   % obj.envExpr = [obj.envExpr, envxs(i)];
-                   % obj.envd = [obj.envd, r];
-                  % envfs(i)
-                  % r.print
-                  % %[n,d]=numden(envfs(i))
-                  % %f = symbolicFunction(envfs(i))
-                  % %f.print
-                  % disp('b4')
-                  % f0 = functionNDomain(envfs(i), r);
-                  % obj.envelope(i) = f0;
-                  % disp('aft')
-                  % obj.envelopeExpr(i) = envxs(i);
-                  % obj.envelope = [obj.envelope,functionNDomain(obj.envf(i), obj.envd(i))];
-                  % obj.envelopeExpr = [obj.envelopeExpr,obj.envExpr(i)];
-
                   obj.envelope = [obj.envelope,functionNDomain(envfs(i), r)];
                   obj.envelopeExpr = [obj.envelopeExpr,envxs(i)];
               end
              
             end
 
-            % for i=1:size(obj.envd,2)
-            %   r = obj.envd(i).simplify;% (obj.envd(i).vars);
-            %   obj.envd(i) = r;
-            % end
-
-            % for i=1:size(obj.envd,2)
-            %    obj.envelope(i) = functionNDomain(obj.envf(i), obj.envd(i));
-            %    obj.envelopeExpr(i) = obj.envExpr(i);
-            % end
-           %disp('don') 
         end 
 
          % returns etah, slope and y intercept of edge
@@ -1899,8 +1800,10 @@ classdef plq_1piece
               if (etah == etaw)
                   continue;
               end
-              degreeh = polynomialDegree(etah.f);
-              degreew = polynomialDegree(etaw.f);
+              degreeh = polynomialDegree(etah.f)
+              degreew = polynomialDegree(etaw.f)
+              etah
+              etaw
               if (degreeh==0 & degreew==1)
              %       disp("const-lin")
             %        continue
@@ -2085,6 +1988,9 @@ classdef plq_1piece
          %       for i0 = i00+1:size(envfs,2)
          %     envfs(i0)     
          %       end
+                for ienv = 1:size(envfs,2)
+                  simplifyFraction(envfs(ienv).f)
+                end
             end 
             %envfs 
         end

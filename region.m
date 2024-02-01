@@ -124,12 +124,23 @@ classdef region
              end
          end
 
+         function l = in(obj1,obj2)
+             l = false;
+             for i = 1:obj2.nv
+                 if ~obj1.ptFeasible (obj1.vars,[obj2.vx(i),obj2.vy(i)])
+                     return
+                 end
+             end
+             l = true;
+         end
+
          function f = minus(obj1,obj2)
+             
              if (obj1 == obj2)
                  f = [region.empty];
                  return
              end     
-            l = []; 
+            l = [];
             for i = 1:size(obj1.ineqs,2)
                 v1(i,:,:) = obj1.getEndpoints(i);
                 l = [l,obj1.ineqs(i).f];
@@ -214,7 +225,14 @@ classdef region
                         if f0.getN < 3
                              continue;
                         end
-                        rL = [rL,f0.simplify]; 
+                        if ~ obj1.in(f0)
+                            continue
+                        end
+                        f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
                     end
 
                 end
@@ -236,8 +254,14 @@ classdef region
                                    if f0.getN < 3
                              continue;
                         end
-             
-                        rL = [rL,f0.simplify]; 
+                        if ~ obj1.in(f0)
+                            continue
+                        end
+                        f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
                        end 
                     end
 
@@ -245,8 +269,42 @@ classdef region
 
             end
 
-            if (size(l,2) > 5)
+            for i = 1:size(l,2)
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                       for il = k+1:size(l,2)
+                         for im = il+1:size(l,2)
+               
+                           l0 = [l(i),l(j),l(k),l(il),l(im)];
+                           f0 = region(l0,obj1.vars);
+                           if isempty(f0)
+                             continue;
+                           end
+                           if f0.getN < 3
+                             continue;
+                           end
+                           if ~ obj1.in(f0)
+                            continue
+                           end
+                        
+                           f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
+                         end
+                       end 
+                    end
+
+                end
+
+            end
+            if (size(l,2) > 6)
                 disp('minus to implement ')
+                size(l,2)
+                l
+                obj1.print
+                obj2.print
             end
 
             if size(rL,2) > 0
@@ -368,9 +426,11 @@ classdef region
 
          function l = eq(obj1,obj2)
              l = false;
+             
              if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
                  return;
              end
+             
              if ~ obj1.eqVertices(obj2)
                  return
              end

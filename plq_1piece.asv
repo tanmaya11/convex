@@ -2,7 +2,7 @@ classdef plq_1piece
     properties
         f;
         d;
-        % envf=functionF.empty();
+        % envf=symbolicFunction.empty();
         % envExpr = convexExpr.empty();
         % envd = region.empty();
         envelope = functionNDomain.empty();
@@ -269,127 +269,60 @@ classdef plq_1piece
     methods % convex
   
         function obj = convexEnvelope(obj)
-              vars = obj.f.getVars;
-              if (size(vars,2)==2)
-                  x = vars(1);
-                  y = vars(2);
-              else
-                  disp("not bivariate in 'plq.m'")
-                  return
-              end
-              obj = convexEnvelope1 (obj,x,y);
-              %obj.print
-              %return
-              % for i=1:size(obj.envd,2)
-              %     r = obj.envd(i).simplify;% (obj.envd(i).vars);
-              %     obj.envd(i) = r;
-              % end
-              % 
-              % for i=1:size(obj.envd,2)
-              %     obj.envelope(i) = functionNDomain(obj.envf(i), obj.envd(i));
-              %     obj.envelopeExpr(i) = obj.envExpr(i);
-              % end
-              % disp('first')
-             % obj.envelope.printL
-             %  return
-              
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-              % obj.envelopeExpr = expr(index); 
-           for ik = 1:2
-              lCh = true;
-              while lCh
-                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-                expr = obj.envelopeExpr;
-                obj.envelopeExpr = expr(index); 
-              end  
-
-             
-              %disp('second')
-               %  obj.envelope.printL
-            %    return
-%              obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-              % obj.print
-              
-              
-                   
-              [objL2,index2] = obj.envelope .* obj.envelope;
-              return
-             % disp('times')
-              %objL2(7).print
-              %return
-             %  objL2.printL
-             %  return
-              [obj.envelope,index] = objL2.maximumPC(index2) ;
-              %disp('max')
-              %disp('third')
-               %  obj.envelope.printL
-                % return
-              % obj.envelope(2).print
+          vars = obj.f.getVars;
+          if (size(vars,2)==2)
+            x = vars(1);
+            y = vars(2);
+          else
+            disp("not bivariate in 'plq.m'")
+            return
+          end
+          obj = convexEnvelope1 (obj,x,y);
+          % obj.print
+          % return
+          for ik = 1:3
+            lCh = true;
+            while lCh
+              [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
               expr = obj.envelopeExpr;
               obj.envelopeExpr = expr(index); 
-              %obj = obj.maxEnvelopeIntersect([x,y]);
-              %disp('MaxPC') 
-
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-              % obj.envelopeExpr = expr(index); 
-%return
-              lCh = true;
-              while lCh
-                [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-                expr = obj.envelopeExpr;
-                obj.envelopeExpr = expr(index);
-              %  disp('in')
-              %  obj.envelope.printL
-              end  
-          %    return
-              %disp("b4 merge")
-        %         obj.envelope.printL
-          % end
-              % [obj.envelope, index] = obj.envelope.mergeL;
-              % expr = obj.envelopeExpr;
-           %   obj.envelopeExpr = expr(index); 
-
-           %   lCh = true;
-           %   while lCh
-           %     [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
-           %     expr = obj.envelopeExpr;
-           %     obj.envelopeExpr = expr(index); 
-              %end  
+              
+            end  
+            if ik == 3
+            disp('check1')
+               lCh
+           obj.envelope.printL
+           return
+              end
+   % if ik == 2
+   %         disp('b4 check')
+   % end
+            [objL2,index2] = obj.envelope .* obj.envelope;
            
-     end
-      [obj.envelope, index] = obj.envelope.mergeL;
-               expr = obj.envelopeExpr;
-               obj.envelopeExpr = expr(index); 
-                              obj.envelope.printL
+              
+            [obj.envelope,index] = objL2.maximumPC(index2) ;
+            expr = obj.envelopeExpr;
+            obj.envelopeExpr = expr(index); 
+           
+             
+            lCh = true;
+            while lCh
+              [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
+              expr = obj.envelopeExpr;
+              obj.envelopeExpr = expr(index);
+               
+          
+            end  
+          %return 
+          end
+          disp('check this')
+          obj.envelope.printL
+          return
+          [obj.envelope, index] = obj.envelope.mergeL;
+          expr = obj.envelopeExpr;
+          obj.envelopeExpr = expr(index); 
+          
         end
-%               
-%    % disp("aft")
-
-% 
-% 
-%               % obj.envelope.printL
-%               % obj.envelopeExpr.printL
-% 
-%               return
-%               obj = obj.maxEnvelopeIntersect([x,y]);
-% %               for i = 1:size(obj.envd,2)
-% %                 obj.envd(i).vars
-% %               end
-%          %     return
-% 
-% 
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%               obj = obj.maxEnvelopeIntersect([x,y]);
-%               obj = obj.maxEnvelopeWhenEqDomain([x,y]);
-%              % obj.print
-%             [obj.envf,obj.envd, obj.envExpr] = obj.merge(obj.envf,obj.envd, obj.envExpr);
-% 
-%             return
-% 
-%         end
 
         function obj = convexEnvelope1 (obj,x,y)
             a=sym('a');
@@ -400,56 +333,24 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
-          %       etaV.printL();
-          %      disp("etaE")
-          %    etaE.printL();
-          %    disp("etaR")
-          %    etaR.printL();
-          %    return
-%             % put a check that eta are only polynomials 
-
-             % (vix, vjx) is the pair :  1 for edge else 0 
-            %disp("feasiblePairs") 
+            obj.d.V
+            obj.d.E
+            etaV.printL
+            etaE.printL
+            etaR.printL
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             
  
             for i = 1:size(envfs,2)
               r = envds(i).simplify;
-              %i, size(envfs,2)
               if (r.isFeasible & r.nv > 2)  % added on 29 oct
-                   % obj.envf = [obj.envf, envfs(i)];
-                   % obj.envExpr = [obj.envExpr, envxs(i)];
-                   % obj.envd = [obj.envd, r];
-                  % envfs(i)
-                  % r.print
-                  % %[n,d]=numden(envfs(i))
-                  % %f = functionF(envfs(i))
-                  % %f.print
-                  % disp('b4')
-                  % f0 = functionNDomain(envfs(i), r);
-                  % obj.envelope(i) = f0;
-                  % disp('aft')
-                  % obj.envelopeExpr(i) = envxs(i);
-                  % obj.envelope = [obj.envelope,functionNDomain(obj.envf(i), obj.envd(i))];
-                  % obj.envelopeExpr = [obj.envelopeExpr,obj.envExpr(i)];
-
                   obj.envelope = [obj.envelope,functionNDomain(envfs(i), r)];
                   obj.envelopeExpr = [obj.envelopeExpr,envxs(i)];
               end
              
             end
 
-            % for i=1:size(obj.envd,2)
-            %   r = obj.envd(i).simplify;% (obj.envd(i).vars);
-            %   obj.envd(i) = r;
-            % end
-
-            % for i=1:size(obj.envd,2)
-            %    obj.envelope(i) = functionNDomain(obj.envf(i), obj.envd(i));
-            %    obj.envelopeExpr(i) = obj.envExpr(i);
-            % end
-           %disp('don') 
         end 
 
          % returns etah, slope and y intercept of edge
@@ -770,7 +671,7 @@ classdef plq_1piece
               return
               %zv = solve(eq,z);
               
-              %obj0 = etah + functionF(a*x+b*y);
+              %obj0 = etah + symbolicFunction(a*x+b*y);
               %obj0 = obj0.subsVarsPartial([a],[av]);
               %obj0 = obj0.subsVarsPartial([z],[zv]);
           
@@ -910,7 +811,7 @@ classdef plq_1piece
            
           %lb
           %ub
-          obj0 = etah + functionF(a*x+b*y);
+          obj0 = etah + symbolicFunction(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
           obj0 = obj0.subsVarsPartial([b],[bv]);
           deg = polynomialDegree(obj0.f,z);
@@ -966,7 +867,7 @@ classdef plq_1piece
               r00  = obj.d.polygon + r0;
               if ~isempty(r00) 
               
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
               
@@ -979,7 +880,7 @@ classdef plq_1piece
               r00  = obj.d.polygon + r0;
               if ~isempty(r00) 
               
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
               
@@ -1022,11 +923,11 @@ classdef plq_1piece
 
             %for i = 1:nb
               %f0 = simplify(psi1^2/psi2+psi0);
-              f0 = functionF(psi1^2,psi2) + functionF(psi0);
+              f0 = symbolicFunction(psi1^2,psi2) + symbolicFunction(psi0);
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
               % put in r1
-              %envfs = [envfs, functionF(f0)];
+              %envfs = [envfs, symbolicFunction(f0)];
               %envfs
               r00  = obj.d.polygon + region([r0,r1], [x,y]);
               if ~isempty(r00) 
@@ -1036,7 +937,7 @@ classdef plq_1piece
               %envds = [envds, region([r0,r1], [x,y])];
               envds = [envds, r00];
               end
-              %envfs = [envfs, functionF(f0)];
+              %envfs = [envfs, symbolicFunction(f0)];
               %envds = [envds, region(r1)];
               
               
@@ -1045,7 +946,7 @@ classdef plq_1piece
               r00  = obj.d.polygon + region(r0, [x,y]);
               if ~isempty(r00) 
               
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
               
@@ -1058,7 +959,7 @@ classdef plq_1piece
               r00  = obj.d.polygon + region(r0, [x,y]);
               if ~isempty(r00) 
               
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
               
@@ -1085,7 +986,7 @@ classdef plq_1piece
          % return
 
           % obj0 not used
-          %obj0 = etah + functionF(a*x+b*y)
+          %obj0 = etah + symbolicFunction(a*x+b*y)
                     
           %obj0 = obj0.subsVarsPartial([a],[av])
           
@@ -1289,7 +1190,7 @@ classdef plq_1piece
               else
        %           disp('here')
               %f0 = simplify(psi1^2/psi2+psi0);
-              f0 = functionF(psi1^2,psi2) + functionF(psi0);
+              f0 = symbolicFunction(psi1^2,psi2) + symbolicFunction(psi0);
               %fix this
               %r0 = simplify(psi1<ub(i)*psi2-psi1);
               r0 = -simplify(mub*psi2-psi1);
@@ -1317,7 +1218,7 @@ classdef plq_1piece
               r0 = simplify(psi1-mlb*psi2);
               r00  = obj.d.polygon + region([r0], [x,y]);
               if ~isempty(r00) 
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envds = [envds, region(r0, [x,y])];
               envds = [envds, r00];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mlb)];
@@ -1335,7 +1236,7 @@ classdef plq_1piece
               r0 = simplify(mub*psi2-psi1);
               r00  = obj.d.polygon + region([r0], [x,y]);
               if ~isempty(r00) 
-              envfs = [envfs, functionF(f0)];
+              envfs = [envfs, symbolicFunction(f0)];
               %envds = [envds, region(r0, [x,y])];
               envds = [envds, r00];
               envxs = [envxs, convexExpr(4,psi0,psi1,psi2,mub)];
@@ -1899,19 +1800,21 @@ classdef plq_1piece
               if (etah == etaw)
                   continue;
               end
-              degreeh = polynomialDegree(etah.f);
-              degreew = polynomialDegree(etaw.f);
+              degreeh = polynomialDegree(etah.f)
+              degreew = polynomialDegree(etaw.f)
+              etah
+              etaw
               if (degreeh==0 & degreew==1)
              %       disp("const-lin")
             %        continue
-                    obj0 = etah + functionF(a*x+b*y);
+                    obj0 = etah + symbolicFunction(a*x+b*y);
                     if ixd(i) == 0
-                        etaRi=functionF;
+                        etaRi=symbolicFunction;
                     else
                         etaRi = etaR(ix(i),:);
                     end
                     if jxd(i) == 0
-                        etaRj=functionF;
+                        etaRj=symbolicFunction;
                     else
                         etaRj = etaR(jx(i),:);
                     end
@@ -1925,14 +1828,14 @@ classdef plq_1piece
               if (degreeh==1 & degreew==0)
               %      disp("const-lin")
             %        continue
-                    obj0 = etah + functionF(a*x+b*y);
+                    obj0 = etah + symbolicFunction(a*x+b*y);
                     if ixd(i) == 0
-                        etaRi=functionF;
+                        etaRi=symbolicFunction;
                     else
                         etaRi = etaR(ix(i),:);
                     end
                     if jxd(i) == 0
-                        etaRj=functionF;
+                        etaRj=symbolicFunction;
                     else
                         etaRj = etaR(jx(i),:);
                     end
@@ -1949,14 +1852,14 @@ classdef plq_1piece
                     %objective function set here as we can exchange a and b
                     %if required
 
-                    obj0 = etah + functionF(a*x+b*y);
+                    obj0 = etah + symbolicFunction(a*x+b*y);
                     if ixd(i) == 0
-                        etaRi=functionF;
+                        etaRi=symbolicFunction;
                     else
                         etaRi = etaR(ix(i),:);
                     end
                     if jxd(i) == 0
-                        etaRj=functionF;
+                        etaRj=symbolicFunction;
                     else
                         etaRj = etaR(jx(i),:);
                     end
@@ -1971,12 +1874,12 @@ classdef plq_1piece
                 end 
                 
                 if ixd(i) == 0
-                  etaRi=functionF;
+                  etaRi=symbolicFunction;
                 else
                   etaRi = etaR(ix(i),:);
                 end
                 if jxd(i) == 0
-                  etaRj=functionF;
+                  etaRj=symbolicFunction;
                 else
                   etaRj = etaR(jx(i),:);
                 end
@@ -2019,7 +1922,7 @@ classdef plq_1piece
         %            mw
 
                     %continue;
-                    %obj0 = etah + functionF(a*x+b*y);
+                    %obj0 = etah + symbolicFunction(a*x+b*y);
 
                     %checking av = alpha1*b+alpha0
                     %f = etah - etaw
@@ -2085,6 +1988,9 @@ classdef plq_1piece
          %       for i0 = i00+1:size(envfs,2)
          %     envfs(i0)     
          %       end
+                for ienv = 1:size(envfs,2)
+                  simplifyFraction(envfs(ienv).f)
+                end
             end 
             %envfs 
         end
@@ -2209,7 +2115,7 @@ classdef plq_1piece
         
         % combine conditions for etaR and etaE
         function [etaV, etaE, etaR] = getEtaFunctions (obj,x,y,a,b)
-            eta = obj.f - functionF(a*x+b*y);
+            eta = obj.f - symbolicFunction(a*x+b*y);
             
             % Eta for Edges
             for i = 1:obj.d.nE
@@ -2250,8 +2156,8 @@ classdef plq_1piece
                     etaR(i,3) = df1; 
                     etaR(i,2) = df2; 
                 end
-                etaR(i,1) = functionF(a+obj.d.mE(i)*b);
-                etaE(i,2) =  functionF((-(a+obj.d.mE(i)*b-obj.d.cE(i))^2/(4*obj.d.mE(i)))-b*obj.d.cE(i));
+                etaR(i,1) = symbolicFunction(a+obj.d.mE(i)*b);
+                etaE(i,2) =  symbolicFunction((-(a+obj.d.mE(i)*b-obj.d.cE(i))^2/(4*obj.d.mE(i)))-b*obj.d.cE(i));
                 %disp("1")
                 %expand(etaE(i,2).f)
 
@@ -2272,8 +2178,8 @@ classdef plq_1piece
                 %df1 = f1.dfdx(x);
                 %df1
                 
-                etaR(i,1) = functionF(a+obj.d.mE(i)*b);
-                %df1 = functionF(a+obj.d.mE(i)*b)
+                etaR(i,1) = symbolicFunction(a+obj.d.mE(i)*b);
+                %df1 = symbolicFunction(a+obj.d.mE(i)*b)
 
                 %b1 = df1.subsVarsPartial ([x,y],[xv1,yv1]);
                 %b2 = df1.subsVarsPartial ([x,y],[xv2,yv2]);
@@ -2298,11 +2204,11 @@ classdef plq_1piece
                 etaV(i) = eta.subsVarsPartial([x,y],[xv,yv]);
             end
             if obj.d.nV == 0
-                etaV=functionF.empty();
+                etaV=symbolicFunction.empty();
             end
             if obj.d.nE == 0
-                etaE=functionF.empty();
-                etaR=functionF.empty();
+                etaE=symbolicFunction.empty();
+                etaR=symbolicFunction.empty();
             end
             
         end
@@ -2392,7 +2298,7 @@ classdef plq_1piece
               % corollary 4.20
               % corollary 4.26 - vertex
             end
-           conjf=functionF.empty;
+           conjf=symbolicFunction.empty;
             conjd=region.empty;
            
             for j = 1:obj.envelope(i).d.nv
@@ -2648,7 +2554,7 @@ classdef plq_1piece
               undV(j)=false;
               
               %dualVars
-              f = functionF(NCV(j,1));
+              f = symbolicFunction(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
               % changed this on 11/11/23 - check 
               % if (coef(2) == 0)
@@ -2676,7 +2582,7 @@ classdef plq_1piece
               end 
 
               
-              f = functionF(NCV(j,2));
+              f = symbolicFunction(NCV(j,2));
               coef = f.getLinearCoeffs (dualVars);
               if (coef(1) == 0)
                 %subdV(j,2) = dualVars(1)-limdrx1(j);
@@ -2727,7 +2633,7 @@ classdef plq_1piece
               undV(j)=false;
               
              
-              f = functionF(NCV(j,1));
+              f = symbolicFunction(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
               if (coef(1) == 0)
                 %subdV(j,1) = dualVars(1)-limdrx1(j);
@@ -2744,7 +2650,7 @@ classdef plq_1piece
               end 
 
               
-              f = functionF(NCV(j,2));
+              f = symbolicFunction(NCV(j,2));
               k = j+1;
               if k > obj.envelope(i).d.nv
                   k = 1;
@@ -3005,12 +2911,15 @@ classdef plq_1piece
              obj.maxConjugate(k) = obj.conjugates(k);
               
            end
-          obj.conjugate().printM2
+          % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1 ).printM2
+          % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1 ).printM2
+          
           for i = 2:size(obj.conjfia,2)-1
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              disp("mConj")
-              obj.maxConjugate.printM2
+           %   disp("mConj")
+              % obj.maxConjugate.printM2
               obj.maxConjugate = obj.maxConjugate.maximumP(true);
+              % obj.maxConjugate.printM
           end
       end
 

@@ -166,31 +166,7 @@ classdef functionNDomain
                  objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
                  index(n,1:2) = [i,j];
 
-                  % objL1(i).d.print
-                  % objL2(j).d.print
-                  % rf.print
-                  %disp('b4 minus')
-                 r = objL1(i).d - rf;
-                  %if ~ isempty(r)
-                  %     if size(r,2)  > 1
-                  % disp('minus output')
-                  % objL2(i).d.print
-                  % rf.print
-                  % 
-                  %   for k = 1:size(r,2)  
-                  %           if size(r(k).ineqs,2) < 3
-                  %         continue
-                  %           end
-                  %           if r(k).nv < 3
-                  %         continue
-                  %           end
-                  %           r(k).print
-                  %     end
-                  %     end
-                  % end
-                  % 
-                 % r
-                 %r.print
+                   r = objL1(i).d - rf;
                  if ~ isempty(r)
                    for k = 1:size(r,2) 
                      if size(r(k).ineqs,2) < 3
@@ -201,9 +177,31 @@ classdef functionNDomain
                      end
                      
                      n = n + 1;  
-                     
-                         % disp("t1")
-                         % r(k).print
+                      for iv = 1:r(k).nv
+                         
+                          
+                          if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                             disp('error1')
+                             objL1(i).d.print
+                             rf.print
+                             r(k).print
+                         end
+                         
+                          if (abs(r(k).vx(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                             objL1(i).d.print
+                             rf.print
+                             
+                         end
+                         if (abs(r(k).vy(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                             objL1(i).d.print
+                             rf.print
+                             
+                         end
+                     end
                      
                      objL(n) = functionNDomain([objL1(i).f(1)],r(k));
                      index(n,1) = [i];
@@ -211,33 +209,6 @@ classdef functionNDomain
                  end
                   
                   r = objL2(j).d - rf;
-                  % if ~ isempty(r)
-                  %     if size(r,2)  > 1
-                  % disp('minus output')
-                  % objL2(j).d.print
-                  % rf.print
-                  % 
-                  %   for k = 1:size(r,2)  
-                  %           if size(r(k).ineqs,2) < 3
-                  %         continue
-                  %           end
-                  %           if r(k).nv < 3
-                  %         continue
-                  %           end
-                  %           r(k).print
-                  %     end
-                  %     end
-                  % end
-                  % 
-                 % if i == 1 & j == 5
-                 %     i,j
-                 % objL2(j).d.print
-                 % rf.print
-                 % 
-                 % 
-                 %   r
-                 % end
-                 %r.print
                  
                  if ~ isempty(r)
                    for k = 1:size(r,2)  
@@ -252,7 +223,22 @@ classdef functionNDomain
                      
                          % disp("t2")
                          % r(k).print
-                     
+                     for iv = 1:r(k).nv
+                         if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                             disp('error2')
+                             objL2(i).d.print
+                             rf.print
+                             r(k).print
+                         end
+                         if (abs(r(k).vx(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                         end
+                         if (abs(r(k).vy(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                         end
+                     end
                      objL(n) = functionNDomain([objL2(j).f(1)],r(k));
                      index(n,1) = [j];
                    end
@@ -375,14 +361,16 @@ classdef functionNDomain
                objR(n) = functionNDomain([fmax],objL(i).d);
                continue
              end  
+             objL(i).f.printL
              ineqs = objL(i).d.splitmax3 (objL(i).f(1),objL(i).f(2));
+             ineqs(1).isParabolic
              ineqs1 = sym.empty ;          
              for k = 1: size(objL(i).d.ineqs,2)
                ineqs1(k) = objL(i).d.ineqs(k).f;
              end
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             d1.print
+             %d1.print
              d1 = d1.simplifyOpenRegion;
              %disp("Further subdivision")
              %objL(i).f(1).print

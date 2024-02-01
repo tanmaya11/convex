@@ -347,7 +347,13 @@ classdef symbolicFunction
           end
         end
 
-        
+        function l = isParabolic(obj)
+            l = false;
+            if ~ obj.isQuad
+                return;
+            end
+            c = coeffs(obj.f, obj.vars)
+        end
         
         function l = isLinear(obj)
          
