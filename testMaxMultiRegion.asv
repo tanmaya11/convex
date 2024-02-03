@@ -4,6 +4,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         PTri
         PRect
         PRect2
+        Poly
     end
 
     methods (TestMethodSetup)
@@ -29,6 +30,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             testCase.PRect2 = plq([plq_1piece(d(4),symbolicFunction(x^2-y^2))]);
 
             p(3) = plq_1piece(d(5),f);
+            testCase.Poly = plq(p(3));
        end
     end
 
@@ -36,13 +38,26 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 
         function testMax (testCase)
             testCase.PRect = testCase.PRect.maximum
-            %testCase.PRect.printDomainMaple
+            testCase.PRect.printDomainMaple
             %% 
-            %testCase.PRect.printLatex
+            testCase.PRect.printLatex
             %testCase.PRect.print
            
         end
 
+        function testMaxP (testCase)
+            testCase.Poly = testCase.Poly.maximum
+             testCase.Poly.print
+            % return
+          
+            %% 
+           % testCase.Poly.printLatex
+            testCase.Poly.printDomainMaple
+           
+           
+        end
+
+        
         % function testMax2 (testCase)
         %     disp('here')
         %     testCase.PTri = testCase.PTri.maximum

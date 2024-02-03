@@ -37,8 +37,8 @@ classdef plq
              disp(" ")
               obj.pieces(i).printLatex;
           end
-          return
-          obj.maxConjugate.printLatex
+          %return
+          obj.maxConjugate.printLLatex
       end
 
       function plotMaxd(obj)
@@ -62,16 +62,16 @@ classdef plq
         for i=1: obj.nPieces
           i
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
+
           disp("ConvexEnvelope")
-         % obj.pieces(i).envelopeExpr.printL
+          obj.pieces(i).envelopeExpr.printL
           obj.pieces(i).envelope.printL
          % continue
-          return
+        %  return
              obj.pieces(i)=obj.pieces(i).conjugate;
               disp("Conjugate")
-
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
-              %return
+    %          return
             % % disp("MaxConjugate")
             % 
             % 
@@ -91,9 +91,9 @@ classdef plq
       end
 
       function obj = maximumConjugate(obj)
-          if obj.nPieces < 1
-              return;
-          end
+          % if obj.nPieces < 1
+          %     return;
+          % end
           for k = 1:size(obj.pieces(1).maxConjugate,2) 
              obj.maxConjugate(k) = obj.pieces(1).maxConjugate(k);
              % return

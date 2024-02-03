@@ -93,10 +93,68 @@ classdef region
                    l = [l,obj2.ineqs(i).f];
                end
             end 
-            
+            %l
             f = region(l,obj1.vars);
          end
 
+         function obj = poly2order(obj)
+            % obj.print
+             vx(1) = obj.vx(1);
+             vy(1) = obj.vy(1);
+             for i = 1:obj.nv
+               lineqs(i) = false ;
+             end
+             for i = 1:obj.nv-1
+                 ineqs = obj.ineqThroughVertex (i);
+                 for j = 1:2
+                     if lineqs(j)
+                         continue
+                     end
+                     break;
+                 end
+                 %ineqs(j)
+                 lineqs(ineqs(j)) = true;
+                 v = obj.getEndpoints (ineqs(j));
+                 if (v(1,1) == vx(i) & v(1,2) == vy(i))
+                     vx(i+1) = v(2,1);
+                     vy(i+1) = v(2,2);
+                 else
+                     vx(i+1) = v(1,1);
+                     vy(i+1) = v(1,2);
+                 end
+
+
+             end
+             obj.vx = vx;
+             obj.vy = vy;
+             cx = sum(obj.vx) / obj.nv;
+             cy = sum(obj.vy) / obj.nv;
+%obj.print
+             theta1 = atan((vy(1)-cy)/(vx(1)-cx));
+             if theta1 < 0
+                 theta1 = theta1 + pi;
+             end
+             theta2 = atan((vy(2)-cy)/(vx(2)-cx));
+             if theta2 < 0
+                 theta2 = theta2 + pi;
+             end
+             if theta1 > theta2
+                 return;
+             end
+             for i = 1:obj.nv
+                 obj.vx(i) = vx(obj.nv-i+1);
+                 obj.vy(i) = vy(obj.nv-i+1);
+             end
+         end
+
+         function ineqs = ineqThroughVertex (obj,j)
+           ineqs = [];
+           for i = 1:size(obj.ineqs,2)
+               if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
+                   ineqs = [ineqs,i];
+               end
+           end
+         end
 
          function v = getEndpoints (obj, i)
              n = 0;

@@ -268,7 +268,65 @@ classdef plq_1piece
   
     methods % convex
   
+        % function obj = setC
+        %     obj.envelope(1) = functionNDomain()
+        % end
+
+        function obj = setConv(obj)
+            vars = obj.f.getVars;
+            x = vars(1);
+            y = vars(2);
+          
+            f = symbolicFunction(30*x - 5*y + 4*x*y + 10*x^2 + 5*y^2 - 100,2*x - y + 15);
+            l = [x - y/2 - 2, - x - (5*y)/9 - 20/9, x + (7*y)/5 - 2  ];
+
+            r = region(l,vars);
+            %obj.envelope(1) = functionNDomain(f,r);
+            s0 = (46*x)/19 - (23*y)/19 - 130/19;
+            s1 = (7*x)/38 + (3*y)/19 + 5/38;
+            s2 = x/76 - y/152 + 15/152;
+            dl = x;
+            %obj.envelopeExpr(1) = convexExpr(1, s0, s1, s2, dl);
+            obj.envelope = [obj.envelope,functionNDomain(f,r)];
+            obj.envelopeExpr = [obj.envelopeExpr,convexExpr(1, s0, s1, s2, dl)];
+            
+
+
+            f = symbolicFunction(5*x + 2*y  -10);
+            l = [x - 2, x + y/2 - 5/2,x + 3*y - 10, 2 - (7*y)/5 - x ];
+
+
+
+            r = region(l,vars);
+            %obj.envelope(2) = functionNDomain(f,r);
+            s0 = 2*y;
+            s1 = x - 2;
+            s2 = x;
+            dl = 0*x+5;
+            %obj.envelopeExpr(2) = convexExpr(3, s0, s1, s2, dl);
+            
+           obj.envelope = [obj.envelope,functionNDomain(f,r)];
+            obj.envelopeExpr = [obj.envelopeExpr,convexExpr(3, s0, s1, s2, dl)];
+            
+
+            f = symbolicFunction(-4*x  -5*y  -20);
+            l = [- y - 4 ,- x - 5 ,x + (5*y)/9 + 20/9 ];
+
+            r = region(l,vars);
+            %obj.envelope(3) = functionNDomain(f,r);
+            s0 = -4*x;
+            s1 = y + 4;
+            s2 = x;
+            dl = 0*x-5;
+           % obj.envelopeExpr(3) = convexExpr(3, s0, s1, s2, dl);
+            obj.envelope = [obj.envelope,functionNDomain(f,r)];
+            obj.envelopeExpr = [obj.envelopeExpr,convexExpr(3, s0, s1, s2, dl)];
+           
+        end
+
         function obj = convexEnvelope(obj)
+            obj = obj.setConv;
+            return
           vars = obj.f.getVars;
           if (size(vars,2)==2)
             x = vars(1);
@@ -333,11 +391,11 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
-            obj.d.V
-            obj.d.E
-            etaV.printL
-            etaE.printL
-            etaR.printL
+            % obj.d.V
+            % obj.d.E
+            % etaV.printL
+            % etaE.printL
+            % etaR.printL
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
             
@@ -1800,10 +1858,10 @@ classdef plq_1piece
               if (etah == etaw)
                   continue;
               end
-              degreeh = polynomialDegree(etah.f)
-              degreew = polynomialDegree(etaw.f)
-              etah
-              etaw
+              degreeh = polynomialDegree(etah.f);
+              degreew = polynomialDegree(etaw.f);
+              %etah
+              %etaw
               if (degreeh==0 & degreew==1)
              %       disp("const-lin")
             %        continue
@@ -1988,9 +2046,9 @@ classdef plq_1piece
          %       for i0 = i00+1:size(envfs,2)
          %     envfs(i0)     
          %       end
-                for ienv = 1:size(envfs,2)
-                  simplifyFraction(envfs(ienv).f)
-                end
+         %       for ienv = 1:size(envfs,2)
+         %         simplifyFraction(envfs(ienv).f)
+         %       end
             end 
             %envfs 
         end
@@ -2243,7 +2301,11 @@ classdef plq_1piece
             s2 = sym('s_2');
             dualVars = [s1,s2];
             %obj.envd(i) = obj.envd(i).simplify; % (obj.envd(i).vars);
-            obj.envelope(i).d = obj.envelope(i).d.simplify
+            obj.envelope(i).d = obj.envelope(i).d.simplify;
+            obj.envelope(i).d = obj.envelope(i).d.poly2order;
+%             disp('ord')
+%             obj.envelope(i).d.print
+% return
             %if obj.envExpr(i).type == 1
             if obj.envelopeExpr(i).type == 1    
               %disp('type 1')
@@ -2286,9 +2348,9 @@ classdef plq_1piece
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
 
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV )
 
 
               for j = 1:obj.envelope(i).d.nv
@@ -2907,19 +2969,28 @@ classdef plq_1piece
     end
 
      function obj = maximumConjugate(obj)
+         obj.conjfia(1):obj.conjfia(2)-1 
           for k = obj.conjfia(1):obj.conjfia(2)-1 
              obj.maxConjugate(k) = obj.conjugates(k);
               
            end
           % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1 ).printM2
           % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1 ).printM2
-          
-          for i = 2:size(obj.conjfia,2)-1
+          % disp("mConjM")
+          %     obj.maxConjugate.printM
+          for i = 2:size(obj.envelope,2) %size(obj.conjfia,2)-1
+              obj.conjfia(i):obj.conjfia(i+1)-1
+              %obj.maxConjugate.printL
               obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-           %   disp("mConj")
-              % obj.maxConjugate.printM2
+              disp("mConj")
+              %obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1).printL
+              %obj.maxConjugate.printL
+              %return
+              obj.maxConjugate.printM2
               obj.maxConjugate = obj.maxConjugate.maximumP(true);
-              % obj.maxConjugate.printM
+              disp("mConjM")
+              obj.maxConjugate.printL
+              obj.maxConjugate.printM
           end
       end
 

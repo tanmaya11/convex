@@ -329,6 +329,11 @@ classdef functionNDomain
              for i = 1:size(objL1,2)
                for j = 1:size(objL2,2)
                  rf = objL1(i).d + objL2(j).d;
+                 if i == 1 & j == 4
+                     objL1(i).d.print
+                     objL2(j).d.print
+                     rf.print
+                 end
                  if isempty(rf)
                    continue
                  end
