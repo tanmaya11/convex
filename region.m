@@ -11,6 +11,8 @@ classdef region
     
 %  
      methods
+
+         % check when multiple regions are created by ineqs
          function obj = region(fs, vars) %, not)
         
             if nargin == 0
@@ -93,10 +95,68 @@ classdef region
                    l = [l,obj2.ineqs(i).f];
                end
             end 
-            
+            %l
             f = region(l,obj1.vars);
          end
 
+         function obj = poly2order(obj)
+            % obj.print
+             vx(1) = obj.vx(1);
+             vy(1) = obj.vy(1);
+             for i = 1:obj.nv
+               lineqs(i) = false ;
+             end
+             for i = 1:obj.nv-1
+                 ineqs = obj.ineqThroughVertex (i);
+                 for j = 1:2
+                     if lineqs(j)
+                         continue
+                     end
+                     break;
+                 end
+                 %ineqs(j)
+                 lineqs(ineqs(j)) = true;
+                 v = obj.getEndpoints (ineqs(j));
+                 if (v(1,1) == vx(i) & v(1,2) == vy(i))
+                     vx(i+1) = v(2,1);
+                     vy(i+1) = v(2,2);
+                 else
+                     vx(i+1) = v(1,1);
+                     vy(i+1) = v(1,2);
+                 end
+
+
+             end
+             obj.vx = vx;
+             obj.vy = vy;
+             cx = sum(obj.vx) / obj.nv;
+             cy = sum(obj.vy) / obj.nv;
+%obj.print
+             theta1 = atan((vy(1)-cy)/(vx(1)-cx));
+             if theta1 < 0
+                 theta1 = theta1 + pi;
+             end
+             theta2 = atan((vy(2)-cy)/(vx(2)-cx));
+             if theta2 < 0
+                 theta2 = theta2 + pi;
+             end
+             if theta1 > theta2
+                 return;
+             end
+             for i = 1:obj.nv
+                 obj.vx(i) = vx(obj.nv-i+1);
+                 obj.vy(i) = vy(obj.nv-i+1);
+             end
+         end
+
+         function ineqs = ineqThroughVertex (obj,j)
+           ineqs = [];
+           for i = 1:size(obj.ineqs,2)
+               if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
+                   ineqs = [ineqs,i];
+               end
+           end
+         end
 
          function v = getEndpoints (obj, i)
              n = 0;
@@ -111,13 +171,36 @@ classdef region
              v = sortrows(v);
          end
 
+         function n = getN(obj)
+             n = 0;
+             for i = 1: obj.nv
+                 if abs(obj.vx(i)) == intmax
+                     continue
+                 end
+                 if abs(obj.vy(i)) == intmax
+                     continue
+                 end
+                 n = n + 1;
+             end
+         end
+
+         function l = in(obj1,obj2)
+             l = false;
+             for i = 1:obj2.nv
+                 if ~obj1.ptFeasible (obj1.vars,[obj2.vx(i),obj2.vy(i)])
+                     return
+                 end
+             end
+             l = true;
+         end
 
          function f = minus(obj1,obj2)
+             
              if (obj1 == obj2)
                  f = [region.empty];
                  return
              end     
-            l = []; 
+            l = [];
             for i = 1:size(obj1.ineqs,2)
                 v1(i,:,:) = obj1.getEndpoints(i);
                 l = [l,obj1.ineqs(i).f];
@@ -126,8 +209,11 @@ classdef region
             rm = [];
             for i = 1:size(obj2.ineqs,2)
               v2(i,:,:) = obj2.getEndpoints(i);
-              ladd = true;  
+              ladd = true;
+              lsub = false;
               for j = 1:size(obj1.ineqs,2)
+                %  i,j
+                  %obj1.ineqs(j).f
                 if (obj2.ineqs(i) == obj1.ineqs(j)) 
                     lv = true;
                     for i1 = 1:size(v1,2)
@@ -137,25 +223,176 @@ classdef region
                     end
                     if lv
                       rm = [rm,j];
+                      ladd = false;
+                    else 
+                      ladd = false;  
+                      lsub = true;  
                     end  
-                    ladd = false;
+                %f = [f0.simplify];
+                    
                     break;
                 end
               end
+              %ladd
+              %obj2.ineqs(i) == obj1.ineqs(j)
+              %obj2.ineqs(i).f
               if ladd
                   l2 = [l2,obj2.ineqs(i).f];
+                 
               end
+              % if lsub
+              %     l2 = [l2,-obj2.ineqs(i).f];
+              % 
+              % end
             end
+            
+            %l2
             l(rm) = [];
+            % l
+            % l2
             for i = 1: size(l2,2)
                 l = [l,-l2(i)];
             end
-            if (size(l,2)) == 0
+            % l
+            % size(l)
+            if size(l,2) <= 2
                 f = [region.empty];
                 return
             end
+            % disp('here')
+            f0 = region(l,obj1.vars);
+            % f0.print
+            %f0.getN
+            if ~isempty (f0) & f0.getN > 2 
+                f = [f0];
+                return
+            end
+            % disp('here2')
+            rL = region.empty();
+            
+            for i = 1:size(l,2)
+                
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                        l0 = [l(i),l(j),l(k)];
+                        f0 = region(l0,obj1.vars);
+                        % i,j,k
+                         % f0.print
+                         
+                        if isempty(f0)
+                            continue;
+                        end
+                        if f0.getN < 3
+                             continue;
+                        end
+                        if ~ obj1.in(f0)
+                            continue
+                        end
+                        f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
+                    end
+
+                end
+
+            end
+            % disp('triple')
+            % for i = 1:size(rL,2)
+            %     rL(i).print
+            % end
+            for i = 1:size(l,2)
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                       for il = k+1:size(l,2)
+                        l0 = [l(i),l(j),l(k),l(il)];
+                        f0 = region(l0,obj1.vars);
+                        if isempty(f0)
+                            continue;
+                        end
+                                   if f0.getN < 3
+                             continue;
+                        end
+                        if ~ obj1.in(f0)
+                            continue
+                        end
+                        f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
+                       end 
+                    end
+
+                end
+
+            end
+
+            for i = 1:size(l,2)
+                for j = i+1:size(l,2)
+                    for k = j+1:size(l,2)
+                       for il = k+1:size(l,2)
+                         for im = il+1:size(l,2)
+               
+                           l0 = [l(i),l(j),l(k),l(il),l(im)];
+                           f0 = region(l0,obj1.vars);
+                           if isempty(f0)
+                             continue;
+                           end
+                           if f0.getN < 3
+                             continue;
+                           end
+                           if ~ obj1.in(f0)
+                            continue
+                           end
+                        
+                           f0 = f0.simplify;
+                        if f0.nv ~= size(f0.ineqs,2)
+                            continue
+                        end
+                        rL = [rL,f0]; 
+                         end
+                       end 
+                    end
+
+                end
+
+            end
+            if (size(l,2) > 6)
+                disp('minus to implement ')
+                size(l,2)
+                l
+                obj1.print
+                obj2.print
+            end
+            %rL
+
+            if size(rL,2) > 0
+                f = rL.uniqueL;
+            else
+                f = [];
+                return
+            end
+            rm = [];
+            for i = 1:size(f,2)
+             if f(i) == obj1
+                 rm = [rm,i];
+             end
+            end
+            
+            
+            f(rm) = [];
+             % disp('finak')
+             % for i = 1:size(f,2)
+             % f(i).print
+             % end
+            return
 
             f0 = region(l,obj1.vars);
+            disp('in minus')
+            l
+            f0.print
             if isempty(f0)
                 f = [f0];
                 return
@@ -243,6 +480,7 @@ classdef region
                    end
                end
              end
+             
              if (all(l1)==true )
                  l = true;
              else
@@ -252,9 +490,11 @@ classdef region
 
          function l = eq(obj1,obj2)
              l = false;
+             
              if (size(obj1.ineqs,2)~=size(obj2.ineqs,2))
                  return;
              end
+             
              if ~ obj1.eqVertices(obj2)
                  return
              end
@@ -279,6 +519,24 @@ classdef region
             obj.ineqs(duplicates) = [];
          end
 
+
+         function obj = uniqueL(obj)
+             n = 0;
+             
+            duplicates = [];
+            for i = 1:size(obj,2)
+                for j = i+1:size(obj,2)
+                    if (obj(i) == obj(j))
+                        n = n + 1;
+                        duplicates(n) = j;
+                        
+                    end
+                end
+
+            end
+           
+            obj(duplicates) = [];
+         end
          function m = slope (obj,i,j)
           m = (obj.vy(i)-obj.vy(j))/(obj.vx(i)-obj.vx(j));
          end
@@ -322,10 +580,10 @@ classdef region
              obj.vars
              disp(["nVertices = ", num2str(obj.nv)]);
              fprintf("vx =  ")
-             fprintf("%d  ", obj.vx);
+             fprintf("%f  ", obj.vx);
              fprintf("\n")
              fprintf("vy =  ")
-             fprintf("%d  ", obj.vy);
+             fprintf("%f  ", obj.vy);
              fprintf("\n\n")
                disp("Intersection of following ineqs")
                obj.ineqs.printLIneq;
@@ -351,7 +609,7 @@ classdef region
                  end
                  n = n + 1;
              end
-             fprintf("\\]\n\\[\\textbf{nVertices = }")
+             fprintf("\\]\n\\[\\text{Number of Vertices = }")
              fprintf(num2str(n));
              
              fprintf("\\]\n\\[v =  ")
@@ -570,14 +828,22 @@ classdef region
                           break;
                       end
                   end
+                  obj.ineqs(i)
                   drx1 = obj.ineqs(i).dfdx(vars(1));
                   drx2 = obj.ineqs(i).dfdx(vars(2));
+                  %drx1
+                  %drx2
                   m0 = drx1.f/drx2.f;
                   n = n + 1;
                   %disp("Slope of tangent")
                   %pt
                   % l = true;
-                  m(n) = subs(m0,vars,pt);
+                  if abs(subs(drx2.f,vars,pt)) < 1.0d-6
+                      m(n) = intmax;
+                  else
+                      m(n) = subs(m0,vars,pt);
+                  end
+                  
 
               end
               % if l
@@ -599,6 +865,8 @@ classdef region
               sv1(i) = fv1(i).f;
               sv2(i) = fv2(i).f;
           end
+          %sv1
+          %sv2
           l = true;
           if all(abs(double(sv1 - sv2))< 1.0d-14)
               if size(sv1) == 1
@@ -710,8 +978,8 @@ classdef region
                   
         
               end
-              disp("SINGLETON REGION")
-              obj.print
+              %disp("SINGLETON REGION")
+              %obj.print
               
               lsing = true;
               
@@ -793,6 +1061,7 @@ classdef region
             fxy(n,1)= sx;
             fxy(n,2)= sy;
           end
+          fxy
           fxy = unique(fxy,"rows");
           fx = fxy(:,1);
           fy = fxy(:,2);
@@ -824,8 +1093,10 @@ classdef region
            vars = f.getVars;
           ineq = f;
           for i = 1:size(fv1,2)
-              if (double(fv1(i).f) >= double(fv2(i).f))
-                  if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) <= 0
+              if (abs(double(fv1(i).f)) >= abs(double(fv2(i).f)))
+                  %ineq.f
+                  %subs(ineq.f,vars,[obj.vx(i),obj.vy(i)])
+                  if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) < 0
                     r = [ineq,-ineq];
                     return
                   else
@@ -1000,7 +1271,7 @@ classdef region
                 m(n0) = m0(n1);
                end
             end
-            %m
+           
             
             markF = [];
             for ip = 1:nP
@@ -1028,6 +1299,8 @@ classdef region
                 if (abs(m1)~= inf) & (abs(m2)~= inf)
                   d =  (m1+m2 )/2;
                 else
+                    % put temp on 14 th May
+                    return
                   if (abs(m1)==inf)
                     d = tan((pi/2 + atan(m2))/2);
                   else
@@ -1113,6 +1386,8 @@ classdef region
                 
             end
             obj.ineqs(markF0) = [];
+            % check vertices
+
 
         end
             

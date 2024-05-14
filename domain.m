@@ -156,16 +156,19 @@ classdef domain
             
             obj.polygon.vars = [x,y];
           end
+          obj.polygon.vx
           %obj.nVertices
           %obj.vx
           %obj.vy
+           obj.polygon.print;
           obj = getEdges (obj);
+           obj.polygon.print;
           %obj.E
           %obj.mE
           %obj.cE
           %obj.V
           obj = getAllEdges (obj, x, y);
-          %obj.polygon.print;
+          obj.polygon.print;
       end
       
       function vertex = getVertex(obj,i)
