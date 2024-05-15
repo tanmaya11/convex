@@ -168,12 +168,12 @@ classdef plq
           for j = 2:obj.nPieces
               obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
               %obj.maxConjugate.printL
-              disp('in maxC')
-              obj.maxConjugate.printM2
+              %disp('in maxC')
+              %obj.maxConjugate.printM2
               obj.maxConjugate = obj.maxConjugate.maximumP(false);
-              disp("print in maxConjugate")
-              obj.maxConjugate.printL
-              obj.maxConjugate.printM2
+              %disp("print in maxConjugate")
+              %obj.maxConjugate.printL
+              %obj.maxConjugate.printM2
 
           end
       end

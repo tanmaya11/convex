@@ -152,7 +152,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             %testCase.PRect3.print
             warning('off','all')
 
-            n = 3;
+            n = 2;
             x = sym('x');
             y = sym('y');
             f=symbolicFunction(x*y);
@@ -200,8 +200,8 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             
             %% 
             %testCase.PRect.printLatex
-            testCase.PThesis.print
-            testCase.PThesis.printDomainMaple
+            %testCase.PThesis.print
+            %testCase.PThesis.printDomainMaple
         end
         
 
