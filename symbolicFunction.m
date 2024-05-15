@@ -1,11 +1,9 @@
-classdef functionF
+classdef symbolicFunction
     properties (Access=private)
         % to be re written restricting functions to be in terms of defined
         % variables only
         nv; 
         vars; 
-        num = sym('num');
-        den = sym('den');
     end    
     properties  
         f = sym('f') ;
@@ -13,22 +11,31 @@ classdef functionF
 
    
     methods  % init 
-        function obj = functionF(num, den)
+        function obj = symbolicFunction(num0, den0)
+           
+            
             if nargin == 0
-              obj.num=0;
-              obj.den=1;
+              num=0;
+              den=1;
+              obj.f= num / den;
             elseif nargin == 1
-
-%              [obj.num,obj.den] = numden(num);
-               obj.num=num;  
-               obj.den=1;  
+               num=num0;  
+               den=1;  
             elseif nargin == 2
-              obj.num=num;
-              obj.den=den;
+              num=num0;
+              den=den0;
             end
             if nargin ~= 0
             
-            obj.f= obj.num / obj.den;
+            obj.f= num / den;
+
+            % temp change 19/4/24
+            if num0 == 0 
+                obj.vars = [];
+                obj.nv = 0;
+                return
+            end
+
             obj.vars = symvar(obj.f);
             obj.nv = size(obj.vars,2);
             end
@@ -38,25 +45,28 @@ classdef functionF
             f = obj.f;
         end  
         function num = getNum(obj)
-            num = obj.num;
+            if isequal(class(obj.f),'double')
+              num = obj.f;  
+            else
+              [num,den] = numden(obj.f);
+            end
         end   
         function den = getDen(obj)
-            den = obj.den;
+            if isequal(class(obj.f),'double')
+              den = 1;  
+            else
+              [num,den] = numden(obj.f);
+            end
         end   
         
     end
     methods % display
         function print(obj)
-          %fprintf(char(simplify(obj.f))); 
-          %fprintf("\n")
-          %obj.f
           if obj.isPolynomial
           [coef,terms] = coeffs(obj.f);
          
           for i=1:length(terms)
-              %if double(coef(i)) ~= 1
                 fprintf(num2str(double(coef(i))));
-              %end
               if terms(i) ~= 1
                 fprintf(char(terms(i)));
               end
@@ -74,9 +84,6 @@ classdef functionF
         end
 
         function printLatexWB(obj)
-          %fprintf(char(simplify(obj.f))); 
-          %fprintf("\n")
-          %obj.f
           if obj.isPolynomial
           [coef,terms] = coeffs(obj.f);
           
@@ -110,47 +117,16 @@ classdef functionF
           else
               [n,d] = numden(obj.f);
               fprintf("\\frac{" + char(n)+"}{"+ char(d)+"}");  
-              %fprintf(char(simplify(obj.f))); 
           
           end
         end
 
         function printLatex(obj)
-          %fprintf(char(simplify(obj.f))); 
-          %fprintf("\n")
-          %obj.f
-          %if obj.isPolynomial
-          %[coef,terms] = coeffs(obj.f);
-          
+         
           fprintf("\\[");
           obj.printLatexWB;
-          % for i=1:length(terms)
-          %     if double(coef(i)) ~= 1
-          % 
-          %         [n,d] = numden(coef(i));
-          %       if  double(d) == 1
-          %         fprintf(num2str(double(coef(i))));
-          %       else
-          %         fprintf("\\frac{" + num2str(double(n))+"}{"+ num2str(double(d))+"}");  
-          %       end
-          %     end
-          %     if terms(i) ~= 1
-          %       fprintf(char(terms(i)));
-          % 
-          %     end
-          %     if i == length(terms)
-          %         break;
-          %     end
-          %     fprintf(" + ");
-          % end
-          % fprintf("\\]\n")
-          % else
-          %     [n,d] = numden(obj.f);
-          %     fprintf("\\[\\frac{" + char(n)+"}{"+ char(d)+"}");  
-          %     %fprintf(char(simplify(obj.f))); 
           fprintf("\\]\n")
           
-         % end
         end
 
         function fprint(obj, uNo)
@@ -211,7 +187,6 @@ classdef functionF
         function printIneqLatex(obj)
             fprintf("\\[")
             obj.printLatexWB
-            %fprintf(char(obj.f));
             fprintf(" \\le 0")
             fprintf("\\] ")
             fprintf("\n")
@@ -324,28 +299,24 @@ classdef functionF
     
     methods % operations
         function f = plus(obj1,obj2)
-            f = functionF(obj1.num*obj2.den + obj2.num*obj1.den, obj1.den*obj2.den);
+            f = symbolicFunction(obj1.f+obj2.f);
         end
         function f = minus(obj1,obj2)
-            f = functionF(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
+            f = symbolicFunction(obj1.f-obj2.f);
         end
 
         % to be disabled
         function f = unaryminus(obj)
-            f = functionF(-obj.num,obj.den);
+            f = symbolicFunction(-obj.f);
         end
 
         function f = uminus(obj)
-            f = functionF(-obj.num,obj.den);
+            f = symbolicFunction(-obj.f);
         end
 
         
         function f = mtimes(f1,f2)
-            num = f1.num * f2.num;
-            den = f1.den * f2.den;
-            f = functionF(num,den);
-            % fix this
-            % check def of num den here
+            f = symbolicFunction(f1.f*f2.f);
         end
 
     end
@@ -353,7 +324,7 @@ classdef functionF
     methods % derivatives
 
          function f = dfdx (obj,x)
-            f = functionF(simplify(diff(obj.f,x)));
+            f = symbolicFunction(simplify(diff(obj.f,x)));
          end 
 
          function f = limit (obj, vars, pt)
@@ -361,7 +332,7 @@ classdef functionF
              for i=1:size(vars,2)
                f0 = limit(f0,vars(i),pt(i));
              end
-             f = functionF(f0);
+             f = symbolicFunction(f0);
          end
 
     end
@@ -385,7 +356,13 @@ classdef functionF
           end
         end
 
-        
+        function l = isParabolic(obj)
+            l = false;
+            if ~ obj.isQuad
+                return;
+            end
+            c = coeffs(obj.f, obj.vars)
+        end
         
         function l = isLinear(obj)
          
@@ -407,9 +384,8 @@ classdef functionF
                 l = false;
                 return
             end
-            cn = coeffs(obj.num,obj.vars);
-            cd = coeffs(obj.den,obj.vars);
-            l = all(cn(2:end)==0) & all(cd(2:end)==0);
+            cn = coeffs(obj.f,obj.vars);
+            l = all(cn(2:end)==0);
         end
     end
     
@@ -420,6 +396,13 @@ classdef functionF
 
         % [x, y, const]
         function c = getLinearCoeffs (obj,vars)
+           
+           if obj.isZero
+               c(1) = 0;
+               c(2) = 0;
+               c(3) = 0;
+               return
+           end
            cvars = obj.getVars;
            if (isempty(cvars))
                
@@ -485,14 +468,14 @@ classdef functionF
 
         % not for rational functions
         function obj = normalize1 (obj)
-            if obj.den ~= 1
+            if obj.getDen ~= 1
                 disp('Rational in normalize1')
             end
             %obj.f
             %obj.vars
             
           c = coeffs(obj.f,obj.vars);
-          obj = functionF(simplify((1/abs(c(end)))*obj.num), obj.den);
+          obj = symbolicFunction(simplify((1/abs(c(end)))*obj.f));
           
         end
 
@@ -500,7 +483,6 @@ classdef functionF
           c = obj.getLinearCoeffs (vars);
              
           if (c(2) == 0)
-            % double * f not overloaded
             obj.f = (1/c(1)) * obj.f;
           else
              obj.f = (1/c(2)) * obj.f;
@@ -508,33 +490,35 @@ classdef functionF
         end
 
         function f = subsF (obj,vars,vals)
-            %x = xv;
-            %y = yv;
-            if (subs(obj.den, vars, vals) == 0)
-                if (subs(obj.num, vars, vals) == 0)
-                  f = functionF(sym(nan),1);  
-                elseif (subs(obj.num, vars, vals) > 0)    
-                  f = functionF(sym(intmax),1);
+
+            if (subs(obj.getDen, vars, vals) == 0)
+                if (subs(obj.getNum, vars, vals) == 0)
+                  f = symbolicFunction(sym(nan),1);  
+                elseif (subs(obj.getNum, vars, vals) > 0)    
+                  f = symbolicFunction(sym(intmax),1);
                 else
-                  f = functionF(sym(-intmax),1);
+                  f = symbolicFunction(sym(-intmax),1);
                 end  
                 return;
             end
             
-            f = functionF(subs(obj.f, vars, vals));
+            f = symbolicFunction(subs(obj.f, vars, vals));
         end    
 
            
         function l = isZero(obj)
-            %disp("isZero")
-            %obj.vars
-            %obj.f
             l = false;
-            if obj.den ~= 1
+            if obj.getDen ~= 1
                 return
             end
             
-            c = coeffs(obj.num,obj.vars);
+            if obj.nv == 0
+                if (abs(double(obj.f)) < 1.0e-6)
+                    l = true;
+                end
+                return
+            end
+            c = coeffs(obj.f,obj.vars);
 
             n = size(c,2);
             for i = 1:n
@@ -548,7 +532,7 @@ classdef functionF
         
         function f = subsVarsPartial (obj,vars,varVals)
             f0 = simplify(subs(obj.f, vars, varVals));
-            f = functionF(f0);
+            f = symbolicFunction(f0);
             
         end    
 
@@ -559,7 +543,7 @@ classdef functionF
                 return
             end
             if (size(c) ~= 1)
-                disp("Error in double in functionF");
+                disp("Error in double in symbolicFunction");
                 return
             end
             d = c(1);
@@ -647,7 +631,7 @@ classdef functionF
             %f = obj.num;
             %num = f.num
            
-            cx = coeffs(obj.num,obj.vars);
+            cx = coeffs(obj.getNum,obj.vars);
             cz=[];
             for i = 1:size(cx,2)
               cz = [cz,1/cx(i)];
@@ -662,7 +646,7 @@ classdef functionF
             x = obj.vars(1);
             y = obj.vars(2);
             cy = [];
-            cx = coeffs(obj.num,x);
+            cx = coeffs(obj.getNum,x);
             for i = 1:size(cx,2)
                 g  = cx(i);
                 cy = [cy,coeffs(cx(i),y)];
@@ -677,78 +661,6 @@ classdef functionF
             end
             f = obj.f* abs(mult);
         end
-        % temp code - needs to be fixed
-        %function max_func = pointwise_max(objf, objg, vx, vy, ineqs)
-        function [index, max_func] = pointwise_max(objf, objg, vx, vy, ineqs, vars)
-          % POINTWISE_MAX computes the pointwise maximum of two convex functions f and g
-          % and returns a function handle to the resulting maximum function.
-
-
-          
-          % Define a function handle to the maximum function
-          f = objf.f;
-          g = objg.f;
-          
-          %varsf = objf.vars;  % Error when ony one variable
-          %varsg = objg.vars;
-          %if (size(varsf,2) < size(varsg,2))
-          %    vars = varsg;
-          %else
-          %    vars = varsf;
-          %end
-          max_func = @(vars) max(f(vars), g(vars));
-          minx = min(vx);
-          maxx = max(vx);
-          miny = min(vy);
-          maxy = max(vy);
-          
-          
-          n = 0;
-          step = 5;
-          Z = [];
-          tol = 1.0d-6;
-          for i = step*minx:step*maxx
-              for j = step*miny:step*maxy
-                  xi = i/step;
-                  xj = j/step;
-                  l = true;
-                  for k = 1:size(ineqs,2)
-                      %ineqs(k).f
-                      %vars
-                      %subs(ineqs(k).f,vars,[xi,xj])
-                      l = l&(double(subs(ineqs(k).f,vars,[xi,xj]))<0);
-                  end
-                  %for k = 1:size(ineqs2,2)
-                  %    %ineqs2(k)
-                  %    l = l&(double(subs(ineqs2(k).f,vars,[xi,xj]))<0);
-                  %end
-                  if (l)
-                    n = n+1;
-                    lf(n) = double(subs(f,vars,[xi,xj])) >= double(subs(g,vars,[xi,xj]));
-                    %if ~lf(n)
-                    %    [xi,xj]
-                    %    subs(f,vars,[xi,xj])
-                    %    subs(g,vars,[xi,xj])
-                    %end
-                  end 
-              end
-          end
-                  
-          % put code for further division
-          %lf
-          %all(lf)
-          if (all(lf) == 0)
-              max_func = objg;
-              index=2;
-          else
-              max_func = objf;
-              index=1;
-          end
-          
-        end
-        %function l = isZero(obj)
-        %    l = (obj.f==0);
-        %end
 
         function l = isNegativeSqr(obj,z)
             l = false;
@@ -769,185 +681,65 @@ classdef functionF
         end
         
         
-% not working 
-%             function l = isSubset (obj1, obj2)
-%                 obj1.f <= 0
-%                 obj2.f <= 0
-%                 (obj1.f<=0) <= (obj2.f<=0)
-%               l = isAlways((obj1.f<=0) <= (obj2.f<=0))
-%             end
 
             function d = degreeNum(obj)
-                if isequal(class(obj.num),'double')
+                if isequal(class(obj.getNum),'double')
                     d = 0;
                 else
-                  d = polynomialDegree(obj.num);
+                  d = polynomialDegree(obj.getNum);
                 end
             end
 
             function d = degreeDen(obj)
-                if isequal(class(obj.den),'double')
+                if isequal(class(obj.getDen),'double')
                     d = 0;
                 else
-                  d = polynomialDegree(obj.den);
+                  d = polynomialDegree(obj.getDen);
                 end
             end
 
 
             
-    %        function fs = filterZero(obj)
-    %            fs = [];
-    %            for i = 1:size(obj,2)
-    %                if isZero(obj.f)
-    %                    continue
-    %                end
-    %                fs = [fs,obj(i)]
-    %            end
-    %        end
-
     end 
 
-%     methods  % conjugate
-%         function obj = conjugateRational(obj)
-%             
-%         end
-% 
-%         function obj = conjugate(obj)
-%             if polynomialDegree(obj.getDen) > 0
-%                 obj = conjugateRational(obj)
-%             else
-%                 %obj = conjugateR(obj)
-%             end
-%             
-%         end
-%     end
-
-     methods % ineqs
-
-        
-%         function [l,obj] = removeParallel(obj, vars, lprint)
-%             rm = [];
-%             l = false;
-%                 
-%             for i = 1:size(obj,2)
-%               c1 = obj(i).getLinearCoeffs (vars);
-%               slope1 = c1(1)/c1(2);
-%               for j = i+1:size(obj,2)
-%                 c2 = obj(j).getLinearCoeffs (vars);
-%                 slope2 = c2(1)/c2(2);
-%                 %if nargin == 3
-%                     %if lprint
-%                     %disp('remove parallel')
-%                     %c1
-%                     %c2
-%                     %end
-%                 %end
-%                 if (slope1 == slope2 & sign(c1(1)) == sign(c2(1)))
-%                     if (c1(2) == 0)
-%                         if ((c1(3)/c1(1) >= c2(3)/c2(1)) & c1(1)>0)
-%                             rm = [rm,j];
-%                         else
-%                             rm = [rm,i];
-%                         end
-%                     else
-%                         if (c1(3)/c1(2) >= c2(3)/c2(2))
-%                             rm = [rm,j];
-%                         else
-%                             rm = [rm,i];
-%                         end
-%                     end
-%                     l = false;
-%                 elseif (slope1 == slope2 )
-%                     if c1(2) ~= 0
-%                     %    disp('h1')
-%                     if c1(2) > 0
-%                         l = c1(3)/c1(2) > - c2(3)/c2(2);
-%                     else
-%                     %    disp('h2')
-%                         l = c2(3)/c2(2) < - c1(3)/c1(2);
-%                     end
-%                     else 
-%                     if c1(1) > 0
-%                         l = c1(3)/c1(1) > - c2(3)/c2(1);
-%                     else
-%                         l = c2(3)/c2(1) > - c1(3)/c1(1);
-%                     end
-%                     
-%                     end
-%                 end
-%               end
-%               
-%             end
-%             
-%             obj(rm) = [];
-%         end
-% 
-%         function l = antiParallelFeasible(obj,vars)
-%             for i = 1:size(obj,2)
-%               c1 = obj(i).getLinearCoeffs (vars);
-%               slope1 = c1(1)/c1(2);
-%               if slope1 == -inf
-%                   slope1 = inf;
-%               end
-%               for j = i+1:size(obj,2)
-%                 c2 = obj(j).getLinearCoeffs (vars);
-%                 slope2 = c2(1)/c2(2);
-%                 if slope2 == -inf
-%                   slope2 = inf;
-%                 end
-%               
-%                 if (slope1 == slope2 & sign(c1(1)) ~= sign(c2(1)))
-%                         if (c1(3)/c1(1) + c2(3)/c2(1) > 0)
-%                             l = false;
-%                             return
-%                         end
-%                     
-%                 end
-%               end
-%               
-%             end
-%             l = true;
-%         
-%         end
-% 
-        function [l,obj] = removeSum(obj, lprint)
-            rm = [];
-            l = false;
-            for i = 1:size(obj,2)
-              o1 = obj(i);
-              for j = i+1:size(obj,2)
-                o2 = obj(j) + o1;
-                % removing = 0 also although only >0 are invalid
-                if lprint
-                    disp("o2 b4")
-                    o2
-                end
-                
-                o2 = simplify(o2.f < 0);
-                if o2 == symfalse
-                   l = true;
-                  return
-                end
-                if lprint
-                    disp("o2")
-                    o2
-                end
-                for k = 1:size(obj,2)
-                  o = simplify(obj(k).f<0);
-                  if (o2 == o)
-                      rm = [rm,k];
-                  end
-                end
-              
-              end
-              
-            end
-            if lprint
-            rm 
-            end
-            obj(rm) = [];
-        end
-
-    end
+    %     function [l,obj] = removeSum(obj, lprint)
+    %         rm = [];
+    %         l = false;
+    %         for i = 1:size(obj,2)
+    %           o1 = obj(i);
+    %           for j = i+1:size(obj,2)
+    %             o2 = obj(j) + o1;
+    %             % removing = 0 also although only >0 are invalid
+    %             if lprint
+    %                 disp("o2 b4")
+    %                 o2
+    %             end
+    % 
+    %             o2 = simplify(o2.f < 0);
+    %             if o2 == symfalse
+    %                l = true;
+    %               return
+    %             end
+    %             if lprint
+    %                 disp("o2")
+    %                 o2
+    %             end
+    %             for k = 1:size(obj,2)
+    %               o = simplify(obj(k).f<0);
+    %               if (o2 == o)
+    %                   rm = [rm,k];
+    %               end
+    %             end
+    % 
+    %           end
+    % 
+    %         end
+    %         if lprint
+    %         rm 
+    %         end
+    %         obj(rm) = [];
+    %     end
+    % 
+    % end
 
 end

@@ -1,4 +1,4 @@
-classdef functionF
+classdef symbolicFunction
     properties (Access=private)
         % to be re written restricting functions to be in terms of defined
         % variables only
@@ -13,7 +13,7 @@ classdef functionF
 
    
     methods  % init 
-        function obj = functionF(num, den)
+        function obj = symbolicFunction(num, den)
             if nargin == 0
               obj.num=0;
               obj.den=1;
@@ -324,26 +324,26 @@ classdef functionF
     
     methods % operations
         function f = plus(obj1,obj2)
-            f = functionF(obj1.num*obj2.den + obj2.num*obj1.den, obj1.den*obj2.den);
+            f = symbolicFunction(obj1.num*obj2.den + obj2.num*obj1.den, obj1.den*obj2.den);
         end
         function f = minus(obj1,obj2)
-            f = functionF(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
+            f = symbolicFunction(obj1.num*obj2.den - obj2.num*obj1.den, obj1.den*obj2.den);
         end
 
         % to be disabled
         function f = unaryminus(obj)
-            f = functionF(-obj.num,obj.den);
+            f = symbolicFunction(-obj.num,obj.den);
         end
 
         function f = uminus(obj)
-            f = functionF(-obj.num,obj.den);
+            f = symbolicFunction(-obj.num,obj.den);
         end
 
         
         function f = mtimes(f1,f2)
             num = f1.num * f2.num;
             den = f1.den * f2.den;
-            f = functionF(num,den);
+            f = symbolicFunction(num,den);
             % fix this
             % check def of num den here
         end
@@ -353,7 +353,7 @@ classdef functionF
     methods % derivatives
 
          function f = dfdx (obj,x)
-            f = functionF(simplify(diff(obj.f,x)));
+            f = symbolicFunction(simplify(diff(obj.f,x)));
          end 
 
          function f = limit (obj, vars, pt)
@@ -361,7 +361,7 @@ classdef functionF
              for i=1:size(vars,2)
                f0 = limit(f0,vars(i),pt(i));
              end
-             f = functionF(f0);
+             f = symbolicFunction(f0);
          end
 
     end
@@ -492,7 +492,7 @@ classdef functionF
             %obj.vars
             
           c = coeffs(obj.f,obj.vars);
-          obj = functionF(simplify((1/abs(c(end)))*obj.num), obj.den);
+          obj = symbolicFunction(simplify((1/abs(c(end)))*obj.num), obj.den);
           
         end
 
@@ -512,16 +512,16 @@ classdef functionF
             %y = yv;
             if (subs(obj.den, vars, vals) == 0)
                 if (subs(obj.num, vars, vals) == 0)
-                  f = functionF(sym(nan),1);  
+                  f = symbolicFunction(sym(nan),1);  
                 elseif (subs(obj.num, vars, vals) > 0)    
-                  f = functionF(sym(intmax),1);
+                  f = symbolicFunction(sym(intmax),1);
                 else
-                  f = functionF(sym(-intmax),1);
+                  f = symbolicFunction(sym(-intmax),1);
                 end  
                 return;
             end
             
-            f = functionF(subs(obj.f, vars, vals));
+            f = symbolicFunction(subs(obj.f, vars, vals));
         end    
 
            
@@ -548,7 +548,7 @@ classdef functionF
         
         function f = subsVarsPartial (obj,vars,varVals)
             f0 = simplify(subs(obj.f, vars, varVals));
-            f = functionF(f0);
+            f = symbolicFunction(f0);
             
         end    
 
@@ -559,7 +559,7 @@ classdef functionF
                 return
             end
             if (size(c) ~= 1)
-                disp("Error in double in functionF");
+                disp("Error in double in symbolicFunction");
                 return
             end
             d = c(1);
