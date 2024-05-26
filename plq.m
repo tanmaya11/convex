@@ -82,9 +82,9 @@ classdef plq
       
         for i=1: obj.nPieces
           i
-         %  if i == 2
-         %      return
-         %  end
+           % if i == 2
+           %     return
+           % end
          tic
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
           toc
@@ -99,9 +99,14 @@ classdef plq
              toc
               disp("Conjugate")
               tic
+              
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
              disp("MaxConjugate")
+           %       if i == 2
+           %     return
+           % end
+
             % 
             % 
             %return
@@ -146,11 +151,12 @@ classdef plq
       end
 
       function printDomainMaple(obj)
-          for i=1: obj.nPieces
+          for i=2: obj.nPieces
             obj.pieces(i).Mprint;
           end
+          %return
           obj.maxConjugate.printM;
-          obj.maxConjugate.printM2;
+          %obj.maxConjugate.printM2;
        
       end
 

@@ -200,8 +200,8 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             
             %% 
             %testCase.PRect.printLatex
-            %testCase.PThesis.print
-            %testCase.PThesis.printDomainMaple
+            testCase.PThesis.print
+            testCase.PThesis.printDomainMaple
         end
         
 

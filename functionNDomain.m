@@ -351,9 +351,14 @@ classdef functionNDomain
                    continue
                  end
               %   if n == 2
-              %   rf.print
+              disp("out")
+              objL1(i).f(1).print
+              objL2(j).f(1).print
+                 rf.print
               %   end
-                 rf = rf.simplifyOpenRegion ();
+                 rf = rf.simplifyUnboundedRegion ;
+                 rf.print
+                 %rf = rf.simplifyOpenRegion ();
                  if isempty(rf)
                      disp("empty")
                    continue
@@ -402,23 +407,31 @@ classdef functionNDomain
              end
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             %d1.print
-             d1 = d1.simplifyOpenRegion;
+            % disp('out2')
+             d1.print
+             %d1 = d1.simplifyOpenRegion;
+             
+              d1 = d1.simplifyUnboundedRegion ;
              %if ineqs(1).isParabolic
              %disp("Further subdivision")
              %objL(i).f(1).print
-             %d1.print
+             d1.print
              %d1.printMaple
              %end
+             objL(i).f(1)
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(1)],d1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
-             %d1.print
-             d1 = d1.simplifyOpenRegion;
-             %d1.print
+             %disp('out3')
+             d1.print
+             %d1 = d1.simplifyOpenRegion;
+             d1 = d1.simplifyUnboundedRegion ;
+             d1.print
+             
              %d1.printMaple
              n = n + 1;
+             objL(i).f(2)
              objR(n) = functionNDomain([objL(i).f(2)],d1);
 
              %if ineqs(1).isParabolic

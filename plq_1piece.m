@@ -2340,12 +2340,13 @@ classdef plq_1piece
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
                    expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
             elseif obj.envelopeExpr(i).type == 3   
+                disp('here')
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
              % obj.envelope(i).print       
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
+              NCV = obj.getNormalConeVertex(i, s1, s2)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
 
 
@@ -2625,25 +2626,25 @@ classdef plq_1piece
                 %j
                 %limdrx1(j)
                  if coef(2) > 0
-                 %subdV(j,1) = dualVars(2)-limdrx2(j);
-                 subdV(j,1) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
+                 subdV(j,1) = dualVars(2)-limdrx2(j);
+                 %subdV(j,1) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
                  else
-                     %subdV(j,1) = -(dualVars(2)-limdrx2(j));
-                     subdV(j,1) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
+                     subdV(j,1) = -(dualVars(2)-limdrx2(j));
+                     %subdV(j,1) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
                  end
 %                %subdV(j,1) = coef(1)*subdV(j,1) ;
               elseif (coef(2) == 0) 
-                %subdV(j,1) = coef(1)*(dualVars(1) - limdrx1(j));  
-                subdV(j,1) = coef(1)*(dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
+                subdV(j,1) = coef(1)*(dualVars(1) - limdrx1(j));  
+                %subdV(j,1) = coef(1)*(dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
               elseif (coef(2) < 0)
                 m = double(diff(NCV(j,1),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                %c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
                 subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
               else
                 m = -double(diff(NCV(j,1),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                %c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
               end 
 
@@ -2651,27 +2652,27 @@ classdef plq_1piece
               f = symbolicFunction(NCV(j,2));
               coef = f.getLinearCoeffs (dualVars);
               if (coef(1) == 0)
-                %subdV(j,2) = dualVars(2)-limdrx2(j);
-                subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
+                subdV(j,2) = dualVars(2)-limdrx2(j);
+                %subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
                  if coef(2) > 0
-                 %subdV(j,2) = dualVars(2)-limdrx2(j);
-                 subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
+                 subdV(j,2) = dualVars(2)-limdrx2(j);
+                 %subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
                  else
-                     %subdV(j,2) = -(dualVars(2)-limdrx2(j));
-                     subdV(j,2) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
+                     subdV(j,2) = -(dualVars(2)-limdrx2(j));
+                     %subdV(j,2) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
                  end
               elseif (coef(2) == 0) 
-                %subdV(j,2) = coef(1) * (dualVars(1) - limdrx1(j));  
-                subdV(j,2) = coef(1) * (dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
+                subdV(j,2) = coef(1) * (dualVars(1) - limdrx1(j));  
+                %subdV(j,2) = coef(1) * (dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
               elseif (coef(2) < 0)
                 m = double(diff(NCV(j,2),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                %c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
               else
                 m = -double(diff(NCV(j,2),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
+                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
+                %c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
                 subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
               end 
 

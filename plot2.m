@@ -1,4 +1,57 @@
 figure
+ezplot('x + 5/2*y -1',[-30,30]) 
+hold on
+ezplot('-x - 2*y - 4',[-30,30]) 
+hold on
+ezplot('x + 7*y -46',[-30,30]) 
+hold on
+%ezplot('8*x + 24*y -(x+2*y)^2-32') 
+%hold on
+xlim([-100, 100]); % Set x-axis range from 0 to 6
+ylim([-100, 100]); % Set y-axis range from 0 to 6
+return
+
+s_1 + 2*s_2 + 4 <= 0 
+s_1 + (5*s_2)/2 - 1 <= 0 
+s_1 + 7*s_2 - 46 <= 0 
+
+
+
+
+
+- s_1 - 2*s_2 - 4 <= 0 
+8*s_1 + 24*s_2 - (s_1 + 2*s_2)^2 - 32 <= 0 
+46 - 7*s_2 - s_1 <= 0 
+s_1 - 2*s_2 + 44 <= 0 
+
+figure
+ezplot('x+7*y+4') 
+hold on
+ezplot('x+7*y-10') 
+hold on
+ezplot('-x + (9*y)/5 + 5') 
+hold on
+ezplot('-148*x + 196*y - (x + 7*y)^2 + 684') 
+hold on
+
+return
+
+
+
+
+%ezplot('-x+9*y/5+5
+hold on
+ezplot('0*x+y+5')  
+hold on
+ezplot('x+0*y+4')  
+hold on
+
+return
+
+
+
+
+figure
 ezplot('y-sqrt(x)')
 hold on
 ezplot('y-x/2')
