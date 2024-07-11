@@ -8,7 +8,7 @@ classdef symbolicFunction
     properties  
         f = sym('f') ;
     end
-
+% 57 methods
    
     methods  % init 
         function obj = symbolicFunction(num0, den0)
@@ -335,6 +335,16 @@ classdef symbolicFunction
              f = symbolicFunction(f0);
          end
 
+         function f = tangent (obj, x, y)
+             dx = obj.dfdx(obj.vars(1));
+             dy = obj.dfdx(obj.vars(2));
+             
+             m =  - dx.subsF(obj.vars,[x,y]).f / dy.subsF(obj.vars,[x,y]).f;
+             c = y - m*x;
+             f = symbolicFunction(obj.vars(2) - m * obj.vars(1) -c);
+             
+         end
+
     end
 
     methods % inquiry
@@ -469,7 +479,7 @@ classdef symbolicFunction
         % not for rational functions
         function obj = normalize1 (obj)
             if obj.getDen ~= 1
-                disp('Rational in normalize1')
+                %disp('Rational in normalize1')
             end
             %obj.f
             %obj.vars

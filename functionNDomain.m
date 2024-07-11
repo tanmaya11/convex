@@ -5,7 +5,7 @@ classdef functionNDomain
       f = symbolicFunction.empty();
       d = region.empty();
     end
-
+% 15 methods
      methods
          function obj = functionNDomain(f, d)
              % disp('in')
@@ -341,21 +341,25 @@ classdef functionNDomain
              objL=functionNDomain.empty();
              for i = 1:size(objL1,2)
                for j = 1:size(objL2,2)
-                 rf = objL1(i).d + objL2(j).d;
+                  % i,j
+                 
                 % if i == 1 & j == 4
-                %     objL1(i).d.print
-                %     objL2(j).d.print
+                %disp('mtimes')
+                 %    objL1(i).d.print
+                 %    objL2(j).d.print
                 %     rf.print
                 % end
+                rf = objL1(i).d + objL2(j).d;
                  if isempty(rf)
                    continue
                  end
               %   if n == 2
-              disp("out")
-              objL1(i).f(1).print
-              objL2(j).f(1).print
-                 rf.print
+              % disp("out")
+              % objL1(i).f(1).print
+              % objL2(j).f(1).print
+                  
               %   end
+             % rf.print
                  rf = rf.simplifyUnboundedRegion ;
                  rf.print
                  %rf = rf.simplifyOpenRegion ();
@@ -365,7 +369,7 @@ classdef functionNDomain
                  end
                %  if n == 2
                   %   disp('times')
-                %     rf.print
+               %  rf.print
                  %end
                  n = n + 1;
                  objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
@@ -408,14 +412,14 @@ classdef functionNDomain
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(1).f;
              d1 = region(ineqs1,objL(i).d.vars);
             % disp('out2')
-             d1.print
+            % d1.print
              %d1 = d1.simplifyOpenRegion;
              
               d1 = d1.simplifyUnboundedRegion ;
              %if ineqs(1).isParabolic
              %disp("Further subdivision")
              %objL(i).f(1).print
-             d1.print
+           %  d1.print
              %d1.printMaple
              %end
              objL(i).f(1)
@@ -424,10 +428,10 @@ classdef functionNDomain
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
              d1 = region(ineqs1,objL(i).d.vars);
              %disp('out3')
-             d1.print
+             %d1.print
              %d1 = d1.simplifyOpenRegion;
              d1 = d1.simplifyUnboundedRegion ;
-             d1.print
+             %d1.print
              
              %d1.printMaple
              n = n + 1;
@@ -623,8 +627,10 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
-          %ia
-          %ja
+            disp('in merge')
+            objL.printL
+            ia
+            ja
           m = 0;
           for i = 1:size(objL,2)
               marked(i) = false;
@@ -639,16 +645,19 @@ classdef functionNDomain
                 end
                  
                 m = m + 1;
-           %     objL(i).d.print
+                objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
                 index(m) = i;
             else
                 % get common boundary and merge
                 % make groups and add 
+              %  i
                r = objL(i).d;
-             %  disp ('first r')
-             %  r.print
+               disp ('first r')
+             %if i == 4
+                r.print
+             %end
                lmerge = true;
                while lmerge
                  lmerge = false;
@@ -657,7 +666,18 @@ classdef functionNDomain
                    if marked(ja(j))
                        continue
                    end
+                   r.print
+                   % objL(ja(j)).d.print
                    [l,r] = r.merge (objL(ja(j)).d);
+                   l
+                   %if i == 4
+                   %l
+                   %i, j
+                   r.print
+                   %disp('simplified')
+                   %s = objL(ja(j)).d.simplifyUnboundedRegion;
+                   %s.print
+                   %end 
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
@@ -666,9 +686,34 @@ classdef functionNDomain
               %       r.print
                    end
                  end
+                % lmerge
                end
+               %disp('out')
+               % Removing inf from vertices - to be removed later
+               %%%%%%%%%%%%%%%
+            nP = 0;
+            for j = 1:r.nv
+              if abs(r.vx(j)) == intmax
+                continue
+              end
+              if abs(r.vy(j)) == intmax
+                continue
+              end
+              nP = nP+1;
+              px(nP) = r.vx(j);
+              py(nP) = r.vy(j);
+            end
+            %%%%%%%%%%%%%%%%%%%%%%
                m = m + 1;
+               r = r.simplifyUnboundedRegion;
+ disp('removeT')
+ r.print
+               r = r.removeTangent (nP, px,py);
+                r.print
                objL2(m) = functionNDomain([objL(i).f],r);
+               %
+               %m
+               %objL2(m).print
               % r.print
                marked(i) = true;
                index(m) = i;
@@ -677,9 +722,9 @@ classdef functionNDomain
                    continue
                  end
                  r = objL(ja(j)).d ;
-               %  disp('r2')
-               %  ja(j)
-               %  r.print
+                 disp('r2')
+                 ja(j)
+                 r.print
                  lmerge = true;
                  while lmerge
                    lmerge = false;
@@ -688,19 +733,30 @@ classdef functionNDomain
                        continue
                      end
                      [l,r] = r.merge (objL(ja(k)).d);
-                     
+                l     
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
                 %       ja(k)
-                %       objL(ja(k)).d.print
-                %       r.print
+                       objL(ja(k)).d.print
+                       r.print
                      end
                    end
                  end
                  m = m + 1;
                 % r.print
+                r = r.simplifyUnboundedRegion;
+                 disp('rt2')
+ r.print
+
+                r = r.removeTangent (nP, px,py);
+               
+ r.print
+
                  objL2(m) = functionNDomain([objL(i).f],r);
+                %  disp('insert')
+               %m
+               %objL2(m).print
                  marked(i) = true;
                  index(m) = i;
                  marked(ja(j)) = true;
@@ -712,4 +768,16 @@ classdef functionNDomain
         end
       end
      end
+
+    %  methods % biconjugate
+    % 
+    %     % linear / quadratic
+    % 
+    %     function biconj = biconjugate(obj)
+    %         for i = 1:size(obj.)
+    %     end
+    % 
+    %     % fractional
+    % end
+   
 end 

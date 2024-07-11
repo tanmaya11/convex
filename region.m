@@ -1,7 +1,7 @@
 classdef region
     % ineqs always stored as <= 0
     properties
-        ineqs=functionF;
+        ineqs=symbolicFunction;
         nv;
         vx=sym.empty();
         vy=sym.empty();
@@ -9,7 +9,7 @@ classdef region
     end
 
     
-%  
+%  57 methods
      methods
 
          % check when multiple regions are created by ineqs
@@ -20,16 +20,18 @@ classdef region
             end
             m = size(fs,1);
             n = size(fs,2);
+           
             nineq = 0;
             for i = 1:m
               for j = 1:n
-                f = functionF(fs(i,j));        
+                  f = symbolicFunction(fs(i,j));
                 if (~f.isZero)
                   nineq = nineq + 1;  
                   obj.ineqs(nineq) = f;
                 end  
               end
             end
+            
             obj.vars = vars;  
             obj = obj.normalize1;
             obj = obj.unique;
@@ -83,6 +85,8 @@ classdef region
             for i = 1:size(obj2.ineqs,2)
                lunique = true;
                for j = 1:size(obj1.ineqs,2)
+                   %obj1.ineqs(j)
+                   %obj2.ineqs(i)
                  if (obj1.ineqs(j) == obj2.ineqs(i))
                      lunique = false;
                      break;
@@ -1248,6 +1252,108 @@ classdef region
            
         end
 
+        function obj = removeTangent (obj, nP, px, py)
+            n = 0;
+            mark = [];
+           
+            for i = 1:size(obj.ineqs,2)
+                vars = obj.ineqs(i).getVars();
+                %obj.ineqs(i).subsF(vars,[px(i),py(i)])
+              
+              if ~ obj.ineqs(i).isQuad 
+                continue
+              end
+              % get feasible point
+              for j = 1:nP
+                if ~obj.ineqs(i).subsF(vars,[px(j),py(j)]).isZero  
+                  continue
+                end
+              sx = px(j)-0.1;
+              sy = py(j);
+
+              if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
+                sx = px(j)+0.1;
+                sy = py(j);
+                if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
+                  sx = px(j);
+                  sy = py(j)+0.1;
+                  if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
+                    sx = px(j);
+                    sy = py(j)-0.1;
+                    if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
+                        disp('feasible pt not found')
+                        return
+                    end
+                  end
+                end
+              end
+              % disp('sx')
+              % double(sx), double(sy)
+              
+                tangent = obj.ineqs(i).tangent(px(j),py(j));
+                tangent = tangent.normalize1;
+                if ~ isAlways(tangent.subsF(vars,[sx,sy])> 0)
+                    tangent = -tangent
+                end
+                disp('tangent')
+                %px(j),py(j)
+                % obj.ineqs(i).f
+                % tangent.f
+                % d1 = sqrt((sx-px(j))^2+(sy-py(j))^2)
+                % lc = tangent.getLinearCoeffs (vars)
+                % d2 = abs(double(tangent.subsF(vars,[sx,sy]).f/sqrt(lc(1)^2+lc(2)^2)))
+                % pt = isAlways(d1 <= d2)
+                %continue
+                for k = 1:size(obj.ineqs,2)
+                  l1 = isAlways(obj.ineqs(k).f==tangent.f);
+                  %l2 = isAlways(obj.ineqs(k).f==-tangent.f);
+                  % if l2
+                  %     obj = region.empty();
+                  %     return
+                  % end
+                  if ~l1 %& ~l2
+                    continue
+                  end
+
+                  % fix pt
+                      n = n + 1;
+                      mark(n) = k;
+                  break;
+                  % check whether to remove tangent or parabola
+                  % x = px(j) + 0.1;
+                  % y = py(j);
+                  % l = isAlways (obj.ineqs(i).subsF(x,y).f<= 0);
+                  % if l1
+                  %     %isAlways (tangent.subsF(x,y).f <= 0)
+                  %   if (l & isAlways (tangent.subsF(x,y).f <= 0))
+                  %     n = n + 1;
+                  %     mark(n) = i;
+                  %     break;
+                  %   else
+                  %     n = n + 1;
+                  %     mark(n) = k;
+                  %     break;
+                  %   end
+                  % end
+                  % if l2
+                  %     %isAlways (-tangent.subsF(x,y).f <= 0)
+                  %   if (l & isAlways (-tangent.subsF(x,y).f <= 0))
+                  %     n = n + 1;
+                  %     mark(n) = i;
+                  %     break;
+                  %   else
+                  %     n = n + 1;
+                  %     mark(n) = k;
+                  %     break;
+                  %   end
+                  % end
+                end 
+              end
+            end
+            obj.ineqs(mark) = [];
+        end
+
+        
         function obj = simplifyOpenRegion (obj)
             nP = 0;
             for j = 1:obj.nv
@@ -1446,13 +1552,25 @@ classdef region
               py(nP) = obj.vy(j);
             end
 
-            %px
-            %py
-            % removing ineqs that do not pass though any vertex
+            for i = 1:size(obj.ineqs,2)
+              for j = i+1:size(obj.ineqs,2)
+                  if isAlways(obj.ineqs(i) == -obj.ineqs(j))
+                      obj = region.empty();
+                      return
+                  end
+              end
+            
+            end
             obj = obj.simplifyOpenRegion1 (nP, px, py);
-            %disp('r1')
-            %obj.print;
-
+            % disp('b4 remove tangent')
+            % obj.print
+            %obj = obj.removeTangent (nP, px, py);
+            if isempty(obj)
+                return
+            end
+            % disp('aft remove tangent')
+            % obj.print
+            
             for j = 1:nP
                 nPoint(j) = 0;
             end
@@ -1472,50 +1590,99 @@ classdef region
                     end
                     nPoint(j)=nPoint(j)+1;
                     point(j,nPoint(j)) = i;
-                    %if obj.ineqs(i).isQuad
-                    %    continue
-                    %end
                     
                 end
             end
+            %disp('point')
+            %nPoint
+            %point
+            if all(nPoint == 0)
+                obj.print
+                nP
+                px
+                py
+            end
+            
+             
+            
+            % make a function %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            if nP == 1 & nPoint(1)==2
+                mp = obj.slopeAtVertex(point(1,1:2), [px,py]);
+                theta = atan2(mp,1);
+                t1 = theta(1);
+                t2 = theta(2);
+                ind = [1,2];
+                d = tan((t1+t2)/2);
+                
+                if isnan(d) | isinf(d)
+                    tx = px(1);
+                    ty = py(1)+0.1;
+                else
+                    c = py(1) - d * px(1);
+                    
+                    tx = px(1) + 0.1;
+                    ty = d*tx+c;
+                end
+                
+                lm = obj.ptFeasible (obj.vars,[tx,ty]);
+                if isnan(d)| isinf(d)
+                    tx = px(1);
+                    ty = py(1)-0.1;
+                else
+                
+                    tx = px(1) - 0.1;
+                    ty = d*tx+c   ;
+                end
+                
+                lm = lm | obj.ptFeasible (obj.vars,[tx,ty]);
+                d = -1/d;
+                
+                if isnan(d) | isinf(d)
+                    tx = px(1);
+                    ty = py(1)+0.1;
+                else
+                    c = py(1) - d * px(1);
+                    
+                    tx = px(1) + 0.1;
+                    ty = d*tx+c;
+                end
+                
+                lm = lm | obj.ptFeasible (obj.vars,[tx,ty]);
+                if isnan(d)| isinf(d)
+                    tx = px(1);
+                    ty = py(1)-0.1;
+                else
+                
+                    tx = px(1) - 0.1;
+                    ty = d*tx+c   ;
+                end
+                
+                lm = lm | obj.ptFeasible (obj.vars,[tx,ty]);
+                 
+
+
+                
+               if ~lm 
+                   obj = region.empty()
+              
+               end
+               
+               return
+              
+            end   
+
+
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             if all(nPoint == 2)
                 return;
             end
-
-            %for i = 1:size(obj.ineqs,2)
-            %   if obj.ineqs(i).isQuad
-            %       return
-            %   end
-            %end
-
-
-            % m0 = obj.slopes;
-            % n0 = 0;
-            % n1 = 0;
-            % markF0 = [];
-            % for i = 1:size(obj.ineqs,2)
-            %     markF0(i) = i;
-            %    if obj.ineqs(i).isQuad
-            %     n0 = n0+1;
-            %     % replace by slope of tangent and keep it
-            %     m(n0) = intmax;
-            %    else
-            %     n0 = n0+1;
-            %     n1 = n1+1;
-            %     m(n0) = m0(n1);
-            %    end
-            % end
-            % 
-            %nP
-            %px
-            %py
             
+            %point
             for ip = 1:nP
                 sx = px(ip);
                 sy = py(ip);
                 pi0 = point(ip,1:nPoint(ip));
-                %size(pi0,2)
                 markF = [];
                 if size(pi0,2) == 2
                     keep(pi0) = true;
@@ -1526,86 +1693,41 @@ classdef region
                 end
                 
 
-                % mark = [];
-                % for j = 1:nPoint(ip)
-                %     if obj.ineqs(pi0(j)).isQuad
-                %         mark = [mark,j];
-                %     end
-                % end
-                % 
-                % pi0(mark) = [];
-                %mp = m(pi0);
-                % if symFunType(sx) == "plus"
-                %     sx = double(sx)
-                % end
-                % if symFunType(sy) == "plus"
-                %     sy = double(sy)
-                % end
-                
-                %symFunType(sy)
                 mp = obj.slopeAtVertex(pi0, [sx,sy]);
+                
                 for i = 1:size(mp,2)
                     if mp(i) == -inf
                         mp(i) = inf;
                     end
                 end
+
+                
+
                 [sorted_mp, indices] = sort(mp);
                 theta = atan2(mp,1);
                 sorted_theta = atan2(sorted_mp,1);
-                % for i = 1:size(theta,2)
-                %     if theta(i) < 0
-                %       theta(i) = theta(i) + 2*pi;
-                %     end
-                % end
                 %theta
-                %[sorted_theta, indices] = sort(theta)
+                %[temp_theta, temp_indices] = sort(theta)
                 %return
               for i = 1:size(indices,2)
-                  %indices(i)
-                 % disp('start')
-                 %ind = [1];
+                 
                 t1 = sorted_theta(i);
                  
-                % m1 = sorted_m(i);
+                
                 if i == size(indices,2)
-                    %m2 = sorted_m(1);
                     t2 = sorted_theta(1);
                     ind = [pi0(indices(i)),pi0(indices(1))];
                     l90 = true;
                 else
-                    %m2 = sorted_m(i+1);
                     t2 = sorted_theta(i+1);
                     ind = [pi0(indices(i)),pi0(indices(i+1))];
                     l90 = false;
                 end
                 if t1 == t2
                     return
+                    %break
                 end
-                % if (abs(m1)~= inf) & (abs(m2)~= inf)
-                %     theta1 = atan(m1);
-                %   theta2 = atan(m2);  
-                %   if theta1 * theta2 < 0
-                %       if theta1 < 0 
-                %         theta1 = pi + theta1;
-                %     end
-                % 
-                %     if theta2 < 0 
-                %         theta2 = pi + theta2;
-                %     end
-                % 
-                %   end
-                % 
-                %     %d =  (m1+m2 )/2;
-                %     d = tan((theta1+theta2)/2);
-                % else
-                %       if (abs(m1)==inf)
-                %         d = tan((pi/2 + atan(m2))/2);
-                %       else
-                % 
-                %         d = tan((pi/2 + atan(m1))/2);
-                %       end
-                % 
-                % end
+                
                 if l90
                     d = tan(pi/2+ (t1+t2)/2);
                 else
@@ -1613,7 +1735,7 @@ classdef region
                 end
                 %d = tan((t1+t2)/2);
 %                m1, m2, double(d)
-                if isnan(d)
+                if isnan(d) | isinf(d)
                     tx = sx;
                     ty = sy+0.1;
                 else
@@ -1630,7 +1752,7 @@ classdef region
                   % disp('c1')     
                    continue
                 end
-                if isnan(d)
+                if isnan(d)| isinf(d)
                     tx = sx;
                     ty = sy-0.1;
                 else
@@ -1663,46 +1785,10 @@ classdef region
                 end
                 if t1 == t2
                     return
+                    %break
                 end
                 
-                % if (abs(m1)~= inf) & (abs(m2)~= inf)
-                %   d =  (m1+m2 )/2;
-                %    theta1 = atan(m1);
-                %   theta2 = 2*pi - atan(m2);  
-                %   if theta1 * theta2 < 0
-                %       if theta1 < 0 
-                %         theta1 = pi + theta1;
-                %     end
-                % 
-                %     if theta2 < 0 
-                %         theta2 = pi + theta2;
-                %     end
-                % 
-                %   end
-                % 
-                %     %d =  (m1+m2 )/2;
-                %     d = tan((theta1+theta2)/2);
-                % else
-                %   if (abs(m1)==inf)
-                %     theta = atan(m2);
-                %     if theta < 0
-                %         theta = pi + theta;
-                %     end
-                %     %(pi/2 + theta)/2
-                %     d = tan((pi/2 + theta)/2);
-                % 
-                % 
-                %       %d = tan((pi/2 + atan(m2))/2);
-                %   else
-                %     theta = atan(m1);
-                %     if theta < 0
-                %         theta = pi + theta;
-                %     end
-                %     %(pi/2 + theta)/2
-                %     d = tan((pi/2 + theta)/2);
-                % 
-                %   end
-                % end
+                
                 if l90
                     d = tan(pi/2+ (t1+t2)/2);
                 else
@@ -1716,7 +1802,7 @@ classdef region
                 % end
                % d
                 %isnan(d)
-                if isnan(d)
+                if isnan(d)| isinf(d)
                     tx = sx;
                     ty = sy+0.1;
                 else
@@ -1725,6 +1811,7 @@ classdef region
                     ty = d*tx+c;
                 end
                 
+                %d,tx,ty
                 %double(tx),double(ty) 
                 if obj.ptFeasibleSubset (obj.vars,[tx,ty], ind)
                 %if obj.ptFeasible (obj.vars,[tx,ty])
@@ -1732,7 +1819,7 @@ classdef region
                    %disp('c3')     
                    continue
                 end
-                if isnan(d)
+                if isnan(d)| isinf(d)
                     tx = sx;
                     ty = sy-0.1;
                 else
@@ -1807,6 +1894,7 @@ classdef region
             obj.ineqs(markF0) = [];
             nv = obj.nv;
             obj = obj.getVertices;
+            %obj = obj.removeTangent (nP, px, py);
             if nv ~= obj.nv
                 disp ("Error in simplify");
                 %sorted_m
@@ -1830,6 +1918,8 @@ classdef region
         end
 
 
+        %function simplifyClosedRegion
+        %end
          function l = ptFeasible(obj, vars, point)
            l = true;
            
@@ -1837,11 +1927,16 @@ classdef region
            
            for i = 1:size(obj.ineqs,2)
                for j = 1:size(point,1)
-                  % point(j,:)
-                  % subs ([obj.ineqs(i).f],vars,point(j,:))
+                %  disp('subs')
+                 %  double(point(j,:))
+                  
+                  %i
+                   %isAlways(subs ([obj.ineqs(i).f],vars,point(j,:))>0)
+                   %double(subs ([obj.ineqs(i).f],vars,point(j,:)))
                 %if    (subs ([obj.ineqs(i).f],vars,point(j,:)) > 0)
                 % double used here as sqrt giving issues
-                if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 0
+               % if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0d-12
+               if (isAlways(subs ([obj.ineqs(i).f],vars,point(j,:))>0))
                    l = false;
                    return
                end
@@ -1985,8 +2080,7 @@ classdef region
                f2 = obj.ineqs(j);
                f2 = f2.subsF (obj.vars,varsTemp);
                s = solve ([f1.f==0,f2.f==0],varsTemp);
-               % s.t1
-               % s.t2
+               
                if isempty(s)
                    continue;
                elseif isempty(s.t1)
@@ -1994,7 +2088,9 @@ classdef region
                elseif isempty(s.t2)
                    continue;
                end
-               
+               %i,j
+               %s.t1
+               %s.t2
                % if ~ isreal(s.t1)
                %    % s.t1
                %     continue;
@@ -2008,19 +2104,20 @@ classdef region
                %     end 
                % end
                % 
+               
                for k = 1:size(s.t1,1)
-                    if ~ isreal(s.t1(k))
+                    if ~ isreal(double(s.t1(k)))  % weird error - not detecting complex in symbolic z^4
                         continue
                     end
-                    if ~ isreal(s.t2(k))
+                    if ~ isreal(double(s.t2(k)))
                         continue
                     end
-
+                    
                     if obj.ptFeasible(obj.vars, [s.t1(k),s.t2(k)])
-                        obj.nv=obj.nv+1;
-                        obj.vx(obj.nv) = s.t1(k);
-                        obj.vy(obj.nv) = s.t2(k);
-
+                       
+                          obj.nv=obj.nv+1;
+                          obj.vx(obj.nv) = s.t1(k);
+                          obj.vy(obj.nv) = s.t2(k);
                         
                     end
                end 
@@ -2035,7 +2132,10 @@ classdef region
        %disp('ptFeasile')
        %obj.print
        n = obj.nv;
-
+       % if n== 0
+       %     return
+       % end
+       %return
        % to remove inf - fix + in convex envelope solve
        if obj.ptFeasible(obj.vars, [intmax,intmax])
           obj.nv=obj.nv+1;
@@ -2095,6 +2195,7 @@ classdef region
            V(i,1) = obj.vx(i);
            V(i,2) = obj.vy(i);
        end 
+       
        V = unique(V,"rows");
        if obj.nv ~= size(V,1)
          obj.nv = size(V,1);
@@ -2397,13 +2498,15 @@ classdef region
 %                  if nvi ~= 2
 %                      continue
 %                  end
-                  if nvi == 1 & (~lQuad)
+                 if nvi == 1 & (~lQuad)
               %         disp('here')  
-                       l = true;
-                       n = n + 1;
-                       marki(n) = i;
-                       markj(n) = j;
-                       break;
+                    % if all(vxi == vxj) & all(vyi == vyj)
+                    %    l = true;
+                    %    n = n + 1;
+                    %    marki(n) = i;
+                    %    markj(n) = j;
+                    %  end
+                     break;
 
                  end
                  if nvi == 2
@@ -2512,6 +2615,8 @@ classdef region
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
            obj = obj+obj2;
+           %obj.print
+           obj = obj.simplifyUnboundedRegion;
            if isempty(obj)
                disp('empty')
                l = false;

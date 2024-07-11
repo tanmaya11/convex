@@ -8,6 +8,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         Poly
         PTri2
         PThesis
+        POpen
     end
 
     methods (TestMethodSetup)
@@ -66,10 +67,11 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 
         function testMax (testCase)
             testCase.PRect = testCase.PRect.maximum
-            testCase.PRect.printDomainMaple
+             testCase.PRect.print
+             testCase.PRect.printDomainMaple
             %% 
             %testCase.PRect.printLatex
-            %testCase.PRect.print
+            
            
         end
 
@@ -93,13 +95,13 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         end
 
         function testMaxR3 (testCase)
-            %testCase.PRect3.print
+            testCase.PRect3.print
             testCase.PRect3 = testCase.PRect3.maximum
             
             %% 
             %testCase.PRect.printLatex
-            %testCase.PRect3.print
-            testCase.PRect3.printDomainMaple
+           % testCase.PRect3.print
+           % testCase.PRect3.printDomainMaple
         end
         
         function testMaxT (testCase)
@@ -115,7 +117,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         function testMaxP (testCase)
             testCase.Poly = testCase.Poly.maximum
             % testCase.Poly.print
-             return
+           %  return
           
             %% 
            % testCase.Poly.printLatex
@@ -203,7 +205,18 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             testCase.PThesis.print
             testCase.PThesis.printDomainMaple
         end
-        
+
+
+        function testOpenconvex (testCase)
+            x=sym('x');
+            y=sym('y');
+            d = domain();
+            d = d.domainEdge([y,-x-1,x-1],[x,y]);
+            %d.print
+            testCase.POpen = plq([plq_1piece(d,symbolicFunction(x*y))]);
+            testCase.POpen = testCase.POpen.convexEnvelope
+            testCase.POpen.print
+        end
 
     end
 
