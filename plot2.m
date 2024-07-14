@@ -1,4 +1,60 @@
 figure
+ezplot('x + 7*y - 10' ,[-10,5],[-3,3])   
+hold on
+ezplot('x - (5*y)/7 - 25/7' ,[-10,5],[-3,3])   
+hold on
+ezplot('- x - 2*y - 4' ,[-10,5],[-3,3])   
+hold on
+ezplot('48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184' ,[-10,5],[-3,3])   
+hold on
+ezplot('x - (9*y)/5 - 5' ,[-10,5],[-3,3])   
+return
+
+
+figure
+ezplot('-x-7*y-4',[-110,10],[-2,16])   
+hold on
+ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184',[-110,10],[-2,16])   
+hold on
+ezplot('x+2*y-4',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+
+figure
+ezplot('-x-7*y+10',[-50,100],[-20,5])   
+hold on
+ezplot('-x-2*y-4',[-50,100],[-20,5])   
+hold on
+ezplot('-56*y+48*x+4*x*y+x^2+4*y^2-184',[-20,5],[-20,16])   
+hold on
+return
+ezplot('0*x+y-2',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+figure
+ezplot('x+7*y-10',[-110,10],[-2,16])   
+hold on
+ezplot('5*y/7-x+25/7',[-110,10],[-2,16])   
+hold on
+ezplot('-x-2*y+4',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+
+
+
+
+
+
+figure
 ezplot('x + 2*y + 4',[-55,-20],[-6,11])   
 hold on
 %ezplot('x - (9*y)/5 - 5',[-55,-20],[-6,11])   

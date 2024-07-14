@@ -28,12 +28,13 @@ classdef testRegion < matlab.unittest.TestCase
 
           %l5 = [-x - 7*y - 4, x + 7*y - 10, 148*x - 196*y + (x + 7*y)^2 - 684,-(9*y)/5 + x - 5] ;
 
-          l5 = [x+2*y+4, x+5*y/2-1, x+7*y-46]
+          %l5 = [x+2*y+4, x+5*y/2-1, x+7*y-46]
 
         
-          testCase.w = region(l5,[x,y]);
+          %testCase.w = region(l5,[x,y]);
 
-          l6 = [x + 2*y + 4, x + (5*y)/2 - 1, 46 - 7*y - x, x - 2*y + 44 ] 
+          %l6 = [x + 2*y + 4, x + (5*y)/2 - 1, 46 - 7*y - x, x - 2*y + 44 ] 
+          l6 = [x + 2*y + 4, -x - (5*y)/2 + 1,  -x + 2*y - 44 ] 
 
           testCase.w = region(l6,[x,y]);
 
@@ -48,9 +49,9 @@ classdef testRegion < matlab.unittest.TestCase
           %l7 = [x-y/3-14/3, 10-7*y-x]
           %l7 = [ -196*y+148*x+(x+7*y)^2 - 684, -x+9*y/5+5 ] 
 
-          l7 = [-x-7*y-4, x+7*y-10, 148*x-196*y+(x+7*y)^2-684, -x-2*y-4, x+2*y-4, (x+2*y)^2-24*y-8*x+32, 2*y-x-44] 
+          %l7 = [-x-7*y-4, x+7*y-10, 148*x-196*y+(x+7*y)^2-684, -x-2*y-4, x+2*y-4, (x+2*y)^2-24*y-8*x+32, 2*y-x-44] 
 
-          testCase.w = region(l7,[x,y]);
+          %testCase.w = region(l7,[x,y]);
         end
     end
 
@@ -126,7 +127,10 @@ classdef testRegion < matlab.unittest.TestCase
         function testremoveTangent (testCase)
             x = sym('x');
             y = sym('y');
-            l7 = [ -196*y+148*x+(x+7*y)^2 - 684, x-9*y/5-5,-x-7*y-4, x+7*y-10 ] 
+            %l7 = [ -196*y+148*x+(x+7*y)^2 - 684, x-9*y/5-5,-x-7*y-4, x+7*y-10 ] 
+            %l7 = [-x-7*y-4 ,x+7*y-10,196*y - 148*x - (x + 7*y)^2 + 684]
+
+            l7 = [x + 7*y - 10 , x - (5*y)/7 - 25/7 , - x - 2*y - 4 , 48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184 , x - (9*y)/5 - 5 ]
             testCase.w = region(l7,[x,y]);
             testCase.w.print;
 
@@ -273,7 +277,177 @@ classdef testRegion < matlab.unittest.TestCase
 
           return
           
-       end
+        end
+
+        function testMerge4(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [x-(9*y)/5-5, y+5 ];
+          r0 = region(l0,[x,y]);
+          r0 = r0.simplifyUnboundedRegion;
+          
+          l1 = [-x+(9*y)/5+5,x+4] ;
+          r1 = region(l1,[x,y]);
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          r0.print
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+
+        function testMerge5(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [-x-7*y-4, x+2*y-4, 56*y-48*x-4*x*y-x^2-4*y^2+184 ];
+          r0 = region(l0,[x,y]);
+          %r0 = r0.simplifyUnboundedRegion;
+          r0.print
+          %return
+          l1 = [x+7*y+4,x-(9*y)/5-5,-x-2*y-4, 56*y-48*x-4*x*y-x^2-4*y^2+184] ;
+          r1 = region(l1,[x,y]);
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+
+  
+        function testMerge6(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [-x-7*y+10, 5*y/7-x+25/7, y-2 ];
+          r0 = region(l0,[x,y]);
+          %r0 = r0.simplifyUnboundedRegion;
+          r0.print
+          %return
+          l1 = [x+7*y-10,5*y/7-x+25/7, -x-2*y+4] ;
+          r1 = region(l1,[x,y]);
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+
+        function testMerge7(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [-x-7*y- 4,x+7*y-10,-x-2*y-4,x+2*y-4,48*x-56*y+4*x*y+x^2+4*y^2-184];
+          r0 = region(l0,[x,y]);
+          r0 = r0.simplifyUnboundedRegion;
+          r0.print
+          %return
+          l1 = [x+7*y+4,x-(9*y)/5-5,-x-2*y-4,48*x-56*y+4*x*y+x^2+4*y^2-184] ;
+          r1 = region(l1,[x,y]);
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+
+        function testMerge8(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [x+7*y-10, -x-2*y-4, x+2*y-4, 48*x-56*y+4*x*y+x^2+4*y^2-184, x-(9*y)/5-5];
+          r0 = region(l0,[x,y]);
+          r0 = r0.simplifyUnboundedRegion;
+          r0.print
+          %return
+          l1 = [x+2*y-4, 2*y-x-44, 10-7*y-x, -x-2*y-4] ;
+          r1 = region(l1,[x,y]);
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+
+        function testMerge9(testCase)
+          x = sym('x');
+          y = sym('y');
+          f1 = symbolicFunction(48*x-56*y+4*x*y+x^2+4*y^2-184)
+          %f1.tangent()
+
+          l0 = [x+7*y-10, -x-2*y-4, 48*x-56*y+4*x*y+x^2+4*y^2-184];
+          r0 = region(l0,[x,y]);
+          
+          %anyEq(symFunType(r0.vx),['plus','plus','plus'])
+          %return
+          simplify(r0.vx.^2)
+          r0 = r0.simplifyUnboundedRegion;
+          r0.print
+          %return
+          l1 = [10 - 7*y - x , x - (5*y)/7 - 25/7 , x - y/3 - 14/3 , 2*y - x - 44 , x - (4*y)/7 - 27/7 , - x - 2*y - 4 ] ;
+          r1 = region(l1,[x,y]);
+          
+          r1 = r1.simplifyUnboundedRegion;
+                  
+          
+          r1.print
+          [l,r] = merge(r0,r1);
+          l
+          r.print
+
+          return
+          
+        end
+        
+
+        function testLinear3pt(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [x+7*y-10, -x-2*y-4, 48*x-56*y+4*x*y+x^2+4*y^2-184];
+          r0 = region(l0,[x,y]);
+          r0.print
+
+        %linear3pt(obj)
+        end 
+
+        function testLinear3pt2(testCase)
+          x = sym('x');
+          y = sym('y');
+
+          l0 = [4-2*y-x, x+(5*y)/2-1];
+          r0 = region(l0,[x,y]);
+          r0.print
+
+        %linear3pt(obj)
+        end 
+
+
     end
 
 end

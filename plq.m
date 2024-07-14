@@ -108,8 +108,8 @@ classdef plq
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
               disp("MaxConjugate") 
-            %  obj.pieces(i).maxConjugate.printL
-            %  obj.pieces(i).maxConjugate.printM
+              obj.pieces(i).maxConjugate.printL
+              obj.pieces(i).maxConjugate.printM
              % return
              
            %       if i == 2

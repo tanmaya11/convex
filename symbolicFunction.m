@@ -511,7 +511,9 @@ classdef symbolicFunction
                 end  
                 return;
             end
-            
+            % vars
+            % vals
+            %subs(obj.f, vars, vals)
             f = symbolicFunction(subs(obj.f, vars, vals));
         end    
 
@@ -532,7 +534,8 @@ classdef symbolicFunction
 
             n = size(c,2);
             for i = 1:n
-                if (abs(double(c(i))) > 1.0e-6)
+                if isAlways(abs(c(i))) > 0
+                %if (abs(double(c(i))) > 1.0e-6)
                     return
                 end
             end

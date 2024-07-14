@@ -67,6 +67,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 
         function testMax (testCase)
             testCase.PRect = testCase.PRect.maximum
+            %return
              testCase.PRect.print
              testCase.PRect.printDomainMaple
             %% 
@@ -218,6 +219,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             testCase.POpen.print
         end
 
+        
     end
 
     

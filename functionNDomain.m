@@ -378,7 +378,7 @@ classdef functionNDomain
                       
          end
 
-         function objR2 = maximumP(objL, lmerge) %, f, r2)
+         function objR3 = maximumP(objL, lmerge) %, f, r2)
          %    disp("in maximumP")
            n = 0;
            for i = 1:size(objL,2)
@@ -456,6 +456,8 @@ classdef functionNDomain
             % disp("b4 merge")
             % objR.printL
            objR2 = mergeL(objR);
+            objR3 = mergeL(objR2);
+           % objR2 = mergeL(objR3);
             % disp("aft merge")
             % objR.printL
          end
