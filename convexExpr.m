@@ -11,7 +11,7 @@ classdef convexExpr
         vpsi2 = symbolicFunction.empty();
         vzeta = symbolicFunction.empty();
     end
-
+% 3methods
     methods  % testing
          function l = checkExpr1 (obj)
              x = sym('x');

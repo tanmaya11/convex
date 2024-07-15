@@ -8,7 +8,7 @@ classdef symbolicFunction
     properties  
         f = sym('f') ;
     end
-
+% 57 methods
    
     methods  % init 
         function obj = symbolicFunction(num0, den0)
@@ -335,6 +335,23 @@ classdef symbolicFunction
              f = symbolicFunction(f0);
          end
 
+         function g = gradient(obj)
+           vars = obj.getVars;
+           for i = 1:obj.nv
+             g(i) = obj.dfdx(vars(i));
+           end 
+         end
+
+         function f = tangent (obj, x, y)
+             dx = obj.dfdx(obj.vars(1));
+             dy = obj.dfdx(obj.vars(2));
+             
+             m =  - dx.subsF(obj.vars,[x,y]).f / dy.subsF(obj.vars,[x,y]).f;
+             c = y - m*x;
+             f = symbolicFunction(obj.vars(2) - m * obj.vars(1) -c);
+             
+         end
+
     end
 
     methods % inquiry
@@ -469,7 +486,7 @@ classdef symbolicFunction
         % not for rational functions
         function obj = normalize1 (obj)
             if obj.getDen ~= 1
-                disp('Rational in normalize1')
+                %disp('Rational in normalize1')
             end
             %obj.f
             %obj.vars
@@ -501,7 +518,9 @@ classdef symbolicFunction
                 end  
                 return;
             end
-            
+            % vars
+            % vals
+            %subs(obj.f, vars, vals)
             f = symbolicFunction(subs(obj.f, vars, vals));
         end    
 
@@ -522,7 +541,8 @@ classdef symbolicFunction
 
             n = size(c,2);
             for i = 1:n
-                if (abs(double(c(i))) > 1.0e-6)
+                if isAlways(abs(c(i))) > 0
+                %if (abs(double(c(i))) > 1.0e-6)
                     return
                 end
             end

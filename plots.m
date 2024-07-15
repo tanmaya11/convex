@@ -1,16 +1,4 @@
 figure
- vertices_ineq1 = [-4, -3; -3, -3; -1, 1];
-%vertices_ineq2 = [6, 3; 3, 5; 2, 1];
-%return
-
-% Plot the inequalities
-%figure;
- xlim([-5, 0]); % Set x-axis range from 0 to 6
- ylim([-2, 2]); % Set y-axis range from 0 to 6
-fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', .5);
-hold on;
- return
-figure
  syms x y 
  z = -5*y -4*x -20+40
 % %z = (x^2-y^2+x*y)
@@ -27,6 +15,29 @@ figure
 %figure;
 fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', .5);
 hold on;
+ return
+figure
+%vertices_ineq1 = [-5, -4; 0,-4; 2, 0;2,1;1,3;-5,5];
+ vertices_ineq1 = [-4, -3; -3, -3; -1, 1];
+% vertices_ineq1 = [0, 0; 2, 0; 2, 1; 1,1;0,0;2,0;1,1];
+%vertices_ineq2 = [6, 3; 3, 5; 2, 1];
+%return
+
+% Plot the inequalities
+%figure;
+ xlim([-5, 0]); % Set x-axis range from 0 to 6
+ ylim([-2, 2]); % Set y-axis range from 0 to 6
+fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', .5);
+ return
+%hold on;
+syms x y 
+z = x*y
+% %z = (x^2-y^2+x*y)
+ fsurf(x,y,z,[0 2 0 1],'r');
+ set(h,'edgecolor','none','facecolor',[.1 .9 .1])
+ xlim([0, 2]); % Set x-axis range from 0 to 6
+ ylim([0, 1]); % Set y-axis range from 0 to 6
+ hold on
  return
  
  z = -5*y -4*x -20

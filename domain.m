@@ -19,7 +19,7 @@ classdef domain
     V;    % index set
 
   end 
-
+% 9 methods
   methods  % testing
         function l = checkPiece1 (obj)
            %obj.print
@@ -142,7 +142,11 @@ classdef domain
 %  
     methods
 
-      
+        function obj = domainEdge (obj,l,vars)
+            obj.polygon = region(l,vars);
+            obj = getEdges (obj);;
+        end
+
       function obj = domain(v, x,y)
           if nargin > 0
             %obj.nVertices = size(v,1) ;
@@ -155,6 +159,8 @@ classdef domain
             obj.polygon.vy = v(:,2);
             
             obj.polygon.vars = [x,y];
+          else
+              return
           end
           %obj.polygon.vx
           %obj.nVertices
@@ -225,9 +231,9 @@ classdef domain
             m = obj.slope (i,i+1);
           end
           if (m == inf | m == -inf)
-            obj.polygon.ineqs(i) = functionF(x  - obj.polygon.vx(i));
+            obj.polygon.ineqs(i) = symbolicFunction(x  - obj.polygon.vx(i));
           else
-            obj.polygon.ineqs(i) = functionF(y - m*x - yIntercept (obj,i,m));
+            obj.polygon.ineqs(i) = symbolicFunction(y - m*x - yIntercept (obj,i,m));
           end
           if obj.polygon.ineqs(i).subsVarsPartial([x,y],[cx,cy]) > 0
               %obj.ineqs(i) = -obj.ineqs(i)

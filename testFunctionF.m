@@ -22,7 +22,29 @@ classdef testFunctionF < matlab.unittest.TestCase
           testCase.verifyEqual(f1.getDen(),x+1);
           testCase.verifyEqual(f1.f,x^2/(x+1));
         end
+
+        function testTangent(testCase)
+            x = sym('x');
+            y = sym('y');
+            f2 = symbolicFunction(148*x - 196*y + (x + 7*y)^2 - 684)
+            %f2.tangent(3.159091,-1.022727)
+            f3 = symbolicFunction(x - (9*y)/5 - 5)
+            [tx,ty] = solve(f3.f==0,f2.f==0)
+            
+            t = f2.tangent(tx,ty)
+            t = t.normalize1
+            f2 = -f2  
+            t = f2.tangent(tx,ty)
+            t = t.normalize1
+        end
         
+        function testGradient(testCase)
+           x = sym('x');
+           y = sym('y');
+           f = symbolicFunction(x*y)
+           g = f.gradient
+        end
+
     end
 
     
