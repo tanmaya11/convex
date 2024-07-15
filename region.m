@@ -49,7 +49,7 @@ classdef region
              pos = [];
              for i = 1:obj.nv
                  if symFunType(obj.vx(i)) == 'plus' | symFunType(obj.vy(i)) == 'plus'
-                     l = true
+                     l = true;
                      n = n + 1;
                      pos(n) = i;
                  end
@@ -2227,10 +2227,10 @@ classdef region
              continue
          end
          % assuming nvi = 3
-         [sortvx, ind] = sort(double(vxi))  % rational sorting goofed up
-         x = (vxi(ind(1)) + vxi(ind(2)))/2
-         y = (vyi(ind(1)) + vyi(ind(2)))/2
-         obj.ptFeasible (x,y) 
+         [sortvx, ind] = sort(double(vxi));  % rational sorting goofed up
+         x = (vxi(ind(1)) + vxi(ind(2)))/2;
+         y = (vyi(ind(1)) + vyi(ind(2)))/2;
+         %obj.ptFeasible (x,y) 
          if ~obj.ptFeasible (obj.vars,[x,y])
              mark(1) = ind(1);
          else
@@ -2243,8 +2243,8 @@ classdef region
        if isempty(mark)
            return
        end
-       obj.print
-       mark
+       %obj.print
+       %mark
        for i = 1:obj.nv
            if (obj.vx(i) ==  vxi(mark(1))) & (obj.vy(i) ==  vyi(mark(1)))
                mark(1) = i;
@@ -2647,14 +2647,14 @@ classdef region
        
        x2 = vx+0.1;
        f1 = obj2.ineqs(edgejNo).subsF([obj2.vars(1)],[x2]);
-       y0 = solve(f1, obj2.vars(2))
+       y0 = solve(f1, obj2.vars(2));
        %if (size(y0,1) == 1)
            y2 = y0(1);
        %end
        if ~ obj2.ptFeasible (obj2.vars,[x2,y2])
          x2 = vx-0.1;
          f1 = obj2.ineqs(edgejNo).subsF([obj2.vars(1)],[x2]);
-         y0 = solve(f1, obj2.vars(2))
+         y0 = solve(f1, obj2.vars(2));
          %if (size(y0,1) == 1)
            y2 = y0(1);
          %end
@@ -2761,11 +2761,11 @@ classdef region
              lQuad= false;
          end
          if lQuad
-             lQuad1, lQuad2
+    %         lQuad1, lQuad2
              if lQuad1
                  
                  for i = 1:nmq1
-                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)))
+                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)));
 
                      if ~ isempty(V)
                          return
@@ -2830,8 +2830,9 @@ classdef region
                  vyj = vyj(sortedIndices);
 
                  % check same vertices and convex angles 
-                  [l, pos] = obj.isVertexIrrational 
-                  [l, pos] = obj2.isVertexIrrational 
+                 % implement this part
+                 % [l, pos] = obj.isVertexIrrational 
+                 % [l, pos] = obj2.isVertexIrrational 
                  if all(vxi == vxj) & all(vyi == vyj)
                   %   disp('here')
                   %   obj.isconvex (obj2, i, j, vxi(1), vyi(1))

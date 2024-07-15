@@ -96,7 +96,7 @@ classdef plq
      %     obj.pieces(i).print
           %obj.pieces(i).envelope.printL
         %  continue
-        %  return
+         % return
         tic
              obj.pieces(i)=obj.pieces(i).conjugate;
              toc
@@ -108,8 +108,8 @@ classdef plq
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
               disp("MaxConjugate") 
-              obj.pieces(i).maxConjugate.printL
-              obj.pieces(i).maxConjugate.printM
+              %obj.pieces(i).maxConjugate.printL
+              %obj.pieces(i).maxConjugate.printM
              % return
              
            %       if i == 2
@@ -225,15 +225,16 @@ classdef plq
 
   end
 
-   % methods % biconjugate
+  methods % biconjugate
    % 
    %      % linear / quadratic
-   %      function obj = biconjugate(obj)
-   %        for i =1:size(obj.maxConjugate,2)
-   %           obj.biconjugate = obj.maxConjugate(i).biconjugate  
-   %        end
-   %      end
+    function obj = biconjugateF(obj)
+      for i =1:size(obj.maxConjugate,2)
+   %      obj.biconjugate = obj.maxConjugate(i).biconjugate  
+      end
+    end
+  
    %      % fractional
-   %  end
+  end
    
 end

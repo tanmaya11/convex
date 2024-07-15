@@ -336,8 +336,10 @@ classdef plq_1piece
             return
           end
           obj = convexEnvelope1 (obj,x,y);
+          %disp('hh')
           %obj.print
           %return
+          % fix this loop
           for ik = 1:5
             lCh = true;
             while lCh
@@ -2339,28 +2341,28 @@ classdef plq_1piece
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
               %obj.envelope(i).print 
-              NCV = obj.getNormalConeVertex(i, s1, s2)
+              NCV = obj.getNormalConeVertex(i, s1, s2);
               
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
+              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2);
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
 
-              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
-              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars)
+              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars);
+              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
               
               subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
 
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
                    expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
             elseif obj.envelopeExpr(i).type == 3   
-                disp('here')
+                %disp('here')
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
              % obj.envelope(i).print       
-              NCV = obj.getNormalConeVertex(i, s1, s2)
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
+              NCV = obj.getNormalConeVertex(i, s1, s2);
+              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
               expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
 
 
@@ -2411,8 +2413,8 @@ classdef plq_1piece
             end
             conjugates = functionNDomain.empty;
             for i = 1:size(conjf,2)
-                disp('in conjugate')
-                conjd(i).print
+                %disp('in conjugate')
+                %conjd(i).print
                 conjugates = [conjugates,functionNDomain([conjf(i)],conjd(i))];
             end
             conjugates = conjugates.mergeL;
@@ -3014,7 +3016,7 @@ classdef plq_1piece
               %return
               %obj.maxConjugate.printM2
               obj.maxConjugate = obj.maxConjugate.maximumP(true);
-              obj.maxConjugate.printM
+              %obj.maxConjugate.printM
               %disp("mConjM")
               %obj.maxConjugate.printL
               %obj.maxConjugate.printM

@@ -361,7 +361,7 @@ classdef functionNDomain
               %   end
              % rf.print
                  rf = rf.simplifyUnboundedRegion ;
-                 rf.print
+                 %rf.print
                  %rf = rf.simplifyOpenRegion ();
                  if isempty(rf)
                      disp("empty")
@@ -629,10 +629,10 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
-            disp('in merge')
-            objL.printL
-            ia
-            ja
+      %      disp('in merge')
+      %      objL.printL
+      %      ia
+      %      ja
           m = 0;
           for i = 1:size(objL,2)
               marked(i) = false;
@@ -647,7 +647,7 @@ classdef functionNDomain
                 end
                  
                 m = m + 1;
-                objL(i).d.print
+                %objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
                 index(m) = i;
@@ -656,9 +656,9 @@ classdef functionNDomain
                 % make groups and add 
               %  i
                r = objL(i).d;
-               disp ('first r')
+     %          disp ('first r')
              %if i == 4
-                r.print
+    %            r.print
              %end
                lmerge = true;
                while lmerge
@@ -668,14 +668,14 @@ classdef functionNDomain
                    if marked(ja(j))
                        continue
                    end
-                   r.print
+                   %r.print
                    % objL(ja(j)).d.print
                    [l,r] = r.merge (objL(ja(j)).d);
-                   l
+  %                 l
                    %if i == 4
                    %l
                    %i, j
-                   r.print
+   %                r.print
                    %disp('simplified')
                    %s = objL(ja(j)).d.simplifyUnboundedRegion;
                    %s.print
@@ -708,10 +708,10 @@ classdef functionNDomain
             %%%%%%%%%%%%%%%%%%%%%%
                m = m + 1;
                r = r.simplifyUnboundedRegion;
- disp('removeT')
- r.print
+% disp('removeT')
+% r.print
                r = r.removeTangent (nP, px,py);
-                r.print
+ %               r.print
                objL2(m) = functionNDomain([objL(i).f],r);
                %
                %m
@@ -724,9 +724,9 @@ classdef functionNDomain
                    continue
                  end
                  r = objL(ja(j)).d ;
-                 disp('r2')
-                 ja(j)
-                 r.print
+       %          disp('r2')
+        %         ja(j)
+        %         r.print
                  lmerge = true;
                  while lmerge
                    lmerge = false;
@@ -735,25 +735,25 @@ classdef functionNDomain
                        continue
                      end
                      [l,r] = r.merge (objL(ja(k)).d);
-                l     
+         %       l     
                      if l
                        marked(ja(k)) = true;
                        lmerge = true;
                 %       ja(k)
-                       objL(ja(k)).d.print
-                       r.print
+          %             objL(ja(k)).d.print
+          %             r.print
                      end
                    end
                  end
                  m = m + 1;
                 % r.print
                 r = r.simplifyUnboundedRegion;
-                 disp('rt2')
- r.print
+           %      disp('rt2')
+ %r.print
 
                 r = r.removeTangent (nP, px,py);
                
- r.print
+ %r.print
 
                  objL2(m) = functionNDomain([objL(i).f],r);
                 %  disp('insert')
