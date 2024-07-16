@@ -115,6 +115,27 @@ classdef region
             f = region(l,obj1.vars);
          end
 
+         function obj = poly2orderUnbounded(obj)
+           rad = cart2pol(obj.vx(1:obj.nv), obj.vy(1:obj.nv));
+           radWrapped = mod(rad,2*pi);
+           radWrapped(radWrapped==0 & rad>0) = 2*pi; 
+           [~, sortIdx] = sort(radWrapped, 'descend'); 
+           obj.vx(sortIdx) = obj.vx(1:obj.nv);
+           obj.vy(sortIdx) = obj.vy(1:obj.nv);
+           for i = 1:obj.nv
+             edges = obj.getEdges(obj.vx(i),obj.vy(i));
+             if size(edges,2) == 1
+                 break;
+             end
+           end
+           vx = obj.vx;
+           vy = obj.vy;
+           obj.vx(1:obj.nv-i+1) = vx(i:obj.nv); 
+           obj.vy(1:obj.nv-i+1) = vy(i:obj.nv);
+           obj.vx(obj.nv-i+2:obj.nv) = vx(1:i-1); 
+           obj.vy(obj.nv-i+2:obj.nv) = vy(1:i-1); 
+         end
+
          function obj = poly2order(obj)
             % obj.print
              vx(1) = obj.vx(1);
@@ -2255,6 +2276,24 @@ classdef region
        obj.nv = obj.nv-1;
      end 
 
+     function obj = removeInfV (obj)
+         n = 0;
+         for i = 1:obj.nv
+             
+             if isAlways (abs(obj.vx(i)) == intmax)
+                 continue
+             end
+             if isAlways (abs(obj.vy(i)) == intmax)
+                 continue
+             end
+             n = n + 1;
+             obj.vx(n) = obj.vx(i);
+             obj.vy(n) = obj.vy(i);
+             
+         end
+         obj.nv = n;
+     end 
+
      function obj = getVertices(obj)
          
        obj.nv=0;
@@ -2387,6 +2426,31 @@ classdef region
            
        end
        
+     end
+
+     function [edgeNo] = getEdgeNosInf(obj, vars)
+         edgeNo = zeros(size(obj.ineqs,2),1);
+         
+         for i = 1:size(obj.ineqs,2)
+            
+           [nv, vx, vy] = obj.vertexOfEdge(i);
+           if nv == 1
+               if obj.vx(1)==vx(1) & obj.vy(1)==vy(1)
+                   edgeNo(i) = 1;
+               else
+                   edgeNo(i) = obj.nv+1;
+               end
+               continue
+           end
+            for j = 1:obj.nv
+                  if obj.vx(j)==vx(1) & obj.vy(j)==vy(1)
+                      break;
+                  end    
+            end
+            edgeNo(i) = j+1;
+           
+         end
+         
      end
 
      function [edgeNo] = getEdgeNos(obj, vars)

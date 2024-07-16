@@ -771,6 +771,38 @@ classdef functionNDomain
       end
      end
 
+     methods % conjugate
+
+         function pc = conjugateOfPiecePoly (obj)
+             pc = functionNDomain.empty();
+             f = obj.f;
+             vars = f.getVars;
+             d = obj.d;
+             x=sym('x');
+             y=sym('y');
+             NCV = d.getNormalConeVertex(x, y)
+             edgeNo = obj.d.getEdgeNosInf(vars)
+             NCE = obj.d.getNormalConeEdge(x, y)
+         % 
+
+         end
+         % NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
+         %      edgeNo = obj.envelope(i).d.getEdgeNos(vars);
+         %      NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2);
+         % 
+         % 
+         %    % check eta1(1)=eta2(1)=0  page 68/136
+         %      [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+         % 
+         %      [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
+         %      %[subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
+         %      [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars);
+         % 
+         %      subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs);
+         %      expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
+         %      expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr )
+     end
+
      methods
        function [lg,limg] = limitOfGradientAtVertices (obj)
            g = obj.f.gradient;
@@ -780,7 +812,263 @@ classdef functionNDomain
        end
      end
      methods % subdifferentials
+      
+       function [subdV,undV] = getSubdiffVertexT1 (obj, NCV, dualVars)
+            subdV = sym(zeros(obj.d.nv,3));
+            undV = zeros(obj.d.nv,1);
+            [lg,limg] = obj.limitOfGradientAtVertices; 
+
+            for j = 1:obj.d.nv
+              if ~lg(j,1)
+                undV(j)=true;
+                continue;
+              end
+              if ~lg(j,2)
+                  undV(j)=true;
+                  continue;
+              end
+            
+              undV(j)=false;
+              f = symbolicFunction(NCV(j,1));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(1) == 0)
+                 if coef(2) > 0
+                 subdV(j,1) = dualVars(2)-limg(j,2);
+                 else
+                     subdV(j,1) = -(dualVars(2)-limg(j,2));
+                 end
+              elseif (coef(2) == 0) 
+                subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
+              elseif (coef(2) < 0)
+                m = diff(NCV(j,1),dualVars(1));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -diff(NCV(j,1),dualVars(1));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
+              end 
+              f = symbolicFunction(NCV(j,2));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(1) == 0)
+                subdV(j,2) = dualVars(2)-limg(j,2);
+                 if coef(2) > 0
+                 subdV(j,2) = dualVars(2)-limg(j,2);
+                 else
+                     subdV(j,2) = -(dualVars(2)-limg(j,2));
+                 end
+              elseif (coef(2) == 0) 
+                subdV(j,2) = coef(1) * (dualVars(1) - limg(j,1));  
+              elseif (coef(2) < 0)
+                m = diff(NCV(j,2),dualVars(1));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -diff(NCV(j,2),dualVars(1));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+              end 
+            end
+        end
+  
+        function [subdV,undV] = getSubdiffVertexT2 (obj, NCV, dualVars)
+            subdV = sym(zeros(obj.d.nv,3));
+            undV = zeros(obj.d.nv,1);
+            %g = obj.envelope(i).f.gradient;
+            [lg,limg] = obj.limitOfGradientAtVertices; 
+            for j = 1:obj.d.nv
+              if ~lg(j,1)
+                  undV(j)=true;
+                  continue;
+              end
+              if ~lg(j,2)
+                  undV(j)=true;
+                  continue;
+              end
+              undV(j)=false;
+              f = symbolicFunction(NCV(j,1));
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(1) == 0)
+                subdV(j,1) = dualVars(2)-limg(j,2);
+              elseif (coef(1) < 0)
+                m = double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -double(diff(NCV(j,1),dualVars(1)));
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
+              end 
+              f = symbolicFunction(NCV(j,2));
+              k = j+1;
+              if k > obj.d.nv
+                  k = 1;
+              end
+              coef = f.getLinearCoeffs (dualVars);
+              if (coef(1) == 0)
+                 subdV(j,2) = dualVars(2)-limg(k,2);
+              elseif (coef(1) < 0)
+                m = diff(NCV(j,2),dualVars(1));
+                c = yIntercept(m, [limg(k,1),limg(k,2)]);
+                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              else
+                m = -diff(NCV(j,2),dualVars(1));
+                c = yIntercept(m, [limg(k,1),limg(k,2)]);
+                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+              end 
+            end
+        end
+
+        function subdV = getSubDiffVertexSpT1(obj, subdV, undV, crs)
+          for j = 1:obj.d.nv
+              if (~undV(j))
+                  continue
+              end
+              em = j-1;
+              if em == 0
+                em = obj.d.nv;
+              end
+              ep = j+1;
+              if ep == obj.d.nv+1
+                ep = 1;
+              end
+              
+              
+              subdV(j,1) = subdV(em,1);
+              subdV(j,2) = subdV(ep,2);
+              %subdV(j,3) = crs;  
+          end    
+        end
        
+        function [subdE, unR, crs] = getSubDiffEdgeT1(obj, subdE, edgeNo, unDV, crs, dualvars)
+          vars =  obj.d.vars;
+          drx1 = obj.f.dfdx(vars(1));
+          drx2 = obj.f.dfdx(vars(2));
+
+          unR = zeros(obj.d.nv,1);
+          for j = 1:obj.d.nv-1
+             if unDV(j)
+               unR(j) = false;
+               continue
+             end
+             if unDV(j+1)
+               continue
+             end
+              
+             unR(j) = true;
+             % Put checks for div by 0
+             dv11 = subs(drx1.f,vars,[obj.d.vx(j),obj.d.vx(j+1)]);
+             dv12 = subs(drx2.f,vars,[obj.d.vx(j),obj.d.vx(j+1)]);
+             dv21 = subs(drx1.f,vars,[obj.d.vy(j),obj.d.vy(j+1)]);
+             dv22 = subs(drx2.f,vars,[obj.d.vy(j),obj.d.vy(j+1)]);
+                
+             if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
+               crs = -crs;
+             end
+             subdE(j,3) = crs;
+
+          end    
+          j = obj.d.nv;
+          if unDV(obj.d.nv)
+            unR(j) = false;
+            return
+          end
+          if unDV(1) 
+            return
+          end
+          unR(j) = true;
+
+
+
+           dv11 = subs(drx1.f,vars,[obj.d.vx(j),obj.d.vx(1)]);
+           dv12 = subs(drx2.f,vars,[obj.d.vx(j),obj.d.vx(1)]);
+           dv21 = subs(drx1.f,vars,[obj.d.vy(j),obj.d.vy(1)]);
+           dv22 = subs(drx2.f,vars,[obj.d.vy(j),obj.d.vy(1)]);
+                
+           if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
+             crs = -crs;
+           end
+           subdE(j,3) = crs;
+        end
+
+
+
+     end
+
+     methods % conjugate exprs quad
+         function expr = conjugateExprVerticesT1 (obj, dualVars, unV )
+            vars = obj.f.getVars;
+            for j = 1:obj.d.nv
+                if unV(j)
+                    expr(j) = obj.d.vx(j)*dualVars(1) + obj.d.vy(j)*dualVars(2) - obj.f.limit ( vars,[obj.d.vx(j),obj.d.vy(j)]).f;
+                else
+                    expr(j) = obj.d.vx(j)*dualVars(1) + obj.d.vy(j)*dualVars(2) - obj.f.subsF(vars,[obj.d.vx(j),obj.d.vy(j)]).f;
+                end
+                
+            end
+         end     
+
+         % polyhedral
+         function expr = conjugateExprEdgesT1Poly (obj, dualVars, edgeNo, psi0, psi1, psi2, expr )
+            vars = obj.f.getVars;
+            s1 = dualVars(1);
+            s2 = dualVars(2);
+            for j = 1:obj.d.nv
+                no = edgeNo(j);
+                mq = obj.d.ineqs(no).getLinearCoeffs (vars);
+                if mq(2) == 0 
+                    edgeCoef = obj.d.ineqs(no).getLinearCoeffs (vars);
+                    c = -edgeCoef(3);
+                    c2 = psi2(3)/(2*psi1(2));
+                    c3 = -psi0(2)*c2;
+                    c7 = psi1(2)*c2;
+                    %c4 = -c3;
+                    d2 = -psi1(2)*psi0(2)*c2+psi1(3)+c*psi1(1);
+                    d3 = -psi0(2)^2*c2 + c*psi0(1) + psi0(3);
+                    c5 = c7^2/psi2(3);
+                    % document has c4 
+                    %c6 = 2*c7*d2/psi2(0) + c4;
+                    c6 = 2*c7*d2/psi2(3) - c3;
+                    d4 = d2^2/psi2(3)+d3;
+                    a = c2-c5;
+                    b = c3-c6; % can be simplified = c3 - (2*c7*d2/psi2(0) - c3)
+                    %d = -d4;
+                    expr(obj.d.nv+j) = a*s2^2 + c*s1+b*s2-d4;
+                else
+                m = -mq(1)/mq(2);
+                q = -mq(3)/mq(2);
+                %psi2(1) + m*psi2(2)
+                if psi2(1) + m*psi2(2) == 0
+                
+                  t0 = (-psi0(1)-m*psi0(2))/(2*(psi1(1)+m*psi1(2)));
+                  t1 = 1/(2*(psi1(1)+m*psi1(2)));
+                  t2 = m/(2*(psi1(1)+m*psi1(2)));
+                  gamma10 = t1*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2));
+                  gamma01 = t2*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2));
+                  gamma00 = (t0*(psi2(3)+q*psi2(2))-psi1(3)-q*(psi1(2)))/(psi1(1)+m*psi1(2));
+                  zeta11 = -(psi1(1)*gamma10+m*psi1(2)*gamma10)^2/(psi2(3)+q*psi2(2)) + gamma10;
+                  zeta12 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(1)*gamma10+m*psi1(2)*gamma10))/(psi2(3)+q*psi2(2)) + gamma01 + m *gamma10;
+                  zeta22 = -(psi1(1)*gamma01+m*psi1(2)*gamma01)^2/(psi2(3)+q*psi2(2)) + gamma01 *m;
+                  zeta10 = -2*(psi1(1)*gamma01+m*psi1(2)*gamma10)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00))/(psi2(3)+q*psi2(2)) - m*psi0(2)*gamma10 + gamma00 - psi0(1)*gamma10;
+                  zeta01 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00)))/((psi2(3)+q*psi2(2))) - m*psi0(2)*gamma01 - psi0(1)*gamma01 + m*gamma00+q;
+                  zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00))^2/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00);
+                  expr(obj.d.nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00);
+                else
+                  zeta00 = (psi2(1) + m*psi2(2))^2  ;
+                  delta1 = -2*(psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*(psi0(1)*psi2(1) + psi1(1)^2 + m*(psi1(2)^2*m + psi0(1)*psi2(2) + psi0(2)*psi2(1) + 2*psi1(1)*psi1(2) + psi0(2)*psi2(2)*m))  ;
+                  delta0 = 2*psi1(1)*psi2(3)*(psi1(1)+m*psi1(2)) -2*psi1(3)*psi2(1)*(psi1(1)+m*psi1(2))-psi0(3)*psi2(1)*(psi2(1)+m*psi2(2)) ...
+                  + psi0(1)*psi2(3)*(psi2(1)+m*psi2(2)) -2*m*psi1(3)*psi2(2)*(psi1(1)+m*psi1(2)) + 2*m*psi1(2)*psi2(3)*(psi1(1)+m*psi1(2)) ...
+                  - m * psi0(3)*psi2(2) * (psi2(1)+m*psi2(2)) + m * psi0(2)*psi2(3)*(psi2(1)+m*psi2(2) ) + 2*q*psi1(1)*psi2(2)*(psi1(1)+m*psi1(2)) ...
+                  - 2*q*psi1(2)*psi2(1)* (psi1(1)+m*psi1(2)) + q*psi0(1)*psi2(2)*(psi2(1)+m*psi2(2))-q*psi0(2)*psi2(1)*(psi2(1)+m*psi2(2));
+                  si1 = 2*(psi2(1) + m*psi2(2)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s1 + 2*m*(m*psi2(2) + psi2(1)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m* psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s2 + delta1;
+                  si1_2 = -(psi2(1) + m*psi2(2))*s1 -m *(psi2(1)+m*psi2(2))*s2+psi0(1)*psi2(1) +psi1(1)^2 + m*(m*psi1(2)^2 + psi0(1)*psi2(2)+psi0(2)*psi2(1)+2*psi1(1)*psi1(2)+m*psi0(2)*psi2(2));
+                  si0 = (-psi2(3)*(psi2(1)+m*psi2(2))-q*psi2(2)*(psi2(1)+m*psi2(2)))*s1 + (q*psi2(1)*(psi2(1)+m*psi2(2))-m*psi2(3)*(psi2(1)+m*psi2(2)))*s2 + delta0;  
+                  expr(obj.d.nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0);
+                end
+                end
+            end
+        end
+
 
      end
 

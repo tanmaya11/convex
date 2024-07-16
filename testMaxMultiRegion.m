@@ -76,6 +76,23 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
            
         end
 
+        function testBiconjugate (testCase)
+            s_1 = sym('s1');
+            s_2 = sym('s2');
+            f = symbolicFunction(-5*s_1 + 5*s_2 + 25);
+            ineq(1) = s_1 + 2*s_2 + 4;
+            ineq(2) = s_1 - (9*s_2)/5 - 5;
+            ineq(3) = - s_2 - 5 ;
+            ineq(4) = s_1 + 7*s_2 - 46;
+            d = region(ineq,[s_1,s_2]);
+            d = d.removeInfV;
+            d = d.poly2orderUnbounded;
+            p = functionNDomain([f], [d]);
+            p.printL
+            pc = p(1).conjugateOfPiecePoly ;
+
+        end
+
         function testConvex (testCase)
             %testCase.PRect3.print
             testCase.PRect3 = testCase.PRect3.convexEnvelope
