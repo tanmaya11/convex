@@ -2039,69 +2039,6 @@ classdef region
         end
 
 
-        function [tx,ty] = getFeasiblePtNearV (obj, i)
-            edges = obj.getEdges(obj.vx(i),obj.vy(i));
-            mp = obj.slopeAtVertex(edges, [obj.vx(i),obj.vy(i)]);
-            theta = atan2(mp,1);
-            t1 = theta(1);
-            t2 = theta(2);
-            d = tan((t1+t2)/2);
-                
-            if isnan(d) | isinf(d)
-              tx = obj.vx(i);
-              ty = obj.vy(i)+0.1;
-            else
-              c = obj.vy(i) - d * obj.vx(i);
-              tx = obj.vx(i) + 0.1;
-              ty = d*obj.vx(i)+c;
-            end
-                
-            if obj.ptFeasible (obj.vars,[tx,ty]);
-              return
-            end
-
-            if isnan(d)| isinf(d)
-              tx = obj.vx(i);
-              ty = py(1)-0.1;
-            else
-              tx = obj.vx(i) - 0.1;
-              ty = d*tx+c   ;
-            end
-
-            if obj.ptFeasible (obj.vars,[tx,ty]);
-              return
-            end
-
-                
-            d = -1/d;
-                
-            if isnan(d) | isinf(d)
-              tx = obj.vx(i);
-              ty = obj.vy(i)+0.1;
-            else
-              c = obj.vy(i) - d * obj.vx(i);
-              tx = obj.vx(i) + 0.1;
-              ty = d*obj.vx(i)+c;
-            end
-                
-            if obj.ptFeasible (obj.vars,[tx,ty]);
-              return
-            end
-
-            if isnan(d)| isinf(d)
-              tx = obj.vx(i);
-              ty = py(1)-0.1;
-            else
-              tx = obj.vx(i) - 0.1;
-              ty = d*tx+c   ;
-            end
-
-            if obj.ptFeasible (obj.vars,[tx,ty]);
-              return
-            end
-
-        end        
-
         %function simplifyClosedRegion
         %end
          function l = ptFeasible(obj, vars, point)
@@ -2125,6 +2062,7 @@ classdef region
                 % double used here as sqrt giving issues
                % if double(subs ([obj.ineqs(i).f],vars,double(point(j,:)))) > 1.0d-12
                % point(j,:)
+               
                if (isAlways(subs ([obj.ineqs(i).f],vars,point(j,:))>0))
                    l = false;
                    return
@@ -2519,7 +2457,6 @@ classdef region
          end
          
      end
-
 
      function [edgeNo] = getEdgeNos(obj, vars)
        edgeNo = zeros(obj.nv,1);
@@ -3158,7 +3095,8 @@ classdef region
      end
 
      methods % normal cone
-         function NC = getNormalConeVertex(obj, s1, s2)
+         
+        function NC = getNormalConeVertex(obj, s1, s2)
              % obj = obj.envelope(i).d
             NC = sym(zeros(obj.nv,2));
             meanx = sum(obj.vx)/obj.nv;
@@ -3193,47 +3131,186 @@ classdef region
                 NC(j+1,2) = eq;
              end
              j = obj.nv;
-             % if nv = 1, slope calculation is wrong - temp fix put in
-             % place 
 
-             % if j == 1
-             % else
-                 % We fill NC (nv,1) and NC (1,2)
-                slope = obj.slope(j,1);
-                pslope = -1/slope;
-                if pslope == -inf
+
+             if j == 1
+               slopes = obj.slopeAtVertex ([1,2], [obj.vx(1),obj.vy(1)])
+               slope = slopes(1)
+             else
+               slope = obj.slope(j,1);
+             end
+
+
+             pslope = -1/slope;
+             if pslope == -inf
                     pslope = inf;
                 end
                 
-                if pslope ~= inf
-                   q = obj.yIntercept (j,pslope);
-                   eq = s2 - pslope*s1 - q;
-                else
-                   eq = s1 - obj.vx(j);
-                end
-                if subs(eq,[s1,s2],[obj.vx(1),obj.vy(1)]) < 0
-                    eq = -eq;
-                end
-              
-                NC(j,1) = eq;
-                if pslope ~= inf
-                    q = obj.yIntercept (1,pslope);
-                    eq = s2 - pslope*s1 - q;
-                else
-                    eq = s1 - obj.vx(1);
-                end
-                if subs(eq,[s1,s2],[obj.vx(j),obj.vy(j)]) < 0
-                    eq = -eq;
-                end
-                
-                NC(1,2) = eq;
-             % end
+             if pslope ~= inf 
+               q = obj.yIntercept (j,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.vx(j);
+             end
              
+             
+             % Get point in region in case of nv = 1
+             if j == 1
+                 slopes
+                 theta = atan2(slopes,1)
+                  t1 = theta(1);
+                  t2 = theta(2);
+                  d = tan((t1+t2)/2)
                 
-        end
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1);
+                    ty = obj.vy(1)+0.1;
+                  else
+                    c = obj.vy(1) - d * obj.vx(1);
+                    
+                    tx =obj.vx(1) + 0.1;
+                    ty = d*tx+c;
+                  end
+                  disp('b4')
+                  tx,ty
+                
+                if ~obj.ptFeasible(obj.vars,[tx,ty])
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1);
+                    ty = obj.vy(1)-0.1;
+                  else
+                    
+                    tx = obj.vx(1) - 0.1;
+                    ty = d*tx+c;
+                  end
+                  if ~obj.ptFeasible(obj.vars,[tx,ty])
+                      d = -d;
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1);
+                    ty = obj.vy(1)-0.1;
+                  else
+                    
+                    tx = obj.vx(1) - 0.1;
+                    ty = d*tx+c;
+                 end
+                end
+                end
+                disp('new pt')
+                tx,ty
+                obj.ptFeasible(obj.vars,[tx,ty])
+                 
+             else
+                 tx = obj.vx(1);
+                 ty = obj.vy(1);
+             end
+             eq
+             subs(eq,[s1,s2],[tx,ty])
+             if subs(eq,[s1,s2],[tx,ty]) < 0
+               eq = -eq;
+             elseif j==1 & isAlways(subs(eq,[s1,s2],[tx,ty]) == 0)
+% only in nv = 1 case
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1)+0.1;
+                    ty = obj.vy(1);
+                  else
+                    c = obj.vy(1) - d * obj.vx(1);
+                    
+                    ty =obj.vy(1) + 0.1;
+                    tx = (1/d)*(ty-c);
+                 end
+                if ~obj.ptFeasible(obj.vars,[tx,ty])
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1)-0.1;
+                    ty = obj.vy(1);
+                  else
+                    c = obj.vy(1) - d * obj.vx(1);
+                    
+                    ty =obj.vy(1) - 0.1;
+                    tx = (1/d)*(ty-c);
+                  end
+                 if ~obj.ptFeasible(obj.vars,[tx,ty])
+                      d = -d;
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1);
+                    ty = obj.vy(1)-0.1;
+                  else
+                    
+                    tx = obj.vx(1) - 0.1;
+                    ty = d*tx+c;
+                 end
+                end
+                end
 
-        function [NC] = getNormalConeEdge(obj, s1, s2)
-          NC = sym(zeros(obj.nv,2));
+                if subs(eq,[s1,s2],[tx,ty]) < 0
+                eq = -eq;
+                end
+
+             end
+             
+              
+             NC(j,1) = eq;
+
+             if j == 1
+                 pslope = -1/slopes(2)
+                 if pslope == -inf
+                     pslope = inf
+                 end
+             else
+                 tx = obj.vx(j);
+                 ty = obj.vy(j);
+             end
+             if pslope ~= inf
+               q = obj.yIntercept (j,pslope);
+               eq = s2 - pslope*s1 - q;
+             else
+               eq = s1 - obj.vx(1);
+             end
+             disp('h')
+             tx,ty
+             eq
+             isAlways(subs(eq,[s1,s2],[tx,ty])==0)
+             if subs(eq,[s1,s2],[tx,ty]) < 0
+               eq = -eq
+             elseif  j==1 & isAlways(subs(eq,[s1,s2],[tx,ty]) == 0)
+% only in nv = 1 case
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1)+0.1;
+                    ty = obj.vy(1);
+                  else
+                    c = obj.vy(1) - d * obj.vx(1);
+                    
+                    ty =obj.vy(1) + 0.1;
+                    tx = (1/d)*(ty-c);
+                  end
+
+                if ~obj.ptFeasible(obj.vars,[tx,ty])
+                  if isnan(d) | isinf(d)
+                    tx = obj.vx(1)-0.1;
+                    ty = obj.vy(1);
+                  else
+                    c = obj.vy(1) - d * obj.vx(1);
+                    
+                    ty =obj.vy(1) - 0.1;
+                    tx = (1/d)*(ty-c);
+                 end
+                end
+                disp('second')
+                tx,ty
+                if subs(eq,[s1,s2],[tx,ty]) < 0
+               eq = -eq;
+                end
+
+
+             end
+                
+             NC(j,2) = eq;
+             
+           end 
+                
+        %end
+
+        function [NC] = getNormalConeEdge(obj, s1, s2, edgeNo)
+          NC = sym(zeros(size(obj.ineqs,2),2));
           for j = 1: obj.nv-1
             slope = obj.slope(j,j+1);
             pslope = -1/slope;
@@ -3261,8 +3338,57 @@ classdef region
             end
             NC(j,2) = eq;
           end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+         % edges = obj.getEdges(obj.vx(1),obj.vy(1));
+         % if size(edges,2) ~= 1
+           
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
           j = obj.nv;
-          slope = obj.slope(j,1);
+             %  if j == 1
+             %     slopes = obj.slopeAtVertex ([1,2], [obj.vx(1),obj.vy(1)])
+             %     pslope = -1/slopes(1);
+             %     if pslope == -inf
+             %       pslope = inf;
+             %     end
+             %     if pslope ~= inf
+             %       q = obj.yIntercept (1,pslope);
+             %       eq = s2 - pslope*s1 - q;
+             %     else
+             %       eq = s1 - obj.vx(j);
+             %     end
+             %     if subs(eq,[s1,s2],[obj.vx(1),obj.vy(1)]) > 0   
+             %       eq = -eq;
+             %     end
+             %     NC(j,1) = eq;
+             % % 
+             % % 
+             %     pslope = -1/slopes(2);
+             %     if pslope == -inf
+             %       pslope = inf;
+             %     end
+             %     if pslope ~= inf
+             %       q = obj.yIntercept (2,pslope);
+             %       eq = s2 - pslope*s1 - q;
+             %     else
+             %       eq = s1 - obj.vx(j);
+             %     end
+             %     if subs(eq,[s1,s2],[obj.vx(1),obj.vy(1)]) > 0   
+             %       eq = -eq;
+             %     end
+             % % 
+             %     NC(j,2) = eq;
+             %  else
+             if j == 1
+                 slopes = obj.slopeAtVertex (edgeNo, [obj.vx(j),obj.vy(j)]);
+                 slope = slopes(1);
+             else
+                 slope = obj.slope(j,1);
+             end
+          
           pslope = -1/slope;
           if pslope == -inf
             pslope = inf;
@@ -3287,60 +3413,17 @@ classdef region
             eq = -eq;
           end
           NC(j,2) = eq;
-        end
-
-
+             end
+         % else
+         %  NC(2:obj.nv,:) = NC(1:obj.nv-1,:)     
+         % 
+          % end
+        
+     
      function NC = adjustNormalConeUnB(obj, NC, edgeNo, s1, s2)
-
-       if size(obj.ineqs,2) == obj.nv 
-           return
-       end
-       %NCOP = sym(zeros(size(obj.ineqs,2),2));
-       %NC(2:obj.nv+1,:) = NC(1:obj.nv,:)     
-       % linear ineq so passing arbitrary point
-       slope = obj.slopeIneq(edgeNo(1),[0,0])
-       pslope = -1/slope;
-       if pslope == -inf
-         pslope = inf;
-       end
-       if pslope ~= inf
-         q = obj.yIntercept (1,pslope);
-         eq = s2 - pslope*s1 - q;
-       else
-         eq = s1 - obj.vx(1);
-       end
-       [tx,ty] = getFeasiblePtNearV (obj, 1)
-       eq
-       subs(eq,[s1,s2],[tx,ty])
-       if subs(eq,[s1,s2],[tx,ty]) < 0   
-            eq = -eq;
-       end
-       NC (1,1) = eq;
-       %NCOP (1,2) = 0;
-
-       slope = obj.slopeIneq(edgeNo(size(edgeNo,2)),[0,0])
-       pslope = -1/slope;
-       if pslope == -inf
-         pslope = inf;
-       end
-       if pslope ~= inf
-         q = obj.yIntercept (1,pslope);
-         eq = s2 - pslope*s1 - q;
-       else
-         eq = s1 - obj.vx(1);
-       end
-       if subs(eq,[s1,s2],[tx,ty]) < 0   
-            eq = -eq;
-       end
-       %NCOP (obj.nv+1,1) = 0;
-       NC (obj.nv,2) = eq;
-
-       %NC = NCOP
-       
-         return
        if size(obj.ineqs,2) > obj.nv
            NC(2:obj.nv+1,:) = NC(1:obj.nv,:)     
-             
+
 
            edge = edgeNo(1)
            j = 1;
@@ -3386,6 +3469,6 @@ classdef region
        end
      end
      end
-     
+
         
 end

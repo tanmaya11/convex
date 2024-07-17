@@ -773,7 +773,7 @@ classdef functionNDomain
 
      methods % conjugate
 
-        function pc = conjugateOfPiecePoly (obj)
+         function pc = conjugateOfPiecePoly (obj)
              pc = functionNDomain.empty();
              f = obj.f;
              vars = f.getVars;
@@ -781,21 +781,14 @@ classdef functionNDomain
              x=sym('x');
              y=sym('y');
              NCV = d.getNormalConeVertex(x, y)
-             edgeNo = obj.d.getEdgeNosInf(vars)
-             NCV = d.adjustNormalConeUnB(NCV, edgeNo, x, y)
              [subdV,undV] =  obj.getSubdiffVertexT1 (NCV, [x,y])
              exprs = obj.conjugateExprVerticesT1 ([x,y], undV )
-             pc = functionNDomain.empty;
-             for i = 1:size(exprs,2)
-                pc = [pc,functionNDomain([symbolicFunction(exprs(i))],region(subdV(i,:), [x,y]))];
-             end
-             pc.printL
-            pc = pc.mergeL;
-             return
+
+
 
             
 
-             
+             edgeNo = obj.d.getEdgeNosInf(vars)
              NCE = obj.d.getNormalConeEdge(x, y, edgeNo)
              NCE = obj.d.adjustNormalConeUnB(NCE, edgeNo, x, y)
              
@@ -803,13 +796,17 @@ classdef functionNDomain
 
             
             
-             
+             pc = functionNDomain.empty;
+            for i = 1:size(exprs,2)
+                pc = [pc,functionNDomain([symbolicFunction(exprs(i))],region(subdV(i,:), [x,y]))];
+            end
             %expr for edges are wrong
             for i = 1:size(exprs,2)
                 pc = [pc,functionNDomain([symbolicFunction(exprs(i))],region(subdE(i,:), [x,y]))];
             end
             
-            
+            pc.printL
+            pc = pc.mergeL;
             
          % 
          %      [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
@@ -820,12 +817,12 @@ classdef functionNDomain
          %      expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr )
          end
      end
-     
 
      methods
        function [lg,limg] = limitOfGradientAtVertices (obj)
            g = obj.f.gradient;
            for i = 1:size(g,2)
+               
              [lg(:,i),limg(:,i)] = obj.d.limitOfFAtVertices (g(i));
            end
        end
@@ -833,7 +830,7 @@ classdef functionNDomain
      methods % subdifferentials
       
        function [subdV,undV] = getSubdiffVertexT1 (obj, NCV, dualVars)
-            subdV = sym(zeros(size(NCV,1),3));
+            subdV = sym(zeros(obj.d.nv,3));
             undV = zeros(obj.d.nv,1);
             [lg,limg] = obj.limitOfGradientAtVertices; 
 
@@ -861,14 +858,14 @@ classdef functionNDomain
               elseif (coef(2) < 0)
                 m = diff(NCV(j,1),dualVars(1));
                 c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
                 m = -diff(NCV(j,1),dualVars(1));
                 c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
               end 
               f = symbolicFunction(NCV(j,2));
-              coef = f.getLinearCoeffs (dualVars);
+              coef = f.getLinearCoeffs (dualVars)
               if (coef(1) == 0)
                 subdV(j,2) = dualVars(2)-limg(j,2);
                  if coef(2) > 0
@@ -891,10 +888,11 @@ classdef functionNDomain
         end
   
         function [subdV,undV] = getSubdiffVertexT2 (obj, NCV, dualVars)
-            subdV = sym(zeros(obj.d.nv,3));
+            subdV = sym(zeros(size(obj.d.ineqs,2),3));
             undV = zeros(obj.d.nv,1);
+            disp('T2')
             %g = obj.envelope(i).f.gradient;
-            [lg,limg] = obj.limitOfGradientAtVertices; 
+            [lg,limg] = obj.limitOfGradientAtVertices
             for j = 1:obj.d.nv
               if ~lg(j,1)
                   undV(j)=true;
@@ -907,19 +905,17 @@ classdef functionNDomain
               undV(j)=false;
               f = symbolicFunction(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
-              %%%%%%%%%%%%%%%%%%%%%%%%%
               % if (coef(1) == 0)
               %   subdV(j,1) = dualVars(2)-limg(j,2);
               % elseif (coef(1) < 0)
               %   m = double(diff(NCV(j,1),dualVars(1)));
               %   c = yIntercept(m, [limg(j,1),limg(j,2)]);
-              %   subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              %   subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               % else
               %   m = -double(diff(NCV(j,1),dualVars(1)));
               %   c = yIntercept(m, [limg(j,1),limg(j,2)]);
               %   subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
-              % end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
+              % end
               if (coef(1) == 0)
                  if coef(2) > 0
                  subdV(j,1) = dualVars(2)-limg(j,2);
@@ -931,52 +927,45 @@ classdef functionNDomain
               elseif (coef(2) < 0)
                 m = diff(NCV(j,1),dualVars(1));
                 c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
                 m = -diff(NCV(j,1),dualVars(1));
                 c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
               end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
-
               f = symbolicFunction(NCV(j,2));
               k = j+1;
               if k > obj.d.nv
                   k = 1;
               end
               coef = f.getLinearCoeffs (dualVars);
-              %%%%%%%%%%%%%%%%%%%%%%%%%
               % if (coef(1) == 0)
               %    subdV(j,2) = dualVars(2)-limg(k,2);
               % elseif (coef(1) < 0)
               %   m = diff(NCV(j,2),dualVars(1));
-              %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
-              %   subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              %   c = yIntercept(m, [limg(k,1),limg(k,2)])
+              %   subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c)
               % else
               %   m = -diff(NCV(j,2),dualVars(1));
               %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
               %   subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
               % end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
               if (coef(1) == 0)
-                subdV(j,2) = dualVars(2)-limg(k,2);
                  if coef(2) > 0
-                 subdV(j,2) = dualVars(2)-limg(k,2);
+                 subdV(k,1) = dualVars(2)-limg(k,2);
                  else
-                     subdV(j,2) = -(dualVars(2)-limg(k,2));
+                     subdV(k,1) = -(dualVars(2)-limg(k,2));
                  end
               elseif (coef(2) == 0) 
-                subdV(j,2) = coef(1) * (dualVars(1) - limg(k,1));  
+                subdV(k,1) = coef(1)*(dualVars(1) - limg(k,1));  
               elseif (coef(2) < 0)
-                m = diff(NCV(j,2),dualVars(1));
+                m = diff(NCV(j,1),dualVars(1));
                 c = yIntercept(m, [limg(k,1),limg(k,2)]);
-                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                subdV(k,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
-                m = -diff(NCV(j,2),dualVars(1));
+                m = -diff(NCV(k,1),dualVars(1));
                 c = yIntercept(m, [limg(k,1),limg(k,2)]);
-                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
+                subdV(k,1) = dualVars(2) - m*dualVars(1) - c;
               end 
             end
         end
