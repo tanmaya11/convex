@@ -24,6 +24,8 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             d(4)=domain([1,0;3,1;2,2;0,1],x,y);
             d(5)=domain([-5,-4;0,-4;2,0;2,1;1,3;-5,5],x,y);
             
+
+            
             p(1) = plq_1piece(d(1),f);
             %f=symbolicFunction(x^2-y^2);
             p(2) = plq_1piece(d(2),f);
@@ -67,7 +69,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 
         function testMax (testCase)
             testCase.PRect = testCase.PRect.maximum
-            %return
+           % return
              testCase.PRect.print
              testCase.PRect.printDomainMaple
             %% 
@@ -86,7 +88,15 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             ineq(4) = s_1 + 7*s_2 - 46;
             d = region(ineq,[s_1,s_2]);
             d = d.removeInfV;
+            
             d = d.poly2orderUnbounded;
+            edgeNo = d.getEdgeNosInf(d.vars)
+            d.print
+            return
+            
+            d.ineqs(edgeNo) = d.ineqs;
+            d.print
+            return
             p = functionNDomain([f], [d]);
             p.printL
             pc = p(1).conjugateOfPiecePoly ;
@@ -97,15 +107,51 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         function testBiconjugate2 (testCase)
             s_1 = sym('s1');
             s_2 = sym('s2');
-            f = symbolicFunction(-5*s_1 - 4*s_2 - 20);
+            f1 = symbolicFunction(-5*s_1 - 4*s_2 - 20);
             ineq(1) = s_1 + 4;
             ineq(2) =  s_2 + 5 ;
-            d = region(ineq,[s_1,s_2]);
-            d = d.removeInfV;
-            d = d.poly2orderUnbounded;
-            p = functionNDomain([f], [d]);
+            d1 = region(ineq,[s_1,s_2]);
+            d1 = d1.removeInfV;
+            d1 = d1.poly2orderUnbounded;
+            edgeNo = d1.getEdgeNosInf(d1.vars)
+            d1.ineqs(edgeNo) = d1.ineqs;
+            p(1) = functionNDomain(f1,d1);
+            %d.print
+            %return
+            f2 = symbolicFunction(-5*s_1 + 5*s_2 + 25);
+            ineq(1) = s_1 - (9*s_2)/5 - 5;
+            ineq(2) =  -s_2 - 5 ;
+            d2 = region(ineq,[s_1,s_2]);
+            d2 = d2.removeInfV;
+            d2 = d2.poly2orderUnbounded;
+            edgeNo = d2.getEdgeNosInf(d2.vars)
+            d2.ineqs(edgeNo) = d2.ineqs; 
+            
+            p(2) = functionNDomain(f2,d2);
+
+            f3 = symbolicFunction(-4*s_2);
+            ineq(1) = - s_1 - 4;
+            ineq(2) =  (9*s_2)/5 - s_1 + 5;
+            d3 = region(ineq,[s_1,s_2]);
+            d3 = d3.removeInfV;
+            d3 = d3.poly2orderUnbounded;
+            edgeNo = d3.getEdgeNosInf(d3.vars)
+            d3.ineqs(edgeNo) = d3.ineqs; 
+            p(3) = functionNDomain(f3,d3);
+
+            
+            
             p.printL
-            pc = p(1).conjugateOfPiecePoly ;
+            %return
+            pc = p.conjugateOfPiecePoly ;
+
+            d = pc(1).d+pc(2).d;
+            d.print
+            d = d + pc(3).d;
+
+
+
+
 
         end
 

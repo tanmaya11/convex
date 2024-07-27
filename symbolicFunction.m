@@ -48,6 +48,7 @@ classdef symbolicFunction
             if isequal(class(obj.f),'double')
               num = obj.f;  
             else
+                %obj.f
               [num,den] = numden(obj.f);
             end
         end   
@@ -198,7 +199,9 @@ classdef symbolicFunction
         end
 
         function printL (l, first, last)
-
+            %l
+            %nargin
+            %size(l,1)
             if nargin == 1
             
             for i = 1: size(l,1)
@@ -324,6 +327,9 @@ classdef symbolicFunction
     methods % derivatives
 
          function f = dfdx (obj,x)
+             %disp('in dfdx')
+             %diff(obj.f,x)
+             %simplify(diff(obj.f,x))
             f = symbolicFunction(simplify(diff(obj.f,x)));
          end 
 
@@ -335,13 +341,16 @@ classdef symbolicFunction
              f = symbolicFunction(f0);
          end
 
-         function g = gradient(obj)
-           vars = obj.getVars;
-           for i = 1:obj.nv
+         function g = gradient(obj, vars)
+           
+           for i = 1:size(vars,2)
              g(i) = obj.dfdx(vars(i));
+            % g(i).print
            end 
          end
 
+         % this works only for bivariate - put checks in place and change
+         % name
          function f = tangent (obj, x, y)
              dx = obj.dfdx(obj.vars(1));
              dy = obj.dfdx(obj.vars(2));
@@ -361,16 +370,18 @@ classdef symbolicFunction
         end
         
         function l = isQuad(obj)
-         
+        
           if (obj.degreeDen ~= 0)
               l = false;
               return;
           end
+        
           if (obj.degreeNum == 2)
               l = true;
           else
               l = false;
           end
+        
         end
 
         function l = isParabolic(obj)
@@ -508,10 +519,10 @@ classdef symbolicFunction
 
         function f = subsF (obj,vars,vals)
 
-            if (subs(obj.getDen, vars, vals) == 0)
+            if (isAlways(subs(obj.getDen, vars, vals) == 0))
                 if (subs(obj.getNum, vars, vals) == 0)
                   f = symbolicFunction(sym(nan),1);  
-                elseif (subs(obj.getNum, vars, vals) > 0)    
+                elseif (isAlways(subs(obj.getNum, vars, vals) > 0) )   
                   f = symbolicFunction(sym(intmax),1);
                 else
                   f = symbolicFunction(sym(-intmax),1);

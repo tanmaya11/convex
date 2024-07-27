@@ -335,7 +335,9 @@ classdef plq_1piece
             disp("not bivariate in 'plq.m'")
             return
           end
+          
           obj = convexEnvelope1 (obj,x,y);
+          %return
           %disp('hh')
           %obj.print
           %return
@@ -392,9 +394,10 @@ classdef plq_1piece
             % etaR.printL
             % return
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
+          
+
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            
- 
+            %   return
             for i = 1:size(envfs,2)
               %r = envds(i).simplify;
               r = envds(i).simplifyUnboundedRegion;
@@ -780,6 +783,7 @@ classdef plq_1piece
           nb0 = nb;
           %lb
           %ub
+          
 
           % solve these to get bounds
           for j=1:size(etaV,2)
@@ -810,6 +814,7 @@ classdef plq_1piece
               
             end
           end
+          
           for j=1:size(etaE,1)
             if (lE(j))
               continue;
@@ -851,6 +856,7 @@ classdef plq_1piece
           end
           %lb
           %ub
+          
           nb1 = nb0; 
           
             for i = nb0+1:nb
@@ -878,6 +884,7 @@ classdef plq_1piece
            
           %lb
           %ub
+          
           obj0 = etah + symbolicFunction(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
           obj0 = obj0.subsVarsPartial([b],[bv]);
@@ -921,7 +928,7 @@ classdef plq_1piece
           mub = min(ub);
           %disp("in here")  
             %for i = 1:size(lb,2)
-            
+           
           if positivePsi (obj,-psi2,x,y)==1
             disp("-psi2 +ve check this")
             mlb,mub,psi2,psi0
@@ -991,12 +998,15 @@ classdef plq_1piece
             %for i = 1:nb
               %f0 = simplify(psi1^2/psi2+psi0);
               f0 = symbolicFunction(psi1^2,psi2) + symbolicFunction(psi0);
+            
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
+             
               % put in r1
               %envfs = [envfs, symbolicFunction(f0)];
               %envfs
               r00  = obj.d.polygon + region([r0,r1], [x,y]);
+            
               if ~isempty(r00) 
               
               envfs = [envfs, f0];
@@ -1012,7 +1022,7 @@ classdef plq_1piece
               r0 = simplify(mub*psi2-psi1);
               r00  = obj.d.polygon + region(r0, [x,y]);
               if ~isempty(r00) 
-              
+            
               envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
@@ -1029,7 +1039,7 @@ classdef plq_1piece
               envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
-              
+           
               %envds = [envds, region(r0, [x,y])];
               envds = [envds, r00];
               end
@@ -1044,6 +1054,7 @@ classdef plq_1piece
             %envfs = [envfs, f1];
             %envds = [envds, r0];
           end
+         
         end
            
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
@@ -1869,8 +1880,8 @@ classdef plq_1piece
               end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
-             % etah
-             % etaw
+            %  etah
+            %  etaw
               if (degreeh==0 & degreew==1)
              %       disp("const-lin")
             %        continue
@@ -2050,6 +2061,7 @@ classdef plq_1piece
                  %      size(envfs)
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                  %      size(envfs)
+                 return
                     end
                 end
          %       for i0 = i00+1:size(envfs,2)
@@ -2314,7 +2326,18 @@ classdef plq_1piece
             dualVars = [s1,s2];
             %obj.envd(i) = obj.envd(i).simplify; % (obj.envd(i).vars);
             obj.envelope(i).d = obj.envelope(i).d.simplify;
-            obj.envelope(i).d = obj.envelope(i).d.poly2order;
+            %disp('check order')
+            %obj.envelope(i).d = obj.envelope(i).d.poly2order;
+            %obj.envelope(i).d.print
+            obj.envelope(i).d = obj.envelope(i).d.poly2orderUnbounded;
+            %obj.envelope(i).d.print
+            %d = d.poly2orderUnbounded;
+            disp('inf edge')
+            obj.envelope(i).d.print
+            edgeNo = obj.envelope(i).d.getEdgeNosInf(obj.envelope(i).d.vars)
+            %d.print
+            obj.envelope(i).d.ineqs(edgeNo) = obj.envelope(i).d.ineqs;
+            %d.print
 %             disp('ord')
              %obj.envelope(i).d.print
 % return
@@ -2339,27 +2362,35 @@ classdef plq_1piece
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
               
-              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
-              edgeNo = obj.envelope(i).d.getEdgeNos(vars);
-              NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2);
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2)
+              %disp('ncv')
+              edgeNo = obj.envelope(i).d.getEdgeNos(vars)
+              
+              % for i = 1:obj.envelope(i).d.nv
+              %     edgeNo(i) = i;
+              % end
+              NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2)
 
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
-
-              [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars)
+             % disp('subd')
+              [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars)
+            %  disp('subdt2')
               %[subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
-              [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars);
+              [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars)
               
-              subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs);
-              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
+              subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs)
+              disp('type1')
+              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV )
               expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr )
             elseif obj.envelopeExpr(i).type == 3   
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
-              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
-              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2)
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars)
+              disp('type3')
               expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV )
               for j = 1:obj.envelope(i).d.nv
                 unR(j) = false;
@@ -2399,7 +2430,11 @@ classdef plq_1piece
                   conjf = [conjf,expr(j)];  
                   conjd = [conjd, region(subdV(j,:), dualVars)];
                 end
+                %conjd(j).print
+                %expr(j)
+                
             end
+           
             for j = 1:obj.envelope(i).d.nv
                 if (unR(j))
                 conjf = [conjf,expr(obj.envelope(i).d.nv+j)];
@@ -2410,8 +2445,11 @@ classdef plq_1piece
             for i = 1:size(conjf,2)
                 %disp('in conjugate')
                 %conjd(i).print
+                %conjf(i).print
                 conjugates = [conjugates,functionNDomain([conjf(i)],conjd(i))];
             end
+            disp('b4 merge')
+            conjugates.printL
             conjugates = conjugates.mergeL;
 
             for i = 1:size(conjugates,2)

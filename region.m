@@ -36,7 +36,9 @@ classdef region
             obj = obj.normalize1;
             obj = obj.unique;
             %obj.ineqs.printL
+            
             obj = obj.getVertices  ;
+            
             if obj.nv == 0
                 obj = region.empty;
             end
@@ -1303,107 +1305,7 @@ classdef region
            
         end
 
-        function obj = removeTangent0 (obj, nP, px, py)
-            n = 0;
-            mark = [];
-           
-            for i = 1:size(obj.ineqs,2)
-                vars = obj.ineqs(i).getVars();
-                %obj.ineqs(i).subsF(vars,[px(i),py(i)])
-              
-              if ~ obj.ineqs(i).isQuad 
-                continue
-              end
-              % get feasible point
-              for j = 1:nP
-                if ~obj.ineqs(i).subsF(vars,[px(j),py(j)]).isZero  
-                  continue
-                end
-              sx = px(j)-0.1;
-              sy = py(j);
-
-              if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
-                sx = px(j)+0.1;
-                sy = py(j);
-                if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
-                  sx = px(j);
-                  sy = py(j)+0.1;
-                  if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
-                    sx = px(j);
-                    sy = py(j)-0.1;
-                    if ~ isAlways(obj.ineqs(i).subsF(vars,[sx,sy])>0)
-                        disp('feasible pt not found')
-                        return
-                    end
-                  end
-                end
-              end
-              % disp('sx')
-              % double(sx), double(sy)
-              
-                tangent = obj.ineqs(i).tangent(px(j),py(j));
-                tangent = tangent.normalize1;
-                if ~ isAlways(tangent.subsF(vars,[sx,sy])> 0)
-                    tangent = -tangent
-                end
-                disp('tangent')
-                %px(j),py(j)
-                % obj.ineqs(i).f
-                % tangent.f
-                % d1 = sqrt((sx-px(j))^2+(sy-py(j))^2)
-                % lc = tangent.getLinearCoeffs (vars)
-                % d2 = abs(double(tangent.subsF(vars,[sx,sy]).f/sqrt(lc(1)^2+lc(2)^2)))
-                % pt = isAlways(d1 <= d2)
-                %continue
-                for k = 1:size(obj.ineqs,2)
-                  l1 = isAlways(obj.ineqs(k).f==tangent.f);
-                  %l2 = isAlways(obj.ineqs(k).f==-tangent.f);
-                  % if l2
-                  %     obj = region.empty();
-                  %     return
-                  % end
-                  if ~l1 %& ~l2
-                    continue
-                  end
-
-                  % fix pt
-                      n = n + 1;
-                      mark(n) = k;
-                  break;
-                  % check whether to remove tangent or parabola
-                  % x = px(j) + 0.1;
-                  % y = py(j);
-                  % l = isAlways (obj.ineqs(i).subsF(x,y).f<= 0);
-                  % if l1
-                  %     %isAlways (tangent.subsF(x,y).f <= 0)
-                  %   if (l & isAlways (tangent.subsF(x,y).f <= 0))
-                  %     n = n + 1;
-                  %     mark(n) = i;
-                  %     break;
-                  %   else
-                  %     n = n + 1;
-                  %     mark(n) = k;
-                  %     break;
-                  %   end
-                  % end
-                  % if l2
-                  %     %isAlways (-tangent.subsF(x,y).f <= 0)
-                  %   if (l & isAlways (-tangent.subsF(x,y).f <= 0))
-                  %     n = n + 1;
-                  %     mark(n) = i;
-                  %     break;
-                  %   else
-                  %     n = n + 1;
-                  %     mark(n) = k;
-                  %     break;
-                  %   end
-                  % end
-                end 
-              end
-            end
-            obj.ineqs(mark) = [];
-        end
-
+        
         function obj = removeTangent (obj, nP, px, py)
             n = 0;
             mark = [];
@@ -1419,8 +1321,8 @@ classdef region
                 end
                 tangent = obj.ineqs(i).tangent(px(j),py(j));
                 tangent = tangent.normalize1;
-                %disp('tan')
-                %tangent.print
+            %    disp('tan')
+            %    tangent.print
                 % Get point in parabola
                 sx = px(j) + 0.1;
                 p = obj.ineqs(i).subsF([vars(1)],[sx]);
@@ -1464,11 +1366,15 @@ classdef region
                 end 
               end
             end
-            %mark
+            %    disp('removeTangent')
+            %    obj.print
+            %    mark
             obj.ineqs(mark) = [];
             % check
             nv = obj.nv;
             obj = obj.getVertices;
+    
+            %obj.print   
             if nv ~= obj.nv
                 disp('Error in removeTangent')
                 disp('This is okay when 3 vertices are on parabola - its removing middle one')
@@ -2303,10 +2209,13 @@ classdef region
        mark = [];  
       
        for i = 1:size(obj.ineqs,2) 
+           
          if obj.ineqs(i).isQuad  
              continue
          end
+        
          [nvi, vxi, vyi] = obj.vertexOfEdge(i);
+         
          if nvi <= 2
              continue
          end
@@ -2315,11 +2224,13 @@ classdef region
          x = (vxi(ind(1)) + vxi(ind(2)))/2;
          y = (vyi(ind(1)) + vyi(ind(2)))/2;
          %obj.ptFeasible (x,y) 
+        
          if ~obj.ptFeasible (obj.vars,[x,y])
              mark(1) = ind(1);
          else
              mark(1) = ind(3);
          end
+        
          break;
 
        end  
@@ -2407,6 +2318,7 @@ classdef region
                
        
        end
+       
        if obj.nv ~= 0
            %disp('b4 sort')
            %obj.nv
@@ -2423,7 +2335,9 @@ classdef region
          obj.vx = V(:,1)';
          obj.vy = V(:,2)';
        end
+     
            obj = obj.linear3pt; 
+          
        end  
        %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
 
@@ -2437,6 +2351,7 @@ classdef region
        % end
        %return
        % to remove inf - fix + in convex envelope solve
+     
        if obj.ptFeasible(obj.vars, [intmax,intmax])
           obj.nv=obj.nv+1;
           obj.vx(obj.nv) = intmax;
@@ -2464,7 +2379,7 @@ classdef region
        for i = 1:n
            if nargin == 2
                %intmax,obj.vy(i)
-               obj.ptFeasible(obj.vars, [intmax,obj.vy(i)])
+               obj.ptFeasible(obj.vars, [intmax,obj.vy(i)]);
            end
            if obj.ptFeasible(obj.vars, [obj.vx(i),intmax])
              obj.nv=obj.nv+1;
@@ -2493,29 +2408,58 @@ classdef region
 
      function [edgeNo] = getEdgeNosInf(obj, vars)
          edgeNo = zeros(size(obj.ineqs,2),1);
+         e1 = obj.getEdges(obj.vx(1),obj.vy(1));
+
          
-         if obj.nv == 1 & size(obj.ineqs,2) ==2
-             edgeNo = [1,2];
-             return
+         % return
+         % if obj.nv == 1 & size(obj.ineqs,2) ==2
+         %     edgeNo = [1,2];
+         %     return
+         % end
+         [nv1, vx, vy] = obj.vertexOfEdge(e1(1));
+         [nv2, vx, vy] = obj.vertexOfEdge(e1(2));
+         if nv1 == 1 | nv2 == 1
+             add = 1;
+             edgeNo(1) = 1 ;
+         else
+             add = 0;
          end
          for i = 1:size(obj.ineqs,2)
-            
+            %obj.ineqs(i).print
            [nv, vx, vy] = obj.vertexOfEdge(i);
-           if nv == 1
-               if obj.vx(1)==vx(1) & obj.vy(1)==vy(1)
-                   edgeNo(i) = 1;
-               else
-                   edgeNo(i) = obj.nv+1;
+           % if nv == 1
+           %     if obj.vx(1)==vx(1) & obj.vy(1)==vy(1)
+           %         edgeNo(i) = 1;
+           %     else
+           %         edgeNo(i) = obj.nv+1;
+           %     end
+           %     continue
+           % end
+           start = 1;
+           % obj.vx(obj.nv)
+           % obj.vy(obj.nv)
+           % vx(1)
+           % vy(1)
+           % isAlways(vx(1) == obj.vx(obj.nv))
+           % isAlways(vy(1) == obj.vy(obj.nv))
+           %% change condition
+           if nv > 1
+               if isAlways(vx(2) == obj.vx(obj.nv)) & isAlways(vy(2) == obj.vy(obj.nv)) & ~ (isAlways(vx(1) == obj.vx(obj.nv-1)) & isAlways(vy(1) == obj.vy(obj.nv-1)))
+                  start = 2;
                end
-               continue
            end
             for j = 1:obj.nv
-                  if obj.vx(j)==vx(1) & obj.vy(j)==vy(1)
+                  if obj.vx(j)==vx(start) & obj.vy(j)==vy(start)
                       break;
                   end    
             end
-            edgeNo(i) = j+1;
+            edgeNo(i) = j +add;
            
+         end
+         if nv1 == 1
+             edgeNo(e1(1)) = 1;
+         elseif nv2 == 1
+             edgeNo(e1(2)) = 1;
          end
          
      end
@@ -2846,24 +2790,8 @@ classdef region
      function [l,obj] = merge (obj, obj2)
          l = false;
          n = 0; 
-%          lQuad = false;
-%          for i =1:size(obj.ineqs,2)
-%               if obj.ineqs(i).isQuad
-%                   lQuad = true;
-%                   %return
-%               end
-%          end
-%          for i =1:size(obj2.ineqs,2)
-%               if obj2.ineqs(i).isQuad
-%                   lQuad = true;
-%                   %return
-%               end
-%          end
-
-         % to be tested and added
          lQuad1 = false;
          nmq1 = 0;
-         %size(obj.ineqs,2)
          for i =1:size(obj.ineqs,2)
              if obj.ineqs(i).isQuad
                  lQuad1 = true;
@@ -2873,21 +2801,14 @@ classdef region
          end
          lQuad2 = false;
          nmq2 = 0;
-
          for i =1:size(obj2.ineqs,2)
              if obj2.ineqs(i).isQuad
                  lQuad2 = true;
                  nmq2 = nmq2 + 1;
                  mq2(nmq2) = i;
-
              end
          end
-         %lQuad1
-         %lQuad2
          if (lQuad1 & lQuad2)
-             %disp("Quad merge")
-             %obj.print
-             %obj2.print
              marki = [];
              markj = [];
              for i = 1:nmq1
@@ -2905,18 +2826,12 @@ classdef region
                obj.ineqs(marki) = []; 
                obj2.ineqs(markj) = [];
                obj = obj+obj2;
-               %disp("returning from quad")
                if isempty(obj)
-                   %disp('reverting')
                    l = false;
                    obj=obj3;
                end
                return
              end
-%          elseif lQuad1
-%              return
-%          elseif lQuad2
-%              return
           end
          lQuad = lQuad1 | lQuad2;
          if lQuad1 & lQuad2
@@ -2931,163 +2846,61 @@ classdef region
              lQuad= false;
          end
          if lQuad
-    %         lQuad1, lQuad2
-             if lQuad1
-                 
-                 for i = 1:nmq1
-                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)));
 
+             if lQuad1
+                 for i = 1:nmq1
+                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)))
                      if ~ isempty(V)
                          return
                      end
                  end
              end
-            % V
-             
+             if lQuad2
+                 for i = 1:nmq2
+                     V = obj.getIntersectingFeasiblePts(obj2.ineqs(mq2(i)))
+                     if ~ isempty(V)
+                         return
+                     end
+                 end
+             end
          end
-         % cant do + as it returns empty due to contadictory ineqs
-         %obj = obj + obj2;
-         % hence remove those then do +
-         %obj.print;
-       %  disp('in merge')
-       %  obj.print
-       %  obj2.print
-         %obj = obj.unique;
-         %disp("unique")
-         %obj.print;
-
-         %disp('after q')
          marki = [];
          markj = [];
          for i =1:size(obj.ineqs,2)
 
            for j =1:size(obj2.ineqs,2)
-               %j
              if obj.ineqs(i) == -obj2.ineqs(j)
                  [nvi, vxi, vyi] = obj.vertexOfEdge(i); % move to outer loop
                  [nvj, vxj, vyj] = obj2.vertexOfEdge(j);
-                 % obj.ineqs(i)
-                 % nvi,nvj
-                 % nvi 3 : crazy case - line with 3 vertices - example in
-                 % testmerge5
                  if nvi ~= nvj
                      continue
                  end
-%                  if nvi ~= 2
-%                      continue
-%                  end
-                 %nvi
                  if nvi == 1 & (~lQuad)
-                     
                      if obj.isconvex (obj2, i, j, vxi(1), vyi(1))
-
                      l = true;
                      n = n + 1;
                      marki(n) = i;
                      markj(n) = j;
                      end
                      break;
-
                  end
                  if nvi == 2
-
                  [tvxi, sortedIndices] = sort(abs(vxi));
                  vxi = vxi(sortedIndices);
                  vyi = vyi(sortedIndices);
-
                  [tvxj, sortedIndices] = sort(abs(vxj));
                  vxj = vxj(sortedIndices);
                  vyj = vyj(sortedIndices);
-
-                 % check same vertices and convex angles 
-                 % implement this part
-                 % [l, pos] = obj.isVertexIrrational 
-                 % [l, pos] = obj2.isVertexIrrational 
                  if all(vxi == vxj) & all(vyi == vyj)
-                  %   disp('here')
-                  %   obj.isconvex (obj2, i, j, vxi(1), vyi(1))
                      if ~obj.isconvex (obj2, i, j, vxi(1), vyi(1))
                        continue
                      end
-                     
-                     % edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(1),vyi(1)]);
-                     % if edgeiNo == 0
-                     %     continue
-                     % end
-                     % if ~obj.ineqs(edgeiNo).isLinear 
-                     %     continue;
-                     % end
-                     % edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(1),vyi(1)]);
-                     % if edgejNo == 0
-                     %     continue
-                     % end
-                     % 
-                     % if ~obj2.ineqs(edgejNo).isLinear 
-                     %     continue;
-                     % end
-                     % 
-                     % mi = obj.slopeIneq(edgeiNo);
-                     % a1 = atan(mi);
-                     % %if a1 < 0
-                     % %    a1 = a1 + 2*pi;
-                     % %end
-                     % mj = obj2.slopeIneq(edgejNo);
-                     % a2 = atan(mj);
-                     % %if a2 < 0
-                     % %    a2 = a2 + 2*pi;
-                     % %end
-                     % 
-                     % if (a1+a2 > pi) | (a1+a2 < -pi)
-                     %     continue
-                     % end
-
-%%%%%%%%%%%%%%%%
-
                     if nvi == 2   
-                   %     disp('here2')
-                   %     obj.isconvex (obj2, i, j, vxi(2), vyi(2)) 
                         if ~obj.isconvex (obj2, i, j, vxi(2), vyi(2))
                             continue
                         end
-
-                     % edgeiNo = obj.getOtherEdgeAtVertex (i,[vxi(2),vyi(2)]);
-                     % if edgeiNo == 0
-                     %     continue
-                     % end
-                     % 
-                     % if ~obj.ineqs(edgeiNo).isLinear 
-                     %     continue;
-                     % end
-                     % edgejNo = obj2.getOtherEdgeAtVertex (j,[vxi(2),vyi(2)]);
-                     % if edgejNo == 0
-                     %     continue
-                     % end
-                     % 
-                     % if ~obj2.ineqs(edgejNo).isLinear 
-                     %     continue;
-                     % end
-                     % 
-                     % mi = obj.slopeIneq(edgeiNo);
-                     % a1 = atan(mi);
-                     % %if a1 < 0
-                     % %    a1 = a1 + 2*pi;
-                     % %end
-                     % mj = obj2.slopeIneq(edgejNo);
-                     % a2 = atan(mj);
-                     % %if a2 < 0
-                     % %    a2 = a2 + 2*pi;
-                     % %end
-                     % 
-                     % if (a1+a2 > pi) | (a1+a2 < -pi)
-                     %     continue
-                     % end
                     end
-
-%%%%%%%%%%%%%%%%%
-
-                         %atan(mi)+atan(mj)
-                       
-                         l = true;
+                    l = true;
                        n = n + 1;
                        marki(n) = i;
                        markj(n) = j;
@@ -3096,31 +2909,20 @@ classdef region
                  end  
              end
            end
-           %if l
-           %    break
-           %end
          end
          if l
-           % obj.print;
-           % obj2.print;
-           % marki
-           % markj
            obj3 = obj;
            obj.ineqs(marki) = []; 
            obj2.ineqs(markj) = [];
            obj = obj+obj2;
-           %obj.print
            obj = obj.simplifyUnboundedRegion;
            if isempty(obj)
                disp('empty')
                l = false;
                obj = obj3;
-               % obj.print
            end
-           %obj.print
          end
-
-         end
+     end
 
 
 
@@ -3142,19 +2944,26 @@ classdef region
        function [l,limf] = limitOfFAtVertices (obj, f)
          vars = obj.vars;  
          vars2 = [vars(2),vars(1)];
+         %obj.nv
          for j = 1: obj.nv
+            
            l1 = f.limit(vars,[obj.vx(j),obj.vy(j)]);
            l2 = f.limit(vars2,[obj.vy(j),obj.vx(j)]);
-           if (l1 == l2)
+           
+           if (isAlways(l1.f == l2.f))
              l(j) = true;
              %limf(j) = double(l1.f);
              limf(j) = l1.f;
            else
-             ldrx1(j) = false;
-             limdrx1(j) = 0;
+               l(j) = false;
+             %limf(j) = double(l1.f);
+             limf(j) = 0;
+             %ldrx1(j) = false;
+             %limdrx1(j) = 0;
            end
          end
        end 
+       %limf
      end
 
      methods % normal cone
@@ -3317,8 +3126,8 @@ classdef region
        end
        NC (1,1) = eq;
        %NCOP (1,2) = 0;
-
-       slope = obj.slopeIneq(edgeNo(size(edgeNo,2)),[0,0])
+       size(edgeNo,1)
+       slope = obj.slopeIneq(edgeNo(size(edgeNo,1)),[0,0])
        pslope = -1/slope;
        if pslope == -inf
          pslope = inf;

@@ -104,7 +104,7 @@ classdef plq
               tic
            %   obj.pieces(i).conjfia
               obj.pieces(i).conjugates.printL
-              %return
+            %  return
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
               disp("MaxConjugate") 

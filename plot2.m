@@ -1,4 +1,31 @@
 figure
+ezplot(['x + 7*y - 10' ]) 
+hold on
+ezplot(['x + 2*y - 4' ]) 
+hold on
+ezplot(['48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184']) 
+hold on
+ezplot(['x - (9*y)/5 - 5' ]) 
+hold on
+ezplot(['0*x - y - 5 ']) 
+
+return
+
+
+figure
+ezplot(['x + 2*y + 4'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['x - (9*y)/5 - 5'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['0*x -  y - 5'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['x + 7*y - 46'] ,[-25,5],[-6,11])   
+hold on
+
+
+return
+
+figure
 ezplot('x + 7*y - 10' ,[-10,5],[-3,3])   
 hold on
 ezplot('x - (5*y)/7 - 25/7' ,[-10,5],[-3,3])   
@@ -9,6 +36,8 @@ ezplot('48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184' ,[-10,5],[-3,3])
 hold on
 ezplot('x - (9*y)/5 - 5' ,[-10,5],[-3,3])   
 return
+
+
 
 
 figure
@@ -137,18 +166,6 @@ xlim([-100, 100]); % Set x-axis range from 0 to 6
 ylim([-100, 100]); % Set y-axis range from 0 to 6
 return
 
-s_1 + 2*s_2 + 4 <= 0 
-s_1 + (5*s_2)/2 - 1 <= 0 
-s_1 + 7*s_2 - 46 <= 0 
-
-
-
-
-
-- s_1 - 2*s_2 - 4 <= 0 
-8*s_1 + 24*s_2 - (s_1 + 2*s_2)^2 - 32 <= 0 
-46 - 7*s_2 - s_1 <= 0 
-s_1 - 2*s_2 + 44 <= 0 
 
 figure
 ezplot('x+7*y+4') 

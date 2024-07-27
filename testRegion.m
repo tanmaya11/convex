@@ -130,10 +130,12 @@ classdef testRegion < matlab.unittest.TestCase
             %l7 = [ -196*y+148*x+(x+7*y)^2 - 684, x-9*y/5-5,-x-7*y-4, x+7*y-10 ] 
             %l7 = [-x-7*y-4 ,x+7*y-10,196*y - 148*x - (x + 7*y)^2 + 684]
 
-            l7 = [x + 7*y - 10 , x - (5*y)/7 - 25/7 , - x - 2*y - 4 , 48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184 , x - (9*y)/5 - 5 ]
+            l7 = [x + 7*y - 10 , x + 2*y - 4 , 48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184 , x - (9*y)/5 - 5, - y - 5 ]
             testCase.w = region(l7,[x,y]);
-            testCase.w.print;
 
+            testCase.w = testCase.w.linear3pt
+testCase.w.print;
+  return
             
              testCase.w = testCase.w.removeTangent(testCase.w.nv,testCase.w.vx,testCase.w.vy);
              testCase.w.print;
@@ -352,6 +354,9 @@ classdef testRegion < matlab.unittest.TestCase
           x = sym('x');
           y = sym('y');
 
+
+
+
           l0 = [-x-7*y- 4,x+7*y-10,-x-2*y-4,x+2*y-4,48*x-56*y+4*x*y+x^2+4*y^2-184];
           r0 = region(l0,[x,y]);
           r0 = r0.simplifyUnboundedRegion;
@@ -374,6 +379,8 @@ classdef testRegion < matlab.unittest.TestCase
         function testMerge8(testCase)
           x = sym('x');
           y = sym('y');
+
+
 
           l0 = [x+7*y-10, -x-2*y-4, x+2*y-4, 48*x-56*y+4*x*y+x^2+4*y^2-184, x-(9*y)/5-5];
           r0 = region(l0,[x,y]);
@@ -414,7 +421,7 @@ classdef testRegion < matlab.unittest.TestCase
           
           r1 = r1.simplifyUnboundedRegion;
                   
-          
+        
           r1.print
           [l,r] = merge(r0,r1);
           l
@@ -424,6 +431,29 @@ classdef testRegion < matlab.unittest.TestCase
           
         end
         
+        function testMerge10(testCase)
+          x = sym('x');
+          y = sym('y');
+          
+          l0 = [- x - 7*y - 4 , x + 7*y - 10 , x + 2*y - 4 , 48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184 ];
+          r0 = region(l0,[x,y]);
+          r0.print
+          r0.printMaple
+          l1 = [x + 7*y + 4 , x - (9*y)/5 - 5 , - y - 5 , 48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184  ] ;
+          r1 = region(l1,[x,y]);
+          
+          r1.print
+          r1.printMaple
+          % [l,r] = merge(r0,r1);
+          % l
+          % r.print
+
+          return
+          
+        end
+        
+
+
 
         function testLinear3pt(testCase)
           x = sym('x');
@@ -447,6 +477,48 @@ classdef testRegion < matlab.unittest.TestCase
         %linear3pt(obj)
         end 
 
+        function testgetEdgeNosInf(testCase)
+            s_1 = sym('s1');
+            s_2 = sym('s2');
+            f = symbolicFunction(-5*s_1 + 5*s_2 + 25);
+            ineq(1) = s_1 + 2*s_2 + 4;
+            ineq(2) = s_1 - (9*s_2)/5 - 5;
+            ineq(3) = - s_2 - 5 ;
+            ineq(4) = s_1 + 7*s_2 - 46;
+            d = region(ineq,[s_1,s_2]);
+            d = d.removeInfV;
+            
+            d = d.poly2orderUnbounded;
+            edgeNo = d.getEdgeNosInf(d.vars)
+            % [3 2 1 4]
+            d.print
+            return
+        end
+
+        function testgetEdgeNosInf2(testCase)
+             s_1 = sym('s1');
+            s_2 = sym('s2');
+            f = symbolicFunction(-5*s_1 - 4*s_2 - 20);
+            ineq(1) = s_1 + 4;
+            ineq(2) =  s_2 + 5 ;
+            d = region(ineq,[s_1,s_2]);
+            d = d.removeInfV;
+            d = d.poly2orderUnbounded;
+            edgeNo = d.getEdgeNosInf(d.vars)
+            % [1 2]
+            d.print
+        end
+
+
+        function testgetEdgeNosInf3(testCase)
+            testCase.r.print
+            r = testCase.r.simplifyUnboundedRegion;
+            r.print
+            r = r.poly2orderUnbounded;
+            r.print
+            edgeNo = r.getEdgeNosInf(r.vars)
+            return
+        end
 
     end
 
