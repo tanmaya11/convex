@@ -663,13 +663,13 @@ classdef functionNDomain
                    end
                    %r.print
                    % objL(ja(j)).d.print
-                   if i == 5
+                   if i == 10
                        disp('r')
                    r.print
                    end
                    [l,r] = r.merge (objL(ja(j)).d);
   %                 l
-                   if i == 5
+                   if i == 10
 
                        
                        ja(j)

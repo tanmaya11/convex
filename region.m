@@ -2156,6 +2156,23 @@ classdef region
              obj.ineqs(i) = obj.ineqs(i).normalize1;
          end
      end
+
+     function l = isVertex(obj,V)
+         l = true;
+         for i = 1:size(V,1)
+           for j = 1:obj.nv
+             l1 = false;
+             if (isAlways(obj.vx(j) == V(i,1))) & (isAlways(obj.vy(j) == V(i,2)))
+                 l1 = true;
+                 break
+             end
+           end
+           if ~l1
+               l = false;
+               return
+           end
+         end
+     end
      
      function V = getIntersectingFeasiblePts(obj, f0)
          
@@ -2851,15 +2868,22 @@ classdef region
                  for i = 1:nmq1
                      V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)))
                      if ~ isempty(V)
-                         return
+                         if ~obj2.isVertex(V)
+                             disp('not vertex')
+                           return
+                         end 
                      end
                  end
              end
              if lQuad2
                  for i = 1:nmq2
                      V = obj.getIntersectingFeasiblePts(obj2.ineqs(mq2(i)))
+
                      if ~ isempty(V)
-                         return
+                         if ~obj.isVertex(V)
+                             disp('not vertex')
+                           return
+                         end 
                      end
                  end
              end
