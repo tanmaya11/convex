@@ -26,11 +26,12 @@ classdef symbolicFunction
               den=den0;
             end
             if nargin ~= 0
-            
             obj.f= num / den;
 
             % temp change 19/4/24
-            if num0 == 0 
+            % class(num0)
+            % isreal(num0)
+            if num0 == 0 | isreal(num0) 
                 obj.vars = [];
                 obj.nv = 0;
                 return
@@ -44,6 +45,7 @@ classdef symbolicFunction
         function f = getF(obj)
             f = obj.f;
         end  
+        
         function num = getNum(obj)
             if isequal(class(obj.f),'double')
               num = obj.f;  
@@ -324,12 +326,10 @@ classdef symbolicFunction
 
     end
 
-    methods % derivatives
+    methods % derivatives pass variables here
 
          function f = dfdx (obj,x)
-             %disp('in dfdx')
-             %diff(obj.f,x)
-             %simplify(diff(obj.f,x))
+             
             f = symbolicFunction(simplify(diff(obj.f,x)));
          end 
 
@@ -351,6 +351,17 @@ classdef symbolicFunction
 
          % this works only for bivariate - put checks in place and change
          % name
+         
+         function f = tangentOfSlope (obj, m)
+             dx = obj.dfdx(obj.vars(1))
+             dy = obj.dfdx(obj.vars(2))
+             
+             f = symbolicFunction(m * dy.f - dx.f);
+             
+             
+         end
+
+
          function f = tangent (obj, x, y)
              dx = obj.dfdx(obj.vars(1));
              dy = obj.dfdx(obj.vars(2));

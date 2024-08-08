@@ -335,7 +335,7 @@ classdef plq_1piece
             disp("not bivariate in 'plq.m'")
             return
           end
-          
+          disp('in convexE 1')
           obj = convexEnvelope1 (obj,x,y);
           %return
           %disp('hh')
@@ -387,6 +387,7 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
+            disp('eta done')
             % obj.d.V
             % obj.d.E
             % etaV.printL
@@ -397,8 +398,11 @@ classdef plq_1piece
           
 
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
+            disp('solved')
             %   return
             for i = 1:size(envfs,2)
+                i,size(envfs,2)
+
               %r = envds(i).simplify;
               r = envds(i).simplifyUnboundedRegion;
               if isempty(r)
@@ -410,6 +414,7 @@ classdef plq_1piece
               %end
              
             end
+            disp('out')
 
         end 
 
@@ -1840,7 +1845,7 @@ classdef plq_1piece
 %           disp("ix")
 %           size(ix,2)
           for i=1:size(ix,2)
-      %       i
+             i
              i00 = size(envfs,2);
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1869,7 +1874,7 @@ classdef plq_1piece
                   lV(jx(i)) = true;
               end
               
-             % etah
+              etah
              % etaw
              % ix(i)
              % jx(i)

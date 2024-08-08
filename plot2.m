@@ -1,3 +1,39 @@
+
+figure
+ezplot(['-x - 2*y - 4' ]) 
+hold on
+ezplot(['x + 2*y - 4' ]) 
+hold on
+ezplot(['48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184']) 
+hold on
+ezplot(['y - 2*x + 137/19' ]) 
+hold on
+ezplot(['53/19 - y - (5*x)/7' ]) 
+hold on
+
+ezplot(['2*x - y - 73/19' ]) 
+hold on
+ezplot(['(9*x)/5 + y + 99/95' ]) 
+hold on
+
+
+return
+
+figure
+ezplot(['5/2 - y/2 - x' ]) 
+hold on
+ezplot(['x + 3*y - 10' ]) 
+hold on
+ezplot(['2 - (7*y)/5 - x' ]) 
+hold on
+ezplot(['17/5 - (7*y)/5 - x' ]) 
+hold on
+ezplot(['x + 3*y - 5' ]) 
+hold on
+return
+
+
+
 figure
 ezplot(['x + 7*y - 10' ]) 
 hold on
