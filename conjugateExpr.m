@@ -1,6 +1,8 @@
 function [conj] = conjugateExpr(q,eq,x,y)
 
     lambda = sym('lambda');
+    infs = sym('inf');
+
     s1 = sym('s1');
     s2 = sym('s2');
 
@@ -14,7 +16,14 @@ function [conj] = conjugateExpr(q,eq,x,y)
     eq2 = s2 -  del1(2) - lambda*del(2);
     eq3 = eq1*del(2)-eq2*del(1);
     
-    xy = solve([eq3,q],[x,y]);
+    xy = solve([eq3,q],[x,y])
+    conj = infs;
+    
+    if isempty(xy)
+        return
+    elseif isempty(xy.x) | isempty(xy.y)
+        return
+    end
     
     conj = s1*xy.x + s2*xy.y - subs(eq,[x,y],[xy.x,xy.y]);
     conj = simplifyFraction(conj);

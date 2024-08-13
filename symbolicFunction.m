@@ -208,8 +208,16 @@ classdef symbolicFunction
             
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
+                    
+                    % if isinf(l(i,j)) 
+                    %     disp('Inf')
+                    % else
+                    %class (l(i,j).f)
+                    %if isSymType(l(i,j).f, 'sym')
                     l(i,j).f = simplifyFraction(l(i,j).f);
+                    
                     l(i,j).print;
+                    %end
                 end
             end
             else
@@ -365,10 +373,13 @@ classdef symbolicFunction
          function f = tangent (obj, x, y)
              dx = obj.dfdx(obj.vars(1));
              dy = obj.dfdx(obj.vars(2));
-             
-             m =  - dx.subsF(obj.vars,[x,y]).f / dy.subsF(obj.vars,[x,y]).f;
-             c = y - m*x;
-             f = symbolicFunction(obj.vars(2) - m * obj.vars(1) -c);
+             if isAlways(dy.subsF(obj.vars,[x,y]).f==0)
+                 f = symbolicFunction(obj.vars(1)-x);
+             else
+               m =  - dx.subsF(obj.vars,[x,y]).f / dy.subsF(obj.vars,[x,y]).f;
+               c = y - m*x;
+               f = symbolicFunction(obj.vars(2) - m * obj.vars(1) -c);
+             end
              
          end
 

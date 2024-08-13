@@ -2573,7 +2573,36 @@ classdef plq_1piece
           end
      end
 
-     
+     function biconjugateP(obj)
+         
+              
+           for j=1:size(obj.envelope,2) 
+             if (size(obj.conjfia,1) > 0)
+                 bic = functionNDomain.empty ;
+                bic = obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).conjugateOfPiecePoly;
+                bic = bic.addEq;
+                bic.printL
+             end
+           end
+           
+           bc = obj.maxConjugate.conjugateOfPiecePoly
+           bc.printL
+           bc = bc.addEq;
+           bc.printL
+
+           % size(obj.maxf,2)
+           % for i = 1:size(obj.maxf,1)
+           %   disp(i)
+           %   obj.maxf(i).print
+           %   obj.maxd(i).print
+           % end
+           % %disp("Conjugate Expr")
+            % obj.conjf.printL
+            % disp('Conjugate Domain')
+             %obj.conjd(j).print
+
+         end
+
     end
 
     

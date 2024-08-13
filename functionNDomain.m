@@ -556,7 +556,61 @@ classdef functionNDomain
             %m 
           end
           
-      
+          function objL2 = addEq(objL)  
+          ia(1) = 1;
+          n = 0;
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+          ja = [];
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(objL,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(objL,2)
+                  
+                  if isAlways(objL(i).f.f == objL(j).f.f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          ia
+          ja
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+          m = 0;
+          for i = 1:size(objL,2)
+            if marked(i)
+                continue;
+            end
+            r = objL(i).d;
+            % m = m + 1;
+            % objL2(m) = objL(i);
+            marked(i) = true;
+            for j=ia(i):ia(i+1)-1
+                %m = m + 1;
+                %objL2(m) = objL(ja(j));
+                if ~isempty(r)
+                r = r + objL(ja(j)).d;
+                ja(j)
+                r.print
+                end
+                marked(ja(j)) = true;
+            end
+            if ~isempty(r)
+            m = m + 1;
+            objL2(m) = functionNDomain(objL(i).f, r);
+            end
+           end
+             
+          end   
          
 
          function objL2 = jSort(objL)  
@@ -661,14 +715,10 @@ classdef functionNDomain
                    if marked(ja(j))
                        continue
                    end
-                   %r.print
-                   % objL(ja(j)).d.print
-                   if i == 10
-                       disp('r')
-                   r.print
-                   end
+                   
                    [l,r] = r.merge (objL(ja(j)).d);
-  %                 l
+                   j
+                   l
                    if i == 10
 
                        
@@ -778,6 +828,16 @@ classdef functionNDomain
      methods % conjugate
 
         function pc = conjugateOfPiecePoly (obj)
+            disp("in conjugateOfPiecePoly")
+            for i=1:size(obj,2)
+                d = obj(i).d;
+                d = d.removeInfV;
+                d = d.poly2orderUnbounded;
+                edgeNo = d.getEdgeNosInf(d.vars)
+                d.ineqs(edgeNo) = d.ineqs;
+                obj(i).d = d;
+            end
+             obj.printL
              pc = functionNDomain.empty();
              x=sym('x');
              y=sym('y');
@@ -786,7 +846,7 @@ classdef functionNDomain
                vars = f.getVars;
                d = obj(i).d;
                
-               NCV = d.getNormalConeVertexQ(x, y);
+               NCV = d.getNormalConeVertexQ(x, y)
                edgeNo = d.getEdgeNosInf(vars);
                % if d.nv == 1
                % NCV = d.adjustNormalConeUnB(NCV, edgeNo, x, y)
@@ -873,7 +933,7 @@ classdef functionNDomain
                 eq1 = x - g(1).f
                 eq2 = y - g(2).f
                 s12 = solve([eq1,eq2],obj.d.vars)
-                if isempty (s12) | isempty(s12.s1)
+                if isempty (s12) | isempty(s12.s_1)
                    c1 = coeffs(eq1,obj.d.vars(1))
                    c2 = coeffs(eq2,obj.d.vars(1))
                    ineq = c2(2)*eq1 - c1(2)*eq2

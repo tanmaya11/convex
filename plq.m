@@ -229,11 +229,10 @@ classdef plq
    % 
    %      % linear / quadratic
     function obj = biconjugateF(obj)
-      for i =1:size(obj.maxConjugate,2)
-          pc = obj.maxConjugate.conjugateOfPiecePoly (i);
-          return
-   %      obj.biconjugate = obj.maxConjugate(i).biconjugate  
-      end
+        for i = 1:obj.nPieces
+           obj.pieces(i).biconjugateP
+        end
+      
     end
   
    %      % fractional
