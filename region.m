@@ -3009,11 +3009,11 @@ classdef region
 
             % Assuming edges are ordered
             % V1-V2 is edge 1
-             obj.print
+            % obj.print
              for j = 1: obj.nv
-                 
-                slope = obj.slopeIneq(j,[obj.vx(j),obj.vy(j)])
-                pslope = -1/slope
+                 %j
+                slope = obj.slopeIneq(j,[obj.vx(j),obj.vy(j)]);
+                pslope = -1/slope;
                 if pslope == -inf
                     pslope = inf;
                 end
@@ -3027,42 +3027,35 @@ classdef region
                 if obj.nv > 1
                 k = j-1;
                 if k < 1
-                    disp('this case')
-                   % obj.ineqs(j).f
+                   
                   vs = obj.ineqs(j).getVars();
-                  size(vs)
-                  vs(1)
-                  isAlways(vs(1) == 's_2')
+                 
                   if size(vs,2) == 1 & isAlways(vs(1) == 's_2')
-                      disp('in here')
-                      py = obj.vy(j)
+                      py = obj.vy(j);
                       px = obj.vx(j)+0.1 ;
                       if ~obj.ptFeasible(obj.vars,[px,py])
                           px = obj.vx(j)-0.1 ;
-                          
                       end
                   elseif size(vs,2) == 1 & isAlways(vs(1) == 's_1')
-                      disp('in here1')
-                      py = obj.vy(j)+0.1 
-                      px = obj.vx(j)
-                      obj.ptFeasible(obj.vars,[px,py])
+                      py = obj.vy(j)+0.1 ;
+                      px = obj.vx(j);
+                      
                       if ~obj.ptFeasible(obj.vars,[px,py])
-                          py = obj.vy(j)-0.1 
-                          
+                          py = obj.vy(j)-0.1 ;
                       end
                   else
                       px = obj.vx(j) - 0.1;
                       ey = subs(obj.ineqs(j).f,obj.vars(1),px);
                       py = solve(ey,obj.vars(2));
-                      
+                      py = py(1);
                       if isempty(py)
                           py = obj.vy(j);
                       end
-                      obj.ptFeasible(obj.vars,[px,py])
                       if ~obj.ptFeasible(obj.vars,[px,py])
                           px = obj.vx(j) + 0.1;
                           ey = subs(obj.ineqs(j).f,obj.vars(1),px);
                           py = solve(ey,obj.vars(2));
+                          py = py(1);
                           if isempty(py)
                           py = obj.vy(j);
                           end
@@ -3073,9 +3066,9 @@ classdef region
                   px = obj.vx(k);
                   py = obj.vy(k);
                 end
-                px,py
-                eq
-                subs(eq,[s1,s2],[px,py])
+                % px,py
+                % eq
+                % subs(eq,[s1,s2],[px,py])
                 qd = 0;
                 % if obj.ineqs(j).isQuad
                 %   qd = 1  
@@ -3086,10 +3079,10 @@ classdef region
                   end
                 end
                 % end
-                NC(j,1) = eq
+                NC(j,1) = eq;
 
-                slope = obj.slopeIneq(j+1,[obj.vx(j),obj.vy(j)])
-                pslope = -1/slope
+                slope = obj.slopeIneq(j+1,[obj.vx(j),obj.vy(j)]);
+                pslope = -1/slope;
                 if pslope == -inf
                     pslope = inf;
                 end
@@ -3099,33 +3092,71 @@ classdef region
                 else
                     eq = s1 - obj.vx(j);
                 end
+                eq
                 if obj.nv > 1
                 k = j+1;
                 if k >obj.nv
-                    if size(vs,2) == 1 & isAlways(vs(1) == 's_2')
-                      py = obj.vy(j) - 0.1;
-                      px = obj.vx(j);
-                      if ~obj.ptFeasible(obj.vars,[px,py])
-                          py = obj.vy(j) + 0.1;
-                      
-                      end
-                  else
-                  px = obj.vx(j) - 0.1;
-                  ey = subs(obj.ineqs(j+1).f,obj.vars(1),px);
-                  py = solve(ey,obj.vars(2));
-                  if ~obj.ptFeasible(obj.vars,[px,py])
-                      px = obj.vx(j) + 0.1;
-                      ey = subs(obj.ineqs(j).f,obj.vars(1),px);
-                      py = solve(ey,obj.vars(2));
-                      size(py)
-                      if size(py,1) > 1
-                          py = py(1);
-                      end
-                      if isempty(py)
+                    % if size(vs,2) == 1 & isAlways(vs(1) == 's_2')
+                    %   py = obj.vy(j) - 0.1;
+                    %   px = obj.vx(j);
+                    %   if ~obj.ptFeasible(obj.vars,[px,py])
+                    %       py = obj.vy(j) + 0.1;
+                    % 
+                    %   end
+                    % else
+                    %   px = obj.vx(j) - 0.1;
+                    %   ey = subs(obj.ineqs(j+1).f,obj.vars(1),px);
+                    %   py = solve(ey,obj.vars(2));
+                    %   if ~obj.ptFeasible(obj.vars,[px,py])
+                    %     px = obj.vx(j) + 0.1;
+                    %     ey = subs(obj.ineqs(j).f,obj.vars(1),px);
+                    %     py = solve(ey,obj.vars(2));
+                    %     size(py)
+                    %     if size(py,1) > 1
+                    %       py = py(1);
+                    %     end
+                    %     if isempty(py)
+                    %       py = obj.vy(j);
+                    %     end
+                    %   end
+                    % end
+
+
+                   vs = obj.ineqs(j+1).getVars();
+                 
+                   if size(vs,2) == 1 & isAlways(vs(1) == 's_2')
                       py = obj.vy(j);
+                      px = obj.vx(j)+0.1 ;
+                      if ~obj.ptFeasible(obj.vars,[px,py])
+                          px = obj.vx(j)-0.1 ;
                       end
-                  end
+                   elseif size(vs,2) == 1 & isAlways(vs(1) == 's_1')
+                      
+                      py = obj.vy(j)+0.1 ;
+                      px = obj.vx(j);
+                      obj.ptFeasible(obj.vars,[px,py]);
+                      if ~obj.ptFeasible(obj.vars,[px,py])
+                          py = obj.vy(j)-0.1 ;
+                      end
+                   else
+                      px = obj.vx(j) - 0.1;
+                      ey = subs(obj.ineqs(j+1).f,obj.vars(1),px);
+                      py = solve(ey,obj.vars(2));
+                      py = py(1);
+                      if isempty(py)
+                          py = obj.vy(j);
+                      end
+                      if ~obj.ptFeasible(obj.vars,[px,py])
+                          px = obj.vx(j) + 0.1;
+                          ey = subs(obj.ineqs(j).f,obj.vars(1),px);
+                          py = solve(ey,obj.vars(2));
+                          py = py(1);
+                          if isempty(py)
+                          py = obj.vy(j);
+                          end
+                      end
                     end
+
                 else
                   px = obj.vx(k);
                   py = obj.vy(k);
@@ -3134,7 +3165,7 @@ classdef region
                 %     qd = 2
                 % 
                 %     isAlways(subs(eq,[s1,s2],[obj.vx(k),obj.vy(k)]) < 0)
-                %px, py
+               px, py
                   if isAlways(subs(eq,[s1,s2],[px,py]) < 0)
                     eq = -eq;
                   end
@@ -3143,7 +3174,7 @@ classdef region
                 end
 
                 
-                NC(j,2) = eq
+                NC(j,2) = eq;
                 
                 % [tx,ty] = getFeasiblePtNearV (obj, j);
                 % 
@@ -3254,7 +3285,8 @@ classdef region
             NC = sym(zeros(obj.nv,2));
             meanx = sum(obj.vx)/obj.nv;
             meany = sum(obj.vy)/obj.nv;
-            
+            obj.vx
+            obj.vy
              for j = 1: obj.nv-1
                 slope = obj.slope(j,j+1);
                 pslope = -1/slope;
@@ -3271,7 +3303,7 @@ classdef region
                 if subs(eq,[s1,s2],[obj.vx(j+1),obj.vy(j+1)]) < 0
                     eq = -eq;
                 end
-                NC(j,1) = eq;
+                NC(j,1) = eq
                 if pslope ~= inf
                     q = obj.yIntercept (j+1,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -3281,7 +3313,9 @@ classdef region
                 if subs(eq,[s1,s2],[obj.vx(j),obj.vy(j)]) < 0
                     eq = -eq;
                 end
-                NC(j+1,2) = eq;
+                disp('here')
+                j+1
+                NC(j+1,2) = eq
              end
              j = obj.nv;
              % if nv = 1, slope calculation is wrong - temp fix put in
@@ -3306,7 +3340,7 @@ classdef region
                     eq = -eq;
                 end
               
-                NC(j,1) = eq;
+                NC(j,1) = eq
                 if pslope ~= inf
                     q = obj.yIntercept (1,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -3317,7 +3351,7 @@ classdef region
                     eq = -eq;
                 end
                 
-                NC(1,2) = eq;
+                NC(1,2) = eq
              % end
              
                 

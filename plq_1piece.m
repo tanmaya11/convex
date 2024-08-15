@@ -398,7 +398,7 @@ classdef plq_1piece
           
 
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            disp('solved')
+            %disp('solved')
             %   return
             for i = 1:size(envfs,2)
                 i,size(envfs,2)
@@ -1845,7 +1845,7 @@ classdef plq_1piece
 %           disp("ix")
 %           size(ix,2)
           for i=1:size(ix,2)
-             i
+  %           i
              i00 = size(envfs,2);
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1874,7 +1874,7 @@ classdef plq_1piece
                   lV(jx(i)) = true;
               end
               
-              etah
+             % etah
              % etaw
              % ix(i)
              % jx(i)
@@ -2590,16 +2590,7 @@ classdef plq_1piece
            bc = bc.addEq;
            bc.printL
 
-           % size(obj.maxf,2)
-           % for i = 1:size(obj.maxf,1)
-           %   disp(i)
-           %   obj.maxf(i).print
-           %   obj.maxd(i).print
-           % end
-           % %disp("Conjugate Expr")
-            % obj.conjf.printL
-            % disp('Conjugate Domain')
-             %obj.conjd(j).print
+       
 
          end
 

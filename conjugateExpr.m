@@ -12,6 +12,8 @@ function [conj] = conjugateExpr(q,eq,x,y)
     del1 = sym.empty();
     del1(1) = diff(eq,x);
     del1(2) = diff(eq,y);
+    % eq1 = s1 -  del1(1) - lambda*del(1);
+    % eq2 = s2 -  del1(2) - lambda*del(2);
     eq1 = s1 -  del1(1) - lambda*del(1);
     eq2 = s2 -  del1(2) - lambda*del(2);
     eq3 = eq1*del(2)-eq2*del(1);
@@ -27,6 +29,7 @@ function [conj] = conjugateExpr(q,eq,x,y)
     
     conj = s1*xy.x + s2*xy.y - subs(eq,[x,y],[xy.x,xy.y]);
     conj = simplifyFraction(conj);
+    conj = subs(conj,[s1,s2],[x,y]);
     %eq1 = subs(eq1,[x,y],[xy.x,xy.y]);
     %l = solve(eq1,lambda);
     

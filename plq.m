@@ -28,6 +28,7 @@ classdef plq
               obj.pieces(i).print;
           end
           obj.maxConjugate.printL
+          obj.biconjugate.printL
       end
 
       function printLatex(obj)
@@ -165,6 +166,7 @@ classdef plq
           end
           %return
           obj.maxConjugate.printM;
+          obj.biconjugate.printM;
           %obj.maxConjugate.printM2;
        
       end
@@ -229,9 +231,13 @@ classdef plq
    % 
    %      % linear / quadratic
     function obj = biconjugateF(obj)
-        for i = 1:obj.nPieces
-           obj.pieces(i).biconjugateP
-        end
+        % for i = 1:obj.nPieces
+        %    obj.pieces(i).biconjugateP
+        % end
+           bc = obj.maxConjugate.conjugateOfPiecePoly
+           bc.printL
+           obj.biconjugate = bc.addEq;
+           obj.biconjugate.printL
       
     end
   

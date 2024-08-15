@@ -520,6 +520,19 @@ testCase.w.print;
             return
         end
 
+        function testgetVertices(testCase)
+             s_1 = sym('s1');
+            s_2 = sym('s2');
+            
+            ineq(1) = s_2 - 1;
+            ineq(2) =  s_2 - s_1 ;
+            ineq(3) = - s_1 - 1;
+            d = region(ineq,[s_1,s_2]);
+            
+            d.print
+        end
+
+
     end
 
 end

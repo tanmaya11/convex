@@ -68,10 +68,11 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
     methods (Test)
 
         function testMax (testCase)
-            testCase.PRect = testCase.PRect.maximum
+            testCase.PRect = testCase.PRect.maximum;
+            testCase.PRect = testCase.PRect.biconjugateF;
            % return
-             testCase.PRect.print
-             testCase.PRect.printDomainMaple
+             testCase.PRect.print;
+             testCase.PRect.printDomainMaple;
             %% 
             %testCase.PRect.printLatex
             
@@ -426,12 +427,12 @@ return
 
         function testMaxR3 (testCase)
             testCase.PRect3.print
-            testCase.PRect3 = testCase.PRect3.maximum
-            testCase.PRect3.biconjugateF
+            testCase.PRect3 = testCase.PRect3.maximum;
+            testCase.PRect3 = testCase.PRect3.biconjugateF;
             %% 
             %testCase.PRect.printLatex
             %testCase.PRect3.print
-            %testCase.PRect3.printDomainMaple
+            testCase.PRect3.printDomainMaple
         end
         
         function testMaxT (testCase)
@@ -447,7 +448,8 @@ return
         function testMaxP (testCase)
             testCase.Poly.print
             testCase.Poly = testCase.Poly.maximum
-            testCase.Poly.biconjugateF
+            testCase.Poly = testCase.Poly.biconjugateF
+            testCase.Poly.printDomainMaple
              return
              testCase.Poly.print
            %  return
@@ -473,10 +475,11 @@ return
         end
 
         function testMaxThesis (testCase)
-            %testCase.PRect3.print
+            testCase.PRect3.print
+            
             warning('off','all') 
             testCase.PThesis = testCase.PThesis.maximum
-            
+            testCase.PThesis = testCase.PThesis.biconjugateF
             %% 
             %testCase.PRect.printLatex
            % testCase.PThesis.print
@@ -487,7 +490,7 @@ return
             %testCase.PRect3.print
             warning('off','all')
 
-            n = 2;
+            n = 1;
             x = sym('x');
             y = sym('y');
             f=symbolicFunction(x*y);
@@ -531,12 +534,15 @@ return
             end
             testCase.PThesis = plq(q);
 
-            testCase.PThesis = testCase.PThesis.maximum
+            testCase.PThesis = testCase.PThesis.maximum;
+            testCase.PThesis = testCase.PThesis.biconjugateF;
+            testCase.PThesis.printDomainMaple;
+            return
             
             %% 
             %testCase.PRect.printLatex
             testCase.PThesis.print
-            testCase.PThesis.printDomainMaple
+            
         end
 
 

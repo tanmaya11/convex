@@ -580,8 +580,8 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
-          ia
-          ja
+          %ia
+          %ja
           for i = 1:size(objL,2)
               marked(i) = false;
           end
@@ -599,8 +599,9 @@ classdef functionNDomain
                 %objL2(m) = objL(ja(j));
                 if ~isempty(r)
                 r = r + objL(ja(j)).d;
-                ja(j)
-                r.print
+                r = r.simplifyUnboundedRegion;
+           %     ja(j)
+           %     r.print
                 end
                 marked(ja(j)) = true;
             end
@@ -846,7 +847,11 @@ classdef functionNDomain
                vars = f.getVars;
                d = obj(i).d;
                
-               NCV = d.getNormalConeVertexQ(x, y)
+               if size(d.ineqs,2) == d.nv
+                   NCV = d.getNormalConeVertex(x, y)
+               else
+                NCV = d.getNormalConeVertexQ(x, y)
+               end
                edgeNo = d.getEdgeNosInf(vars);
                % if d.nv == 1
                % NCV = d.adjustNormalConeUnB(NCV, edgeNo, x, y)
