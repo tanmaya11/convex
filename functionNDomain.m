@@ -147,6 +147,7 @@ classdef functionNDomain
              end
              for i = 1:size(objL1,2)
                for j = i+1:size(objL1,2)
+                   i,j
                  rf = objL1(i).d + objL2(j).d;
                  if size(rf.ineqs,2) < 3
                      rf = region.empty;
@@ -185,31 +186,31 @@ classdef functionNDomain
                      end
                      
                      n = n + 1;  
-                      for iv = 1:r(k).nv
-                         
-                          
-                          if (r(k).nv==3 & size(r(k).ineqs,2)==4)
-                             disp('error1')
-                             objL1(i).d.print
-                             rf.print
-                             r(k).print
-                         end
-                         
-                          if (abs(r(k).vx(iv))==intmax)
-                             disp('open in minus')
-                             r(k).print
-                             objL1(i).d.print
-                             rf.print
-                             
-                         end
-                         if (abs(r(k).vy(iv))==intmax)
-                             disp('open in minus')
-                             r(k).print
-                             objL1(i).d.print
-                             rf.print
-                             
-                         end
-                     end
+                     %  for iv = 1:r(k).nv
+                     % 
+                     % 
+                     %      if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                     %         disp('error1')
+                     %         objL1(i).d.print
+                     %         rf.print
+                     %         r(k).print
+                     %     end
+                     % 
+                     %      if (abs(r(k).vx(iv))==intmax)
+                     %         disp('open in minus')
+                     %         r(k).print
+                     %         objL1(i).d.print
+                     %         rf.print
+                     % 
+                     %     end
+                     %     if (abs(r(k).vy(iv))==intmax)
+                     %         disp('open in minus')
+                     %         r(k).print
+                     %         objL1(i).d.print
+                     %         rf.print
+                     % 
+                     %     end
+                     % end
                      
                      objL(n) = functionNDomain([objL1(i).f(1)],r(k));
                      index(n,1) = [i];
@@ -231,22 +232,22 @@ classdef functionNDomain
                      
                          % disp("t2")
                          % r(k).print
-                     for iv = 1:r(k).nv
-                         if (r(k).nv==3 & size(r(k).ineqs,2)==4)
-                             disp('error2')
-                             objL2(i).d.print
-                             rf.print
-                             r(k).print
-                         end
-                         if (abs(r(k).vx(iv))==intmax)
-                             disp('open in minus')
-                             r(k).print
-                         end
-                         if (abs(r(k).vy(iv))==intmax)
-                             disp('open in minus')
-                             r(k).print
-                         end
-                     end
+                     % for iv = 1:r(k).nv
+                     %     if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                     %         disp('error2')
+                     %         objL2(i).d.print
+                     %         rf.print
+                     %         r(k).print
+                     %     end
+                     %     if (abs(r(k).vx(iv))==intmax)
+                     %         disp('open in minus')
+                     %         r(k).print
+                     %     end
+                     %     if (abs(r(k).vy(iv))==intmax)
+                     %         disp('open in minus')
+                     %         r(k).print
+                     %     end
+                     % end
                      objL(n) = functionNDomain([objL2(j).f(1)],r(k));
                      index(n,1) = [j];
                    end
@@ -373,13 +374,25 @@ classdef functionNDomain
                  %end
                  n = n + 1;
                  objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
+
+                 if n ==12
+                     disp('mtimes')
+                     i
+                     objL1(i).f(1)
+                     objL1(i).d.print
+                     j
+                     objL2(j).f(1)
+                     objL2(j).d.print
+                     rf.print
+                 end
                end
              end
                       
          end
 
          function objR3 = maximumP(objL, lmerge) %, f, r2)
-         %    disp("in maximumP")
+             disp("in maximumP")
+             objL.printL
            n = 0;
            for i = 1:size(objL,2)
              if size(objL(i).f,2) == 1
@@ -391,8 +404,9 @@ classdef functionNDomain
              if lSing
                 continue
              end
-             %objL(i).f.printL
-             %objL(i).d.print
+             % i
+             % objL(i).f.printL
+             % objL(i).d.print
              %l
              %ind
              %fmax
@@ -430,8 +444,8 @@ classdef functionNDomain
              %disp('out3')
              %d1.print
              %d1 = d1.simplifyOpenRegion;
+             d00 = d1; 
              d1 = d1.simplifyUnboundedRegion ;
-             %d1.print
              
              %d1.printMaple
              n = n + 1;
@@ -444,6 +458,17 @@ classdef functionNDomain
              %d1.print
              %d1.printMaple
              %end
+             if n == 17
+                 disp('17b')
+                 i
+               d1.print
+               objL(i).f(1)
+               objL(i).f(2)
+               objL(i).d.print
+               ineqs1
+               d00.print
+             end
+             
              
            end
            if n == 0
@@ -453,8 +478,8 @@ classdef functionNDomain
                objR3 = jSort(objR);
                return
             end
-            % disp("b4 merge")
-            % objR.printL
+             disp("b4 merge")
+             objR.printL
            objR2 = mergeL(objR);
             objR3 = mergeL(objR2);
            % objR2 = mergeL(objR3);
@@ -555,6 +580,96 @@ classdef functionNDomain
             %disp('list size')
             %m 
           end
+          
+          function [objL2,index,lCh] = maxEqFun(objL)  
+           lCh = false;  
+           ia(1) = 1;
+           n = 0;
+           for i = 1:size(objL,2)
+              marked(i) = false;
+           end
+           ja = [];
+           % ja has indices of all equal functions , ia by col no
+           for i = 1:size(objL,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(objL,2)
+                  
+                  if isAlways(objL(i).f == objL(j).f)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+            end
+            for i = 1:size(objL,2)
+              marked(i) = false;
+            end
+            m = 0;
+            for i = 1:size(objL,2)
+               % i, marked(i), m
+              if marked(i)
+                continue;
+              end
+              if ia(i) == ia(i+1)
+                m = m + 1;
+                objL2(m) = objL(i);
+                index(m) = i;
+                marked(i) = true;
+                continue;    
+              end
+
+              
+              eqFun = functionNDomain.empty;
+              nF = 1;
+              eqFun(nF) = objL(ia(i));
+              for j=ia(i):ia(i+1)-1
+                nF = nF+1;
+                eqFun(nF) = objL(ja(j));
+              end
+              disp('eqFun')
+              eqFun.printL
+              [eqDom,indexD] = eqFun.*eqFun;
+              [eqDom] = eqDom.unique ;
+              
+              disp('eqDom1')
+              eqDom.printL
+              eqFun = eqDom;
+              [eqDom,indexD] = eqFun.*eqFun
+              eqDom = eqDom.unique
+              disp('eqDom2')
+              eqDom.printL
+              for j = 1:size(eqDom,2)
+                m = m + 1;
+                objL2(m) = eqDom(j);
+                index(m) = i;
+              end
+                  
+                 
+              
+            end
+            for i = 1:size(objL2,2)
+                size(objL2(i).f)
+                if size(objL2(i).f,2) == 2
+                    disp('checking')
+                    objL2(i).f.printL
+                    objL2(i).f([2]) = [];
+                    disp('checking2')
+                    objL2(i).f.printL
+                end
+                disp('checking3')
+                objL2(i).f
+
+            end
+            objL2.printL;
+            %disp('list size')
+            %m 
+          end
+         
           
           function objL2 = addEq(objL)  
           ia(1) = 1;
@@ -660,6 +775,52 @@ classdef functionNDomain
              
           end
           
+          function [objL2,index] = unique(objL)  
+          ia(1) = 1;
+          n = 0;
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+          ja = [];
+          % ja has indices of all equal functions , ia by col no
+          for i = 1:size(objL,2)
+              if (marked(i))
+                  ia(i+1) = n+1;
+                  continue
+              end
+              
+              for j = i+1:size(objL,2)
+                  
+                  if isAlways(objL(i).f(1).f == objL(j).f(1).f) & (objL(i).d == objL(j).d)
+                      n = n+1;
+                      ja(n) = j;
+                      marked(j) =true;
+                  end
+              end
+              ia(i+1) = n+1;
+          end
+          for i = 1:size(objL,2)
+              marked(i) = false;
+          end
+          m = 0;
+          for i = 1:size(objL,2)
+            %i = ia(j)  
+            if marked(i)
+                continue;
+            end
+            m = m + 1;
+            objL2(m) = objL(i);
+            
+            marked(i) = true;
+             for j=ia(i):ia(i+1)-1
+            %     m = m + 1;
+            %     objL2(m) = objL(ja(j));
+                 marked(ja(j)) = true;
+             end
+           end
+             
+          end
+         
           function [objL2,index] = mergeL(objL)  
           ia(1) = 1;
           n = 0;
@@ -684,10 +845,10 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
-            disp('in merge')
-            objL.printL
-            ia
-            ja
+           % disp('in merge')
+           % objL.printL
+           % ia
+           % ja
           m = 0;
           for i = 1:size(objL,2)
               marked(i) = false;
@@ -696,7 +857,7 @@ classdef functionNDomain
             if  marked(i)
                 continue
             end
-            disp('first')
+            %disp('first')
             if (ia(i) == ia(i+1))
                 if marked(i)
                    continue
@@ -707,7 +868,7 @@ classdef functionNDomain
                 marked(i) = true;
                 index(m) = i;
             else
-                i
+             %   i
                r = objL(i).d;
                lmerge = true;
                while lmerge
@@ -718,23 +879,23 @@ classdef functionNDomain
                    end
                    
                    [l,r] = r.merge (objL(ja(j)).d);
-                   j
-                   l
-                   if i == 10
-
-                       
-                       ja(j)
-                       objL(ja(j)).d.print
-                       l
-                       if l
-                           r.print
-                       end
-                   %i, j
-   %                r.print
-                   %disp('simplified')
-                   %s = objL(ja(j)).d.simplifyUnboundedRegion;
-                   %s.print
-                   end 
+   %                 j
+   %                 l
+   %                 if i == 10
+   % 
+   % 
+   %                     ja(j)
+   %                     objL(ja(j)).d.print
+   %                     l
+   %                     if l
+   %                         r.print
+   %                     end
+   %                 %i, j
+   % %                r.print
+   %                 %disp('simplified')
+   %                 %s = objL(ja(j)).d.simplifyUnboundedRegion;
+   %                 %s.print
+   %                 end 
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;

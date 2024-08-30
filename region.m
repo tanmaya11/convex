@@ -117,6 +117,38 @@ classdef region
             f = region(l,obj1.vars);
          end
 
+         function res =eq2(obj1,obj2)
+             res = false;
+             if ~eqVertices(obj1,obj2)
+                 return
+             end
+             if size(obj1.ineq,2) ~= ize(obj2.ineq,2)
+                 return
+             end
+             for i = 1:size(obj1.ineq,2)
+                 marked(i) = false;
+             end
+             for i = 1:size(obj1.ineq,2)
+                 if marked(i)
+                     continue
+                 end
+                for j = 1:size(obj2.ineq,2)
+                    if marked(j)
+                     continue
+                 end
+                  if isAlways(obj1.ineq(i).f == obj1.ineq(j).f)
+                    marked(i) = true;
+                  end
+                end
+             end
+             for i = 1:size(obj1.ineq,2)
+                if ~ marked(i)
+                    return
+                end
+             end
+             res = true;
+         end
+
          function obj = poly2orderUnbounded(obj)
            rad = cart2pol(obj.vx(1:obj.nv), obj.vy(1:obj.nv));
            radWrapped = mod(rad,2*pi);
@@ -1184,11 +1216,17 @@ classdef region
 
           fv1 = obj.funcVertices (f1);
           fv2 = obj.funcVertices (f2);
+          %disp('splitmax3.1')
+          %fv1.printL
+          %disp('splitmax3.2')
+          %fv2.printL
           f = f1-f2;
            vars = f.getVars;
           ineq = f;
           for i = 1:size(fv1,2)
-              if (abs(double(fv1(i).f)) >= abs(double(fv2(i).f)))
+              if isAlways(fv1(i).f >= fv2(i).f)   % correct but slow
+              %if (double(fv1(i).f) >= double(fv2(i).f))
+              %if (abs(double(fv1(i).f)) >= abs(double(fv2(i).f)))
                   %ineq.f
                   %subs(ineq.f,vars,[obj.vx(i),obj.vy(i)])
                   if subs(ineq.f,vars,[obj.vx(i),obj.vy(i)]) < 0
@@ -1321,10 +1359,10 @@ classdef region
                 if ~obj.ineqs(i).subsF(vars,[px(j),py(j)]).isZero  
                   continue
                 end
-                obj.ineqs(i)
-                px(j)
-                py(j)
-                tangent = obj.ineqs(i).tangent(px(j),py(j))
+                %obj.ineqs(i)
+                %px(j)
+                %py(j)
+                tangent = obj.ineqs(i).tangent(px(j),py(j));
                 tangent = tangent.normalize1;
             %    disp('tan')
             %    tangent.print
@@ -2876,10 +2914,10 @@ classdef region
 
              if lQuad1
                  for i = 1:nmq1
-                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)))
+                     V = obj2.getIntersectingFeasiblePts(obj.ineqs(mq1(i)));
                      if ~ isempty(V)
                          if ~obj2.isVertex(V)
-                             disp('not vertex')
+                             %disp('not vertex')
                            return
                          end 
                      end
@@ -2887,11 +2925,11 @@ classdef region
              end
              if lQuad2
                  for i = 1:nmq2
-                     V = obj.getIntersectingFeasiblePts(obj2.ineqs(mq2(i)))
+                     V = obj.getIntersectingFeasiblePts(obj2.ineqs(mq2(i)));
 
                      if ~ isempty(V)
                          if ~obj.isVertex(V)
-                             disp('not vertex')
+                             %disp('not vertex')
                            return
                          end 
                      end
@@ -3285,8 +3323,8 @@ classdef region
             NC = sym(zeros(obj.nv,2));
             meanx = sum(obj.vx)/obj.nv;
             meany = sum(obj.vy)/obj.nv;
-            obj.vx
-            obj.vy
+            %obj.vx
+            %obj.vy
              for j = 1: obj.nv-1
                 slope = obj.slope(j,j+1);
                 pslope = -1/slope;
@@ -3303,7 +3341,7 @@ classdef region
                 if subs(eq,[s1,s2],[obj.vx(j+1),obj.vy(j+1)]) < 0
                     eq = -eq;
                 end
-                NC(j,1) = eq
+                NC(j,1) = eq;
                 if pslope ~= inf
                     q = obj.yIntercept (j+1,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -3313,9 +3351,9 @@ classdef region
                 if subs(eq,[s1,s2],[obj.vx(j),obj.vy(j)]) < 0
                     eq = -eq;
                 end
-                disp('here')
-                j+1
-                NC(j+1,2) = eq
+                %disp('here')
+                j+1;
+                NC(j+1,2) = eq;
              end
              j = obj.nv;
              % if nv = 1, slope calculation is wrong - temp fix put in
@@ -3340,7 +3378,7 @@ classdef region
                     eq = -eq;
                 end
               
-                NC(j,1) = eq
+                NC(j,1) = eq;
                 if pslope ~= inf
                     q = obj.yIntercept (1,pslope);
                     eq = s2 - pslope*s1 - q;
@@ -3351,7 +3389,7 @@ classdef region
                     eq = -eq;
                 end
                 
-                NC(1,2) = eq
+                NC(1,2) = eq;
              % end
              
                 

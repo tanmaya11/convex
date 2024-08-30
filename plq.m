@@ -94,10 +94,10 @@ classdef plq
           toc
 %return
           disp("ConvexEnvelope")
-     %     obj.pieces(i).print
-          %obj.pieces(i).envelope.printL
+          obj.pieces(i).print
+      %    obj.pieces(i).envelope.printL
         %  continue
-         % return
+      %    return
         tic
              obj.pieces(i)=obj.pieces(i).conjugate;
              toc
@@ -105,7 +105,7 @@ classdef plq
               tic
            %   obj.pieces(i).conjfia
               obj.pieces(i).conjugates.printL
-            %  return
+              %return
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
               disp("MaxConjugate") 

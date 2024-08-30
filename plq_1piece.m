@@ -335,14 +335,24 @@ classdef plq_1piece
             disp("not bivariate in 'plq.m'")
             return
           end
-          disp('in convexE 1')
+          %disp('in convexE 1')
           obj = convexEnvelope1 (obj,x,y);
-          %return
-          %disp('hh')
-          %obj.print
+          % %obj.print
+          % return
+          disp('hh')
+          obj.envelope =  obj.envelope.unique  
+          obj.print
+          [obj.envelope,index,lCh] = obj.envelope.maxEqFun;
+          expr = obj.envelopeExpr;
+          obj.envelopeExpr = expr(index); 
+          
+          obj.print
           %return
           % fix this loop
+          nx = size(obj.envelope,2)
           for ik = 1:5
+               ik
+               
             lCh = true;
             while lCh
               [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
@@ -350,15 +360,21 @@ classdef plq_1piece
               obj.envelopeExpr = expr(index); 
               
             end  
-           
+             disp('eq domain')
+             size(obj.envelope,2)
+            % obj.print
+            % return
+            % 
             [objL2,index2] = obj.envelope .* obj.envelope;
            
-              
+              size(objL2,2)
             [obj.envelope,index] = objL2.maximumPC(index2) ;
             expr = obj.envelopeExpr;
             obj.envelopeExpr = expr(index); 
            
-             
+              disp('max')
+              size(obj.envelope,2)
+         %     obj.print
             lCh = true;
             while lCh
               [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
@@ -367,11 +383,18 @@ classdef plq_1piece
                
           
             end  
+            disp('eqd2')
+            size(obj.envelope,2)
+            if nx == size(obj.envelope,2)
+                break;
+            end
+            nx = size(obj.envelope,2)
           %return 
           end
           %disp('check this')
           %obj.envelope.printL
           %return
+          %obj.envelope.printL
           [obj.envelope, index] = obj.envelope.mergeL;
           expr = obj.envelopeExpr;
           obj.envelopeExpr = expr(index); 
@@ -387,12 +410,12 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
-            disp('eta done')
-            % obj.d.V
-            % obj.d.E
-            % etaV.printL
-            % etaE.printL
-            % etaR.printL
+            %disp('eta done')
+             % obj.d.V
+             % obj.d.E
+             % etaV.printL
+             % etaE.printL
+             % etaR.printL
             % return
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
           
@@ -401,7 +424,7 @@ classdef plq_1piece
             %disp('solved')
             %   return
             for i = 1:size(envfs,2)
-                i,size(envfs,2)
+             %   i,size(envfs,2)
 
               %r = envds(i).simplify;
               r = envds(i).simplifyUnboundedRegion;
@@ -414,7 +437,7 @@ classdef plq_1piece
               %end
              
             end
-            disp('out')
+           % disp('out')
 
         end 
 
@@ -439,7 +462,7 @@ classdef plq_1piece
           
           linfeasible = isempty(c1);
           if (linfeasible)
-              %disp('here')
+              disp('here')
                       return;
           end
 
@@ -454,7 +477,15 @@ classdef plq_1piece
               ub(nb)=c1(2);
               end
               else
-                  linfeasible = true;
+                  c.f
+                  s
+                  s(end)
+                  % changed on 18-Aug-2024
+                  %disp('here2')
+                  if s(end) < 0
+                    linfeasible = true;
+                    
+                  end
               end
           else
               if (isreal(c1(1)))
@@ -475,6 +506,7 @@ classdef plq_1piece
               %  ub(nb) = c1(1);
               %end
               else
+                  disp('here3')
                   linfeasible = true;
               end
           end
@@ -561,10 +593,10 @@ classdef plq_1piece
                       return;
                   end
             end
-            %disp("bounds")
-            %nb
-            %lb
-            %ub
+            % disp("bounds")
+            % nb
+            % lb
+            % ub
 
 %             nb = 1;
 %             lb(1) = max(lb);
@@ -583,6 +615,7 @@ classdef plq_1piece
                c = c.subsVarsPartial([a],[av]);
                  [nb,lb, ub, linfeasible] = getBound1 (obj,c,b,nb,lb,ub);
                if (linfeasible) 
+                   disp('not feasible1')
                  return;
                end
             end
@@ -593,17 +626,17 @@ classdef plq_1piece
                end
                for k = 1:size(etaE,2) 
                   % disp('in E loop')
-                  etak = etaE(j,k);
-                  c = etah - etak;  % <= 0   easier for substitution
-                  c = c.subsVarsPartial([a],[av]);
+                  etak = etaE(j,k)
+                  c = etah - etak  % <= 0   easier for substitution
+                  c = c.subsVarsPartial([a],[av])
                   if (isZero(c)) 
                       continue
                   end
-                  [nb,lb, ub, linfeasible] = getBound1 (obj, c,b,nb,lb,ub);
+                  [nb,lb, ub, linfeasible] = getBound1 (obj, c,b,nb,lb,ub)
                  
                
                   if (linfeasible) 
-                      %disp('not feasible')
+                      disp('not feasible2')
                       return;
                   end
                 end
@@ -634,14 +667,14 @@ classdef plq_1piece
  %if nb > 2
  %    disp('Check this - union/intersection')
  %end
- %nb
- %lb
- %ub
+ % nb
+ % lb
+ % ub
           %   for i = 1:nb
           %    mlb = lb(i);
           %    mub = ub(i);
-            mlb = max(lb);
-           mub = min(ub);
+            mlb = max(lb)
+           mub = min(ub)
            %eta0
            %eta1
            if size(mlb,1) == 0
@@ -662,7 +695,7 @@ classdef plq_1piece
             % skipping inf and -inf cases
 
             if (mlb > mub)
-          %      disp('infeasible')
+                disp('infeasible')
             else
                
               if (mub == inf)
@@ -722,6 +755,7 @@ classdef plq_1piece
               %envds(end).print
             end
            %  end
+           %envfs
             return
             
         end
@@ -1845,7 +1879,10 @@ classdef plq_1piece
 %           disp("ix")
 %           size(ix,2)
           for i=1:size(ix,2)
-  %           i
+             % i
+             % if i ~= 18
+             %     continue
+             % end
              i00 = size(envfs,2);
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1874,8 +1911,8 @@ classdef plq_1piece
                   lV(jx(i)) = true;
               end
               
-             % etah
-             % etaw
+              % etah
+              % etaw
              % ix(i)
              % jx(i)
              % ixd(i)
@@ -1930,7 +1967,7 @@ classdef plq_1piece
               end 
 
               if (degreeh==1 & degreew==1)
-              %      disp("lin-lin")
+                    % disp("lin-lin")
                    % continue
                     %objective function set here as we can exchange a and b
                     %if required
@@ -2367,36 +2404,36 @@ classdef plq_1piece
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
               
-              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2)
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
               %disp('ncv')
               edgeNo = obj.envelope(i).d.getEdgeNos(vars)
-              
+              ;
               % for i = 1:obj.envelope(i).d.nv
               %     edgeNo(i) = i;
               % end
-              NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2)
+              NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2);
 
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars)
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
              % disp('subd')
-              [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars)
+              [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
             %  disp('subdt2')
               %[subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
-              [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars)
+              [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars);
               
-              subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs)
-              disp('type1')
-              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV )
-              expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr )
+              subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs);
+              %disp('type1');
+              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
+              expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr );
             elseif obj.envelopeExpr(i).type == 3   
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
-              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2)
-              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars)
-              disp('type3')
-              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV )
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+              %disp('type3')
+              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
               for j = 1:obj.envelope(i).d.nv
                 unR(j) = false;
               end

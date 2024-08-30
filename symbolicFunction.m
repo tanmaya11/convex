@@ -607,7 +607,8 @@ classdef symbolicFunction
             f = solve(obj.f,x);
         end    
         
-    
+   
+        % change to isAlways
         function res = eq(obj1,obj2)
             res = false;
             if (obj1.f==obj2.f)

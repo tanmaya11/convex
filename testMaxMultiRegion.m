@@ -69,6 +69,7 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
 
         function testMax (testCase)
             testCase.PRect = testCase.PRect.maximum;
+            return
             testCase.PRect = testCase.PRect.biconjugateF;
            % return
              testCase.PRect.print;
@@ -404,6 +405,45 @@ return
         end
 
      
+        function testBiconjugate6 (testCase)  % piece 3 of 1 piece conjugate - 4 pieces
+            s_1 = sym('s_1');
+            s_2 = sym('s_2');
+            f1 = symbolicFunction(s_1 + 3*s_2 -3);
+             
+
+            
+            ineq(1) = s_2/3 - s_1 + 14/3;
+            ineq(2) =  s_1 - 2*s_2 + 1;
+            
+            d1 = region(ineq,[s_1,s_2]);
+            d1 = d1.removeInfV;
+            d1 = d1.poly2orderUnbounded;
+            edgeNo = d1.getEdgeNosInf(d1.vars)
+            d1.ineqs(edgeNo) = d1.ineqs;
+            p(1) = functionNDomain(f1,d1);
+
+            f2 = symbolicFunction(2*s_1 + s_2  -2);
+             
+
+            
+            ineq(1) = 2 - s_2;
+            ineq(2) =  2*s_2 - s_1 - 1;
+            ineq(3) = (4*s_2)/7 - s_1 + 27/7;
+            
+            d2 = region(ineq,[s_1,s_2]);
+            d2 = d2.removeInfV;
+            d2 = d2.poly2orderUnbounded;
+            edgeNo = d2.getEdgeNosInf(d2.vars)
+            d2.ineqs(edgeNo) = d2.ineqs;
+            p(2) = functionNDomain(f2,d2);
+            p.printL
+            
+             pc = p.conjugateOfPiecePoly ;
+            %pc = pc.mergeL;
+            pc.printL
+            pc = pc.addEq;
+            pc.printL
+        end
 
 
         function testConvex (testCase)
@@ -441,17 +481,19 @@ return
             
             %% 
             %testCase.PRect.printLatex
-            %testCase.PTri2.print
+            testCase.PTri2.print
             testCase.PTri2.printDomainMaple
         end
         
         function testMaxP (testCase)
-            testCase.Poly.print
+            %testCase.Poly.print
             testCase.Poly = testCase.Poly.maximum
-            testCase.Poly = testCase.Poly.biconjugateF
+            % return
+            % testCase.Poly = testCase.Poly.biconjugateF
+            testCase.Poly.print
             testCase.Poly.printDomainMaple
              return
-             testCase.Poly.print
+             
            %  return
           
             %% 
@@ -469,7 +511,8 @@ return
 
         function testMax3 (testCase)
             testCase.PRect2 = testCase.PRect2.maximum
-            %testCase.PRect.printDomainMaple
+            testCase.PRect.print
+            testCase.PRect.printDomainMaple
             %testCase.PRect2.printLatex
            
         end
