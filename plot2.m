@@ -1,15 +1,9 @@
 figure
-ezplot(['x - y/3 - 14/3' ],[3,6],[1,36]) 
+%ezplot(['445/47  - 136*y/47 - x' ]) 
 hold on
-ezplot(['10 - 7*y - x' ],[3,6],[1,36])  % [-25,16]
+ezplot(['- x -y/2 - 5/2' ])  % [-25,16]
 hold on
-ezplot(['-x - 2*y + 4' ],[3,6],[1,36]) 
-hold on
-ezplot(['2 -0*x - y' ],[3,6],[1,36]) 
-hold on
-ezplot(['-x + 2*y - 44' ],[3,6],[1,36]) 
-hold on
-ezplot(['(4*y)/7 - x + 27/7' ],[3,6],[1,36]) 
+ezplot(['x + 3*y -10' ]) 
 hold on
 
 return

@@ -481,6 +481,8 @@ classdef functionNDomain
              disp("b4 merge")
              objR.printL
            objR2 = mergeL(objR);
+           disp("objR2")
+             objR2.printL
             objR3 = mergeL(objR2);
            % objR2 = mergeL(objR3);
             % disp("aft merge")
@@ -994,16 +996,30 @@ classdef functionNDomain
             for i=1:size(obj,2)
                 d = obj(i).d;
                 d = d.removeInfV;
-                d = d.poly2orderUnbounded;
+                %d = d.poly2orderUnbounded;
+               
+                if d.nv == size(d.ineqs,2)
+                    disp('here edge')
+                    d.print
+                    d = d.poly2order;
+                    d.print
+                    %edgeNo = d.getEdgeNos(d.vars)
+                else
+                    d = d.poly2orderUnbounded;
+                    %edgeNo = d.getEdgeNosInf(d.vars)
+                end
                 edgeNo = d.getEdgeNosInf(d.vars)
                 d.ineqs(edgeNo) = d.ineqs;
+
                 obj(i).d = d;
+               
             end
              obj.printL
              pc = functionNDomain.empty();
              x=sym('x');
              y=sym('y');
              for i = 1:size(obj,2)
+                 i
                f = obj(i).f;
                vars = f.getVars;
                d = obj(i).d;
@@ -1013,15 +1029,16 @@ classdef functionNDomain
                else
                 NCV = d.getNormalConeVertexQ(x, y)
                end
-               edgeNo = d.getEdgeNosInf(vars);
+               %edgeNo = d.getEdgeNosInf(vars);
                % if d.nv == 1
                % NCV = d.adjustNormalConeUnB(NCV, edgeNo, x, y)
                % end
-               [subdV,undV] =  obj(i).getSubdiffVertexT1 (NCV, [x,y]);
-               exprs = obj(i).conjugateExprVerticesT1 ([x,y], undV );
+               [subdV,undV] =  obj(i).getSubdiffVertexT1 (NCV, [x,y])
+               exprs = obj(i).conjugateExprVerticesT1 ([x,y], undV )
                
                for j = 1:size(exprs,2)
                    r = region(subdV(j,:),[x,y]);
+                   r.print
                    r = r.simplifyUnboundedRegion;
                  pc = [pc,functionNDomain([symbolicFunction(exprs(j))],r)];
                end
@@ -1034,10 +1051,10 @@ classdef functionNDomain
                NCE = obj(i).d.getNormalConeEdgeQ(x, y);
                [subdE,unR] = obj(i).getSubdiffVertexT2Q (NCE, [x,y]);
                %obj(i).d.ineqs.printL
-               for j = 1:1 % fix this
+               for j = 1:1 % fix this  obj(i).d.nv-1 ?
                    
-                   ineq = subs(obj(i).d.ineqs(j+1).f,obj(i).d.vars,[x,y]);
-                   f0 = subs(obj(i).f.f,obj(i).d.vars,[x,y]);
+                   ineq = subs(obj(i).d.ineqs(j+1).f,obj(i).d.vars,[x,y])
+                   f0 = subs(obj(i).f.f,obj(i).d.vars,[x,y])
                    [expr] = conjugateExpr(ineq,f0,x,y);
                    ineq1 = subdE(j,:);
                    r = region(ineq1, [x,y])
@@ -1548,6 +1565,7 @@ classdef functionNDomain
             end
         end
 
+        
 
      end
 

@@ -499,11 +499,15 @@ testCase.w.print;
              s_1 = sym('s1');
             s_2 = sym('s2');
             f = symbolicFunction(-5*s_1 - 4*s_2 - 20);
-            ineq(1) = s_1 + 4;
-            ineq(2) =  s_2 + 5 ;
+            ineq(1) = s_1 - (5*s_2)/7 - 25/7 ;
+            ineq(2) = 4 - 2*s_2 - s_1 ;
+            ineq(3) = s_1 - (4*s_2)/7 - 27/7 ;
+            ineq(4) = s_1 - s_2/3 - 14/3 ;
             d = region(ineq,[s_1,s_2]);
             d = d.removeInfV;
+            d.print
             d = d.poly2orderUnbounded;
+            return
             edgeNo = d.getEdgeNosInf(d.vars)
             % [1 2]
             d.print
@@ -517,7 +521,22 @@ testCase.w.print;
             r = r.poly2orderUnbounded;
             r.print
             edgeNo = r.getEdgeNosInf(r.vars)
+            edgeNo = r.getEdgeNos(r.vars)
             return
+        end
+
+        function testgetEdgeNosInf4(testCase)
+             s_1 = sym('s1');
+            s_2 = sym('s2');
+            f = symbolicFunction(-5*s_1 - 4*s_2 - 20);
+            ineq(1) = s_1 + 4;
+            ineq(2) =  s_2 + 5 ;
+            d = region(ineq,[s_1,s_2]);
+            d = d.removeInfV;
+            d = d.poly2orderUnbounded;
+            edgeNo = d.getEdgeNosInf(d.vars)
+            % [1 2]
+            d.print
         end
 
         function testgetVertices(testCase)

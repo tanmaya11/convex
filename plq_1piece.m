@@ -632,7 +632,7 @@ classdef plq_1piece
                   if (isZero(c)) 
                       continue
                   end
-                  [nb,lb, ub, linfeasible] = getBound1 (obj, c,b,nb,lb,ub)
+                  [nb,lb, ub, linfeasible] = getBound1 (obj, c,b,nb,lb,ub);
                  
                
                   if (linfeasible) 
@@ -673,8 +673,8 @@ classdef plq_1piece
           %   for i = 1:nb
           %    mlb = lb(i);
           %    mub = ub(i);
-            mlb = max(lb)
-           mub = min(ub)
+            mlb = max(lb);
+           mub = min(ub);
            %eta0
            %eta1
            if size(mlb,1) == 0
@@ -695,7 +695,7 @@ classdef plq_1piece
             % skipping inf and -inf cases
 
             if (mlb > mub)
-                disp('infeasible')
+                %disp('infeasible')
             else
                
               if (mub == inf)
@@ -2426,6 +2426,9 @@ classdef plq_1piece
               %disp('type1');
               expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
               expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr );
+              disp('Checking conjugate expr')
+              %expr
+              %obj.envelope(i).d.conjugateExprEdgesT1Poly2 (obj.envelope(i).f, dualVars)   % test this and replace
             elseif obj.envelopeExpr(i).type == 3   
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);

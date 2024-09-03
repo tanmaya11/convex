@@ -72,7 +72,7 @@ classdef region
              end
              if vx(1) == vx(end)
                n = n + 1;
-               ineq(n) = x-vx(1)  
+               ineq(n) = x-vx(1);  
              else
                m = (vy(end)-vy(1))/(vx(end)-vx(1));
                c = vy(1)-m*vx(1);
@@ -156,6 +156,8 @@ classdef region
            [~, sortIdx] = sort(radWrapped, 'descend'); 
            obj.vx(sortIdx) = obj.vx(1:obj.nv);
            obj.vy(sortIdx) = obj.vy(1:obj.nv);
+           obj.vx(1:obj.nv)
+           obj.vy(1:obj.nv)
            for i = 1:obj.nv
              edges = obj.getEdges(obj.vx(i),obj.vy(i));
              if size(edges,2) == 1
@@ -168,6 +170,7 @@ classdef region
            obj.vy(1:obj.nv-i+1) = vy(i:obj.nv);
            obj.vx(obj.nv-i+2:obj.nv) = vx(1:i-1); 
            obj.vy(obj.nv-i+2:obj.nv) = vy(1:i-1); 
+           
          end
 
          function obj = poly2order(obj)
@@ -177,15 +180,18 @@ classdef region
              for i = 1:obj.nv
                lineqs(i) = false ;
              end
+             
              for i = 1:obj.nv-1
-                 ineqs = obj.ineqThroughVertex (i);
+                 
+                 
+                 ineqs = obj.ineqThroughVertex1 (vx(i), vy(i));
                  for j = 1:2
-                     if lineqs(j)
+                     if lineqs(ineqs(j))
                          continue
                      end
                      break;
                  end
-                 %ineqs(j)
+                 
                  lineqs(ineqs(j)) = true;
                  v = obj.getEndpoints (ineqs(j));
                  if (v(1,1) == vx(i) & v(1,2) == vy(i))
@@ -223,7 +229,18 @@ classdef region
          function ineqs = ineqThroughVertex (obj,j)
            ineqs = [];
            for i = 1:size(obj.ineqs,2)
+               % change this to exact
                if abs(double(subs(obj.ineqs(i).f,obj.vars,[obj.vx(j),obj.vy(j)]))) <= 1.0e-6
+                   ineqs = [ineqs,i];
+               end
+           end
+         end
+
+         function ineqs = ineqThroughVertex1 (obj,vx, vy)
+           ineqs = [];
+           for i = 1:size(obj.ineqs,2)
+               % change this to exact
+               if abs(double(subs(obj.ineqs(i).f,obj.vars,[vx,vy]))) <= 1.0e-6
                    ineqs = [ineqs,i];
                end
            end
@@ -2322,6 +2339,7 @@ classdef region
              if isAlways (abs(obj.vx(i)) == intmax)
                  continue
              end
+             
              if isAlways (abs(obj.vy(i)) == intmax)
                  continue
              end
@@ -2373,6 +2391,7 @@ classdef region
                        %i,j,obj.nv
                        %isAlways(subs ([obj.ineqs(i).f],obj.vars,[s.t1(k),s.t2(k)])<=0)
                        %double(subs ([obj.ineqs(i).f],obj.vars,[s.t1(k),s.t2(k)]))
+                  
                           obj.nv=obj.nv+1;
                           obj.vx(obj.nv) = s.t1(k);
                           obj.vy(obj.nv) = s.t2(k);
@@ -2404,7 +2423,8 @@ classdef region
            obj = obj.linear3pt; 
           
        end  
-       %[obj.vx,obj.vy] = poly2cw(obj.vx,obj.vy);
+       %[vx,vy] = poly2cw(obj.vx,obj.vy);
+       %obj = obj.poly2orderUnbounded;
 
        % putting intmax for inf to avoid Nans 
        % intmax + intmax = intmax
@@ -2489,24 +2509,11 @@ classdef region
          else
              add = 0;
          end
+         %add
          for i = 1:size(obj.ineqs,2)
             %obj.ineqs(i).print
            [nv, vx, vy] = obj.vertexOfEdge(i);
-           % if nv == 1
-           %     if obj.vx(1)==vx(1) & obj.vy(1)==vy(1)
-           %         edgeNo(i) = 1;
-           %     else
-           %         edgeNo(i) = obj.nv+1;
-           %     end
-           %     continue
-           % end
            start = 1;
-           % obj.vx(obj.nv)
-           % obj.vy(obj.nv)
-           % vx(1)
-           % vy(1)
-           % isAlways(vx(1) == obj.vx(obj.nv))
-           % isAlways(vy(1) == obj.vy(obj.nv))
            %% change condition
            if nv > 1
                if isAlways(vx(2) == obj.vx(obj.nv)) & isAlways(vy(2) == obj.vy(obj.nv)) & ~ (isAlways(vx(1) == obj.vx(obj.nv-1)) & isAlways(vy(1) == obj.vy(obj.nv-1)))
@@ -2533,7 +2540,7 @@ classdef region
      function [edgeNo] = getEdgeNos(obj, vars)
        edgeNo = zeros(obj.nv,1);
        for j = 1: obj.nv-1
-         slope = obj.slope(j,j+1);
+         slope = obj.slope(j,j+1)
          if slope == -inf
            slope = inf;
          end
@@ -2543,14 +2550,17 @@ classdef region
            q = obj.yIntercept (j,slope);
            edge = vars(2)-slope*vars(1)-q;
          end
+         edge = symbolicFunction(edge);
+         edge = edge.normalize1;
+         edge
          for k = 1: size(obj.ineqs,2)
            e0 = obj.ineqs(k);
-           e0 = e0.normalize (vars);
-           if (e0.f == edge)
+           %e0 = e0.normalize (vars);
+           if (isAlways(e0.f == edge.f) | isAlways(e0.f == -edge.f))
              break;
            end
          end
-         edgeNo(j)=k;
+         edgeNo(j)=k
        end
        j = obj.nv;
        slope = obj.slope(j,1);
@@ -2560,14 +2570,17 @@ classdef region
          q = obj.yIntercept (j,slope);
          edge = vars(2)-slope*vars(1)-q;
        end
+       edge = symbolicFunction(edge);
+       edge = edge.normalize1;
+       edge
        for k = 1: size(obj.ineqs,2)
          e0 = obj.ineqs(k);
-         e0 = e0.normalize (vars);
-         if (e0.f == edge)
+         %e0 = e0.normalize (vars);
+         if (isAlways(e0.f == edge.f) | isAlways(e0.f == -edge.f))
            break;
          end
        end
-       edgeNo(j)=k;
+       edgeNo(j)=k
      end
 
       function [nv, vx, vy] = vertexOfEdge(obj,ind)
@@ -3130,7 +3143,7 @@ classdef region
                 else
                     eq = s1 - obj.vx(j);
                 end
-                eq
+                %eq
                 if obj.nv > 1
                 k = j+1;
                 if k >obj.nv
@@ -3203,7 +3216,7 @@ classdef region
                 %     qd = 2
                 % 
                 %     isAlways(subs(eq,[s1,s2],[obj.vx(k),obj.vy(k)]) < 0)
-               px, py
+               %px, py
                   if isAlways(subs(eq,[s1,s2],[px,py]) < 0)
                     eq = -eq;
                   end
@@ -3639,6 +3652,14 @@ classdef region
           
        end
      end
+
+
+     function expr = conjugateExprEdgesT1Poly2 (obj, f, vars)
+            expr = []
+            for i = 1:obj.nv
+               expr = [expr,conjugateExpr(obj.ineqs(i).f,f.f,vars(1),vars(2))]
+            end
+        end
      end
      
         
