@@ -3,7 +3,10 @@ classdef plq
       nPieces = 0;
       pieces = plq_1piece.empty();
       maxConjugate = functionNDomain.empty();
+      biconjugate = functionNDomain.empty();
+      biconjfia = [];
   end
+  % 11 methods
   methods
       function obj = plq(ps)
           obj.nPieces = 0;
@@ -25,6 +28,7 @@ classdef plq
               obj.pieces(i).print;
           end
           obj.maxConjugate.printL
+          obj.biconjugate.printL
       end
 
       function printLatex(obj)
@@ -82,26 +86,38 @@ classdef plq
       
         for i=1: obj.nPieces
           i
-         %  if i == 2
-         %      return
-         %  end
+           % if i == 2
+           %     return
+           % end
          tic
           obj.pieces(i)=obj.pieces(i).convexEnvelope;
           toc
 %return
           disp("ConvexEnvelope")
-     %     obj.pieces(i).print
-     %     obj.pieces(i).envelope.printL
+          obj.pieces(i).print
+      %    obj.pieces(i).envelope.printL
         %  continue
-        %  return
+      %    return
         tic
              obj.pieces(i)=obj.pieces(i).conjugate;
+             %continue %return
              toc
               disp("Conjugate")
               tic
+           %   obj.pieces(i).conjfia
+              obj.pieces(i).conjugates.printL
+              %return
               obj.pieces(i) = obj.pieces(i).maximumConjugate;
               toc
-             disp("MaxConjugate")
+              disp("MaxConjugate") 
+              %obj.pieces(i).maxConjugate.printL
+              %obj.pieces(i).maxConjugate.printM
+             % return
+             
+           %       if i == 2
+           %     return
+           % end
+
             % 
             % 
             %return
@@ -149,8 +165,10 @@ classdef plq
           for i=1: obj.nPieces
             obj.pieces(i).Mprint;
           end
+          %return
           obj.maxConjugate.printM;
-          obj.maxConjugate.printM2;
+          obj.biconjugate.printM;
+          %obj.maxConjugate.printM2;
        
       end
 
@@ -164,13 +182,19 @@ classdef plq
              
              % return
           end
-          
+          %disp('piece1')
+          %obj.maxConjugate.printL
+          %disp('piece2')
+          %obj.pieces(2).maxConjugate.printL
+          %return
           for j = 2:obj.nPieces
               obj.maxConjugate = obj.maxConjugate * obj.pieces(j).maxConjugate;
               %obj.maxConjugate.printL
               %disp('in maxC')
+              %obj.maxConjugate.printL
               %obj.maxConjugate.printM2
-              obj.maxConjugate = obj.maxConjugate.maximumP(false);
+
+              obj.maxConjugate = obj.maxConjugate.maximumP(true);
               %disp("print in maxConjugate")
               %obj.maxConjugate.printL
               %obj.maxConjugate.printM2
@@ -204,5 +228,21 @@ classdef plq
 
   end
 
-
+  methods % biconjugate
+   % 
+   %      % linear / quadratic
+    function obj = biconjugateF(obj)
+        % for i = 1:obj.nPieces
+        %    obj.pieces(i).biconjugateP
+        % end
+           bc = obj.maxConjugate.conjugateOfPiecePoly
+           bc.printL
+           obj.biconjugate = bc.addEq;
+           obj.biconjugate.printL
+      
+    end
+  
+   %      % fractional
+  end
+   
 end

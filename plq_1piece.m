@@ -12,7 +12,7 @@ classdef plq_1piece
         maxConjugate = functionNDomain.empty();
     end
 
-
+% 36 methods
     methods % creation & print
          function obj = plq_1piece(d,f)
             % put checks for type of f and d
@@ -335,10 +335,24 @@ classdef plq_1piece
             disp("not bivariate in 'plq.m'")
             return
           end
+          %disp('in convexE 1')
           obj = convexEnvelope1 (obj,x,y);
-         % obj.print
-         % return
+          % %obj.print
+          % return
+          %disp('hh')
+          obj.envelope =  obj.envelope.unique  
+          %obj.print
+          [obj.envelope,index,lCh] = obj.envelope.maxEqFun;
+          expr = obj.envelopeExpr;
+          obj.envelopeExpr = expr(index); 
+          
+          obj.print
+          %return
+          % fix this loop
+          nx = size(obj.envelope,2)
           for ik = 1:5
+               ik
+               
             lCh = true;
             while lCh
               [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
@@ -346,15 +360,21 @@ classdef plq_1piece
               obj.envelopeExpr = expr(index); 
               
             end  
-           
+             disp('eq domain')
+             size(obj.envelope,2)
+            % obj.print
+            % return
+            % 
             [objL2,index2] = obj.envelope .* obj.envelope;
            
-              
+              size(objL2,2)
             [obj.envelope,index] = objL2.maximumPC(index2) ;
             expr = obj.envelopeExpr;
             obj.envelopeExpr = expr(index); 
            
-             
+              disp('max')
+              size(obj.envelope,2)
+         %     obj.print
             lCh = true;
             while lCh
               [obj.envelope,index,lCh] = obj.envelope.maxEqDom;
@@ -363,11 +383,18 @@ classdef plq_1piece
                
           
             end  
+            disp('eqd2')
+            size(obj.envelope,2)
+            if nx == size(obj.envelope,2)
+                break;
+            end
+            nx = size(obj.envelope,2)
           %return 
           end
           %disp('check this')
           %obj.envelope.printL
           %return
+          %obj.envelope.printL
           [obj.envelope, index] = obj.envelope.mergeL;
           expr = obj.envelopeExpr;
           obj.envelopeExpr = expr(index); 
@@ -383,24 +410,34 @@ classdef plq_1piece
             % etaR : domain of etaE - stored as etaR(i,1:3) : [function,lb,ub] => lb <= function <= ub 
             %disp("getEtaFunctions")
             [etaV, etaE, etaR] =  getEtaFunctions (obj,x,y,a,b);
-            % obj.d.V
-            % obj.d.E
-           %  etaV.printL
-           %  etaE.printL
-           %  etaR.printL
+            %disp('eta done')
+             % obj.d.V
+             % obj.d.E
+             % etaV.printL
+             % etaE.printL
+             % etaR.printL
             % return
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
+          
+
             [envfs, envxs, envds] = solveC (obj, ix,jx,vix, vjx,ixd, jxd, etaV, etaE, etaR,a, b, x, y);
-            
- 
+            %disp('solved')
+            %   return
             for i = 1:size(envfs,2)
-              r = envds(i).simplify;
-              if (r.isFeasible & r.nv > 2)  % added on 29 oct
+             %   i,size(envfs,2)
+
+              %r = envds(i).simplify;
+              r = envds(i).simplifyUnboundedRegion;
+              if isempty(r)
+                  continue
+              end
+              %if (r.isFeasible & r.nv > 2)  % added on 29 oct % removed for unbounded region
                   obj.envelope = [obj.envelope,functionNDomain(envfs(i), r)];
                   obj.envelopeExpr = [obj.envelopeExpr,envxs(i)];
-              end
+              %end
              
             end
+           % disp('out')
 
         end 
 
@@ -425,7 +462,7 @@ classdef plq_1piece
           
           linfeasible = isempty(c1);
           if (linfeasible)
-              %disp('here')
+              disp('here')
                       return;
           end
 
@@ -440,7 +477,15 @@ classdef plq_1piece
               ub(nb)=c1(2);
               end
               else
-                  linfeasible = true;
+                  c.f
+                  s
+                  s(end)
+                  % changed on 18-Aug-2024
+                  %disp('here2')
+                  if s(end) < 0
+                    linfeasible = true;
+                    
+                  end
               end
           else
               if (isreal(c1(1)))
@@ -461,6 +506,7 @@ classdef plq_1piece
               %  ub(nb) = c1(1);
               %end
               else
+                  disp('here3')
                   linfeasible = true;
               end
           end
@@ -509,7 +555,7 @@ classdef plq_1piece
                 return;
             end
             lSol = true;
-            
+            %disp('here')
             %bcoeffs = coeffs(av,b); 
             %alpha0 = bcoeffs(1);
             %alpha1 = bcoeffs(2);
@@ -547,10 +593,10 @@ classdef plq_1piece
                       return;
                   end
             end
-            %disp("bounds")
-            %nb
-            %lb
-            %ub
+            % disp("bounds")
+            % nb
+            % lb
+            % ub
 
 %             nb = 1;
 %             lb(1) = max(lb);
@@ -569,6 +615,7 @@ classdef plq_1piece
                c = c.subsVarsPartial([a],[av]);
                  [nb,lb, ub, linfeasible] = getBound1 (obj,c,b,nb,lb,ub);
                if (linfeasible) 
+                   disp('not feasible1')
                  return;
                end
             end
@@ -579,9 +626,9 @@ classdef plq_1piece
                end
                for k = 1:size(etaE,2) 
                   % disp('in E loop')
-                  etak = etaE(j,k);
-                  c = etah - etak;  % <= 0   easier for substitution
-                  c = c.subsVarsPartial([a],[av]);
+                  etak = etaE(j,k)
+                  c = etah - etak  % <= 0   easier for substitution
+                  c = c.subsVarsPartial([a],[av])
                   if (isZero(c)) 
                       continue
                   end
@@ -589,7 +636,7 @@ classdef plq_1piece
                  
                
                   if (linfeasible) 
-                      %disp('not feasible')
+                      disp('not feasible2')
                       return;
                   end
                 end
@@ -620,14 +667,24 @@ classdef plq_1piece
  %if nb > 2
  %    disp('Check this - union/intersection')
  %end
- %nb
- %lb
- %ub
+ % nb
+ % lb
+ % ub
           %   for i = 1:nb
           %    mlb = lb(i);
           %    mub = ub(i);
             mlb = max(lb);
            mub = min(ub);
+           %eta0
+           %eta1
+           if size(mlb,1) == 0
+               envfs = [symbolicFunction(eta1)];
+               envxs = [convexExpr(3,eta0,eta1,intmax)];
+               
+               envds = [envds, obj.d.polygon ];
+               return
+           end
+
             %size(envfs)
 
             % soln
@@ -638,7 +695,7 @@ classdef plq_1piece
             % skipping inf and -inf cases
 
             if (mlb > mub)
-          %      disp('infeasible')
+                %disp('infeasible')
             else
                
               if (mub == inf)
@@ -698,6 +755,7 @@ classdef plq_1piece
               %envds(end).print
             end
            %  end
+           %envfs
             return
             
         end
@@ -764,6 +822,7 @@ classdef plq_1piece
           nb0 = nb;
           %lb
           %ub
+          
 
           % solve these to get bounds
           for j=1:size(etaV,2)
@@ -794,6 +853,7 @@ classdef plq_1piece
               
             end
           end
+          
           for j=1:size(etaE,1)
             if (lE(j))
               continue;
@@ -835,6 +895,7 @@ classdef plq_1piece
           end
           %lb
           %ub
+          
           nb1 = nb0; 
           
             for i = nb0+1:nb
@@ -862,6 +923,7 @@ classdef plq_1piece
            
           %lb
           %ub
+          
           obj0 = etah + symbolicFunction(a*x+b*y);
           obj0 = obj0.subsVarsPartial([a],[av]);
           obj0 = obj0.subsVarsPartial([b],[bv]);
@@ -905,14 +967,14 @@ classdef plq_1piece
           mub = min(ub);
           %disp("in here")  
             %for i = 1:size(lb,2)
-            
+           
           if positivePsi (obj,-psi2,x,y)==1
             disp("-psi2 +ve check this")
             mlb,mub,psi2,psi0
            % psi1
            % psi2
            if mlb < mub
-            f0 = -mub^2*psi2 +2*mub*psi1+psi0 
+            f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
               r0 = simplify(psi2);
 
               r00  = obj.d.polygon + r0;
@@ -926,7 +988,7 @@ classdef plq_1piece
               envds = [envds, region(r00, [x,y])];
               end
 
-              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0
+              f0 = -mlb^2*psi2 +2*mlb*psi1+psi0;
               r0 = simplify(psi2);
               r00  = obj.d.polygon + r0;
               if ~isempty(r00) 
@@ -975,12 +1037,15 @@ classdef plq_1piece
             %for i = 1:nb
               %f0 = simplify(psi1^2/psi2+psi0);
               f0 = symbolicFunction(psi1^2,psi2) + symbolicFunction(psi0);
+            
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
+             
               % put in r1
               %envfs = [envfs, symbolicFunction(f0)];
               %envfs
               r00  = obj.d.polygon + region([r0,r1], [x,y]);
+            
               if ~isempty(r00) 
               
               envfs = [envfs, f0];
@@ -996,7 +1061,7 @@ classdef plq_1piece
               r0 = simplify(mub*psi2-psi1);
               r00  = obj.d.polygon + region(r0, [x,y]);
               if ~isempty(r00) 
-              
+            
               envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
@@ -1013,7 +1078,7 @@ classdef plq_1piece
               envfs = [envfs, symbolicFunction(f0)];
               %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
               envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
-              
+           
               %envds = [envds, region(r0, [x,y])];
               envds = [envds, r00];
               end
@@ -1028,6 +1093,7 @@ classdef plq_1piece
             %envfs = [envfs, f1];
             %envds = [envds, r0];
           end
+         
         end
            
         function [envfs, envxs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envxs, envds)
@@ -1813,7 +1879,10 @@ classdef plq_1piece
 %           disp("ix")
 %           size(ix,2)
           for i=1:size(ix,2)
-            % i
+             % i
+             % if i ~= 18
+             %     continue
+             % end
              i00 = size(envfs,2);
              lV = []; 
              for j = 1:size(etaV,2)
@@ -1842,8 +1911,8 @@ classdef plq_1piece
                   lV(jx(i)) = true;
               end
               
-             % etah
-             % etaw
+              % etah
+              % etaw
              % ix(i)
              % jx(i)
              % ixd(i)
@@ -1853,8 +1922,8 @@ classdef plq_1piece
               end
               degreeh = polynomialDegree(etah.f);
               degreew = polynomialDegree(etaw.f);
-              %etah
-              %etaw
+            %  etah
+            %  etaw
               if (degreeh==0 & degreew==1)
              %       disp("const-lin")
             %        continue
@@ -1898,7 +1967,7 @@ classdef plq_1piece
               end 
 
               if (degreeh==1 & degreew==1)
-               %     disp("lin-lin")
+                    % disp("lin-lin")
                    % continue
                     %objective function set here as we can exchange a and b
                     %if required
@@ -2034,6 +2103,7 @@ classdef plq_1piece
                  %      size(envfs)
                        [envfs, envxs, envds] = solveQuadQuad1(obj, etah,  x, y, a, b, alpha0, alpha1, mh, qh, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envxs, envds);
                  %      size(envfs)
+                 return
                     end
                 end
          %       for i0 = i00+1:size(envfs,2)
@@ -2296,9 +2366,21 @@ classdef plq_1piece
             s1 = sym('s_1');
             s2 = sym('s_2');
             dualVars = [s1,s2];
-            %obj.envd(i) = obj.envd(i).simplify; % (obj.envd(i).vars);
             obj.envelope(i).d = obj.envelope(i).d.simplify;
-            obj.envelope(i).d = obj.envelope(i).d.poly2order;
+            %disp('check order')
+            %obj.envelope(i).d = obj.envelope(i).d.poly2order;
+            %obj.envelope(i).d.print
+            if obj.envelope(i).d.nv == size(obj.envelope(i).d.ineqs,2)
+                obj.envelope(i).d = obj.envelope(i).d.poly2order;
+            else
+                obj.envelope(i).d = obj.envelope(i).d.poly2orderUnbounded;
+            end
+            disp('inf edge')
+            obj.envelope(i).d.print
+            edgeNo = obj.envelope(i).d.getEdgeNosInf(obj.envelope(i).d.vars)
+            %d.print
+            obj.envelope(i).d.ineqs(edgeNo) = obj.envelope(i).d.ineqs;
+            %d.print
 %             disp('ord')
              %obj.envelope(i).d.print
 % return
@@ -2317,38 +2399,77 @@ classdef plq_1piece
               vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
               vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );    %  cpsi2(2)*vs1 - cpsi2(1)*vs2  cancels t^2 term - then solve for t 
-              crs = subs(vs1,t, vt);    % crs = 0  equation of parabola 
+              crs = subs(vs1,t, vt)    % crs = 0  equation of parabola 
               
+              
+              num = obj.envelope(i).f.getNum
+              den = obj.envelope(i).f.getDen
+              [r,q] = polynomialReduce(num,den)
+              r1 = factor(r)
+              r2 = r1(2)
+              den = symbolicFunction((1 / r1(1)) * den)
+              q = symbolicFunction(q)
+              r = symbolicFunction(r2)
+              cpsi2 = den.getLinearCoeffs (vars)
+              cpsi0 = q.getLinearCoeffs (vars)
+              cpsi1 = r.getLinearCoeffs (vars)
+              
+              vs1 = s1 - (2*cpsi1(1)*t - cpsi2(1)*t^2 + cpsi0(1));
+              vs2 = s2 - (2*cpsi1(2)*t - cpsi2(2)*t^2 + cpsi0(2));
 
+              vt = solve (cpsi2(2)*vs1 - cpsi2(1)*vs2, t );    %  cpsi2(2)*vs1 - cpsi2(1)*vs2  cancels t^2 term - then solve for t 
+              crs2 = simplifyFraction(subs(vs1,t, vt))    % crs = 0  equation of parabola 
+
+              simplify(crs - crs2)
+              
+             % pause;
 %%%%%%%%%%%%%
 % Checking parabola
 %              crs2 = cpsi2(1)^2 * cpsi2(2)^2 * s1^2 -2 * cpsi2(1)^3*cpsi2(2)*s1*s2 + cpsi2(1)^4*s2^2
 %%%%%%%%%%%%%
-              %obj.envelope(i).print 
-              NCV = obj.getNormalConeVertex(i, s1, s2)
               
-              [NCE,edgeNo] = obj.getNormalConeEdge(i, s1, s2)
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
+              %disp('ncv')
+              edgeNo = obj.envelope(i).d.getEdgeNos(vars)
+              ;
+              % for i = 1:obj.envelope(i).d.nv
+              %     edgeNo(i) = i;
+              % end
+              NCE = obj.envelope(i).d.getNormalConeEdge(s1, s2);
+
   
             % check eta1(1)=eta2(1)=0  page 68/136
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars)
-
-              [subdE,unR] = obj.getSubdiffVertexT2 (i, NCE, dualVars)
-              [subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars)
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+             % disp('subd')
+              [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
+            %  disp('subdt2')
+              %[subdE, unR, crs] = obj.getSubDiffEdgeT1(i, subdE, edgeNo, undV, crs, dualVars);
+              [subdE, unR, crs] = obj.envelope(i).getSubDiffEdgeT1(subdE, edgeNo, undV, crs, dualVars);
               
-              subdV = getSubDiffVertexSpT1(obj, i, NCV, subdV, undV, crs);
-
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV);
-                   expr = obj.conjugateExprEdgesT1 (i, dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr);
+              subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs);
+              %disp('type1');
+              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
+              %expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr );
+              %disp('Checking conjugate expr')
+              %unR
+              %expr
+              for j = 1:obj.envelope(i).d.nv
+                  if unR(j)
+                      ex1 = conjugateExpr(obj.envelope(i).d.ineqs(j).f,obj.envelope(i).f.f,obj.envelope(i).d.vars(1),obj.envelope(i).d.vars(2));
+                      expr = [expr, subs(ex1,obj.envelope(i).d.vars,dualVars)];
+                  else
+                      expr = [expr, inf];
+                  end
+              end
+              %obj.envelope(i).d.conjugateExprEdgesT1Poly2 (obj.envelope(i).f, obj.envelope(i).d.vars)   % test this and replace
             elseif obj.envelopeExpr(i).type == 3   
               cpsi0 = obj.envelopeExpr(i).vpsi0.getLinearCoeffs (vars)  ;
               vs1 = cpsi0(1);
               vs2 = cpsi0(2);
-             % obj.envelope(i).print       
-              NCV = obj.getNormalConeVertex(i, s1, s2);
-              [subdV,undV] = obj.getSubdiffVertexT1 (i, NCV, dualVars);
-              expr = obj.conjugateExprVerticesT1 (i, dualVars, undV );
-
-
+              NCV = obj.envelope(i).d.getNormalConeVertex(s1, s2);
+              [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+              %disp('type3')
+              expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
               for j = 1:obj.envelope(i).d.nv
                 unR(j) = false;
               end
@@ -2357,7 +2478,7 @@ classdef plq_1piece
               % corollary 4.26 - vertex
             end
            conjf=symbolicFunction.empty;
-            conjd=region.empty;
+           conjd=region.empty;
            
             for j = 1:obj.envelope(i).d.nv
                 
@@ -2387,7 +2508,11 @@ classdef plq_1piece
                   conjf = [conjf,expr(j)];  
                   conjd = [conjd, region(subdV(j,:), dualVars)];
                 end
+                %conjd(j).print
+                %expr(j)
+                
             end
+           
             for j = 1:obj.envelope(i).d.nv
                 if (unR(j))
                 conjf = [conjf,expr(obj.envelope(i).d.nv+j)];
@@ -2396,8 +2521,13 @@ classdef plq_1piece
             end
             conjugates = functionNDomain.empty;
             for i = 1:size(conjf,2)
+                %disp('in conjugate')
+                %conjd(i).print
+                %conjf(i).print
                 conjugates = [conjugates,functionNDomain([conjf(i)],conjd(i))];
             end
+            disp('b4 merge')
+            conjugates.printL
             conjugates = conjugates.mergeL;
 
             for i = 1:size(conjugates,2)
@@ -2409,579 +2539,91 @@ classdef plq_1piece
 
         end
 
-        %% T3 %%
+       
+
         
-        % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % function subd = getSubDiffEdgeT3 (obj, i, edgeNo, dualVars)
-        %     s1 = dualVars(1);
-        %     s2 = dualVars(2);
-        %     c1 = obj.envf(i).dfdx(vars(1));
-        %     c2 = obj.envf(i).dfdx(vars(2)) ;
+
+
+        % function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, subdE, edgeNo, unDV, crs, dualvars)
+        %     %subdE = sym(zeros(obj.envd(i).nv,4));
+        %         vars =  obj.envelope(i).d.vars;
+        %         drx1 = obj.envelope(i).f.dfdx(vars(1));
+        %         drx2 = obj.envelope(i).f.dfdx(vars(2));
         % 
-        %     for j = 1:obj.envd(i).nv
-        %         no = edgeNo(j);
-        %         mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
-        %         m = -mq(1)/mq(2);
-        %         subd(j,1) = s1 + m*s2 - (c1+m*c2)
-        %         subd(j,2) = -s2 
+        %     unR = zeros(obj.envelope(i).d.nv,1);
+        %     for j = 1:obj.envelope(i).d.nv-1
+        %         if unDV(j)
+        %             unR(j) = false;
+        %             continue
+        %         end
+        %         if unDV(j+1)
+        %             continue
+        %         end
+        % 
+        %         unR(j) = true;
+        %        %obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)
+        %        % Put checks for div by 0
+        %         dv11 = subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)]);
+        %         dv12 = subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)]);
+        %         dv21 = subs(drx1.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(j+1)]);
+        %         dv22 = subs(drx2.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(j+1)]);
+        % 
+        %         if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
+        %           crs = -crs;
+        %         end
+        %         subdE(j,3) = crs;
+        % 
+        %     end    
+        %     j = obj.envelope(i).d.nv;
+        %     if unDV(obj.envelope(i).d.nv)
+        %         unR(j) = false;
+        %       return
         %     end
+        %     if unDV(1) 
+        %       return
+        %     end
+        %     unR(j) = true;
+        % 
+        % 
+        % 
+        %         dv11 = subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(1)]);
+        %         dv12 = subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(1)]);
+        %         dv21 = subs(drx1.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(1)]);
+        %         dv22 = subs(drx2.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(1)]);
+        % 
+        %         if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
+        %           crs = -crs;
+        %         end
+        %         subdE(j,3) = crs;
+        % end
+
+        % function [subdV,undV] = getSubdiffVertexT1 (obj, i, NCV, dualVars)
+        % 
+        %     [subdV,undV] =  obj.envelope(i).getSubdiffVertexT1 (NCV, dualVars);
+        %     return
+        % 
+        % end
+        % 
+        % function [subdV,undV] = getSubdiffVertexT2 (obj, i, NCV, dualVars)
+        %     [subdV,undV] = obj.envelope(i).getSubdiffVertexT2 (NCV, dualVars);
+        %     return
+        % 
         % end
         % 
         % 
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-
-        
-
-        function expr = conjugateExprEdgesT1 (obj, i, dualVars, edgeNo, psi0, psi1, psi2, expr )
-            vars = obj.f.getVars;
-            s1 = dualVars(1);
-            s2 = dualVars(2);
-            for j = 1:obj.envelope(i).d.nv
-                no = edgeNo(j);
-                %mq = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
-                mq = obj.envelope(i).d.ineqs(no).getLinearCoeffs (vars);
-                
-                if mq(2) == 0 
-                    %disp('found it')
-                    %edgeCoef = obj.envd(i).ineqs(no).getLinearCoeffs (vars);
-                    edgeCoef = obj.envelope(i).d.ineqs(no).getLinearCoeffs (vars);
-                    c = -edgeCoef(3);
-                    c2 = psi2(3)/(2*psi1(2));
-                    c3 = -psi0(2)*c2;
-                    c7 = psi1(2)*c2;
-                    %c4 = -c3;
-                    d2 = -psi1(2)*psi0(2)*c2+psi1(3)+c*psi1(1);
-                    d3 = -psi0(2)^2*c2 + c*psi0(1) + psi0(3);
-                    c5 = c7^2/psi2(3);
-                    % document has c4 
-                    %c6 = 2*c7*d2/psi2(0) + c4;
-                    c6 = 2*c7*d2/psi2(3) - c3;
-                    d4 = d2^2/psi2(3)+d3;
-                    a = c2-c5;
-                    b = c3-c6; % can be simplified = c3 - (2*c7*d2/psi2(0) - c3)
-                    %d = -d4;
-                    expr(obj.envelope(i).d.nv+j) = a*s2^2 + c*s1+b*s2-d4;
-                else
-                m = -mq(1)/mq(2);
-                q = -mq(3)/mq(2);
-                %psi2(1) + m*psi2(2)
-                if psi2(1) + m*psi2(2) == 0
-                
-                  t0 = (-psi0(1)-m*psi0(2))/(2*(psi1(1)+m*psi1(2)));
-                  t1 = 1/(2*(psi1(1)+m*psi1(2)));
-                  t2 = m/(2*(psi1(1)+m*psi1(2)));
-                  gamma10 = t1*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2));
-                  gamma01 = t2*(psi2(3)+q*psi2(2))/(psi1(1)+m*psi1(2));
-                  gamma00 = (t0*(psi2(3)+q*psi2(2))-psi1(3)-q*(psi1(2)))/(psi1(1)+m*psi1(2));
-                  zeta11 = -(psi1(1)*gamma10+m*psi1(2)*gamma10)^2/(psi2(3)+q*psi2(2)) + gamma10;
-                  zeta12 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(1)*gamma10+m*psi1(2)*gamma10))/(psi2(3)+q*psi2(2)) + gamma01 + m *gamma10;
-                  zeta22 = -(psi1(1)*gamma01+m*psi1(2)*gamma01)^2/(psi2(3)+q*psi2(2)) + gamma01 *m;
-                  zeta10 = -2*(psi1(1)*gamma01+m*psi1(2)*gamma10)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00))/(psi2(3)+q*psi2(2)) - m*psi0(2)*gamma10 + gamma00 - psi0(1)*gamma10;
-                  zeta01 = -(2*(psi1(1)*gamma01+m*psi1(2)*gamma01)*(psi1(3)+psi1(1)*gamma00+psi1(2)*(q+m*gamma00)))/((psi2(3)+q*psi2(2))) - m*psi0(2)*gamma01 - psi0(1)*gamma01 + m*gamma00+q;
-                  zeta00 = -(psi1(3)+psi1(1)*gamma00 +psi1(2)*(q+m*gamma00))^2/(psi2(3)+q*psi2(2)) -psi0(3) - psi0(1)*gamma00 - psi0(2)*(q+m*gamma00);
-                  %i, m, q
-                  %obj.envd(i).nv+j
-                  expr(obj.envelope(i).d.nv+j) = simplify(zeta11*s1^2 + zeta12*s1*s2 + zeta22*s2^2 + zeta10*s1 + zeta01*s2 + zeta00);
-                else
-                  zeta00 = (psi2(1) + m*psi2(2))^2  ;
-                  delta1 = -2*(psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*(psi0(1)*psi2(1) + psi1(1)^2 + m*(psi1(2)^2*m + psi0(1)*psi2(2) + psi0(2)*psi2(1) + 2*psi1(1)*psi1(2) + psi0(2)*psi2(2)*m))  ;
-                  delta0 = 2*psi1(1)*psi2(3)*(psi1(1)+m*psi1(2)) -2*psi1(3)*psi2(1)*(psi1(1)+m*psi1(2))-psi0(3)*psi2(1)*(psi2(1)+m*psi2(2)) ...
-                  + psi0(1)*psi2(3)*(psi2(1)+m*psi2(2)) -2*m*psi1(3)*psi2(2)*(psi1(1)+m*psi1(2)) + 2*m*psi1(2)*psi2(3)*(psi1(1)+m*psi1(2)) ...
-                  - m * psi0(3)*psi2(2) * (psi2(1)+m*psi2(2)) + m * psi0(2)*psi2(3)*(psi2(1)+m*psi2(2) ) + 2*q*psi1(1)*psi2(2)*(psi1(1)+m*psi1(2)) ...
-                  - 2*q*psi1(2)*psi2(1)* (psi1(1)+m*psi1(2)) + q*psi0(1)*psi2(2)*(psi2(1)+m*psi2(2))-q*psi0(2)*psi2(1)*(psi2(1)+m*psi2(2));
-                  si1 = 2*(psi2(1) + m*psi2(2)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m*psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s1 + 2*m*(m*psi2(2) + psi2(1)) * (psi1(3)*psi2(1) - psi1(1)*psi2(3) + m*psi1(3)*psi2(2) - m* psi1(2)*psi2(3) - q*psi1(1)*psi2(2) + q*psi1(2)*psi2(1))*s2 + delta1;
-                  si1_2 = -(psi2(1) + m*psi2(2))*s1 -m *(psi2(1)+m*psi2(2))*s2+psi0(1)*psi2(1) +psi1(1)^2 + m*(m*psi1(2)^2 + psi0(1)*psi2(2)+psi0(2)*psi2(1)+2*psi1(1)*psi1(2)+m*psi0(2)*psi2(2));
-                  si0 = (-psi2(3)*(psi2(1)+m*psi2(2))-q*psi2(2)*(psi2(1)+m*psi2(2)))*s1 + (q*psi2(1)*(psi2(1)+m*psi2(2))-m*psi2(3)*(psi2(1)+m*psi2(2)))*s2 + delta0;  
-                  expr(obj.envelope(i).d.nv+j) = simplify((si1 / (zeta00 * sqrt(si1_2))) + si0);
-                end
-                end
-            end
-        end
-
-        function expr = conjugateExprVerticesT1 (obj, i, dualVars, unV )
-            vars = obj.f.getVars;
-            %for j = 1:obj.envd(i).nv
-            for j = 1:obj.envelope(i).d.nv
-                if unV(j)
-                    expr(j) = obj.envelope(i).d.vx(j)*dualVars(1) + obj.envelope(i).d.vy(j)*dualVars(2) - obj.envelope(i).f.limit ( vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]).f;
-                else
-                    expr(j) = obj.envelope(i).d.vx(j)*dualVars(1) + obj.envelope(i).d.vy(j)*dualVars(2) - obj.envelope(i).f.subsF(vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]).f;
-                end
-                
-            end
-        end        
-
-
-        % Storing flag for not
-        function subdV = getSubDiffVertexSpT1(obj, i, NC, subdV, undV, crs)
-          for j = 1:obj.envelope(i).d.nv
-              if (~undV(j))
-                  continue
-              end
-              em = j-1;
-              if em == 0
-                em = obj.envelope(i).d.nv;
-              end
-              ep = j+1;
-              if ep == obj.envelope(i).d.nv+1
-                ep = 1;
-              end
-              
-              %subdV(j,1) = -subdV(em,1);
-              %subdV(j,2) = -subdV(ep,2);
-              %subdV(j,3) = -crs;  
-              %Storing flag for not
-              
-              subdV(j,1) = subdV(em,1);
-              subdV(j,2) = subdV(ep,2);
-              %subdV(j,3) = crs;  
-          end    
-        end
-
-        function [subdE, unR, crs] = getSubDiffEdgeT1(obj, i, subdE, edgeNo, unDV, crs, dualvars)
-            %subdE = sym(zeros(obj.envd(i).nv,4));
-                vars =  obj.envelope(i).d.vars
-                drx1 = obj.envelope(i).f.dfdx(vars(1));
-                drx2 = obj.envelope(i).f.dfdx(vars(2));
-
-            unR = zeros(obj.envelope(i).d.nv,1);
-            for j = 1:obj.envelope(i).d.nv-1
-                if unDV(j)
-                    unR(j) = false;
-                    continue
-                end
-                if unDV(j+1)
-                    continue
-                end
-              
-                unR(j) = true;
-               %obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)
-               % Put checks for div by 0
-                dv11 = subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)]);
-                dv12 = subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(j+1)]);
-                dv21 = subs(drx1.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(j+1)]);
-                dv22 = subs(drx2.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(j+1)]);
-                
-                if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
-                  crs = -crs;
-                end
-                subdE(j,3) = crs;
-
-            end    
-            j = obj.envelope(i).d.nv;
-            if unDV(obj.envelope(i).d.nv)
-                unR(j) = false;
-              return
-            end
-            if unDV(1) 
-              return
-            end
-            unR(j) = true;
-
-
-
-                dv11 = subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(1)]);
-                dv12 = subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vx(1)]);
-                dv21 = subs(drx1.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(1)]);
-                dv22 = subs(drx2.f,vars,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vy(1)]);
-                
-                if subs(crs,dualvars,[(dv11+dv21)/2,(dv12+dv22)/2]) < 0
-                  crs = -crs;
-                end
-                subdE(j,3) = crs;
-        end
-
-        function [subdV,undV] = getSubdiffVertexT1 (obj, i, NCV, dualVars)
-            subdV = sym(zeros(obj.envelope(i).d.nv,3));
-            undV = zeros(obj.envelope(i).d.nv,1);
-            vars = obj.f.getVars;
-            drx1 = obj.envelope(i).f.dfdx(vars(1));
-            drx2 = obj.envelope(i).f.dfdx(vars(2));
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
-            
-            for j = 1:obj.envelope(i).d.nv
-              if ~ldrx1(j)
-                  undV(j)=true;
-                  continue;
-              end
-              if ~ldrx2(j)
-                  undV(j)=true;
-                  continue;
-              end
-              undV(j)=false;
-
-              %subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) 
-              %subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) 
-              %dualVars
-              f = symbolicFunction(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
-              % changed this on 11/11/23 - check 
-              % if (coef(2) == 0)
-
-          if (coef(1) == 0)
-                %subdV(j,1) = dualVars(1)-limdrx1(j);
-                %j
-                %limdrx1(j)
-                 if coef(2) > 0
-                 %subdV(j,1) = dualVars(2)-limdrx2(j);
-                 subdV(j,1) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
-                 else
-                     %subdV(j,1) = -(dualVars(2)-limdrx2(j));
-                     subdV(j,1) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
-                 end
-%                %subdV(j,1) = coef(1)*subdV(j,1) ;
-              elseif (coef(2) == 0) 
-                %subdV(j,1) = coef(1)*(dualVars(1) - limdrx1(j));  
-                subdV(j,1) = coef(1)*(dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
-              elseif (coef(2) < 0)
-                m = double(diff(NCV(j,1),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -double(diff(NCV(j,1),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
-                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
-              end 
-
-              
-              f = symbolicFunction(NCV(j,2));
-              coef = f.getLinearCoeffs (dualVars);
-              if (coef(1) == 0)
-                %subdV(j,2) = dualVars(2)-limdrx2(j);
-                subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
-                 if coef(2) > 0
-                 %subdV(j,2) = dualVars(2)-limdrx2(j);
-                 subdV(j,2) = dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ;
-                 else
-                     %subdV(j,2) = -(dualVars(2)-limdrx2(j));
-                     subdV(j,2) = -(dualVars(2)-subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );
-                 end
-              elseif (coef(2) == 0) 
-                %subdV(j,2) = coef(1) * (dualVars(1) - limdrx1(j));  
-                subdV(j,2) = coef(1) * (dualVars(1) - subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) );  
-              elseif (coef(2) < 0)
-                m = double(diff(NCV(j,2),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
-                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -double(diff(NCV(j,2),dualVars(1)));
-                %c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                c = yIntercept(m, [subs(drx1.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ,subs(drx2.f,vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) ]);
-                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
-              end 
-
-              
-
-            end
-
-        end
-
-        function [subdV,undV] = getSubdiffVertexT2 (obj, i, NCV, dualVars)
-            subdV = sym(zeros(obj.envelope(i).d.nv,3));
-            undV = zeros(obj.envelope(i).d.nv,1);
-            vars = obj.f.getVars;
-            
-            drx1 = obj.envelope(i).f.dfdx(vars(1));
-            drx2 = obj.envelope(i).f.dfdx(vars(2));
-            [ldrx1,limdrx1] = obj.limits (i, drx1, vars);
-            [ldrx2,limdrx2] = obj.limits (i, drx2, vars);
-            
-            for j = 1:obj.envelope(i).d.nv
-              if ~ldrx1(j)
-                  undV(j)=true;
-                  continue;
-              end
-              if ~ldrx2(j)
-                  undV(j)=true;
-                  continue;
-              end
-              undV(j)=false;
-              
-             
-              f = symbolicFunction(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
-              if (coef(1) == 0)
-                %subdV(j,1) = dualVars(1)-limdrx1(j);
-                %subdV(j,1) = coef(1)*subdV(j,1) ;
-                subdV(j,1) = dualVars(2)-limdrx2(j);
-              elseif (coef(1) < 0)
-                m = double(diff(NCV(j,1),dualVars(1)));
-                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -double(diff(NCV(j,1),dualVars(1)));
-                c = yIntercept(m, [limdrx1(j),limdrx2(j)]);
-                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
-              end 
-
-              
-              f = symbolicFunction(NCV(j,2));
-              k = j+1;
-              if k > obj.envelope(i).d.nv
-                  k = 1;
-              end
-              coef = f.getLinearCoeffs (dualVars);
-              if (coef(1) == 0)
-%                 subdV(j,2) = dualVars(1)-limdrx1(k);
-%                 subdV(j,2) = coef(1)*subdV(j,2) ;
-                 subdV(j,2) = dualVars(2)-limdrx2(k);
-              elseif (coef(1) < 0)
-                m = double(diff(NCV(j,2),dualVars(1)));
-                c = yIntercept(m, [limdrx1(k),limdrx2(k)]);
-                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -double(diff(NCV(j,2),dualVars(1)));
-                c = yIntercept(m, [limdrx1(k),limdrx2(k)]);
-                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
-              end 
-
-              
-
-              
-             
-            end
-
-        end
-
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        function [ldrx1,limdrx1] = limits (obj, i, drx1, vars)
-            vars2 = [vars(2),vars(1)];
-            for j = 1: obj.envelope(i).d.nv
-                %obj.envd(i).vx(j)
-                %obj.envd(i).vy(j)
-                l1 = drx1.limit(vars,[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]);
-                l2 = drx1.limit(vars2,[obj.envelope(i).d.vy(j),obj.envelope(i).d.vx(j)]);
-                if (l1 == l2)
-                    ldrx1(j) = true;
-                    limdrx1(j) = double(l1.f);
-                else
-                    ldrx1(j) = false;
-                    limdrx1(j) = 0;
-                end
-            end
-        end 
-            
-        
-        function NC = getNormalConeVertex(obj, i, s1, s2)
-            NC = sym(zeros(obj.envelope(i).d.nv,2));
-            vars = obj.f.getVars;
-            %obj.envd(i).vx
-            meanx = sum(obj.envelope(i).d.vx)/obj.envelope(i).d.nv;
-            meany = sum(obj.envelope(i).d.vy)/obj.envelope(i).d.nv;
-            
-             for j = 1: obj.envelope(i).d.nv-1
-                slope = obj.envelope(i).d.slope(j,j+1);
-                pslope = -1/slope;
-                if pslope == -inf
-                    pslope = inf;
-                end
-                if pslope ~= inf
-                    q = obj.envelope(i).d.yIntercept (j,pslope);
-                    eq = s2 - pslope*s1 - q;
-                else
-                    eq = s1 - obj.envelope(i).d.vx(j);
-                end
-                
-                if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j+1),obj.envelope(i).d.vy(j+1)]) < 0
-                %if subs(eq,[s1,s2],[meanx,meany]) < 0
-                    eq = -eq;
-                end
-                NC(j,1) = eq;
-                if pslope ~= inf
-                    q = obj.envelope(i).d.yIntercept (j+1,pslope);
-                    eq = s2 - pslope*s1 - q;
-                else
-                    eq = s1 - obj.envelope(i).d.vx(j+1);
-                end
-               %obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)
-               % meanx,meany
-               % subs(eq,[s1,s2],[obj.envd(i).vx(j+1),obj.envd(i).vy(j+1)])
-               % subs(eq,[s1,s2],[meanx,meany])
-                if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) < 0
-                %if subs(eq,[s1,s2],[meanx,meany]) < 0
-                    
-                    eq = -eq;
-                end
-                
-                NC(j+1,2) = eq;
-                 
-             end
-             j = obj.envelope(i).d.nv;
-             slope = obj.envelope(i).d.slope(j,1);
-             pslope = -1/slope;
-             if pslope == -inf
-                    pslope = inf;
-                end
-                
-             if pslope ~= inf
-               q = obj.envelope(i).d.yIntercept (j,pslope);
-               eq = s2 - pslope*s1 - q;
-             else
-               eq = s1 - obj.envelope(i).d.vx(j);
-             end
-             if subs(eq,[s1,s2],[obj.envelope(i).d.vx(1),obj.envelope(i).d.vy(1)]) < 0
-             %if subs(eq,[s1,s2],[meanx,meany]) < 0
-                    eq = -eq;
-                end
-              
-             NC(j,1) = eq;
-             if pslope ~= inf
-               q = obj.envelope(i).d.yIntercept (1,pslope);
-               eq = s2 - pslope*s1 - q;
-             else
-               eq = s1 - obj.envelope(i).d.vx(1);
-             end
-             if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) < 0
-             %if subs(eq,[s1,s2],[meanx,meany]) < 0
-                    eq = -eq;
-                end
-                
-             NC(1,2) = eq;
-                
-        end
+        % function [edgeNo] = getEdgeNos(obj, i)
+        %   vars = obj.f.getVars;  
+        %   edgeNo = obj.envelope(i).d.getEdgeNos(vars)  
+        % end
 
     
-    function [NC,edgeNo] = getNormalConeEdge(obj, i, s1, s2)
-            
-            NC = sym(zeros(obj.envelope(i).d.nv,2));
-            edgeNo = zeros(obj.envelope(i).d.nv,1);
-            vars = obj.f.getVars;
-            meanx = sum(obj.envelope(i).d.vx)/obj.envelope(i).d.nv;
-            meany = sum(obj.envelope(i).d.vy)/obj.envelope(i).d.nv;
-            
-             for j = 1: obj.envelope(i).d.nv-1
-                slope = obj.envelope(i).d.slope(j,j+1);
-                if slope == -inf
-                    slope = inf;
-                end
-                
-                if slope == inf
-                  edge = vars(1) -obj.envelope(i).d.vx(j) ; 
-                else
-                  q = obj.envelope(i).d.yIntercept (j,slope);
-                % get edge no
-                  edge = vars(2)-slope*vars(1)-q;
-                end
-                for k = 1: size(obj.envelope(i).d.ineqs,2)
-                    e0 = obj.envelope(i).d.ineqs(k);
-                    e0 = e0.normalize (vars);
-                    if (e0.f == edge)
-                        break;
-                    end
-                end
-                edgeNo(j)=k;
 
-
-                if subs(edge,vars,[meanx,meany]) > 0
-                    
-                    edge = -edge;
-                end
-                
-                
-                
-                %%
-                pslope = -1/slope;
-                if pslope == -inf
-                    pslope = inf;
-                end
-                
-                if pslope ~= inf
-                    q = obj.envelope(i).d.yIntercept (j,pslope);
-                    eq = s2 - pslope*s1 - q;
-                else
-                    eq = s1 - obj.envelope(i).d.vx(j);
-                end
-                if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j+1),obj.envelope(i).d.vy(j+1)]) > 0    
-                %if subs(eq,[s1,s2],[meanx,meany]) > 0
-                    eq = -eq;
-                end
-                NC(j,1) = eq;
-                if pslope ~= inf
-                    q = obj.envelope(i).d.yIntercept (j+1,pslope);
-                    eq = s2 - pslope*s1 - q;
-                else
-                    eq = s1 - obj.envelope(i).d.vx(j+1);
-                end
-                % not reqd - check and remove
-                if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) > 0   
-                %if subs(eq,[s1,s2],[meanx,meany]) > 0
-                    eq = -eq;
-                end
-                
-                NC(j,2) = eq;
-                 
-             end
-             j = obj.envelope(i).d.nv;
-             slope = obj.envelope(i).d.slope(j,1);
-             if slope == inf
-                edge = vars(1) -obj.envelope(i).d.vx(j)  ;
-             else
-                q = obj.envelope(i).d.yIntercept (j,slope);
-                % get edge no
-                edge = vars(2)-slope*vars(1)-q;
-             end
-                
-             %
-             %q = obj.envd(i).yIntercept (j,slope);
-             %edge = vars(2)-slope*vars(1)-q
-                
-                for k = 1: size(obj.envelope(i).d.ineqs,2)
-                    e0 = obj.envelope(i).d.ineqs(k);
-                    e0 = e0.normalize (vars);
-                    if (e0.f == edge)
-                        break;
-                    end
-                end
-                edgeNo(j)=k;
-                % not reqd - check and remove
-                if subs(edge,vars,[meanx,meany]) > 0
-                    edge = -edge;
-                end
-                   
-             pslope = -1/slope;
-             if pslope == -inf
-                    pslope = inf;
-                end
-                
-             if pslope ~= inf
-               q = obj.envelope(i).d.yIntercept (j,pslope);
-               eq = s2 - pslope*s1 - q;
-             else
-               eq = s1 - obj.envelope(i).d.vx(j);
-             end
-             if subs(eq,[s1,s2],[obj.envelope(i).d.vx(1),obj.envelope(i).d.vy(1)]) > 0   
-             %if subs(eq,[s1,s2],[meanx,meany]) > 0
-                    eq = -eq;
-                end
-                
-             NC(j,1) = eq;
-             if pslope ~= inf
-               q = obj.envelope(i).d.yIntercept (1,pslope);
-               eq = s2 - pslope*s1 - q;
-             else
-               eq = s1 - obj.envelope(i).d.vx(1);
-             end
-             if subs(eq,[s1,s2],[obj.envelope(i).d.vx(j),obj.envelope(i).d.vy(j)]) > 0   
-             %if subs(eq,[s1,s2],[meanx,meany]) > 0
-                    eq = -eq;
-                end
-                
-             NC(j,2) = eq;
-                
-    end
-
+    
      function obj = maximumConjugate(obj)
-         %obj.conjfia(1):obj.conjfia(2)-1 
-          for k = obj.conjfia(1):obj.conjfia(2)-1 
-             obj.maxConjugate(k) = obj.conjugates(k);
-              
-           end
+       %obj.conjfia(1):obj.conjfia(2)-1 
+       for k = obj.conjfia(1):obj.conjfia(2)-1 
+         obj.maxConjugate(k) = obj.conjugates(k);
+        end
           % obj.conjugates(obj.conjfia(1):obj.conjfia(2)-1 ).printM2
           % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1 ).printM2
           % disp("mConjM")
@@ -3004,39 +2646,31 @@ classdef plq_1piece
           end
      end
 
-     function obj = maximumConjugateTemp(obj)
-         obj.conjfia(2):obj.conjfia(3)-1 
-         nk = 0
-          for k = obj.conjfia(2):obj.conjfia(3)-1 
-              nk = nk+1
-             obj.maxConjugate(nk) = obj.conjugates(k);
+     function biconjugateP(obj)
+         
               
+           for j=1:size(obj.envelope,2) 
+             if (size(obj.conjfia,1) > 0)
+                 bic = functionNDomain.empty ;
+                bic = obj.conjugates(obj.conjfia(j):obj.conjfia(j+1)-1).conjugateOfPiecePoly;
+                bic = bic.addEq;
+                bic.printL
+             end
            end
-           obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1 ).printM2
-          % obj.conjugates(obj.conjfia(2):obj.conjfia(3)-1 ).printM2
-          % disp("mConjM")
-          %     obj.maxConjugate.printM
-          %obj.conjfia(3):obj.conjfia(4)-1 
-          for i = 3:size(obj.envelope,2)+1 %size(obj.conjfia,2)-1
-              %obj.conjfia(i):obj.conjfia(i+1)-1
-              %obj.maxConjugate.printL
-              obj.maxConjugate = obj.maxConjugate * obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1);
-              disp("mConj")
-              obj.conjugates(obj.conjfia(i):obj.conjfia(i+1)-1).printM2
-              %obj.maxConjugate.printL
-              %return
-              obj.maxConjugate.printM2
-              obj.maxConjugate = obj.maxConjugate.maximumP(true);
-              %disp("mConjM")
-              obj.maxConjugate.printL
-              %obj.maxConjugate.printM
-          end
-      end
+           
+           bc = obj.maxConjugate.conjugateOfPiecePoly
+           bc.printL
+           bc = bc.addEq;
+           bc.printL
+
+       
+
+         end
 
     end
 
-         
-   
+    
+    
 
  
 end

@@ -1,4 +1,247 @@
 figure
+%ezplot(['445/47  - 136*y/47 - x' ]) 
+hold on
+ezplot(['- x -y/2 - 5/2' ])  % [-25,16]
+hold on
+ezplot(['x + 3*y -10' ]) 
+hold on
+
+return
+
+
+
+figure
+ezplot(['-x - 2*y - 4' ]) 
+hold on
+ezplot(['x + 2*y - 4' ]) 
+hold on
+ezplot(['48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184']) 
+hold on
+ezplot(['y - 2*x + 137/19' ]) 
+hold on
+ezplot(['53/19 - y - (5*x)/7' ]) 
+hold on
+
+ezplot(['2*x - y - 73/19' ]) 
+hold on
+ezplot(['(9*x)/5 + y + 99/95' ]) 
+hold on
+
+
+return
+
+figure
+ezplot(['5/2 - y/2 - x' ]) 
+hold on
+ezplot(['x + 3*y - 10' ]) 
+hold on
+ezplot(['2 - (7*y)/5 - x' ]) 
+hold on
+ezplot(['17/5 - (7*y)/5 - x' ]) 
+hold on
+ezplot(['x + 3*y - 5' ]) 
+hold on
+return
+
+
+
+figure
+ezplot(['x + 7*y - 10' ]) 
+hold on
+ezplot(['x + 2*y - 4' ]) 
+hold on
+ezplot(['48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184']) 
+hold on
+ezplot(['x - (9*y)/5 - 5' ]) 
+hold on
+ezplot(['0*x - y - 5 ']) 
+
+return
+
+
+figure
+ezplot(['x + 2*y + 4'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['x - (9*y)/5 - 5'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['0*x -  y - 5'] ,[-25,5],[-6,11])   
+hold on
+ezplot(['x + 7*y - 46'] ,[-25,5],[-6,11])   
+hold on
+
+
+return
+
+figure
+ezplot('x + 7*y - 10' ,[-10,5],[-3,3])   
+hold on
+ezplot('x - (5*y)/7 - 25/7' ,[-10,5],[-3,3])   
+hold on
+ezplot('- x - 2*y - 4' ,[-10,5],[-3,3])   
+hold on
+ezplot('48*x - 56*y + 4*x*y + x^2 + 4*y^2 - 184' ,[-10,5],[-3,3])   
+hold on
+ezplot('x - (9*y)/5 - 5' ,[-10,5],[-3,3])   
+return
+
+
+
+
+figure
+ezplot('-x-7*y-4',[-110,10],[-2,16])   
+hold on
+ezplot('56*y-48*x-4*x*y-x^2-4*y^2+184',[-110,10],[-2,16])   
+hold on
+ezplot('x+2*y-4',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+
+figure
+ezplot('-x-7*y+10',[-50,100],[-20,5])   
+hold on
+ezplot('-x-2*y-4',[-50,100],[-20,5])   
+hold on
+ezplot('-56*y+48*x+4*x*y+x^2+4*y^2-184',[-20,5],[-20,16])   
+hold on
+return
+ezplot('0*x+y-2',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+figure
+ezplot('x+7*y-10',[-110,10],[-2,16])   
+hold on
+ezplot('5*y/7-x+25/7',[-110,10],[-2,16])   
+hold on
+ezplot('-x-2*y+4',[-110,10],[-2,16])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+return
+
+
+
+
+
+
+
+figure
+ezplot('x + 2*y + 4',[-55,-20],[-6,11])   
+hold on
+%ezplot('x - (9*y)/5 - 5',[-55,-20],[-6,11])   
+hold on
+ezplot('0*x - y - 5',[-55,-20],[-6,11])   
+hold on
+%ezplot('x - y/3 - 14/3',[-55,-20],[-6,11])   
+hold on
+ezplot('x - 2*y + 44',[-55,-20],[-6,11])   
+hold on
+return
+
+figure
+ezplot('x + 7*y+ 4',[0,10],[-5,5])   
+hold on
+ezplot('x + 7*y - 10',[0,10],[-5,5])   
+hold on
+ezplot('148*x - 196*y + (x + 7*y)^2 - 684',[0,10],[-5,5])    
+hold on
+ezplot('x - 9/5*y - 5',[0,10],[-5,5])    
+hold on
+ezplot('x - y/3 - 14/3',[0,10],[-5,5])   
+hold on
+return
+
+figure
+ezplot('x + 7*y - 10',[0,10],[-5,5])   
+hold on
+ezplot('148*x - 196*y + (x + 7*y)^2 - 684',[0,10],[-5,5])    
+hold on
+ezplot('4 - 2*y - x ',[0,10],[-5,5])   
+hold on
+ezplot('x - y/3 - 14/3',[0,10],[-5,5])   
+hold on
+ezplot('(5*y)/7 - x + 25/7 ',[0,10],[-5,5])   
+hold on
+return
+
+figure
+%ezplot('-1+5/2*y+x',[-30,-20],[-5,5]) 
+%hold on
+ezplot('-x-7*y-4',[0,10],[-5,5]) 
+hold on
+ezplot('x+7*y-10',[0,10],[-5,5]) 
+hold on
+ezplot('4-2*y-x',[0,10],[-5,5]) 
+hold on
+ezplot('196*y - 148*x - (x + 7*y)^2 + 684',[0,10],[-5,5]) 
+hold on
+
+return
+
+figure
+ezplot('-1+5/2*y+x',[-30,-20],[5,15]) 
+hold on
+ezplot('-x-2*y-4',[-30,-20],[5,15]) 
+hold on
+ezplot('x-2*y+44',[-30,-20],[5,15]) 
+hold on
+
+return
+
+
+
+ezsurf('x*y')
+   xlim([-2, 2]); % Set x-axis range from 0 to 6
+   ylim([-2, 2]); % Set y-axis range from 0 to 6
+return
+
+figure
+ezplot('x + 5/2*y -1',[-30,30]) 
+hold on
+ezplot('-x - 2*y - 4',[-30,30]) 
+hold on
+ezplot('x + 7*y -46',[-30,30]) 
+hold on
+%ezplot('8*x + 24*y -(x+2*y)^2-32') 
+%hold on
+xlim([-100, 100]); % Set x-axis range from 0 to 6
+ylim([-100, 100]); % Set y-axis range from 0 to 6
+return
+
+
+figure
+ezplot('x+7*y+4') 
+hold on
+ezplot('x+7*y-10') 
+hold on
+ezplot('-x + (9*y)/5 + 5') 
+hold on
+ezplot('-148*x + 196*y - (x + 7*y)^2 + 684') 
+hold on
+
+return
+
+
+
+
+%ezplot('-x+9*y/5+5
+hold on
+ezplot('0*x+y+5')  
+hold on
+ezplot('x+0*y+4')  
+hold on
+
+return
+
+
+
+
+figure
 ezplot('y-sqrt(x)')
 hold on
 ezplot('y-x/2')

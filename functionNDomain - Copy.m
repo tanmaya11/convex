@@ -147,7 +147,6 @@ classdef functionNDomain
              end
              for i = 1:size(objL1,2)
                for j = i+1:size(objL1,2)
-                   i,j
                  rf = objL1(i).d + objL2(j).d;
                  if size(rf.ineqs,2) < 3
                      rf = region.empty;
@@ -186,31 +185,31 @@ classdef functionNDomain
                      end
                      
                      n = n + 1;  
-                     %  for iv = 1:r(k).nv
-                     % 
-                     % 
-                     %      if (r(k).nv==3 & size(r(k).ineqs,2)==4)
-                     %         disp('error1')
-                     %         objL1(i).d.print
-                     %         rf.print
-                     %         r(k).print
-                     %     end
-                     % 
-                     %      if (abs(r(k).vx(iv))==intmax)
-                     %         disp('open in minus')
-                     %         r(k).print
-                     %         objL1(i).d.print
-                     %         rf.print
-                     % 
-                     %     end
-                     %     if (abs(r(k).vy(iv))==intmax)
-                     %         disp('open in minus')
-                     %         r(k).print
-                     %         objL1(i).d.print
-                     %         rf.print
-                     % 
-                     %     end
-                     % end
+                      for iv = 1:r(k).nv
+                         
+                          
+                          if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                             disp('error1')
+                             objL1(i).d.print
+                             rf.print
+                             r(k).print
+                         end
+                         
+                          if (abs(r(k).vx(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                             objL1(i).d.print
+                             rf.print
+                             
+                         end
+                         if (abs(r(k).vy(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                             objL1(i).d.print
+                             rf.print
+                             
+                         end
+                     end
                      
                      objL(n) = functionNDomain([objL1(i).f(1)],r(k));
                      index(n,1) = [i];
@@ -232,22 +231,22 @@ classdef functionNDomain
                      
                          % disp("t2")
                          % r(k).print
-                     % for iv = 1:r(k).nv
-                     %     if (r(k).nv==3 & size(r(k).ineqs,2)==4)
-                     %         disp('error2')
-                     %         objL2(i).d.print
-                     %         rf.print
-                     %         r(k).print
-                     %     end
-                     %     if (abs(r(k).vx(iv))==intmax)
-                     %         disp('open in minus')
-                     %         r(k).print
-                     %     end
-                     %     if (abs(r(k).vy(iv))==intmax)
-                     %         disp('open in minus')
-                     %         r(k).print
-                     %     end
-                     % end
+                     for iv = 1:r(k).nv
+                         if (r(k).nv==3 & size(r(k).ineqs,2)==4)
+                             disp('error2')
+                             objL2(i).d.print
+                             rf.print
+                             r(k).print
+                         end
+                         if (abs(r(k).vx(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                         end
+                         if (abs(r(k).vy(iv))==intmax)
+                             disp('open in minus')
+                             r(k).print
+                         end
+                     end
                      objL(n) = functionNDomain([objL2(j).f(1)],r(k));
                      index(n,1) = [j];
                    end
@@ -374,25 +373,13 @@ classdef functionNDomain
                  %end
                  n = n + 1;
                  objL(n) = functionNDomain([objL1(i).f(1), objL2(j).f(1)],rf);
-
-                 if n ==12
-                     disp('mtimes')
-                     i
-                     objL1(i).f(1)
-                     objL1(i).d.print
-                     j
-                     objL2(j).f(1)
-                     objL2(j).d.print
-                     rf.print
-                 end
                end
              end
                       
          end
 
          function objR3 = maximumP(objL, lmerge) %, f, r2)
-             disp("in maximumP")
-             objL.printL
+         %    disp("in maximumP")
            n = 0;
            for i = 1:size(objL,2)
              if size(objL(i).f,2) == 1
@@ -404,9 +391,8 @@ classdef functionNDomain
              if lSing
                 continue
              end
-             % i
-             % objL(i).f.printL
-             % objL(i).d.print
+             %objL(i).f.printL
+             %objL(i).d.print
              %l
              %ind
              %fmax
@@ -436,7 +422,7 @@ classdef functionNDomain
            %  d1.print
              %d1.printMaple
              %end
-             %objL(i).f(1)
+             objL(i).f(1)
              n = n + 1;
              objR(n) = functionNDomain([objL(i).f(1)],d1);
              ineqs1(size(objL(i).d.ineqs,2)+1) = ineqs(2).f;
@@ -444,12 +430,12 @@ classdef functionNDomain
              %disp('out3')
              %d1.print
              %d1 = d1.simplifyOpenRegion;
-             d00 = d1; 
              d1 = d1.simplifyUnboundedRegion ;
+             %d1.print
              
              %d1.printMaple
              n = n + 1;
-             %objL(i).f(2)
+             objL(i).f(2)
              objR(n) = functionNDomain([objL(i).f(2)],d1);
 
              %if ineqs(1).isParabolic
@@ -458,31 +444,18 @@ classdef functionNDomain
              %d1.print
              %d1.printMaple
              %end
-             if n == 17
-                 disp('17b')
-                 i
-               d1.print
-               objL(i).f(1)
-               objL(i).f(2)
-               objL(i).d.print
-               ineqs1
-               d00.print
-             end
-             
              
            end
            if n == 0
               return
            end
            if ~lmerge
-               objR3 = jSort(objR);
+               objR2 = jSort(objR);
                return
             end
-             disp("b4 merge")
-             objR.printL
+            % disp("b4 merge")
+            % objR.printL
            objR2 = mergeL(objR);
-           disp("objR2")
-             objR2.printL
             objR3 = mergeL(objR2);
            % objR2 = mergeL(objR3);
             % disp("aft merge")
@@ -583,152 +556,7 @@ classdef functionNDomain
             %m 
           end
           
-          function [objL2,index,lCh] = maxEqFun(objL)  
-           lCh = false;  
-           ia(1) = 1;
-           n = 0;
-           for i = 1:size(objL,2)
-              marked(i) = false;
-           end
-           ja = [];
-           % ja has indices of all equal functions , ia by col no
-           for i = 1:size(objL,2)
-              if (marked(i))
-                  ia(i+1) = n+1;
-                  continue
-              end
-              
-              for j = i+1:size(objL,2)
-                  
-                  if isAlways(objL(i).f == objL(j).f)
-                      n = n+1;
-                      ja(n) = j;
-                      marked(j) =true;
-                  end
-              end
-              ia(i+1) = n+1;
-            end
-            for i = 1:size(objL,2)
-              marked(i) = false;
-            end
-            m = 0;
-            for i = 1:size(objL,2)
-               % i, marked(i), m
-              if marked(i)
-                continue;
-              end
-              if ia(i) == ia(i+1)
-                m = m + 1;
-                objL2(m) = objL(i);
-                index(m) = i;
-                marked(i) = true;
-                continue;    
-              end
-
-              
-              eqFun = functionNDomain.empty;
-              nF = 1;
-              eqFun(nF) = objL(ia(i));
-              for j=ia(i):ia(i+1)-1
-                nF = nF+1;
-                eqFun(nF) = objL(ja(j));
-              end
-              %disp('eqFun')
-              %eqFun.printL
-              [eqDom,indexD] = eqFun.*eqFun;
-              [eqDom] = eqDom.unique ;
-              
-              %disp('eqDom1')
-              %eqDom.printL
-              eqFun = eqDom;
-              [eqDom,indexD] = eqFun.*eqFun
-              eqDom = eqDom.unique
-              %disp('eqDom2')
-              %eqDom.printL
-              for j = 1:size(eqDom,2)
-                m = m + 1;
-                objL2(m) = eqDom(j);
-                index(m) = i;
-              end
-                  
-                 
-              
-            end
-            for i = 1:size(objL2,2)
-                size(objL2(i).f)
-                if size(objL2(i).f,2) == 2
-                    %disp('checking')
-                    %objL2(i).f.printL
-                    objL2(i).f([2]) = [];
-                    %disp('checking2')
-                    %objL2(i).f.printL
-                end
-                %disp('checking3')
-                %objL2(i).f
-
-            end
-            %objL2.printL;
-            %disp('list size')
-            %m 
-          end
-         
-          
-          function objL2 = addEq(objL)  
-          ia(1) = 1;
-          n = 0;
-          for i = 1:size(objL,2)
-              marked(i) = false;
-          end
-          ja = [];
-          % ja has indices of all equal functions , ia by col no
-          for i = 1:size(objL,2)
-              if (marked(i))
-                  ia(i+1) = n+1;
-                  continue
-              end
-              
-              for j = i+1:size(objL,2)
-                  
-                  if isAlways(objL(i).f.f == objL(j).f.f)
-                      n = n+1;
-                      ja(n) = j;
-                      marked(j) =true;
-                  end
-              end
-              ia(i+1) = n+1;
-          end
-          %ia
-          %ja
-          for i = 1:size(objL,2)
-              marked(i) = false;
-          end
-          m = 0;
-          for i = 1:size(objL,2)
-            if marked(i)
-                continue;
-            end
-            r = objL(i).d;
-            % m = m + 1;
-            % objL2(m) = objL(i);
-            marked(i) = true;
-            for j=ia(i):ia(i+1)-1
-                %m = m + 1;
-                %objL2(m) = objL(ja(j));
-                if ~isempty(r)
-                r = r + objL(ja(j)).d;
-                r = r.simplifyUnboundedRegion;
-           %     ja(j)
-           %     r.print
-                end
-                marked(ja(j)) = true;
-            end
-            if ~isempty(r)
-            m = m + 1;
-            objL2(m) = functionNDomain(objL(i).f, r);
-            end
-           end
-             
-          end   
+      
          
 
          function objL2 = jSort(objL)  
@@ -777,52 +605,6 @@ classdef functionNDomain
              
           end
           
-          function [objL2,index] = unique(objL)  
-          ia(1) = 1;
-          n = 0;
-          for i = 1:size(objL,2)
-              marked(i) = false;
-          end
-          ja = [];
-          % ja has indices of all equal functions , ia by col no
-          for i = 1:size(objL,2)
-              if (marked(i))
-                  ia(i+1) = n+1;
-                  continue
-              end
-              
-              for j = i+1:size(objL,2)
-                  
-                  if isAlways(objL(i).f(1).f == objL(j).f(1).f) & (objL(i).d == objL(j).d)
-                      n = n+1;
-                      ja(n) = j;
-                      marked(j) =true;
-                  end
-              end
-              ia(i+1) = n+1;
-          end
-          for i = 1:size(objL,2)
-              marked(i) = false;
-          end
-          m = 0;
-          for i = 1:size(objL,2)
-            %i = ia(j)  
-            if marked(i)
-                continue;
-            end
-            m = m + 1;
-            objL2(m) = objL(i);
-            
-            marked(i) = true;
-             for j=ia(i):ia(i+1)-1
-            %     m = m + 1;
-            %     objL2(m) = objL(ja(j));
-                 marked(ja(j)) = true;
-             end
-           end
-             
-          end
-         
           function [objL2,index] = mergeL(objL)  
           ia(1) = 1;
           n = 0;
@@ -847,10 +629,10 @@ classdef functionNDomain
               end
               ia(i+1) = n+1;
           end
-           % disp('in merge')
-           % objL.printL
-           % ia
-           % ja
+      %      disp('in merge')
+      %      objL.printL
+      %      ia
+      %      ja
           m = 0;
           for i = 1:size(objL,2)
               marked(i) = false;
@@ -859,45 +641,45 @@ classdef functionNDomain
             if  marked(i)
                 continue
             end
-            %disp('first')
             if (ia(i) == ia(i+1))
                 if marked(i)
                    continue
                 end
                  
                 m = m + 1;
+                %objL(i).d.print
                 objL2(m) = objL(i);
                 marked(i) = true;
                 index(m) = i;
             else
-             %   i
+                % get common boundary and merge
+                % make groups and add 
+              %  i
                r = objL(i).d;
+     %          disp ('first r')
+             %if i == 4
+    %            r.print
+             %end
                lmerge = true;
                while lmerge
                  lmerge = false;
                  for j=ia(i):ia(i+1)-1
+                   
                    if marked(ja(j))
                        continue
                    end
-                   
+                   %r.print
+                   % objL(ja(j)).d.print
                    [l,r] = r.merge (objL(ja(j)).d);
-   %                 j
-   %                 l
-   %                 if i == 10
-   % 
-   % 
-   %                     ja(j)
-   %                     objL(ja(j)).d.print
-   %                     l
-   %                     if l
-   %                         r.print
-   %                     end
-   %                 %i, j
-   % %                r.print
-   %                 %disp('simplified')
-   %                 %s = objL(ja(j)).d.simplifyUnboundedRegion;
-   %                 %s.print
-   %                 end 
+  %                 l
+                   %if i == 4
+                   %l
+                   %i, j
+   %                r.print
+                   %disp('simplified')
+                   %s = objL(ja(j)).d.simplifyUnboundedRegion;
+                   %s.print
+                   %end 
                    if l
                      marked(ja(j)) = true;
                      lmerge = true;
@@ -991,115 +773,40 @@ classdef functionNDomain
 
      methods % conjugate
 
-        function pc = conjugateOfPiecePoly (obj)
-            disp("in conjugateOfPiecePoly")
-            for i=1:size(obj,2)
-                d = obj(i).d;
-                d = d.removeInfV;
-                %d = d.poly2orderUnbounded;
-               
-                if d.nv == size(d.ineqs,2)
-                    disp('here edge')
-                    d.print
-                    d = d.poly2order;
-                    d.print
-                    %edgeNo = d.getEdgeNos(d.vars)
-                else
-                    d = d.poly2orderUnbounded;
-                    %edgeNo = d.getEdgeNosInf(d.vars)
-                end
-                edgeNo = d.getEdgeNosInf(d.vars)
-                d.ineqs(edgeNo) = d.ineqs;
-
-                obj(i).d = d;
-               
-            end
-             obj.printL
+         function pc = conjugateOfPiecePoly (obj)
              pc = functionNDomain.empty();
+             f = obj.f;
+             vars = f.getVars;
+             d = obj.d;
              x=sym('x');
              y=sym('y');
-             for i = 1:size(obj,2)
-                 i
-               f = obj(i).f;
-               vars = f.getVars;
-               d = obj(i).d;
-               
-               if size(d.ineqs,2) == d.nv
-                   NCV = d.getNormalConeVertex(x, y)
-               else
-                NCV = d.getNormalConeVertexQ(x, y)
-               end
-               %edgeNo = d.getEdgeNosInf(vars);
-               % if d.nv == 1
-               % NCV = d.adjustNormalConeUnB(NCV, edgeNo, x, y)
-               % end
-               [subdV,undV] =  obj(i).getSubdiffVertexT1 (NCV, [x,y])
-               exprs = obj(i).conjugateExprVerticesT1 ([x,y], undV )
-               
-               for j = 1:size(exprs,2)
-                   r = region(subdV(j,:),[x,y]);
-                   r.print
-                   r = r.simplifyUnboundedRegion;
-                 pc = [pc,functionNDomain([symbolicFunction(exprs(j))],r)];
-               end
-               %pc.printL
-               %pc = pc.mergeL;
-               % if obj(i).d.nv > 2
-               %   NCE = obj(i).d.getNormalConeEdge(x, y)
-               % end
-               if obj(i).d.nv > 1
-               NCE = obj(i).d.getNormalConeEdgeQ(x, y);
-               [subdE,unR] = obj(i).getSubdiffVertexT2Q (NCE, [x,y]);
-               %obj(i).d.ineqs.printL
-               for j = 1:1 % fix this  obj(i).d.nv-1 ?
-                   
-                   ineq = subs(obj(i).d.ineqs(j+1).f,obj(i).d.vars,[x,y])
-                   f0 = subs(obj(i).f.f,obj(i).d.vars,[x,y])
-                   [expr] = conjugateExpr(ineq,f0,x,y);
-                   ineq1 = subdE(j,:);
-                   r = region(ineq1, [x,y])
-                   
-                   if obj(i).f.isQuad
-                       edgeInt = obj(i).getInterior(x,y) 
-                       subs(edgeInt,[x,y],[r.vx(1),r.vy(1)])
-                       if isAlways(subs(edgeInt,[x,y],[r.vx(1),r.vy(1)])>0   )
-                           edgeInt = -edgeInt
-                       end
-                       ineq1 = [ineq1,edgeInt];
-                       r = region(ineq1, [x,y]);
-                   end
-                   
-                   
-                   r = r.simplifyUnboundedRegion;
-                 pc = [pc,functionNDomain([symbolicFunction(expr)],r)];
-               end
-               end
-              % disp('pc')
-              % size(pc)
-             end
-             
-             %pc.printL
-             return
-             
+             NCV = d.getNormalConeVertex(x, y)
+             [subdV,undV] =  obj.getSubdiffVertexT1 (NCV, [x,y])
+             exprs = obj.conjugateExprVerticesT1 ([x,y], undV )
+
+
 
             
 
-             
-             
+             edgeNo = obj.d.getEdgeNosInf(vars)
+             NCE = obj.d.getNormalConeEdge(x, y, edgeNo)
              NCE = obj.d.adjustNormalConeUnB(NCE, edgeNo, x, y)
-
              
              [subdE,unR] = obj.getSubdiffVertexT2 (NCE, [x,y])
 
             
             
-             
+             pc = functionNDomain.empty;
+            for i = 1:size(exprs,2)
+                pc = [pc,functionNDomain([symbolicFunction(exprs(i))],region(subdV(i,:), [x,y]))];
+            end
             %expr for edges are wrong
             for i = 1:size(exprs,2)
                 pc = [pc,functionNDomain([symbolicFunction(exprs(i))],region(subdE(i,:), [x,y]))];
             end
             
-            
+            pc.printL
+            pc = pc.mergeL;
             
          % 
          %      [subdE,unR] = obj.envelope(i).getSubdiffVertexT2 (NCE, dualVars);
@@ -1108,50 +815,31 @@ classdef functionNDomain
          %      subdV = obj.envelope(i).getSubDiffVertexSpT1(subdV, undV, crs);
          %      expr = obj.envelope(i).conjugateExprVerticesT1 (dualVars, undV );
          %      expr = obj.envelope(i).conjugateExprEdgesT1Poly (dualVars, edgeNo, cpsi0, cpsi1, cpsi2, expr )
-        end
-
-        function ineq = getInterior(obj,x,y)
-                g(1) = obj.f.dfdx(obj.d.vars(1))
-                g(2) = obj.f.dfdx(obj.d.vars(2))
-                eq1 = x - g(1).f
-                eq2 = y - g(2).f
-                s12 = solve([eq1,eq2],obj.d.vars)
-                if isempty (s12) | isempty(s12.s_1)
-                   c1 = coeffs(eq1,obj.d.vars(1))
-                   c2 = coeffs(eq2,obj.d.vars(1))
-                   ineq = c2(2)*eq1 - c1(2)*eq2
-                else
-                ineq = subs(eq2,obj.d.vars,s12)
-                end
-        end
-            
+         end
      end
-     
 
      methods
        function [lg,limg] = limitOfGradientAtVertices (obj)
-           %disp('in limitOfGradientAtVertices')
-           g = obj.f.gradient(obj.d.vars);
-           %obj.f.print
-           %g.printL;
-           %size(g,2)
-           for i = 1:2   % Size of variables - change it
-               [lg(i,:),limg(i,:)] = obj.d.limitOfFAtVertices (g(i));
+           g = obj.f.gradient;
+           for i = 1:size(g,2)
+               
+             [lg(:,i),limg(:,i)] = obj.d.limitOfFAtVertices (g(i));
            end
        end
      end
      methods % subdifferentials
       
        function [subdV,undV] = getSubdiffVertexT1 (obj, NCV, dualVars)
-            subdV = sym(zeros(size(NCV,1),3));
+            subdV = sym(zeros(obj.d.nv,3));
             undV = zeros(obj.d.nv,1);
-            [lg,limg] = obj.limitOfGradientAtVertices ;
-            for j = 1:obj.d.nv %size(obj.d.vars,2)
-              if ~lg(1,j)
+            [lg,limg] = obj.limitOfGradientAtVertices; 
+
+            for j = 1:obj.d.nv
+              if ~lg(j,1)
                 undV(j)=true;
                 continue;
               end
-              if ~lg(2,j)
+              if ~lg(j,2)
                   undV(j)=true;
                   continue;
               end
@@ -1161,254 +849,127 @@ classdef functionNDomain
               coef = f.getLinearCoeffs (dualVars);
               if (coef(1) == 0)
                  if coef(2) > 0
-                 subdV(j,1) = dualVars(2)-limg(2,j);
+                 subdV(j,1) = dualVars(2)-limg(j,2);
                  else
-                     subdV(j,1) = -(dualVars(2)-limg(2,j));
+                     subdV(j,1) = -(dualVars(2)-limg(j,2));
                  end
               elseif (coef(2) == 0) 
-                subdV(j,1) = coef(1)*(dualVars(1) - limg(1,j));  
+                subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
               elseif (coef(2) < 0)
                 m = diff(NCV(j,1),dualVars(1));
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
                 m = -diff(NCV(j,1),dualVars(1));
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
               end 
               f = symbolicFunction(NCV(j,2));
-              coef = f.getLinearCoeffs (dualVars);
+              coef = f.getLinearCoeffs (dualVars)
               if (coef(1) == 0)
-                subdV(j,2) = dualVars(2)-limg(2,j);
+                subdV(j,2) = dualVars(2)-limg(j,2);
                  if coef(2) > 0
-                 subdV(j,2) = dualVars(2)-limg(2,j);
+                 subdV(j,2) = dualVars(2)-limg(j,2);
                  else
-                     subdV(j,2) = -(dualVars(2)-limg(2,j));
+                     subdV(j,2) = -(dualVars(2)-limg(j,2));
                  end
               elseif (coef(2) == 0) 
-                subdV(j,2) = coef(1) * (dualVars(1) - limg(1,j));  
+                subdV(j,2) = coef(1) * (dualVars(1) - limg(j,1));  
               elseif (coef(2) < 0)
                 m = diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
               else
                 m = -diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
               end 
             end
         end
   
         function [subdV,undV] = getSubdiffVertexT2 (obj, NCV, dualVars)
-            subdV = sym(zeros(obj.d.nv,3));
+            subdV = sym(zeros(size(obj.d.ineqs,2),3));
             undV = zeros(obj.d.nv,1);
+            disp('T2')
             %g = obj.envelope(i).f.gradient;
-            [lg,limg] = obj.limitOfGradientAtVertices;
-
+            [lg,limg] = obj.limitOfGradientAtVertices
             for j = 1:obj.d.nv
-              if ~lg(1,j)
+              if ~lg(j,1)
                   undV(j)=true;
                   continue;
               end
-              if ~lg(2,j)
+              if ~lg(j,2)
                   undV(j)=true;
                   continue;
               end
               undV(j)=false;
               f = symbolicFunction(NCV(j,1));
               coef = f.getLinearCoeffs (dualVars);
-              %%%%%%%%%%%%%%%%%%%%%%%%%
               % if (coef(1) == 0)
               %   subdV(j,1) = dualVars(2)-limg(j,2);
               % elseif (coef(1) < 0)
               %   m = double(diff(NCV(j,1),dualVars(1)));
               %   c = yIntercept(m, [limg(j,1),limg(j,2)]);
-              %   subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              %   subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               % else
               %   m = -double(diff(NCV(j,1),dualVars(1)));
               %   c = yIntercept(m, [limg(j,1),limg(j,2)]);
               %   subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
-              % end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
+              % end
               if (coef(1) == 0)
                  if coef(2) > 0
-                 %subdV(j,1) = dualVars(2)-limg(j,2);
-                 subdV(j,1) = dualVars(2)-limg(2,j);
+                 subdV(j,1) = dualVars(2)-limg(j,2);
                  else
-                     %subdV(j,1) = -(dualVars(2)-limg(j,2));
-                     subdV(j,1) = -(dualVars(2)-limg(2,j));
+                     subdV(j,1) = -(dualVars(2)-limg(j,2));
                  end
               elseif (coef(2) == 0) 
-                %subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
-                subdV(j,1) = coef(1)*(dualVars(1) - limg(1,j));  
+                subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
               elseif (coef(2) < 0)
                 m = diff(NCV(j,1),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
+                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
                 m = -diff(NCV(j,1),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
+                c = yIntercept(m, [limg(j,1),limg(j,2)]);
                 subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
               end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
-
               f = symbolicFunction(NCV(j,2));
               k = j+1;
               if k > obj.d.nv
                   k = 1;
               end
               coef = f.getLinearCoeffs (dualVars);
-              %%%%%%%%%%%%%%%%%%%%%%%%%
               % if (coef(1) == 0)
               %    subdV(j,2) = dualVars(2)-limg(k,2);
               % elseif (coef(1) < 0)
               %   m = diff(NCV(j,2),dualVars(1));
-              %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
-              %   subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
+              %   c = yIntercept(m, [limg(k,1),limg(k,2)])
+              %   subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c)
               % else
               %   m = -diff(NCV(j,2),dualVars(1));
               %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
               %   subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
               % end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
-              if (coef(1) == 0)
-                subdV(j,2) = dualVars(2)-limg(2,k);
-                 if coef(2) > 0
-                 subdV(j,2) = dualVars(2)-limg(2,k);
-                 else
-                     subdV(j,2) = -(dualVars(2)-limg(2,k));
-                 end
-              elseif (coef(2) == 0) 
-                subdV(j,2) = coef(1) * (dualVars(1) - limg(1,k));  
-              elseif (coef(2) < 0)
-                m = diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,k),limg(2,k)]);
-                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,k),limg(2,k)]);
-                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
-              end 
-            end
-        end
-
-        function [subdV,undV] = getSubdiffVertexT2Q (obj, NCV, dualVars)
-            subdV = sym(zeros(obj.d.nv,3));
-            undV = zeros(obj.d.nv,1);
-            %g = obj.envelope(i).f.gradient;
-            [lg,limg] = obj.limitOfGradientAtVertices;
-
-            for j = 1:obj.d.nv
-              if ~lg(1,j)
-                  undV(j)=true;
-                  continue;
-              end
-              if ~lg(2,j)
-                  undV(j)=true;
-                  continue;
-              end
-              undV(j)=false;
-              f = symbolicFunction(NCV(j,1));
-              coef = f.getLinearCoeffs (dualVars);
               if (coef(1) == 0)
                  if coef(2) > 0
-                 %subdV(j,1) = dualVars(2)-limg(j,2);
-                 subdV(j,1) = dualVars(2)-limg(2,j);
+                 subdV(k,1) = dualVars(2)-limg(k,2);
                  else
-                     %subdV(j,1) = -(dualVars(2)-limg(j,2));
-                     subdV(j,1) = -(dualVars(2)-limg(2,j));
+                     subdV(k,1) = -(dualVars(2)-limg(k,2));
                  end
               elseif (coef(2) == 0) 
-                %subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
-                subdV(j,1) = coef(1)*(dualVars(1) - limg(1,j));  
+                subdV(k,1) = coef(1)*(dualVars(1) - limg(k,1));  
               elseif (coef(2) < 0)
                 m = diff(NCV(j,1),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,1) = -1 * (dualVars(2) - m*dualVars(1) - c);
+                c = yIntercept(m, [limg(k,1),limg(k,2)]);
+                subdV(k,1) = -1 * (dualVars(2) - m*dualVars(1) - c)
               else
-                m = -diff(NCV(j,1),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,1) = dualVars(2) - m*dualVars(1) - c;
-              end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-              f = symbolicFunction(NCV(j,2));
-              k = j+1;
-              if k > obj.d.nv
-                  k = 1;
-              end
-              coef = f.getLinearCoeffs (dualVars);
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-              % if (coef(1) == 0)
-              %    subdV(j,2) = dualVars(2)-limg(k,2);
-              % elseif (coef(1) < 0)
-              %   m = diff(NCV(j,2),dualVars(1));
-              %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
-              %   subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              % else
-              %   m = -diff(NCV(j,2),dualVars(1));
-              %   c = yIntercept(m, [limg(k,1),limg(k,2)]);
-              %   subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
-              % end 
-              %%%%%%%%%%%%%%%%%%%%%%%%%
-
-              if (coef(1) == 0)
-                subdV(j,2) = dualVars(2)-limg(2,k);
-                 if coef(2) > 0
-                 subdV(j,2) = dualVars(2)-limg(2,k);
-                 else
-                     subdV(j,2) = -(dualVars(2)-limg(2,k));
-                 end
-              elseif (coef(2) == 0) 
-                subdV(j,2) = coef(1) * (dualVars(1) - limg(1,k));  
-              elseif (coef(2) < 0)
-                m = diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,k),limg(2,k)]);
-                subdV(j,2) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -diff(NCV(j,2),dualVars(1));
-                c = yIntercept(m, [limg(1,k),limg(2,k)]);
-                subdV(j,2) = dualVars(2) - m*dualVars(1) - c;
-              end 
-
-              f = symbolicFunction(NCV(j,3));
-              if f.isZero
-                  continue
-              end
-              coef = f.getLinearCoeffs (dualVars);
-              if (coef(1) == 0)
-                 if coef(2) > 0
-                 %subdV(j,1) = dualVars(2)-limg(j,2);
-                 subdV(j,3) = dualVars(2)-limg(2,j);
-                 else
-                     %subdV(j,1) = -(dualVars(2)-limg(j,2));
-                     subdV(j,3) = -(dualVars(2)-limg(2,j));
-                 end
-              elseif (coef(2) == 0) 
-                %subdV(j,1) = coef(1)*(dualVars(1) - limg(j,1));  
-                subdV(j,3) = coef(1)*(dualVars(1) - limg(1,j));  
-              elseif (coef(2) < 0)
-                m = diff(NCV(j,3),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,3) = -1 * (dualVars(2) - m*dualVars(1) - c);
-              else
-                m = -diff(NCV(j,3),dualVars(1));
-                %c = yIntercept(m, [limg(j,1),limg(j,2)]);
-                c = yIntercept(m, [limg(1,j),limg(2,j)]);
-                subdV(j,3) = dualVars(2) - m*dualVars(1) - c;
+                m = -diff(NCV(k,1),dualVars(1));
+                c = yIntercept(m, [limg(k,1),limg(k,2)]);
+                subdV(k,1) = dualVars(2) - m*dualVars(1) - c;
               end 
             end
         end
 
-        
         function subdV = getSubDiffVertexSpT1(obj, subdV, undV, crs)
           for j = 1:obj.d.nv
               if (~undV(j))
@@ -1426,7 +987,7 @@ classdef functionNDomain
               
               subdV(j,1) = subdV(em,1);
               subdV(j,2) = subdV(ep,2);
-              %subdV(j,3) = crs;  crs
+              %subdV(j,3) = crs;  
           end    
         end
        
@@ -1487,17 +1048,11 @@ classdef functionNDomain
 
      methods % conjugate exprs quad
          function expr = conjugateExprVerticesT1 (obj, dualVars, unV )
-            vars = obj.d.vars;
+            vars = obj.f.getVars;
             for j = 1:obj.d.nv
                 if unV(j)
-                    %obj.d.vx(j),obj.d.vy(j)
-                    %obj.f.limit ( vars,[obj.d.vx(j),obj.d.vy(j)]).f
                     expr(j) = obj.d.vx(j)*dualVars(1) + obj.d.vy(j)*dualVars(2) - obj.f.limit ( vars,[obj.d.vx(j),obj.d.vy(j)]).f;
                 else
-                    %obj.d.vx(j),obj.d.vy(j)
-                    %obj.f
-                    %vars
-                    %obj.f.subsF(vars,[obj.d.vx(j),obj.d.vy(j)])
                     expr(j) = obj.d.vx(j)*dualVars(1) + obj.d.vy(j)*dualVars(2) - obj.f.subsF(vars,[obj.d.vx(j),obj.d.vy(j)]).f;
                 end
                 
@@ -1565,7 +1120,6 @@ classdef functionNDomain
             end
         end
 
-        
 
      end
 
