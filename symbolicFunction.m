@@ -8,7 +8,7 @@ classdef symbolicFunction
     properties  
         f = sym('f') ;
     end
-
+% 57 methods
    
     methods  % init 
         function obj = symbolicFunction(num0, den0)
@@ -26,11 +26,12 @@ classdef symbolicFunction
               den=den0;
             end
             if nargin ~= 0
-            
             obj.f= num / den;
 
             % temp change 19/4/24
-            if num0 == 0 
+            % class(num0)
+            % isreal(num0)
+            if num0 == 0 | isreal(num0) 
                 obj.vars = [];
                 obj.nv = 0;
                 return
@@ -44,10 +45,12 @@ classdef symbolicFunction
         function f = getF(obj)
             f = obj.f;
         end  
+        
         function num = getNum(obj)
             if isequal(class(obj.f),'double')
               num = obj.f;  
             else
+                %obj.f
               [num,den] = numden(obj.f);
             end
         end   
@@ -62,6 +65,7 @@ classdef symbolicFunction
     end
     methods % display
         function print(obj)
+            
           if obj.isPolynomial
           [coef,terms] = coeffs(obj.f);
          
@@ -198,13 +202,23 @@ classdef symbolicFunction
         end
 
         function printL (l, first, last)
-
+            %l
+            %nargin
+            %size(l,1)
             if nargin == 1
             
             for i = 1: size(l,1)
                 for j = 1: size(l,2)
+                    
+                    % if isinf(l(i,j)) 
+                    %     disp('Inf')
+                    % else
+                    %class (l(i,j).f)
+                    %if isSymType(l(i,j).f, 'sym')
                     l(i,j).f = simplifyFraction(l(i,j).f);
+                    
                     l(i,j).print;
+                    %end
                 end
             end
             else
@@ -321,9 +335,10 @@ classdef symbolicFunction
 
     end
 
-    methods % derivatives
+    methods % derivatives pass variables here
 
          function f = dfdx (obj,x)
+             
             f = symbolicFunction(simplify(diff(obj.f,x)));
          end 
 
@@ -335,25 +350,67 @@ classdef symbolicFunction
              f = symbolicFunction(f0);
          end
 
+         function g = gradient(obj, vars)
+           
+           for i = 1:size(vars,2)
+             g(i) = obj.dfdx(vars(i));
+            % g(i).print
+           end 
+         end
+
+         % this works only for bivariate - put checks in place and change
+         % name
+         
+         function f = tangentOfSlope (obj, m)
+             dx = obj.dfdx(obj.vars(1))
+             dy = obj.dfdx(obj.vars(2))
+             
+             f = symbolicFunction(m * dy.f - dx.f);
+             
+             
+         end
+
+
+         function f = tangent (obj, x, y)
+             
+         
+             dx = obj.dfdx(obj.vars(1));
+             dy = obj.dfdx(obj.vars(2));
+             if isAlways(dy.subsF(obj.vars,[x,y]).f==0)
+                 f = symbolicFunction(obj.vars(1)-x);
+             else
+               m =  - dx.subsF(obj.vars,[x,y]).f / dy.subsF(obj.vars,[x,y]).f;
+               c = y - m*x;
+               f = symbolicFunction(obj.vars(2) - m * obj.vars(1) -c);
+             end
+             
+         end
+
     end
 
     methods % inquiry
 
         function l = isPolynomial(obj)
-            l = obj.degreeDen == 0;
+            if symType(obj.f) == 'expression'
+                l = false;
+            else
+              l = obj.degreeDen == 0;
+            end
         end
         
         function l = isQuad(obj)
-         
+        
           if (obj.degreeDen ~= 0)
               l = false;
               return;
           end
+        
           if (obj.degreeNum == 2)
               l = true;
           else
               l = false;
           end
+        
         end
 
         function l = isParabolic(obj)
@@ -396,7 +453,8 @@ classdef symbolicFunction
 
         % [x, y, const]
         function c = getLinearCoeffs (obj,vars)
-           
+           obj.f
+           vars
            if obj.isZero
                c(1) = 0;
                c(2) = 0;
@@ -414,7 +472,8 @@ classdef symbolicFunction
            if size(cvars,2) == size(vars,2)
               ct = coeffs(obj.f,vars(1));
               c(1) = ct(2) ;
-              ct = coeffs(ct(1),vars(2));
+              ct = coeffs(ct(1),vars(2))
+
               if (size(ct,2) == 2)
                 c(3) = ct(1);
               else
@@ -469,7 +528,7 @@ classdef symbolicFunction
         % not for rational functions
         function obj = normalize1 (obj)
             if obj.getDen ~= 1
-                disp('Rational in normalize1')
+                %disp('Rational in normalize1')
             end
             %obj.f
             %obj.vars
@@ -490,18 +549,21 @@ classdef symbolicFunction
         end
 
         function f = subsF (obj,vars,vals)
+            
 
-            if (subs(obj.getDen, vars, vals) == 0)
+            if (isAlways(subs(obj.getDen, vars, vals) == 0))
                 if (subs(obj.getNum, vars, vals) == 0)
                   f = symbolicFunction(sym(nan),1);  
-                elseif (subs(obj.getNum, vars, vals) > 0)    
+                elseif (isAlways(subs(obj.getNum, vars, vals) > 0) )   
                   f = symbolicFunction(sym(intmax),1);
                 else
                   f = symbolicFunction(sym(-intmax),1);
                 end  
                 return;
             end
-            
+            % vars
+            % vals
+            %subs(obj.f, vars, vals)
             f = symbolicFunction(subs(obj.f, vars, vals));
         end    
 
@@ -522,7 +584,8 @@ classdef symbolicFunction
 
             n = size(c,2);
             for i = 1:n
-                if (abs(double(c(i))) > 1.0e-6)
+                if isAlways(abs(c(i))) > 0
+                %if (abs(double(c(i))) > 1.0e-6)
                     return
                 end
             end
@@ -554,7 +617,8 @@ classdef symbolicFunction
             f = solve(obj.f,x);
         end    
         
-    
+   
+        % change to isAlways
         function res = eq(obj1,obj2)
             res = false;
             if (obj1.f==obj2.f)
