@@ -1,4 +1,20 @@
 figure
+ezplot(['2*y - x' ]) 
+hold on
+ezplot(['y - 0*x' ]) 
+hold on
+ezplot(['x-y-1' ]) 
+hold on
+ezplot(['y + (2^(1/2)*x)/2 - 2^(1/2)/2 - 1/4' ]) 
+hold on
+ezplot(['2^(1/2)/4 - (2^(1/2)*x)/2 - y - 1/4' ]) 
+hold on
+
+return
+
+
+
+figure
 ezsurf(['-(33*x + 3*x*y + 6*x^2 - 4*y^2 + 36)/(2*x - y + 5)' ]) 
 hold on
 ezsurf(['-(12*x^2 + 7*x*y + 57*x - 9*y^2 - 6*y + 63)/(4*x - 3*y + 3)' ]) 

@@ -22,6 +22,19 @@ gf = sym('gf');
 hf = sym('hf');
 jf = sym('jf');
 
+x1 = sym('x1');
+y1 = sym('y1');
+m = sym('m');
+q = sym('q');
+
+
+%%%%%%%%%%%%%%%%%%%
+% 1 convex edge (Step 2)
+edge = y - m*x - q;
+f = (x1*y^2-m*y1*x^2+x*(-q*y1+m*x1*y1)+y*(-q*x1-x1*y1)+q*x*y+q*x1*y1)/(y-y1-m*(x-x1))
+conj = conjugateExpr(edge,f,x,y)
+return
+%%%%%%%%%%%%%%%%%%
 
 % % For step 4 Fract
 % edge = -(a*x+b*y)^2 + d*x + e*y +f0;

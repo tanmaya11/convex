@@ -84,7 +84,7 @@ classdef plq
 
       function obj = maximum(obj)
       
-        for i=2: obj.nPieces
+        for i=1: obj.nPieces
           i
            % if i == 2
            %     return

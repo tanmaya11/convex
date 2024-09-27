@@ -10,6 +10,16 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
         PThesis
         POpen
         PSqroot
+
+        PCE0
+        PCE0_2
+        PCE0_3
+
+        PCE1
+
+        x=sym('x');
+        y=sym('y');
+        %f=symbolicFunction(x*y);
     end
 
     methods (TestMethodSetup)
@@ -66,6 +76,15 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
             d(10)=domain([-1,1;-3,-3;-4,-3],x,y);
             testCase.PSqroot = plq(plq_1piece(d(10),f));
 
+            d(10)=domain([-1,-1;1,-1;-1,1],x,y);
+            testCase.PCE0 = plq(plq_1piece(d(10),f));
+
+
+            d(10)=domain([2,0;1,2;0,2],x,y);
+            testCase.PCE0_2 = plq(plq_1piece(d(10),f));
+
+             d(10)=domain([-2,1;-2,-2;2,-2;2,1],x,y);
+            testCase.PCE0_3 = plq(plq_1piece(d(10),f));
 
        end
     end
@@ -81,6 +100,61 @@ classdef testMaxMultiRegion < matlab.unittest.TestCase
              testCase.PRect.printDomainMaple;
             %% 
             %testCase.PRect.printLatex
+            
+           
+        end
+
+        function testPCE0 (testCase)
+
+            testCase.PCE0_2 = testCase.PCE0_2.maximum;
+            testCase.PCE0_2 = testCase.PCE0_2.biconjugateF;
+            testCase.PCE0_2.print;
+             testCase.PCE0_2.printDomainMaple;
+            return
+
+            
+           
+        end
+
+
+        function testPCE3 (testCase)
+
+            testCase.PCE0_3 = testCase.PCE0_3.maximum;
+            testCase.PCE0_3 = testCase.PCE0_3.biconjugateF;
+            testCase.PCE0_3.print;
+             testCase.PCE0_3.printDomainMaple;
+            return
+
+            
+           
+        end
+
+
+        function testPCE1 (testCase)
+            d=domain([0,0;1,1;2,0],testCase.x,testCase.y);
+            testCase.PCE1 = plq(plq_1piece(d,symbolicFunction(testCase.x*testCase.y)));
+            % testCase.PCE1 = testCase.PCE1.convexEnvelope;
+             testCase.PCE1 = testCase.PCE1.maximum;
+             testCase.PCE1 = testCase.PCE1.biconjugateF;
+            testCase.PCE1.print;
+            testCase.PCE1.printDomainMaple;
+            return
+
+            
+           
+        end
+
+        function testPCE2 (testCase)
+            d=domain([0,0;1,0;2,1],testCase.x,testCase.y);
+            testCase.PCE1 = plq(plq_1piece(d,symbolicFunction(testCase.x*testCase.y)));
+             testCase.PCE1 = testCase.PCE1.convexEnvelope;
+            %  testCase.PCE1 = testCase.PCE1.maximum;
+            %  testCase.PCE1 = testCase.PCE1.biconjugateF;
+             testCase.PCE1.print;
+            %
+            testCase.PCE1.printDomainMaple;
+            return
+
             
            
         end
@@ -642,7 +716,7 @@ return
             %testCase.Poly.print
             testCase.Poly = testCase.Poly.maximum
             % return
-            testCase.Poly = testCase.Poly.biconjugateF
+            %testCase.Poly = testCase.Poly.biconjugateF
             testCase.Poly.print
             testCase.Poly.printDomainMaple
              return

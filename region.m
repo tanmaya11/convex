@@ -535,40 +535,6 @@ classdef region
             
          end
          
-%          function f = minus0(obj1,obj2)
-% %              if obj1.not | obj2.not
-% %                  disp("Implement not in minus")
-% %              end
-%             l = []; 
-%             for i = 1:size(obj1.ineqs,2)
-%               l = [l,obj1.ineqs(i).f];
-%             end
-%             %n = size(obj1.ineqs,2);
-%             l2 = [];
-%             for i = 1:size(obj2.ineqs,2)
-%               ladd = true;  
-%               for j = 1:size(obj1.ineqs,2)
-%                 if (obj2.ineqs(i) == obj1.ineqs(j))
-%                     ladd = false;
-%                     break;
-% 
-%                 end
-% 
-% 
-%               end
-%               if ladd
-%                   l2 = [l2,obj2.ineqs(i).f];
-%               end
-%             end
-%             if (size(l2,2) ~= 0)
-%               mult = (-1) ^ size(l2,2);
-%               for i = 1: size(l2,2)
-%                 mult = mult * l2(i);
-%               end
-%               l = [l,mult];
-%             end
-%             f = region(l,obj1.vars);
-%          end
          
          
          function l = eqVertices(obj1,obj2)
@@ -902,30 +868,6 @@ classdef region
             
          end
 
-         % function plotByVertex (obj)
-         %     %figure;
-         %     limit = 6;
-         %     for i = 1:obj.nv
-         %         vertices_ineq1(i, 1) = obj.vx(i);
-         %         if (vertices_ineq1(i, 1) > limit) 
-         %             vertices_ineq1(i, 1) = limit
-         %         end
-         %         if (vertices_ineq1(i, 1) < -limit) 
-         %             vertices_ineq1(i, 1) = -limit
-         %         end
-         % 
-         %         vertices_ineq1(i, 2) = obj.vy(i);
-         % 
-         %         if (vertices_ineq1(i, 2) > limit) 
-         %             vertices_ineq1(i, 2) = limit
-         %         end
-         %         if (vertices_ineq1(i, 2) < -limit) 
-         %             vertices_ineq1(i, 2) = -limit
-         %         end
-         % 
-         %     end
-         %     fill(vertices_ineq1(:, 1), vertices_ineq1(:, 2), 'b', 'FaceAlpha', 0.5);
-         % end
         
          function obj = subsF(obj)
              x= sym('x');
@@ -2035,6 +1977,17 @@ classdef region
 
 
         function obj = simplify (obj) 
+          if isempty(obj)
+              return
+          end
+          for i = 1:size(obj.ineqs,2)
+            for j = i+1:size(obj.ineqs,2)
+                if isAlways(obj.ineqs(i) == -obj.ineqs(j))
+                    obj = region.empty();
+                    return
+                end
+            end
+          end
           for i = 1:size(obj.ineqs,2)
             [lelim, obj] = obj.deleteIneq (obj.vars);
             if ~lelim

@@ -130,12 +130,13 @@ classdef plq_1piece
 
          
          function Mprint(obj)
-         
+           fprintf("display(inequal({"); 
            obj.d.polygon.printMaple
+           fprintf("},x=-5..5,y=-5..5,color=[red,blue,yellow,green],nolines)) \n")
            %return
            disp("Convex Envelope")
 %           size(obj.envf)
-           fprintf("inequal({");
+           fprintf("display(inequal({");
              
              
            for j=1:size(obj.envelope,2)-1 
@@ -147,7 +148,7 @@ classdef plq_1piece
            end
            obj.envelope(size(obj.envelope,2)).d.printMaple
 
-           fprintf("},x=-5..5,y=-5..5,color=[red,blue,yellow,green]) \n")
+           fprintf("},x=-5..5,y=-5..5,color=[red,blue,yellow,green],nolines)) \n")
            
             
            for j=1:size(obj.envelope,2) 
@@ -426,7 +427,7 @@ classdef plq_1piece
               etaE.printL
               disp('etaR')
               etaR.printL
-              pause
+             % pause
             % return
             [ix,jx,vix, vjx, ixd, jxd] = feasiblePairs (obj,etaR, a,b);
           
@@ -576,13 +577,12 @@ classdef plq_1piece
             obj0 = obj0.subsVarsPartial([a],[av]);
             objfacts = coeffs(obj0.f,b);
            if size(objfacts,2) == 1
-                eta0 = 0;
-                eta1 = objfacts(1);  
-                
-                else
-                eta0 = objfacts(1);
-                eta1 = objfacts(2);  
-                end
+              eta0 = 0;
+              eta1 = objfacts(1);  
+           else
+              eta0 = objfacts(1);
+              eta1 = objfacts(2);  
+            end
             % obj = b * eta1 + eta0
             %return
             nb = 0 ;
@@ -654,33 +654,7 @@ classdef plq_1piece
             end
             
             
-%             nb1 = nb0; 
-%             for i = nb0+1:nb
-%                 wB = false;
-%                 for j = 1:nb0
-%                     if (lb(i) < lb(j))
-%                         wB = true;
-%                         break;
-%                     end
-%                     if (ub(i) > ub(j))
-%                         wB = true;
-%                         break;
-%                     end
-%                 end
-%                 if wB
-%                     continue;
-%                 end
-%                 nb1 = nb1+1;
-%                 lb(nb1) = lb(i);
-%                 ub(nb1) = ub(i);
-%             end
-%             nb = nb1;
- %if nb > 2
- %    disp('Check this - union/intersection')
- %end
- % nb
- % lb
- % ub
+
           %   for i = 1:nb
           %    mlb = lb(i);
           %    mub = ub(i);
@@ -711,11 +685,11 @@ classdef plq_1piece
                
               if (mub == inf)
 
-              r00  = obj.d.polygon + region(eta1, [x,y]);
-              if ~isempty(r00) 
+                r00  = obj.d.polygon + region(eta1, [x,y]);
+                if ~isempty(r00) 
                   
               
-                envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
+                  envfs = [envfs, obj0.subsVarsPartial([b],[mlb])];
                 %envxs = [envxs, convexExpr(3,eta0,eta1,mlb)];
                 %envds = [envds, region(eta1, [x,y]) ];
                 envds = [envds, r00 ];
@@ -774,13 +748,10 @@ classdef plq_1piece
         
         
         function [envfs, envds] = solveQuadLinear1 (obj, m, a, b, x, y, etah, etaw, etaRix, ixd, etaRjx, jxd, etaV, lV, etaE, lE, ix, envfs,  envds)
-          disp("one quad")
-          %etah 
-          %etaw
+          %disp("one quad")
           z = sym('z');
           %av = z - m*b;
           %z = a+m*b;
-          %lSolve = true;
           av = solve(z-a-m*b,a)
           eq = etah-etaw
           eq = eq.subsVarsPartial([a],[av])
@@ -789,19 +760,7 @@ classdef plq_1piece
 
           if (isempty(bv))
               return
-              % zv = solve(eq,z)
-              % av = zv(1) - m*b
-              % eq = etah-etaw
-              % eq = eq.subsVarsPartial([a],[av])
-              % bv = eq.solve(b)
-              % return
-              %obj0 = etah + symbolicFunction(a*x+b*y);
-              %obj0 = obj0.subsVarsPartial([a],[av]);
-              %obj0 = obj0.subsVarsPartial([z],[zv]);
-          
-              %disp ("Fix this")
-           %   lSolve = false;
-            %  return
+              % opp case gives same ans so skip
           end
           nb = 0 ;
           lb = [];
@@ -1027,6 +986,7 @@ classdef plq_1piece
               r0 = simplify(psi2);
 
               r00  = obj.d.polygon + r0;
+              
               if ~isempty(r00) 
               
               envfs = [envfs, symbolicFunction(f0)];
@@ -1086,50 +1046,35 @@ classdef plq_1piece
             %for i = 1:nb
               %f0 = simplify(psi1^2/psi2+psi0);
               f0 = symbolicFunction(psi1^2,psi2) + symbolicFunction(psi0)
-            
               r0 = -simplify(mub*psi2-psi1);
               r1 = simplify(mlb*psi2-psi1);
-             
-              % put in r1
-              %envfs = [envfs, symbolicFunction(f0)];
-              %envfs
               r00  = obj.d.polygon + region([r0,r1], [x,y]);
-            
               if ~isempty(r00) 
-              
-              envfs = [envfs, f0];
-              %envxs = [envxs, convexExpr(1,psi0,psi1,psi2)];
-              %envds = [envds, region([r0,r1], [x,y])];
-              envds = [envds, r00];
+                envfs = [envfs, f0]
+                envds = [envds, r00];
               end
-              %envfs = [envfs, symbolicFunction(f0)];
-              %envds = [envds, region(r1)];
-              
-              
               f0 = -mub^2*psi2 +2*mub*psi1+psi0 ;
               r0 = simplify(mub*psi2-psi1);
               r00  = obj.d.polygon + region(r0, [x,y]);
+              disp('lq')
+              r00.print
+              r00 = r00.simplify
               if ~isempty(r00) 
-            
-              envfs = [envfs, symbolicFunction(f0)];
-              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
-              %envxs = [envxs, convexExpr(3,psi0,-mub^2*psi2 +2*mub*psi1,1)];
-              
-              %envds = [envds, region(r0, [x,y])];
-              envds = [envds, r00];
-
+                envfs = [envfs, symbolicFunction(f0)];
+                envds = [envds, r00];
               end 
               f0 = -mlb^2*psi2 +2*mlb*psi1+psi0;
               r0 = simplify(-mlb*psi2+psi1);
               r00  = obj.d.polygon + region(r0, [x,y]);
+              disp('lq2')
+              r00.print
+              r00 = r00.simplify
+            %  pause
+               envfs
               if ~isempty(r00) 
               
-              envfs = [envfs, symbolicFunction(f0)];
-              %envxs = [envxs, convexExpr(2,psi0,psi1,psi2)];
-              %envxs = [envxs, convexExpr(3,psi0,-mlb^2*psi2 +2*mlb*psi1,1)];
-           
-              %envds = [envds, region(r0, [x,y])];
-              envds = [envds, r00];
+                envfs = [envfs, symbolicFunction(f0)];
+                envds = [envds, r00];
               end
               %size(envds)
             end
@@ -1147,85 +1092,16 @@ classdef plq_1piece
            
         function [envfs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0, alpha1, mh, qh, mw, ix, jx, etaR, etaV, lV, etaE, lE, envfs, envds)
      %       disp("quadquad")
-      return
+    %  return
           av = alpha1*b + alpha0
-          % ix, jx
-          % c = etaR(ix,1) - etaR(ix,2);
-          % c = c.subsVarsPartial([a],[av]);
-          % coef = double(coeffs(c.f));
-          % nb = 1;
-          % if (double(coef(end)) > 0)
-          %     lb(nb) =  c.solve(b)
-          % else
-          %     ub(nb) = c.solve(b)
-          % end
-          % c = etaR(ix,3) - etaR(ix,1);
-          % c = c.subsVarsPartial([a],[av])
-          % coef = double(coeffs(c.f));
-          % 
-          % if (double(coef(end)) < 0)
-          %     ub(nb) = c.solve(b)
-          % else
-          %     lb(nb) = c.solve(b)
-          % end
-          disp('first bound in quad-quad')
-         % double(lb)
-         %  double(ub)
-         %  pause
-         %  etaR(ix,2).f
-         %  etaR(ix,3).f
-         %  mh, mw
-       
-         
-         %  l <= a+mb <= u
-         %  l <= alpha1*b + alpha0 +mb <= u
-         %  l <= (alpha1+m)*b + alpha0  <= u
-         %  l - alpha0 <= (alpha1+m)*b   <= u - alpha0
-         
-
-          if double((alpha1+mh)) > 0
-             lb(1) = double((etaR(ix,2).f - alpha0)/(alpha1+mh))
-             ub(1) = double((etaR(ix,3).f - alpha0)/(alpha1+mh))
-          else
-             ub(1) = double((etaR(ix,2).f - alpha0)/(alpha1+mh))
-             lb(1) = double((etaR(ix,3).f - alpha0)/(alpha1+mh))
-          end
-          
-          % pause
-          % nb = nb + 1;
-          % c = etaR(jx,1) - etaR(jx,2);
-          % c = c.subsVarsPartial([a],[av]);
-          % coef = coeffs(c.f);
-          % if (double(coef(end)) > 0)
-          %     lb(nb) =  c.solve(b)
-          % else
-          %     ub(nb) = c.solve(b)
-          % end
-          % c = etaR(jx,3) - etaR(jx,1);
-          % c = c.subsVarsPartial([a],[av])
-          % coef = double(coeffs(c.f));
-          % if (double(coef(end)) < 0)
-          %     ub(nb) = c.solve(b)
-          % else
-          %     lb(nb) = c.solve(b)
-          % end
-          % double(lb(2) )
-          % double(ub(2))
-          % pause
-          % double((etaR(jx,2).f - alpha0)/(alpha1+mw))
-          % double((etaR(jx,3).f - alpha0)/(alpha1+mw))
-          % pause
+          % alpha1 = sqrt (mh * mw) so > 0, thus coef of b is + - no need
+          lb(1) = (etaR(ix,2).f - alpha0)/(alpha1+mh)
+          ub(1) = (etaR(ix,3).f - alpha0)/(alpha1+mh)
           nb = 2;
-          if double((alpha1+mw)) > 0
-             lb(2) = double((etaR(jx,2).f - alpha0)/(alpha1+mw))
-             ub(2) = double((etaR(jx,3).f - alpha0)/(alpha1+mw))
-          else
-             ub(2) = double((etaR(jx,2).f - alpha0)/(alpha1+mw))
-             lb(2) = double((etaR(jx,3).f - alpha0)/(alpha1+mw))
-          end
+          lb(2) = (etaR(jx,2).f - alpha0)/(alpha1+mw)
+          ub(2) = (etaR(jx,3).f - alpha0)/(alpha1+mw)
           double(lb)
           double(ub)
-          pause
           for j=1:size(etaV,2)
             if (lV(j))
               continue;
@@ -1350,6 +1226,8 @@ classdef plq_1piece
               r0 = -simplifyFraction(mub*psi2-psi1)
               r1 = simplifyFraction(mlb*psi2-psi1)
               r00  = obj.d.polygon + region([r0], [x,y]) ;
+%              r0.print
+%              r1.print
               r00.print
               r00  = r00 + region([r1], [x,y]);
               r00.print
@@ -1375,7 +1253,7 @@ classdef plq_1piece
                   envds = [envds, r00];
               end
               
-              
+              pause
           
         end
 
@@ -1950,7 +1828,8 @@ classdef plq_1piece
                     end
                    
                     [envfs, envds]  = solveConstLinear(obj, obj0, etah, etaw, x, y, a, b, ixd(i), jxd(i), etaRi, etaRj, etaV, lV, etaE, lE, envfs,  envds);
-                    
+                    disp('const-lin')
+                    envfs.printL
              
                   
               end 
@@ -1971,7 +1850,8 @@ classdef plq_1piece
                     end
                    
                     [envfs, envds]  = solveConstLinear(obj, obj0, etaw, etah, x, y, a, b, jxd(i), ixd(i), etaRj, etaRi, etaV, lV, etaE, lE, envfs,  envds);
-                    
+                    disp('lin-const')
+                    envfs.printL
              
                   
               end 
@@ -2078,6 +1958,8 @@ classdef plq_1piece
 
                        av = (qw*mh-qh*mw+sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw)
                        alpha = coeffs(av,b)
+
+
                        if (size(alpha,2) == 2)
                            alpha1 = alpha(2);
                            alpha0 = alpha(1);
@@ -2085,6 +1967,11 @@ classdef plq_1piece
                            alpha1 = alpha(1);
                            alpha0 = 0;
                        end
+
+                       alpha0
+                       alpha1
+                       %alpha0 = (qw-qh)*(1-sqrt(mh*mw)/(mh-mw))
+                       %alpha1 = sqrt(mh*mw)
                        %disp('checking av')
                        % should evaluate to 0
                        %f = etah - etaw
@@ -2094,7 +1981,7 @@ classdef plq_1piece
                                         
                        [envfs, envds] = solveQuadQuad1(obj, etah, x, y, a, b, alpha0,  alpha1, mh, qh, mw, ix(i), jx(i), etaR, etaV, lV, etaE, lE, envfs, envds);
                 %       size(envfs)
-                       %disp("second")
+                       disp("second")
                        % dont recalculate alphas
                        av = (qw*mh-qh*mw-sqrt(mh*mw)*((mh-mw)*b+qh-qw))/(mh-mw);
                        alpha = coeffs(av,b);
@@ -2125,6 +2012,10 @@ classdef plq_1piece
          %         simplifyFraction(envfs(ienv).f)
          %       end
          envfs
+         envfs.printL
+         for i = 1:size(envds,2)
+             envds(i).print
+         end
             end 
             envfs.printL
         end
