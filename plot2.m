@@ -5,10 +5,25 @@ ezplot(['y - 0*x' ])
 hold on
 ezplot(['x-y-1' ]) 
 hold on
-ezplot(['y + (2^(1/2)*x)/2 - 2^(1/2)/2 - 1/4' ]) 
-hold on
-ezplot(['2^(1/2)/4 - (2^(1/2)*x)/2 - y - 1/4' ]) 
-hold on
+h = ezplot(['(4*(x + 2*y + 2^(1/2)*x + 2^(1/2)*y - 2^(1/2) - 1))/((2*2^(1/2) + 3)*(2^(1/2) + 2))' ]) 
+set(h, 'Color', 'g')
+ hold on
+ h = ezplot(['(2*(2*y + 2^(1/2)*x - 2*2^(1/2) - 2))/(2*2^(1/2) + 3)' ]) 
+ set(h, 'Color', 'g')
+ hold on
+
+ h = ezplot(['(2*(2*x + 2*y + 2^(1/2)*x + 2*2^(1/2)*y))/((2*2^(1/2) + 3)*(2^(1/2) + 1))' ]) 
+set(h, 'Color', 'b')
+ hold on
+
+
+h = ezplot(['(2*(2*y + 2^(1/2)*x - 2*2^(1/2) - 2))/(2*2^(1/2) + 3)' ]) 
+set(h, 'Color', 'b')
+ hold on
+
+% hold on
+% ezplot(['2^(1/2)/4 - (2^(1/2)*x)/2 - y - 1/4' ]) 
+% hold on
 
 return
 

@@ -45,7 +45,7 @@ psi1 = simplify(cz(2) )/2
 psi0 = simplify(cz(3) )
 
 
-% vertex 0/0
+% vertex 0/0 for obj1
 subs(psi2, [x,y], [xv,yv])
 subs(psi1, [x,y], [xv,yv])
 
