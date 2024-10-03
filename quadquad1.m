@@ -56,6 +56,8 @@ f1 = subs(f0,[x,y],[cpt.x,cpt.y])
 simplifyFraction(cpt.x*cpt.y - f1)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('verifying psi1, psi2, psi0')
 disp('uncomment')
  psi2L = (alpha1+mh)^2/(4*mh)
@@ -65,6 +67,28 @@ disp('uncomment')
   simplifyFraction (psi2-psi2L)
   simplifyFraction (psi1-psi1L)
   simplifyFraction (psi0-psi0L)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% dl du not set here
+ xv = sym('x_2');
+ yv = sym('y_2');
+
+ dl = sym('dl');
+ du = sym('du');
+ %yv = mw*xv+qw
+ fv = xv*yv;
+[obj1, obj2, obj3] = quadLinear(a, b, mh ,qh, fv, xv, yv, x, y, dl, du)
+
+ xv = sym('x_3');
+ yv = sym('y_3');
+ %yv = mw*xv+qw
+ fv = xv*yv;
+[obj1, obj2, obj3] = quadLinear(a, b, mw ,qw, fv, xv, yv, x, y, dl, du)
+
+return
+fdiff = simplifyFraction(f0 - obj1)
+[num,den] = numden(fdiff)
+[c,t] = coeffs(num,[x,y])
+return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 disp('Example 11')
 mhv = 1
@@ -84,7 +108,10 @@ double(subs(f0, [x,y],v1))
 double(subs(f0, [x,y],v2))
 double(subs(f0, [x,y],v3))
 double(subs(f0, [x,y],[0.6,0.3]))
+double(subs(f0, [x,y],[1,1/3]))
+double(subs(f0, [x,y],[1/2,0]))
 
+%return
 
 disp('bounds')
 fn = x*y
@@ -116,10 +143,11 @@ f1 = subs(obj1,b,dl)
 f1 = subs(f1,[mh,qh],[mhv,qhv])
 f1 = subs(f1,[mw,qw],[mwv,qwv])
 
-double(subs(f1, [x,y],v1))
-double(subs(f1, [x,y],v2))
-double(subs(f1, [x,y],v3))
-double(subs(f1, [x,y],[0.6,0.3]))
+% double(subs(f1, [x,y],v1))
+% double(subs(f1, [x,y],v2))
+% double(subs(f1, [x,y],v3))
+% double(subs(f1, [x,y],[0.6,0.3]))
+%return
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fn = x*y
 fn = subs(fn,y,mw*x+qw)
